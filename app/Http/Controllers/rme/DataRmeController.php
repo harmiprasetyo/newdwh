@@ -77,6 +77,12 @@ class DataRmeController extends Controller
        }
 
 
+
+
+
+
+
+
     $ecounter = Http::withToken($token)->get($server.'Encounter/'.$id);
     $encounterResult = $ecounter->json();
 
@@ -116,7 +122,7 @@ class DataRmeController extends Controller
               }
 
                if($obs['resource']['code']['coding'][0]['code']=='8462-4'){
-                $dt['diastole'] = $obs['resource']['valueQuantity']['value'];
+                $dt['diastole'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
               }
 
                 if($obs['resource']['code']['coding'][0]['code']=='8302-2'){
@@ -210,6 +216,106 @@ class DataRmeController extends Controller
             }
 
 
+//KOHORT
+
+
+    $eCare = Http::withToken($token)->get($server.'EpisodeOfCare?patient='.$dt['PID']['id']);
+       $eRes = $eCare->json();
+       $year = date("Y");
+
+
+
+       if($eRes['total']>0){
+
+
+       $dt['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
+
+       foreach($eRes['entry'] as $key=>$nilai){
+        if(is_array($nilai)){
+            foreach($nilai as $k1=>$val1){
+
+            if(isset($val1['id'])){
+                $visits = Http::withToken($token)->get($server.'/Encounter?patient='.$dt['PID']['id'].'&episode-of-care='.$val1['id']);
+                $vis = $visits->json();
+                if($vis['total']>0){
+                foreach($vis['entry'] as $kvis=>$nvis){
+                    $dt['KOHORT'][$key]['anc_jenis_kunjungan'] = $nvis['resource']['identifier'][0]['value'];
+
+                 $ids = $nvis['resource']['id'];
+
+        $KHobserv= Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$ids);
+        $KOB = $KHobserv->json();
+       if($KOB['total']>0){
+            foreach($KOB['entry'] as $kb=>$nnb){
+
+            if(isset($nnb['resource']['code']['coding']['0']['code'])){
+
+            if($nnb['resource']['code']['coding']['0']['code']=='29463-7'){
+                $dt['KOHORT'][$key]['anc_body_weight'] = $nnb['resource']['valueQuantity']['value']." ".$nnb['resource']['valueQuantity']['unit'];
+            }
+
+             if($nnb['resource']['code']['coding']['0']['code']=='11881-0'){
+                $dt['KOHORT'][$key]['anc_tinggi_fundus'] = $nnb['resource']['valueQuantity']['value']." ".$nnb['resource']['valueQuantity']['unit'];
+            }
+
+             if($nnb['resource']['code']['coding']['0']['code']=='55283-6'){
+                $dt['KOHORT'][$key]['anc_djj'] = $nnb['resource']['valueQuantity']['value']." ".$nnb['resource']['valueQuantity']['unit'];
+            }
+
+            if($nnb['resource']['code']['coding']['0']['code']=='89087-1'){
+                $dt['KOHORT'][$key]['anc_tbj'] = $nnb['resource']['valueQuantity']['value']." ".$nnb['resource']['valueQuantity']['unit'];
+            }
+
+              if($nnb['resource']['code']['coding']['0']['code']=='72155-5'){
+                $dt['KOHORT'][$key]['anc_presentasi'] = $nnb['resource']['valueCodeableConcept']['coding'][0]['display'];
+            }
+
+            if($nnb['resource']['code']['coding']['0']['code']=='249111004'){
+                $dt['KOHORT'][$key]['anc_posisi_kepala'] = $nnb['resource']['valueCodeableConcept']['coding'][0]['display'];
+            }
+
+
+
+            }
+
+
+            }
+        }
+
+                }
+
+
+
+                }
+
+            }
+
+
+
+
+
+
+                if(isset($val1['type'][0]['coding'][0]['code']) && $val1['type'][0]['coding'][0]['code']=='ANC'){
+
+                if(isset($val1['period'])){
+
+                $dt['KOHORT'][$key]['anc_bulan'] = Carbon::parse($val1['period']['start'])->format('m');
+                $dt['KOHORT'][$key]['anc_kunjungan']=$val1['period']['start'];
+
+                }
+                }
+
+               // $dt['KOHORT'][$key]['anc_kunjungan']=$val1['period']['start'];
+            }
+        }
+
+
+        }
+
+
+       }
+
+
 
 
         return view('rme.detailpasien',["dt"=>$dt]);
@@ -270,17 +376,23 @@ class DataRmeController extends Controller
        }
 
 
+
+
+
+
        $ecounter = Http::withToken($token)->get($server.'Encounter?patient='.$dt['PID']['id']);
        $encounterResult = $ecounter->json();
          $n=0;
          foreach($encounterResult['entry'] as $ky=>$encR){
-         //    echo "<pre>";
-      // print_r($encR);
-      // echo "</pre>";
+
          $dt['ENC'][$n]['fullUrl'] = $encR['fullUrl'];
          $dt['ENC'][$n]['id'] = $encR['resource']['id'];
          $dt['ENC'][$n]['versionId'] = $encR['resource']['meta']['versionId'];
+
+
          $dt['ENC'][$n]['lastUpdated'] = $encR['resource']['meta']['lastUpdated'];
+
+
          $dt['ENC'][$n]['codeRef'] = $encR['resource']['identifier'][0]['system'];
          $dt['ENC'][$n]['visitCategori'] = $encR['resource']['identifier'][0]['value'];
          $dt['ENC'][$n]['status_kedatangan'] = $encR['resource']['status'];
@@ -343,49 +455,7 @@ class DataRmeController extends Controller
          $obserResult = $observ->json();
 
 
-       // foreach($obserResult['entry'] as $key=>$result){
 
-        /*
-            echo "<b>".$key."</b>";
-                $dt['ENC'][$n]['OBS_'.$key]['fullUrl'] = $result['fullUrl'];
-
-                $dt['ENC'][$n]['OBS_'.$key]['fullUrl'] = $result['fullUrl'];
-            $dt['ENC'][$n]['OBS_'.$key]['id'] = $result['resource']['id'];
-            $dt['ENC'][$n]['OBS_'.$key]['versionId'] = $result['resource']['meta']['versionId'];
-             $dt['ENC'][$n]['OBS_'.$key]['lastUpdated'] = $result['resource']['meta']['lastUpdated'];
-             $dt['ENC'][$n]['OBS_'.$key]['category'] = $result['resource']['category'][0]['coding'][0]['code'];
-             $dt['ENC'][$n]['OBS_'.$key]['reference'] = $result['resource']['code']['coding'][0]['system'];
-             $dt['ENC'][$n]['OBS_'.$key]['code'] = $result['resource']['code']['coding'][0]['code'];
-             $dt['ENC'][$n]['OBS_'.$key]['display'] = $result['resource']['code']['coding'][0]['display'];
-             if($result['resource']['category'][0]['coding'][0]['code']=="vital-signs"){
-                $dt['vitalsign'][$key]['code'] = $result['resource']['code']['coding'][0]['code'];
-                $dt['vitalsign'][$key]['display'] = $result['resource']['code']['coding'][0]['display'];
-                if(isset($result['resource']['valueQuantity'])){
-$dt['vitalsign'][$key]['value'] = $result['resource']['valueQuantity']['value'];
-$dt['vitalsign'][$key]['unit'] = $result['resource']['valueQuantity']['unit'];
-
-        }
-             }elseif($result['resource']['category'][0]['coding'][0]['code']=="exam"){
-                $dt['exam'][$key]['code']=$result['resource']['code']['coding'][0]['code'];
-                 $dt['exam'][$key]['display'] = $result['resource']['code']['coding'][0]['display'];
-                 if(isset($result['resource']['valueQuantity'])){
-$dt['exam'][$key]['value'] = $result['resource']['valueQuantity']['value'];
-$dt['exam'][$key]['unit'] = $result['resource']['valueQuantity']['unit'];
-
-        }
-
-             }
-
-        if(isset($result['resource']['valueQuantity'])){
-$dt['ENC'][$n]['OBS_'.$key]['value'] = $result['resource']['valueQuantity']['value'];
-$dt['ENC'][$n]['OBS_'.$key]['unit'] = $result['resource']['valueQuantity']['unit'];
-
-        }
-
-
-*/
-
-         //      }
 
          $n++;
          }

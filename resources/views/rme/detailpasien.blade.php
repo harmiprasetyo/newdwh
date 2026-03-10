@@ -267,11 +267,685 @@
                 </tr>
 
 
+
+
             </thead>
+            <tbody>
+                <tr>
+                <td colspan="4">
+
+ <table class="table table-light">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                       @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>{{ $label }}</td>
+                       @endforeach
+                    </tr>
+                   <tr>
+                    <td>Tanggal Kunjungan</td>
+                    @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>
+
+                        @foreach($dt['KOHORT'] as $k=>$v)
+                         @if($v['anc_bulan']==$key)
+
+                        {{ \Carbon\Carbon::parse($v['anc_kunjungan'])->format('d M Y') }}<br>
+
+                        @endif
+                        @endforeach
+
+                       </td>
+                       @endforeach
+
+                   </tr>
+                   <tr>
+                    <td>Jenis Kunjungan</td>
+                    @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>
+
+
+                     @foreach($dt['KOHORT'] as $k=>$v)
+                         @if($v['anc_bulan']==$key)
+
+
+                        @if(isset($v['anc_jenis_kunjungan']))
+                       {{ $v['anc_jenis_kunjungan'] }}
+                        @else
+                        -
+                        @endif
+
+                        <br>
+
+                        @endif
+                        @endforeach
+
+                       </td>
+                       @endforeach
+
+
+                   </tr>
+                   <tr>
+                    <td>Berat Badan</td>
+                    @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>
+
+
+                     @foreach($dt['KOHORT'] as $k=>$v)
+                         @if($v['anc_bulan']==$key)
+
+
+                        @if(isset($v['anc_body_weight']))
+                       {{ $v['anc_body_weight'] }}
+                        @else
+                        -
+                        @endif
+
+                        <br>
+
+                        @endif
+                        @endforeach
+
+                       </td>
+                       @endforeach
+                   </tr>
+                   <tr>
+                    <td>Tinggi Fundus</td>
+                     @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>
+
+
+                     @foreach($dt['KOHORT'] as $k=>$v)
+                         @if($v['anc_bulan']==$key)
+
+
+                        @if(isset($v['anc_tinggi_fundus']))
+                       {{ $v['anc_tinggi_fundus'] }}
+                        @else
+                        -
+                        @endif
+
+                        <br>
+
+                        @endif
+                        @endforeach
+
+                       </td>
+                       @endforeach
+                   </tr>
+                   <tr>
+                    <td>Detak Jantung Janin</td>
+                     @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>
+
+
+                     @foreach($dt['KOHORT'] as $k=>$v)
+                         @if($v['anc_bulan']==$key)
+
+
+                        @if(isset($v['anc_djj']))
+                       {{ $v['anc_djj'] }}
+                        @else
+                        -
+                        @endif
+
+                        <br>
+
+                        @endif
+                        @endforeach
+
+                       </td>
+                       @endforeach
+                   </tr>
+                   <tr>
+                    <td>Taksiran Berat Janin</td>
+                    @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>
+
+
+                     @foreach($dt['KOHORT'] as $k=>$v)
+                         @if($v['anc_bulan']==$key)
+
+
+                        @if(isset($v['anc_tbj']))
+                       {{ $v['anc_tbj'] }}
+                        @else
+                        -
+                        @endif
+
+                        <br>
+
+                        @endif
+                        @endforeach
+
+                       </td>
+                       @endforeach
+                   </tr>
+                   <tr>
+                    <td>Presentasi</td>
+                    @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>
+
+
+                     @foreach($dt['KOHORT'] as $k=>$v)
+                         @if($v['anc_bulan']==$key)
+
+
+                        @if(isset($v['anc_presentasi']))
+                       {{ $v['anc_presentasi'] }}
+                        @else
+                        -
+                        @endif
+
+                        <br>
+
+                        @endif
+                        @endforeach
+
+                       </td>
+                       @endforeach
+                   </tr>
+                   <tr>
+                    <td>Posisi Kepala</td>
+                    @foreach($dt['label']['bln'] as $key=>$label)
+                       <td>
+
+
+                     @foreach($dt['KOHORT'] as $k=>$v)
+                         @if($v['anc_bulan']==$key)
+
+
+                        @if(isset($v['anc_posisi_kepala']))
+                       {{ $v['anc_posisi_kepala'] }}
+                        @else
+                        -
+                        @endif
+
+                        <br>
+
+                        @endif
+                        @endforeach
+
+                       </td>
+                       @endforeach
+                   </tr>
+                </thead>
+            </table>
+
+
+
+                </td>
+            </tr>
+        </tbody>
             </table>
 
 
         </div>
+
+
+<!-- INC -->
+        <div class="card-body" id="inc">
+
+            <table class="table table-light">
+                <thead>
+
+
+
+                                    <tr><td style="width: 30%">Tanggal Persalinan</td><td>:</td><td></td></tr><tr>
+                                    <td>Penolong Persalinan</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Lokasi Kelahiran</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Cara Persalinan</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Tekanan Darah</td><td>:</td>
+                                    <td>{{ $dt['sistole'] }} / {{  $dt['diastole'] }}</td></tr><tr>
+                                    <td>Suhu</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Nadi</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Pernafasan</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Keadaan Ibu</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Tindakan</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td style="vertical-align: top">Laboratorium</td><td style="vertical-align: top">:</td>
+                                    <td> @foreach ($dt['lab'] as $key=>$val )
+                                  {{  $val['label'] }}  : {{  $val['val'] }} </span><br>
+                                @endforeach</td></tr><tr>
+                                    <td>Obat</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Rencana Tindak Lanjut</td><td>:</td>
+                                    <td></td></tr><tr>
+                                    <td>Kondisi Keluar</td><td>:</td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+
+
+
+
+            </table>
+
+        </div>
+
+        <!-- End INC -->
+
+
+        <!-- PNC -->
+        <div class="card-body" id="pnc">
+
+            <table class="table table-light">
+                <thead>
+                   <tr>
+                    <td style="width:30%">Tanggal Persalinan</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Jenis Kunjungan</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>G.P.A</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Tekanan Darah</td>
+                    <td>:</td>
+                    <td>{{ $dt['sistole'] }} / {{ $dt['diastole'] }}</td>
+                   </tr>
+                   <tr>
+                    <td>Suhu</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Nadi</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Pernafasan</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Diagnosis Utama</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Diagnosis sekunder</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Kondisi Payudara</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Produksi ASI</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Pendarahan Pervaginum</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Infeksi Perineum</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Konseling Perawat Bayi</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Skrining Kesehatan Jiwa</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>TTD/MMS</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Vitamin A</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Tindakan</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Laboratorium</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Obat</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Rencana Tindak Lanjut</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                   <tr>
+                    <td>Kondisi Pulang</td>
+                    <td>:</td>
+                    <td></td>
+                   </tr>
+                </thead>
+            </table>
+
+        </div>
+
+        <!-- End PNC -->
+
+
+        <!-- NEONATUS -->
+        <div class="card-body" id="neonatus">
+
+            <table class="table table-light">
+                <thead>
+                    <tr>
+                        <td style="width:30%">Tanggal Lahir</td>
+                        <td style="width: 5%">:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Jenis Kunjungan</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>BB Saat Lahir</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Panjang Badan</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Lingkar Kepala</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Suhu</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Nadi</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Pernapasan</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Skor APGAR (menit 1)</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Skor APGAR (menit 5)</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Skor APGAR (menit 10)</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Triple Eliminasi</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Vitamin K1 Injeksi</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Vitamin A</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Imunisasi HB0</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Tindakan</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Laboratorium</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Obat</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Rencana tindak Lanjut</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Kondisi Pulang</td>
+                        <td>:</td>
+                        <td></td>
+                    </tr>
+
+                    <tr><td colspan='3' class="text-center">
+                    <h2>Pemeriksaan Head To Toe</h2>
+                    </td></tr>
+                    <tr>
+                        <td colspan='3'>
+
+
+                            <table class="table table-light">
+                                <tr>
+                                    <td>Kulit</td>
+                                    <td>kepala</td>
+                                    <td>Mata</td>
+                                    <td>Mulut</td>
+                                    <td>Perut</td>
+                                    <td>Punggung</td>
+                                    <td>Alat Kelamin</td>
+                                    <td>Lubang Anus</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+
+
+                            </table>
+
+                             <tr><td colspan='3' class="text-center">
+                    <h2>Skrining</h2>
+                    </td></tr>
+                     <tr><td colspan='3' class="text-center">
+                        <table class="table table-light">
+                            <thead>
+                                <tr>
+                                    <td>Hipotiroid</td>
+                                    <td>PJB</td>
+                                    <td>G6PD</td>
+                                    <td>HAK</td>
+                                    <td>Atesa Biller</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+                        </table>
+
+                    </td></tr>
+
+
+
+                        </td>
+                    </tr>
+                </thead>
+            </table>
+
+        </div>
+
+        <!-- End NEONATUS -->
+
+
+         <!-- Imunisasi -->
+        <div class="card-body" id="imunisasi">
+
+            <table class="table table-light">
+                <thead>
+                <tr>
+                    <td>Imunisasi</td>
+                    <td>Tanggal Imunisasi</td>
+                    <td>Tanggal Input</td>
+                    <td>POS Imunisasi</td>
+                    <td>PKM Pemberi Imunisasi</td>
+                    <td>Status</td>
+                    <td>Sumber Pencatatan</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Imunisasi HBO</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                    <td>Imunisasi BCG 1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                    <td>Imunisasi POLIO 1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+
+                 <tr>
+                    <td>Imunisasi POLIO 2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td>Imunisasi POLIO 3</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td>Imunisasi POLIO 4</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td>Imunisasi DPT-HB-HIP 1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                    <td>Imunisasi DPT-HB-HIP 2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                    <td>Imunisasi DPT-HB-HIP 3</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <!-- End Imunisasi -->
 
        </div>
 
@@ -290,46 +964,70 @@
         $('#home').removeClass('active');
 $('#rme').addClass('active');
 
-        $('#layananUmum').hide();
-         $('#layananAnc').hide();
+        $('#layananUmum,#layananAnc, #inc, #imunisasi, #neonatus, #pnc ').hide();
+
         $('#tab2').on('click',function(){
-            $('#tab1').removeClass('active');
-             $('#tab3').removeClass('active');
-              $('#tab4').removeClass('active');
-               $('#tab2').addClass('active');
+            $('#tab2').addClass('active');
+            $('#tab1,#tab3,#tab4,#tab5,#tab6,#tab7').removeClass('active');
 
                $('#layananUmum').show();
-               $('#maincard').hide();
-                $('#layananAnc').hide();
-
-
+                $('#maincard,#layananAnc, #inc, #imunisasi, #neonatus, #pnc').hide();
 
         })
 
          $('#tab1').on('click',function(){
-            $('#tab1').addClass('active');
-             $('#tab3').removeClass('active');
-              $('#tab4').removeClass('active');
-               $('#tab2').removeClass('active');
+
+
 
                $('#maincard').show();
-                $('#layananUmum').hide();
-                 $('#layananAnc').hide();
+
+
+            $('#tab1').addClass('active');
+            $('#tab2,#tab3,#tab4,#tab5,#tab6,#tab7').removeClass('active');
+            $('#layananUmum,#layananAnc, #inc, #imunisasi, #neonatus, #pnc').hide();
+
 
 
         })
 
          $('#tab3').on('click',function(){
             $('#tab3').addClass('active');
-             $('#tab1').removeClass('active');
-              $('#tab4').removeClass('active');
-               $('#tab2').removeClass('active');
+            $('#tab2,#tab1,#tab4,#tab5,#tab6,#tab7').removeClass('active');
+              $('#layananAnc').show();
+            $('#layananUmum,#maincard, #inc, #imunisasi, #neonatus, #pnc').hide();
 
-                 $('#layananAnc').show();
-               $('#maincard').hide();
-                $('#layananUmum').hide();
+        })
 
 
+         $('#tab4').on('click',function(){
+            $('#tab4').addClass('active');
+            $('#tab2,#tab1,#tab3,#tab5,#tab6,#tab7').removeClass('active');
+              $('#inc').show();
+            $('#layananUmum,#maincard, #layananANC, #imunisasi, #neonatus, #pnc').hide();
+
+        })
+
+         $('#tab5').on('click',function(){
+            $('#tab5').addClass('active');
+            $('#tab2,#tab1,#tab3,#tab4,#tab6,#tab7').removeClass('active');
+              $('#pnc').show();
+            $('#layananUmum,#maincard, #layananANC, #imunisasi, #neonatus, #inc').hide();
+
+        })
+
+          $('#tab6').on('click',function(){
+            $('#tab6').addClass('active');
+            $('#tab2,#tab1,#tab3,#tab4,#tab5,#tab7').removeClass('active');
+              $('#neonatus').show();
+            $('#layananUmum,#maincard, #layananANC, #imunisasi, #pnc, #inc').hide();
+
+        })
+
+          $('#tab7').on('click',function(){
+            $('#tab7').addClass('active');
+            $('#tab2,#tab1,#tab3,#tab4,#tab5,#tab6').removeClass('active');
+              $('#imunisasi').show();
+            $('#layananUmum,#maincard, #layananANC, #neonatus, #pnc, #inc').hide();
 
         })
     })

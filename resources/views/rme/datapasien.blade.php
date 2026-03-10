@@ -102,88 +102,8 @@
     </div>
 
 
-        <div class="row gx-5 mt-4">
-    <div class="col">
-        <div class="table-responsive">
-
-             <table class="table caption-top table-light" id="tbid">
-            <caption>Jenis Layanan ANC
-<pre><?php //print_r($dt); ?></pre>
-
-            </caption>
-            <thead class="text-center align-top" style="min-width: 900px;width:1020px">
-                <tr>
-                    <th rowspan="2" style="width: 200">Tanggal Kunjungan</th>
-                     <th rowspan="2" style="width: 100">Jarak Kehamilan</th>
-                      <th rowspan="2">Taksiran Persalinan</th>
-                      <th rowspan="2">TB (cm)</th>
-                       <th rowspan="2">LILA</th>
-                       <th colspan="2">Skrining Imunisasi td</th>
-                       <th rowspan="2">Skrining BC</th>
-                       <th rowspan="2">skrining Wa</th>
-                       <th colspan="10">Laboratorium</th>
-                       <th rowspan="2">Konseling</th>
-                       <th rowspan="2">Komplikasi</th>
-                       <th rowspan="2">Tata Laksana Kasus ibu hamil</th>
-                </tr>
-                <tr>
-                    <th>Status TD</th>
-                    <th>Tanggal TD</th>
-
-                     <th>Hasil Hb</th>
-                    <th>Gol darah</th>
-                     <th>Protein Urin</th>
-                    <th>Glukosa urin</th>
-                     <th>HIV</th>
-                    <th>Sifilis</th>
-                     <th>Hepatitis B</th>
-                    <th>TBC</th>
-                     <th>Pemeriksaan Malaria</th>
-                    <th>Lainnya</th>
-                </tr>
-            </thead>
-            <tbody>
-                <td></td>
-                <td></td>
-                <td></td>
-
-                <td></td>
-                 <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tbody>
-
-             </table>
 
 
-        </div>
-    </div>
-        </div>
 
   </div>
 </div>
