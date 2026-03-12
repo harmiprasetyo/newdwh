@@ -216,14 +216,18 @@ class DataRmeController extends Controller
 
 
 
-        }elseif($obs['resource']['category'][0]['coding'][0]['code']=='exam'){
+        }elseif(isset($obs['resource']['category'][0]['coding'][0]['code']) && $obs['resource']['category'][0]['coding'][0]['code']=='exam'){
+
+        if(isset($obs['resource']['code']['coding'][0]['code']))
+{
+
              if($obs['resource']['code']['coding'][0]['code']=='284473002'){
                 $dt['anc_lila']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
             }
 
         }
 
-
+        }
 
 
         }
