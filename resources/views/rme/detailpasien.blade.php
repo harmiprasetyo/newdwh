@@ -130,9 +130,15 @@
                             <td></td>
                             <td><span>
 
+                                @if (isset($dt['lab']))
+
+
+
                                   @foreach ($dt['lab'] as $key=>$val )
                                   {{  $val['label'] }}  : {{  $val['val'] }} </span><br>
                                 @endforeach
+
+                                     @endif
                             </td>
                             <td>
 
@@ -202,7 +208,11 @@
                 <tr>
                     <th>HB</th>
                     <th>:</th>
-                    <th>{{ $dt['lab']['lab_hb']['val'] }}</th>
+                    <th>
+                        @if(isset($dt['lab']))
+                        {{ $dt['lab']['lab_hb']['val'] }}
+                    @endif
+                    </th>
                     <th></th>
                 </tr>
 
@@ -216,7 +226,11 @@
                 <tr>
                     <th>Urin Protein</th>
                     <th>:</th>
-                    <th>{{ $dt['lab']['lab_urin_protein']['val'] }}</th>
+                    <th>
+                          @if(isset($dt['lab']))
+                        {{ $dt['lab']['lab_urin_protein']['val'] }}
+                    @endif
+                    </th>
                     <th></th>
                 </tr>
 
@@ -224,15 +238,30 @@
                 <tr>
                     <th>Glukosa</th>
                     <th>:</th>
-                    <th>{{ $dt['lab']['lab_gula_darah']['val'] }}</th>
-                    <th></th>
+
+
+                    <th>
+                        @if(isset($dt['lab']))
+
+                        {{ $dt['lab']['lab_gula_darah']['val'] }}
+                        @endif
+
+
+                    </th>
+
+                        <th></th>
                 </tr>
 
 
                   <tr>
                     <th>HIV</th>
                     <th>:</th>
-                    <th>{{ $dt['lab']['lab_hiv']['val'] }}</th>
+                    <th>
+                        @if(isset($dt['lab']))
+
+                        {{ $dt['lab']['lab_hiv']['val'] }}
+                    @endif
+                    </th>
                     <th></th>
                 </tr>
 
@@ -246,7 +275,12 @@
                   <tr>
                     <th>Hepatitis B</th>
                     <th>:</th>
-                    <th>{{ $dt['lab']['lab_hepatitis_b']['val'] }}</th>
+                    <th>
+                          @if(isset($dt['lab']))
+                        {{ $dt['lab']['lab_hepatitis_b']['val'] }}
+
+                    @endif
+                    </th>
                     <th></th>
                 </tr>
 
@@ -511,9 +545,12 @@
                                     <td>Tindakan</td><td>:</td>
                                     <td></td></tr><tr>
                                     <td style="vertical-align: top">Laboratorium</td><td style="vertical-align: top">:</td>
-                                    <td> @foreach ($dt['lab'] as $key=>$val )
+                                    <td>   @if(isset($dt['lab'])) @foreach ($dt['lab'] as $key=>$val )
                                   {{  $val['label'] }}  : {{  $val['val'] }} </span><br>
-                                @endforeach</td></tr><tr>
+                                @endforeach
+
+                            @endif
+                            </td></tr><tr>
                                     <td>Obat</td><td>:</td>
                                     <td></td></tr><tr>
                                     <td>Rencana Tindak Lanjut</td><td>:</td>

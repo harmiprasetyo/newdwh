@@ -161,21 +161,36 @@ class DataRmeController extends Controller
 
 
 
-        }elseif($obs['resource']['category'][0]['coding'][0]['code']=='laboratory'){
+        }elseif(isset($obs['resource']['category'][0]['coding'][0]['code']) && $obs['resource']['category'][0]['coding'][0]['code']=='laboratory'){
+
+        if(isset($obs['resource']['code']['coding'][0]['code'])){
 
         if($obs['resource']['code']['coding'][0]['code']=='718-7'){
                 $dt['lab']['lab_hb']['val']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
                  $dt['lab']['lab_hb']['label']="Hemoglobin";
+            }else{
+                $dt['lab']['lab_hb']['val']="-";
+                 $dt['lab']['lab_hb']['label']="Hemoglobin";
+
             }
 
             if($obs['resource']['code']['coding'][0]['code']=='5804-0'){
                 $dt['lab']['lab_urin_protein']['val']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
                  $dt['lab']['lab_urin_protein']['label'] = "Urin Protein";
+            }else{
+
+            $dt['lab']['lab_urin_protein']['val']="-";
+                 $dt['lab']['lab_urin_protein']['label'] = "Urin Protein";
+
             }
 
             if($obs['resource']['code']['coding'][0]['code']=='74774-1'){
                 $dt['lab']['lab_gula_darah']['val']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
                 $dt['lab']['lab_gula_darah']['label'] = "Gula Darah";
+            }else{
+                $dt['lab']['lab_gula_darah']['val']="-";
+                $dt['lab']['lab_gula_darah']['label'] = "Gula Darah";
+
             }
 
 
@@ -183,12 +198,20 @@ class DataRmeController extends Controller
              if($obs['resource']['code']['coding'][0]['code']=='75410-1'){
                 $dt['lab']['lab_hepatitis_b']['val']=$obs['resource']['valueCodeableConcept']['coding'][0]['display'];
                 $dt['lab']['lab_hepatitis_b']['label'] = "Hepatitis B";
+            }else{
+                $dt['lab']['lab_hepatitis_b']['val']="-";
+                $dt['lab']['lab_hepatitis_b']['label'] = "Hepatitis B";
             }
 
              if($obs['resource']['code']['coding'][0]['code']=='68961-2'){
                 $dt['lab']['lab_hiv']['val']=$obs['resource']['valueCodeableConcept']['coding'][0]['display'];
                 $dt['lab']['lab_hiv']['label'] = "Tes HIV";
+            }else{
+                $dt['lab']['lab_hiv']['val']="-";
+                $dt['lab']['lab_hiv']['label'] = "Tes HIV";
             }
+
+        }
 
 
 
@@ -382,6 +405,9 @@ class DataRmeController extends Controller
 
        $ecounter = Http::withToken($token)->get($server.'Encounter?patient='.$dt['PID']['id']);
        $encounterResult = $ecounter->json();
+       if($encounterResult['total']>0){
+
+
          $n=0;
          foreach($encounterResult['entry'] as $ky=>$encR){
 
@@ -403,7 +429,6 @@ class DataRmeController extends Controller
 
 
           $dt['ENC'][$n]['start_periode'] = $encR['resource']['period']['start'];
-        // $dt['ENC'][$n]['tglKunjungan'] = $encR['resource']['statusHistory'][0]['period']['start'];
           $dt['ENC'][$n]['jenis_perawatan'] = $encR['resource']['class']['display'];
           $dt['ENC'][$n]['patient_id'] = $encR['resource']['subject']['reference'];
           $dt['ENC'][$n]['patient_name'] = $encR['resource']['subject']['display'];
@@ -415,12 +440,13 @@ class DataRmeController extends Controller
 
         $dt['ENC'][$n]['jeniskunjungan'] = $eocResult['type'][0]['coding'][0]['code'];
      $dt['ENC'][$n]['jeniskunjungan_name'] = $eocResult['type'][0]['coding'][0]['display'];
+
+
           }else{
-            $json['entry'] =[];
-            $eocResult = $eoc->json();
+             $dt['ENC'][$n]['jeniskunjungan'] ="-";
+             $dt['ENC'][$n]['jeniskunjungan_name'] ="-";
           }
-   //    $dt['ENC'][$n]['jeniskunjungan'] = $eocResult['type'][0]['coding'][0]['code'];
-     //  $dt['ENC'][$n]['jeniskunjungan_name'] = $eocResult['type'][0]['coding'][0]['display'];
+
 
        $dt['ENC'][$n]['practitioner'] = $encR['resource']['participant'][0]['individual']['reference'];
        $practitioner =  Http::withToken($token)->get($server.$dt['ENC'][$n]['practitioner']);
@@ -459,6 +485,12 @@ class DataRmeController extends Controller
 
          $n++;
          }
+
+       }
+
+
+
+
         }else{
             $dt['message']="Data Tidak ditemukan";
         }
