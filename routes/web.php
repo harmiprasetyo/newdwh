@@ -4,6 +4,7 @@ use App\Http\Controllers\charts\ChartDistributionTargetController;
 use App\Http\Controllers\DashController;
 use App\Http\Controllers\fhir\GetFhirController;
 use App\Http\Controllers\FhirGetDataController;
+use App\Http\Controllers\loginpage\LoginUserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\rme\DataRmeController;
 
@@ -19,7 +20,7 @@ use App\Http\Controllers\rme\DataRmeController;
 |
 */
 
-Route::get('/',[DashController::class,'index']);
+Route::get('/',[LoginUserController::class,'index']);
 
 
 
@@ -49,6 +50,9 @@ Route::get('/datarme',[DataRmeController::class,'index']);
 Route::get('/datarme/search',[DataRmeController::class,'searchpasien']);
 Route::post('/datarme/search',[DataRmeController::class,'checkdata']);
 Route::get('/datarme/detail',[DataRmeController::class,'dataPasien']);
+
+Route::get('/auth/login',[LoginUserController::class,'index']);
+Route::post('/auth/usercheck',[LoginUserController::class,'usercheck'])->name('auth.usercheck');
 /*
 Route::middleware([
     'auth:sanctum',
