@@ -19,7 +19,11 @@
                     </div>
                     <div class="form-group mt-3">
 
-                    <button class="btn btn-login btn-block btn-success form-control">LOGIN</button>
+                    <button class="btn btn-login btn-block btn-success form-control" id="btn_login">LOGIN</button>
+
+
+
+
                     </div>
 
                 </div>
@@ -33,9 +37,11 @@
 
 <script>
     $(document).ready(function() {
+        $('#btnLoading').hide();
 
 
       $(".btn-login").click( function() {
+
 
             var username = $("#username").val();
             var password = $("#password").val();
@@ -44,6 +50,7 @@
             if(username.length == "") {
 
                 Swal.fire({
+                    icon:'warning',
                     type: 'warning',
                     title: 'Alert',
                     text: 'Username Wajib Diisi !'
@@ -52,12 +59,24 @@
             } else if(password.length == "") {
 
                 Swal.fire({
+                     icon:'warning',
                     type: 'warning',
                     title: 'Alert',
                     text: 'Password Wajib Diisi !'
                 });
 
             } else {
+
+
+                Swal.fire({
+                                type: 'success',
+                                icon:'info',
+                                title: 'Proses authentifikasi.. Mohon ditunggu',
+                                html: '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>',
+                                showCancelButton: false,
+                                showConfirmButton: false
+                            })
+
 
                 $.ajax({
 
@@ -76,6 +95,7 @@
                         if (response.success==true) {
 
                             Swal.fire({
+                                icon:'success',
                                 type: 'success',
                                 title: 'Login Berhasil!',
                                 text: 'Anda akan di arahkan dalam 3 Detik',
@@ -88,10 +108,14 @@
                                 });
 
                         } else {
+                            $(this).show(function(){
+                                $('#btnLoading').hide();
+                            })
 
                             console.log(response.success);
 
                             Swal.fire({
+                                icon:'error',
                                 type: 'error',
                                 title: 'Login Gagal!',
                                 text: 'silahkan coba lagi!'
@@ -106,10 +130,13 @@
                     error:function(response){
 
                         Swal.fire({
+                            icon:'error',
                             type: 'error',
-                            title: 'Opps!',
-                            text: 'server error!'
-                        });
+                            title: 'Login Gagal!',
+                            text: 'Username dan Password tidak sesuai!'
+
+                        })
+
 
                         console.log(response);
 

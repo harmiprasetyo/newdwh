@@ -1,14 +1,14 @@
 
 
 
-@extends('layouts.main');
+@extends('layouts.main')
 
 
 
 
 
 
-@section('container');
+@section('container')
 <div class="container px-4">
   <div class="row gx-5">
     <div class="col">
@@ -292,4 +292,4 @@
 
 
 
-@endsection();
+@endsection()

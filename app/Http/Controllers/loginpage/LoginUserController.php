@@ -9,8 +9,17 @@ class LoginUserController extends Controller
 {
     //
 
+
+
     public function index(){
-        return view('login/loginform');
+     //  dd(session()->all());
+
+
+     return view('login/loginform');
+
+
+
+
 
     }
 
@@ -24,6 +33,8 @@ class LoginUserController extends Controller
 
     );
     if(Auth::attempt(['username' => $request->username, 'password' => $request->password])){
+        // $request->session()->regenerate();
+        // dd(session()->all());
 
     echo json_encode(array("success"=>true,"message"=>"User ditemukan"));
 
