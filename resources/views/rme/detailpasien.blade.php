@@ -320,7 +320,7 @@
                     <td>Tanggal Kunjungan</td>
                     @foreach($dt['label']['bln'] as $key=>$label)
                        <td>
-
+ @if(isset($dt['KOHORT']))
                         @foreach($dt['KOHORT'] as $k=>$v)
                          @if($v['anc_bulan']==$key)
 
@@ -328,6 +328,7 @@
 
                         @endif
                         @endforeach
+                        @endif
 
                        </td>
                        @endforeach
@@ -338,7 +339,7 @@
                     @foreach($dt['label']['bln'] as $key=>$label)
                        <td>
 
-
+ @if(isset($dt['KOHORT']))
                      @foreach($dt['KOHORT'] as $k=>$v)
                          @if($v['anc_bulan']==$key)
 
@@ -353,6 +354,7 @@
 
                         @endif
                         @endforeach
+                        @endif
 
                        </td>
                        @endforeach
@@ -364,7 +366,7 @@
                     @foreach($dt['label']['bln'] as $key=>$label)
                        <td>
 
-
+ @if(isset($dt['KOHORT']))
                      @foreach($dt['KOHORT'] as $k=>$v)
                          @if($v['anc_bulan']==$key)
 
@@ -379,6 +381,7 @@
 
                         @endif
                         @endforeach
+                        @endif
 
                        </td>
                        @endforeach
@@ -388,7 +391,7 @@
                      @foreach($dt['label']['bln'] as $key=>$label)
                        <td>
 
-
+ @if(isset($dt['KOHORT']))
                      @foreach($dt['KOHORT'] as $k=>$v)
                          @if($v['anc_bulan']==$key)
 
@@ -403,6 +406,7 @@
 
                         @endif
                         @endforeach
+                        @endif
 
                        </td>
                        @endforeach
@@ -412,7 +416,7 @@
                      @foreach($dt['label']['bln'] as $key=>$label)
                        <td>
 
-
+ @if(isset($dt['KOHORT']))
                      @foreach($dt['KOHORT'] as $k=>$v)
                          @if($v['anc_bulan']==$key)
 
@@ -428,6 +432,8 @@
                         @endif
                         @endforeach
 
+                        @endif
+
                        </td>
                        @endforeach
                    </tr>
@@ -435,6 +441,9 @@
                     <td>Taksiran Berat Janin</td>
                     @foreach($dt['label']['bln'] as $key=>$label)
                        <td>
+
+
+                        @if(isset($dt['KOHORT']))
 
 
                      @foreach($dt['KOHORT'] as $k=>$v)
@@ -452,6 +461,8 @@
                         @endif
                         @endforeach
 
+                        @endif
+
                        </td>
                        @endforeach
                    </tr>
@@ -460,7 +471,7 @@
                     @foreach($dt['label']['bln'] as $key=>$label)
                        <td>
 
-
+ @if(isset($dt['KOHORT']))
                      @foreach($dt['KOHORT'] as $k=>$v)
                          @if($v['anc_bulan']==$key)
 
@@ -475,6 +486,7 @@
 
                         @endif
                         @endforeach
+                        @endif
 
                        </td>
                        @endforeach
@@ -483,7 +495,7 @@
                     <td>Posisi Kepala</td>
                     @foreach($dt['label']['bln'] as $key=>$label)
                        <td>
-
+ @if(isset($dt['KOHORT']))
 
                      @foreach($dt['KOHORT'] as $k=>$v)
                          @if($v['anc_bulan']==$key)
@@ -499,6 +511,7 @@
 
                         @endif
                         @endforeach
+                        @endif
 
                        </td>
                        @endforeach
@@ -946,7 +959,7 @@
                 </tr>
 
                 <tr>
-                    <td>Imunisasi DPT-HB-HIP 1</td>
+                    <td>Imunisasi DPT-HB-HIB 1</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -956,7 +969,7 @@
                 </tr>
 
                  <tr>
-                    <td>Imunisasi DPT-HB-HIP 2</td>
+                    <td>Imunisasi DPT-HB-HIB 2</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -966,7 +979,7 @@
                 </tr>
 
                  <tr>
-                    <td>Imunisasi DPT-HB-HIP 3</td>
+                    <td>Imunisasi DPT-HB-HIB 3</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -974,6 +987,103 @@
                     <td></td>
                     <td></td>
                 </tr>
+
+
+                 <tr>
+                    <td>Imunisasi IPV 1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                    <td>Imunisasi IPV 2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+
+                 <tr>
+                    <td>Imunisasi ROTA 1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td>Imunisasi ROTA 2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td>Imunisasi ROTA 3</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td>Imunisasi PCV 1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                    <td>Imunisasi PCV 2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                    <td>Imunisasi JE 1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                    <td>Imunisasi MR 1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+
+
+
+
 
 
 

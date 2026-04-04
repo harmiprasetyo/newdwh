@@ -20,7 +20,6 @@ class DataRmeController extends Controller
     public function landingpage(Request $request){
     $nik = $request->nik;
     return view('rme.datapasien',["nik"=>$nik]);
-
     }
 
 
@@ -29,7 +28,7 @@ class DataRmeController extends Controller
              $token = env('FHIR_API_TOKEN');
         $server = env('FHIR_API_URL');
         $nik = $request->nik;
-        $response = Http::withToken($token)->get($server.'Patient?identifier=https://fhir.kemkes.go.id/id/nik|'.$nik);
+        $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
         $data = $response->json();
 
     $jdid['total'] = $data['total'];
@@ -45,7 +44,7 @@ class DataRmeController extends Controller
         $server = env('FHIR_API_URL');
         $nik = $request->nik;
         $id = $request->idencounter;
-            $response = Http::withToken($token)->get($server.'Patient?identifier=https://fhir.kemkes.go.id/id/nik|'.$nik);
+            $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
             $data = $response->json();
         $dt['INFO']['total'] = $data['total'];
         $dt['INFO']['id'] = $data['id'];
@@ -55,7 +54,7 @@ class DataRmeController extends Controller
         $dt['PID']['id'] = $hasil['resource']['id'];
         $dt['PID']['versionId'] = $hasil['resource']['meta']['versionId'];
         $dt['PID']['lastUpdate'] = $hasil['resource']['meta']['lastUpdated'];
-        $dt['PID']['nik'] = $hasil['resource']['identifier'][0]['value'];
+        $dt['PID']['nik'] = $hasil['resource']['identifier'][1]['value'];
         $dt['PID']['norm'] = $hasil['resource']['identifier'][1]['value'];
         $dt['PID']['nama'] = $hasil['resource']['name'][0]['text'];
         $dt['PID']['family'] = $hasil['resource']['name'][0]['family'];
@@ -66,14 +65,15 @@ class DataRmeController extends Controller
         }
 
         $dt['PID']['gender'] = $hasil['resource']['gender'];
-        $dt['PID']['birthdate'] = $hasil['resource']['birthDate'];
-        $dt['PID']['province_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['code'];
-        $dt['PID']['province_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['display'];
-        $dt['PID']['city_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['code'];
-        $dt['PID']['city_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
+        $dt['PID']['birthdate'] = Carbon::parse($hasil['resource']['birthDate'])->format('d M Y');
+       $dt['PID']['address']['street'] = $hasil['resource']['address']['0']['line'][0];
+        $dt['PID']['address']['village'] = $hasil['resource']['address'][0]['extension'][0]['extension'][3]['valueCoding']['code'];
+        $dt['PID']['address']['district'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
+        $dt['PID']['address']['city'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
+       // $dt['PID']['province_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['code'];
+       $dt['PID']['address']['province'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['display'];
 
-         $dt['PID']['subdistrict_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['code'];
-         $dt['PID']['subdistrict_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
+
        }
 
 
@@ -85,6 +85,7 @@ class DataRmeController extends Controller
 
     $ecounter = Http::withToken($token)->get($server.'Encounter/'.$id);
     $encounterResult = $ecounter->json();
+
 
 
      $date = Carbon::parse($encounterResult['period']['start']);
@@ -102,30 +103,33 @@ class DataRmeController extends Controller
       }
 
 
+
         $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$id);
         $obserResult = $observ->json();
+      //  dd($obserResult);
+
+
 
 
 
         $dt['INFO']['total']=$obserResult['total'];
 
-        foreach($obserResult['entry'] as $k=>$obs){
-        //echo $obs['resource']['category'][0]['coding'][0]['code']."<br>";
+        if($obserResult['total']>0){
 
-        if($obs['resource']['category'][0]['coding'][0]['code']=='vital-signs'){
+        foreach($obserResult['entry'] as $k=>$obs){
+            if($obs['resource']['category'][0]['coding'][0]['code']=='vital-signs'){
             $dt['OBS'][$k]['param_code'] = $obs['resource']['code']['coding'][0]['code'];
             $dt['OBS'][$k]['param_name'] = $obs['resource']['code']['coding'][0]['display'];
-             $dt['OBS'][$k]['valueQty'] = $obs['resource']['valueQuantity']['value'];
-             $dt['OBS'][$k]['valueUnit'] = $obs['resource']['valueQuantity']['unit'];
+            $dt['OBS'][$k]['valueQty'] = $obs['resource']['valueQuantity']['value'];
+            $dt['OBS'][$k]['valueUnit'] = $obs['resource']['valueQuantity']['unit'];
               if($obs['resource']['code']['coding'][0]['code']=='8480-6'){
                 $dt['sistole'] = $obs['resource']['valueQuantity']['value'];
               }
-
                if($obs['resource']['code']['coding'][0]['code']=='8462-4'){
                 $dt['diastole'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
               }
 
-                if($obs['resource']['code']['coding'][0]['code']=='8302-2'){
+            if($obs['resource']['code']['coding'][0]['code']=='8302-2'){
                 $dt['anc_body_heigh']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
             }
 
@@ -133,7 +137,6 @@ class DataRmeController extends Controller
         }elseif($obs['resource']['category'][0]['coding'][0]['code']=='survey'){
             if($obs['resource']['code']['coding'][0]['code']=='11996-6'){
                 $dt['gravida']=$obs['resource']['valueInteger'];
-
             }
             if($obs['resource']['code']['coding'][0]['code']=='11977-6'){
                 $dt['parity']=$obs['resource']['valueInteger'];
@@ -233,14 +236,34 @@ class DataRmeController extends Controller
         }
 
 
+
+        }else{
+            $dt['sistole'] = "-";
+            $dt['diastole'] ="-";
+            $dt['anc_lila']="-";
+            $dt['gravida']="-";
+            $dt['parity']="-";
+            $dt['abortions']="-";
+            $dt['anc_jarak_hamil']="-";
+            $dt['anc_hpl']="-";
+            $dt['anc_body_heigh']="-";
+            $dt['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
+
+
+
+
+        }
+
+
           $condition = Http::withToken($token)->get($server."Condition?patient=".$dt['PID']['id']."&encounter=".$id);
             $kondisi = $condition->json();
-
+if($kondisi['total']>0){
             foreach($kondisi['entry'] as $kx=>$nres){
 
 
 
             }
+}
 
 
 //KOHORT
@@ -365,7 +388,7 @@ class DataRmeController extends Controller
         $server = env('FHIR_API_URL');
         $nik = $_GET['nik'];
 
-    $response = Http::withToken($token)->get($server.'Patient?identifier=https://fhir.kemkes.go.id/id/nik|'.$nik);
+    $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
 
           $data = $response->json();
           $dt['INFO']['total'] = $data['total'];
@@ -381,7 +404,7 @@ class DataRmeController extends Controller
         $dt['PID']['id'] = $hasil['resource']['id'];
         $dt['PID']['versionId'] = $hasil['resource']['meta']['versionId'];
         $dt['PID']['lastUpdate'] = $hasil['resource']['meta']['lastUpdated'];
-        $dt['PID']['nik'] = $hasil['resource']['identifier'][0]['value'];
+        $dt['PID']['nik'] = $hasil['resource']['identifier'][1]['value'];
         $dt['PID']['norm'] = $hasil['resource']['identifier'][1]['value'];
         $dt['PID']['nama'] = $hasil['resource']['name'][0]['text'];
         $dt['PID']['family'] = $hasil['resource']['name'][0]['family'];
@@ -392,14 +415,21 @@ class DataRmeController extends Controller
         }
 
         $dt['PID']['gender'] = $hasil['resource']['gender'];
-        $dt['PID']['birthdate'] = $hasil['resource']['birthDate'];
-        $dt['PID']['province_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['code'];
-        $dt['PID']['province_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['display'];
-        $dt['PID']['city_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['code'];
-        $dt['PID']['city_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
+        $dt['PID']['birthdate'] = Carbon::parse($hasil['resource']['birthDate'])->format('d M Y');
+        $dt['PID']['address']['street'] = $hasil['resource']['address']['0']['line'][0];
+        $dt['PID']['address']['village'] = $hasil['resource']['address'][0]['extension'][0]['extension'][3]['valueCoding']['code'];
+        $dt['PID']['address']['district'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
+        $dt['PID']['address']['city'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
+       // $dt['PID']['province_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['code'];
+       $dt['PID']['address']['province'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['display'];
 
-         $dt['PID']['subdistrict_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['code'];
-         $dt['PID']['subdistrict_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
+
+
+       // $dt['PID']['city_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['code'];
+       // $dt['PID']['city_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
+
+        // $dt['PID']['subdistrict_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['code'];
+         //$dt['PID']['subdistrict_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
        }
 
 
@@ -455,10 +485,11 @@ class DataRmeController extends Controller
        $dt['ENC'][$n]['practitioner'] = $encR['resource']['participant'][0]['individual']['reference'];
        $practitioner =  Http::withToken($token)->get($server.$dt['ENC'][$n]['practitioner']);
        $practResult = $practitioner->json();
+     //  dd($practResult);
        $dt['ENC'][$n]['practitioner_number']=$practResult['identifier'][0]['value'];
         $dt['ENC'][$n]['practitioner_nik']=$practResult['identifier'][1]['value'];
         $dt['ENC'][$n]['practitioner_name']=$practResult['name'][0]['text'];
-         $dt['ENC'][$n]['practitioner_strkki']=$practResult['qualification'][0]['identifier'][0]['value'];
+         $dt['ENC'][$n]['practitioner_strkki']=$practResult['qualification'][0]['code']['coding'][0]['code'];
 
          $dt['ENC'][$n]['unit_poli'] = $encR['resource']['location'][0]['location']['display'];
          $dt['ENC'][$n]['unit_poli_id'] = $encR['resource']['location'][0]['location']['reference'];

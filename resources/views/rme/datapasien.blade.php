@@ -35,6 +35,14 @@
                 <th>:</th>
                 <th>{{ $dt['PID']['gender'] }}</th>
             <tr>
+
+                <tr>
+                  <tr>
+                <th>Alamat</th>
+                <th>:</th>
+                <th>{{ @implode(", ",$dt['PID']['address']) }}</th>
+            <tr>
+
         </thead>
         </table>
 

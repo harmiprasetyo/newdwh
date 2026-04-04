@@ -16,8 +16,8 @@
         <form id="searchForm">
 
         <!-- Search Form -->
-        <div class="input-group mb-6">
-          <input type="text" id="nik" class="form-control" name="nik" placeholder="NIK">
+        <div class="form-group  mb-6">
+          <input type="text" id="nik" class="form-control" name="nik" placeholder="NIK" required>
 
         </div>
         </form>
@@ -28,6 +28,10 @@
         <button class="btn btn-success form-control" id="btnSearch">
             Cari
           </button>
+          <button class="btn btn-primary form-control" id="loaderbtn" type="button" disabled>
+  <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+  <span role="status">Loading...</span>
+</button>
     &nbsp;
     </div>
 
@@ -98,12 +102,29 @@ async function requestOTP(nik) {
 }
 
     $(document).ready(function(){
-        $('#searchModal').modal('show');
+    $('#loaderbtn').hide();
 
+     $('#searchForm').validate({
+        errorPlacement: function(error, element) {
+        error.addClass('text-danger mt-2');
+        error.appendTo(element.closest('.form-group'));
+    },
+                rules:{
+                    nik:{
+                        required:true
+                    }
+                },
+                messages:{
+                    nik:{
+                        required:"Nik Wajib diisi"
+                    }
 
-           $("#btnSearch").on("click", function(){
+                },
+                submitHandler:function(form){
+                    $('#btnSearch').hide();
+                    $('#loaderbtn').show();
 
-        $.ajax({
+                            $.ajax({
             url: "/datarme/search",
             type: "POST",
             data:{
@@ -122,6 +143,9 @@ async function requestOTP(nik) {
   icon: 'info',
   confirmButtonText: 'Ok'
 })
+
+$('#loaderbtn').hide();
+$('#btnSearch').show();
 
                     }else{
 
@@ -152,7 +176,20 @@ async function requestOTP(nik) {
 
         });
 
-    });
+
+
+                }
+            })
+
+        $('#searchModal').modal({
+        backdrop: "static",
+        keyboard: false
+    }).modal('show');
+
+
+           $("#btnSearch").on("click", function(){
+            $('#searchForm').submit();
+        });
 
 $('#btnOTP').click(function(){
     window.location.href="/datarme/search?nik="+$('#otpnik').val();
