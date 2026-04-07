@@ -111,12 +111,22 @@ class DataRmeController extends Controller
 
 
 
+if(isset($obserResult['total'])){
+    $total = $obserResult['total'];
+}
 
-        $dt['INFO']['total']=$obserResult['total'];
+     // $dt['INFO']['total']=$obserResult['total'];
+$dt['r'] = $obserResult['entry'];
 
-        if($obserResult['total']>0){
+        if(isset($obserResult['entry'])){
+            //$dt['anc_hpl']=$obserResult['resource']['valueDateTime'];
 
         foreach($obserResult['entry'] as $k=>$obs){
+           // $dt['anc_hpl']=$obs['resource']['valueDateTime'];
+            // $dt['r1'] = $obs;
+            // $dt['anc_hpl']=$obs['resource']['valueDateTime'];
+         //  $dt['anc_hpl']=$obserResult['entry'][$k]['resource'];
+
             if($obs['resource']['category'][0]['coding'][0]['code']=='vital-signs'){
             $dt['OBS'][$k]['param_code'] = $obs['resource']['code']['coding'][0]['code'];
             $dt['OBS'][$k]['param_name'] = $obs['resource']['code']['coding'][0]['display'];
@@ -135,20 +145,28 @@ class DataRmeController extends Controller
 
 
         }elseif($obs['resource']['category'][0]['coding'][0]['code']=='survey'){
+
+
             if($obs['resource']['code']['coding'][0]['code']=='11996-6'){
-                $dt['gravida']=$obs['resource']['valueInteger'];
+                $dt['ANC']['gravida']=$obs['resource']['valueInteger'];
             }
             if($obs['resource']['code']['coding'][0]['code']=='11977-6'){
-                $dt['parity']=$obs['resource']['valueInteger'];
+                $dt['ANC']['parity']=$obs['resource']['valueInteger'];
 
             }
 
              if($obs['resource']['code']['coding'][0]['code']=='69043-8'){
-                $dt['abortions']=$obs['resource']['valueInteger'];
+                $dt['ANC']['abortions']=$obs['resource']['valueInteger'];
             }
 
+
+
+//$dt['anc_hpl']=$obs['resource']['valueDateTime'];
+
             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11778-8'){
-                $dt['anc_hpl']=$obs['resource']['valueDateTime'];
+                 $dt['codeHPL'] = $obs['resource']['code']['coding'][0]['code'];
+                 $dt['anc_hpl']=$obs['resource']['valueDateTime'];
+
             }else{
                 $dt['anc_hpl']=" - ";
                 }
@@ -160,6 +178,8 @@ class DataRmeController extends Controller
             }else{
                 $dt['anc_jarak_hamil']=" - ";
             }
+
+            //$dt['anc_hpl']=$obs['resource']['valueDateTime'];
 
 
 
@@ -238,6 +258,9 @@ class DataRmeController extends Controller
 
 
         }else{
+
+   $dt['INFO']['total']=0;
+
             $dt['sistole'] = "-";
             $dt['diastole'] ="-";
             $dt['anc_lila']="-";
@@ -363,6 +386,8 @@ if($kondisi['total']>0){
         }
 
 
+       }else{
+          $dt['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
        }
 
 

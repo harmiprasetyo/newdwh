@@ -51,7 +51,7 @@
                   <tr>
                     <th>Status G/P/A</th>
                     <th>: </th>
-                    <th> G : {{ $dt['gravida'] }} &nbsp; P : {{ $dt['parity'] }} A: {{ $dt['abortions'] }}</th>
+                    <th> G : {{ $dt['ANC']['gravida'] }} &nbsp; P : {{ $dt['ANC']['parity'] }} A: {{ $dt['ANC']['abortions'] }}</th>
                   </tr>
 
 
@@ -169,7 +169,8 @@
                 <tr>
                     <th>HPL</th>
                     <th>:</th>
-                    <th>{{ $dt['anc_hpl'] }}</th>
+                    <th>
+                    {{ $dt['anc_hpl'] }}</th>
                     <th></th>
                 </tr>
 
