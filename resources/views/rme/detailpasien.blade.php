@@ -81,16 +81,19 @@
                 <table class="table">
                     <thead>
                         <tr>
+                            @if(isset($dt['OBS']))
 
                             @foreach ($dt['OBS'] as $n)
                             <th>{{ $n['param_name'] }}</th>
                             @endforeach
+                            @endif
 
                         </tr>
-                        <tr>
+                        <tr>  @if(isset($dt['OBS']))
                              @foreach ($dt['OBS'] as $ndata)
                             <td>{{ $ndata['valueQty'] }} {{ $ndata['valueUnit'] }}</td>
                             @endforeach
+                             @endif
                         </tr>
                     </thead>
                 </table>
@@ -122,10 +125,10 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{ $dt['sistole'] }} / {{ $dt['diastole'] }}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>@if(isset($dt['sistole'])) {{ $dt['sistole'] }}  @endif  / @if(isset($dt['diastole'])) {{ $dt['diastole'] }}  @endif</td>
+                            <td>@if(isset($dt['VS'])) {{ $dt['VS']['suhuBadan'] }} @endif</td>
+                            <td>@if(isset($dt['VS'])) {{ $dt['VS']['nadi'] }} @endif</td>
+                            <td>@if(isset($dt['VS'])) {{ $dt['VS']['pernafasan'] }} @endif</td>
                             <td></td>
                             <td></td>
                             <td><span>
@@ -163,28 +166,36 @@
                 <tr>
                     <th>Jarak Kehamilan</th>
                     <th>:</th>
-                    <th>{{ $dt['anc_jarak_hamil'] }}</th>
+                    <th>@if(isset($dt['ANC']['anc_jarak_hamil'])){{ $dt['ANC']['anc_jarak_hamil'] }} @endif</th>
                     <th></th>
                 </tr>
                 <tr>
                     <th>HPL</th>
                     <th>:</th>
                     <th>
-                    {{ $dt['anc_hpl'] }}</th>
+                        @if(isset($dt['ANC']['anc_hpl'])){{ $dt['ANC']['anc_hpl'] }} @endif
+
+                </th>
                     <th></th>
                 </tr>
 
                 <tr>
                     <th>Tinggi Badan</th>
                     <th>:</th>
-                    <th>{{ $dt['anc_body_heigh'] }}</th>
+                    <th>
+                        @if(isset($dt['ANC']['anc_body_heigh'])){{ $dt['ANC']['anc_body_heigh'] }} @endif
+                        </th>
                     <th></th>
                 </tr>
 
                 <tr>
                     <th>LILA</th>
                     <th>:</th>
-                    <th>{{ $dt['anc_lila'] }}</th>
+                    <th>
+                        @if(isset($dt['ANC']['anc_lila'])){{ $dt['ANC']['anc_lila'] }} @endif
+
+
+                    </th>
                     <th></th>
                 </tr>
 
@@ -213,6 +224,8 @@
                         @if(isset($dt['lab']))
                         {{ $dt['lab']['lab_hb']['val'] }}
                     @endif
+
+
                     </th>
                     <th></th>
                 </tr>
@@ -547,11 +560,11 @@
                                     <td>Cara Persalinan</td><td>:</td>
                                     <td></td></tr><tr>
                                     <td>Tekanan Darah</td><td>:</td>
-                                    <td>{{ $dt['sistole'] }} / {{  $dt['diastole'] }}</td></tr><tr>
+                                    <td>@if(isset($dt['sistole'])) {{ $dt['sistole'] }}  @endif  / @if(isset($dt['diastole'])) {{ $dt['diastole'] }}  @endif</td></tr><tr>
                                     <td>Suhu</td><td>:</td>
                                     <td></td></tr><tr>
                                     <td>Nadi</td><td>:</td>
-                                    <td></td></tr><tr>
+                                    <td>@if(isset($dt['VS']['nadi'])) {{  $dt['VS']['nadi'] }} @endif</td></tr><tr>
                                     <td>Pernafasan</td><td>:</td>
                                     <td></td></tr><tr>
                                     <td>Keadaan Ibu</td><td>:</td>
@@ -607,7 +620,7 @@
                    <tr>
                     <td>Tekanan Darah</td>
                     <td>:</td>
-                    <td>{{ $dt['sistole'] }} / {{ $dt['diastole'] }}</td>
+                    <td>@if(isset($dt['sistole'])) {{ $dt['sistole'] }}  @endif  / @if(isset($dt['diastole'])) {{ $dt['diastole'] }}  @endif</td>
                    </tr>
                    <tr>
                     <td>Suhu</td>

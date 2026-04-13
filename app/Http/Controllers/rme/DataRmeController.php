@@ -116,7 +116,7 @@ if(isset($obserResult['total'])){
 }
 
      // $dt['INFO']['total']=$obserResult['total'];
-$dt['r'] = $obserResult['entry'];
+//$dt['r'] = $obserResult['entry'];
 
         if(isset($obserResult['entry'])){
             //$dt['anc_hpl']=$obserResult['resource']['valueDateTime'];
@@ -132,31 +132,58 @@ $dt['r'] = $obserResult['entry'];
             $dt['OBS'][$k]['param_name'] = $obs['resource']['code']['coding'][0]['display'];
             $dt['OBS'][$k]['valueQty'] = $obs['resource']['valueQuantity']['value'];
             $dt['OBS'][$k]['valueUnit'] = $obs['resource']['valueQuantity']['unit'];
-              if($obs['resource']['code']['coding'][0]['code']=='8480-6'){
+              if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8480-6'){
                 $dt['sistole'] = $obs['resource']['valueQuantity']['value'];
+              }else{
+                $dt['sistole'] = "-";
+
               }
-               if($obs['resource']['code']['coding'][0]['code']=='8462-4'){
+               if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8462-4'){
                 $dt['diastole'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
+              }else{
+                $dt['diastole'] ="-";
               }
 
-            if($obs['resource']['code']['coding'][0]['code']=='8302-2'){
+            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8302-2'){
                 $dt['anc_body_heigh']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
+            }else{
+                $dt['anc_body_heigh']="-";
             }
+
+             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8867-4'){
+                $dt['VS']['nadi'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
+              }
+
+              if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8310-5'){
+                $dt['VS']['suhuBadan'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
+              }
+
+               if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='9279-1'){
+                $dt['VS']['pernafasan'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
+              }
 
 
         }elseif($obs['resource']['category'][0]['coding'][0]['code']=='survey'){
 
 
-            if($obs['resource']['code']['coding'][0]['code']=='11996-6'){
+            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11996-6'){
                 $dt['ANC']['gravida']=$obs['resource']['valueInteger'];
+            }else{
+
+            $dt['ANC']['gravida']="-";
+
             }
-            if($obs['resource']['code']['coding'][0]['code']=='11977-6'){
+            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11977-6'){
                 $dt['ANC']['parity']=$obs['resource']['valueInteger'];
 
+            }else{
+                 $dt['ANC']['parity']="-";
             }
 
-             if($obs['resource']['code']['coding'][0]['code']=='69043-8'){
+             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='69043-8'){
                 $dt['ANC']['abortions']=$obs['resource']['valueInteger'];
+            }else{
+                 $dt['ANC']['abortions']="-";
             }
 
 
@@ -165,7 +192,8 @@ $dt['r'] = $obserResult['entry'];
 
             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11778-8'){
                  $dt['codeHPL'] = $obs['resource']['code']['coding'][0]['code'];
-                 $dt['anc_hpl']=$obs['resource']['valueDateTime'];
+                 $dt['ANC']['anc_hpl']=Carbon::parse($obs['resource']['valueDateTime'])->format("d M Y");
+                 //$dt['ANC']['test'] = "exit";
 
             }else{
                 $dt['anc_hpl']=" - ";
@@ -173,7 +201,7 @@ $dt['r'] = $obserResult['entry'];
 
 
             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='OC000001'){
-                $dt['anc_jarak_hamil']=$obs['resource']['valueQuantity']['value'];
+                $dt['ANC']['anc_jarak_hamil']=$obs['resource']['valueQuantity']['value']." bln";
 
             }else{
                 $dt['anc_jarak_hamil']=" - ";
@@ -185,6 +213,7 @@ $dt['r'] = $obserResult['entry'];
 
 
         }elseif(isset($obs['resource']['category'][0]['coding'][0]['code']) && $obs['resource']['category'][0]['coding'][0]['code']=='laboratory'){
+
 
         if(isset($obs['resource']['code']['coding'][0]['code'])){
 
@@ -241,14 +270,13 @@ $dt['r'] = $obserResult['entry'];
 
         }elseif(isset($obs['resource']['category'][0]['coding'][0]['code']) && $obs['resource']['category'][0]['coding'][0]['code']=='exam'){
 
-        if(isset($obs['resource']['code']['coding'][0]['code']))
-{
 
-             if($obs['resource']['code']['coding'][0]['code']=='284473002'){
-                $dt['anc_lila']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
+
+             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='284473002'){
+                $dt['ANC']['anc_lila']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
             }
 
-        }
+
 
         }
 
@@ -261,16 +289,16 @@ $dt['r'] = $obserResult['entry'];
 
    $dt['INFO']['total']=0;
 
-            $dt['sistole'] = "-";
-            $dt['diastole'] ="-";
-            $dt['anc_lila']="-";
-            $dt['gravida']="-";
-            $dt['parity']="-";
-            $dt['abortions']="-";
-            $dt['anc_jarak_hamil']="-";
-            $dt['anc_hpl']="-";
-            $dt['anc_body_heigh']="-";
-            $dt['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
+            $dt['ANC']['sistole'] = "-";
+            $dt['ANC']['diastole'] ="-";
+            $dt['ANC']['anc_lila']="-";
+            $dt['ANC']['gravida']="-";
+            $dt['ANC']['parity']="-";
+            $dt['ANC']['abortions']="-";
+            $dt['ANC']['anc_jarak_hamil']="-";
+            $dt['ANC']['anc_hpl']="-";
+            $dt['ANC']['anc_body_heigh']="-";
+            $dt['ANC']['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
 
 
 
@@ -375,7 +403,14 @@ if($kondisi['total']>0){
                 $dt['KOHORT'][$key]['anc_bulan'] = Carbon::parse($val1['period']['start'])->format('m');
                 $dt['KOHORT'][$key]['anc_kunjungan']=$val1['period']['start'];
 
+                }else{
+                    $dt['KOHORT'][$key]['anc_bulan'] ="-";
+                    $dt['KOHORT'][$key]['anc_kunjungan']="-";
+
                 }
+                }else{
+                     $dt['KOHORT'][$key]['anc_bulan'] ="-";
+                    $dt['KOHORT'][$key]['anc_kunjungan']="-";
                 }
 
                // $dt['KOHORT'][$key]['anc_kunjungan']=$val1['period']['start'];
