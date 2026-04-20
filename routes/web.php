@@ -4,6 +4,7 @@ use App\Http\Controllers\charts\ChartDistributionTargetController;
 use App\Http\Controllers\DashController;
 use App\Http\Controllers\fhir\GetFhirController;
 use App\Http\Controllers\FhirGetDataController;
+use App\Http\Controllers\Homepage;
 use App\Http\Controllers\loginpage\LoginUserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\rme\DataRmeController;
@@ -36,7 +37,7 @@ Route::get('/fhir/faskes', [GetFhirController::class, 'organization']);
 
 Route::get('/newfhir', [FhirGetDataController::class, 'index']);
 Route::get('/newfhir/pasien', [FhirGetDataController::class, 'patient']);
-
+Route::get('/homepage',[Homepage::class,'index']);
 Route::get('/home',[DashController::class,'index']);
 Route::get('/home/anc',[DashController::class,'anc']);
 Route::get('/home/skrining',[DashController::class,'skrining']);
