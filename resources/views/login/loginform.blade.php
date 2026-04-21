@@ -7,6 +7,7 @@
                      Login - Dashboard MNCH
                       <hr>
                 </div>
+
                 <div class="card-body">
                     <div class="form-group">
                         <label>Username </label>
@@ -24,9 +25,12 @@
 
 
 
+
                     </div>
 
+
                 </div>
+
             </div>
 
         </div>
@@ -41,6 +45,8 @@
 
 
       $(".btn-login").click( function() {
+           let btn = $(this);
+           btn.prop('disabled', true);
 
 
             var username = $("#username").val();
@@ -55,6 +61,7 @@
                     title: 'Alert',
                     text: 'Username Wajib Diisi !'
                 });
+                btn.prop('disabled', false);
 
             } else if(password.length == "") {
 
@@ -64,6 +71,7 @@
                     title: 'Alert',
                     text: 'Password Wajib Diisi !'
                 });
+                btn.prop('disabled', false);
 
             } else {
 
@@ -79,70 +87,67 @@
 
 
                 $.ajax({
+    url: "/login",
+    type: "POST",
+    dataType: "JSON",
+    cache: false,
+    data: {
+        userName: username,
+        password: password,
+        _token: token
+    },
+    xhrFields: {
+        withCredentials: true
+    },
 
-                    url: "auth/usercheck",
-                    type: "POST",
-                    dataType: "JSON",
-                    cache: false,
-                    data: {
-                        "username": username,
-                        "password": password,
-                        "_token": token
-                    },
+    success: function(response){
 
-                    success:function(response){
+        if (response.success === true) {
 
-                        if (response.success==true) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Login Berhasil!',
+                text: 'Anda akan diarahkan dalam 3 detik',
+                timer: 3000,
+                showConfirmButton: false
+            }).then(function () {
+                window.location.href = response.redirect;
+            });
 
-                            Swal.fire({
-                                icon:'success',
-                                type: 'success',
-                                title: 'Login Berhasil!',
-                                text: 'Anda akan di arahkan dalam 3 Detik',
-                                timer: 3000,
-                                showCancelButton: false,
-                                showConfirmButton: false
-                            })
-                                .then (function() {
-                                    window.location.href = "home";
-                                });
+        } else {
 
-                        } else {
-                            $(this).show(function(){
-                                $('#btnLoading').hide();
-                            })
+          $('#btnLoading').hide();
+            btn.prop('disabled', false);
 
-                            console.log(response.success);
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Gagal!',
+                text: response.message || 'Silakan coba lagi!'
+            });
+        }
 
-                            Swal.fire({
-                                icon:'error',
-                                type: 'error',
-                                title: 'Login Gagal!',
-                                text: 'silahkan coba lagi!'
-                            });
+    },
 
-                        }
+    error: function(xhr){
 
-                        console.log(response);
+        $('#btnLoading').hide();
+        btn.prop('disabled', false);
 
-                    },
+        let message = 'Username dan Password tidak sesuai!';
 
-                    error:function(response){
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+            message = xhr.responseJSON.message;
+        }
 
-                        Swal.fire({
-                            icon:'error',
-                            type: 'error',
-                            title: 'Login Gagal!',
-                            text: 'Username dan Password tidak sesuai!'
+        Swal.fire({
+            icon: 'error',
+            title: 'Login Gagal!',
+            text: message
+        });
 
-                        })
-
-
-                        console.log(response);
-
-                    }
-
-                });
+        console.log(xhr);
+    }
+});
 
             }
 

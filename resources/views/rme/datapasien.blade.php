@@ -37,6 +37,13 @@
             <tr>
 
                 <tr>
+                <th>No. Telp</th>
+                <th>:</th>
+                <th>{{ $dt['PID']['phone'] }}</th>
+            <tr>
+
+
+                <tr>
                   <tr>
                 <th>Alamat</th>
                 <th>:</th>
@@ -62,6 +69,12 @@
 
 
         <table class="table table-dark" id="riwayatKunjungan">
+         <!--   <thead>
+                   <tr><td colspan="8"><pre>
+                    <?php print_r($dt['ENCOUNTER']); ?>
+
+                    </pre></td></tr>
+            </thead> -->
 
             <thead class="text-center align-top">
                 <tr><th>ID</th>
@@ -78,14 +91,15 @@
 
                 <tbody class="text-center align-top">
 
+
 @foreach ($dt['ENC'] as $encount )
 <TR><TD>{{ $loop->index+1 }}</TD>
     <TD>{{ $encount['tglKunjungan'] }}</TD>
-    <TD>{{ $encount['tipe_kunjungan'] }} - {{ $encount['tipe_kunjungan_display'] }}</TD>
+    <TD>{{ $encount['tipe_kunjungan'] }}</TD>
     <TD>{{ $encount['serviceProvider_name'] }}</TD>
     <TD>{{ $encount['unit_poli'] }}</TD>
-    <TD>{{ $encount['jeniskunjungan_name'] }}</TD>
-    <TD>{{ $encount['practitioner_name'] }}</TD>
+    <TD>{{ $encount['jeniskunjungan_name'] }} ( {{ $encount['kunjunganANC'] }})</TD>
+    <TD>{{ $encount['practitioner_name'] }} </TD>
     <td><button class="btn btn-secondary btn-outline-light btn-sm" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="getDetail('{{ $dt['PID']['nik'] }}','{{ $encount['id'] }}')">Detail</button></td>
 </TR>
 

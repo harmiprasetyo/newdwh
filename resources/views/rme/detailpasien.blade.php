@@ -27,6 +27,13 @@
                   </tr>
 
                   <tr>
+                <th>No. Telp</th>
+                <th>:</th>
+                <th>{{ $dt['PID']['phone'] }}</th>
+            <tr>
+
+
+                  <tr>
                 <th>Tgl Lahir</th>
                 <th>:</th>
                 <th>{{ $dt['PID']['birthdate'] }}</th>

@@ -23,7 +23,7 @@ class LoginUserController extends Controller
 
     }
 
-    public function usercheck(Request $request){
+  /*  public function usercheck(Request $request){
 
     $request->validate(
         [
@@ -43,5 +43,33 @@ class LoginUserController extends Controller
 
 
 
+    }*/
+
+    public function usercheck(Request $request)
+{
+    $request->validate([
+        "usrName" => 'required',
+        "password" => 'required'
+    ]);
+
+    if (Auth::attempt([
+        'usrName' => $request->usrName,
+        'password' => $request->password
+    ])) {
+
+        // regenerate session (WAJIB untuk security)
+        $request->session()->regenerate();
+
+        return response()->json([
+            "success" => true,
+            "message" => "User ditemukan",
+            "user" => Auth::user() // optional
+        ]);
     }
+
+    return response()->json([
+        "success" => false,
+        "message" => "Username atau password salah"
+    ]);
+}
 }

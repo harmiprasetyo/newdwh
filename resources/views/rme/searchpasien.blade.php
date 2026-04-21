@@ -72,6 +72,44 @@
     </div>
   </div>
 </div>
+
+
+
+<div class="modal fade" id="uploadModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header bg-success">
+        <h5 class="modal-title">Upload Inform Consent</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <form id="uploadForm" enctype="multipart/form-data">
+
+
+
+          <!-- FILE UPLOAD -->
+          <div class="mb-3">
+            <label>Upload File (PDF / Image)</label>
+             <input type="hidden" id="updnik" name="updnik">
+            <input type="file" id="file" name="file" class="form-control">
+          </div>
+
+        </form>
+
+      </div>
+
+      <div class="modal-footer bg-light">
+        <button class="btn btn-success w-100" id="btnUpload">
+          Upload
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -151,13 +189,21 @@ $('#btnSearch').show();
 
  Swal.fire({
   title: 'Data Tersedia',
-  text: 'Data Pasien ditemukan silahkan input OTP untuk akses data',
+  text: 'Data Pasien ditemukan silahkan input OTP atau upload inform consent untuk akses data',
   icon: 'info',
-  confirmButtonText: 'ENTER OTP'
+  showDenyButton: true,
+  confirmButtonText: 'ENTER OTP',
+  denyButtonText: `INFORM CONSENT`
 }).then((result)=>{
 
+   if(result.isConfirmed){
     $('#nextModal').modal('show');
     $('#otpnik').val(response.nik);
+   }else{
+    $('#uploadModal').modal('show');
+     $('#updnik').val(response.nik);
+
+   }
 
 })
 
@@ -193,6 +239,11 @@ $('#btnSearch').show();
 
 $('#btnOTP').click(function(){
     window.location.href="/datarme/search?nik="+$('#otpnik').val();
+})
+
+
+$('#btnUpload').click(function(){
+    window.location.href="/datarme/search?nik="+$('#updnik').val();
 })
     });
     </script>

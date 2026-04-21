@@ -505,6 +505,24 @@ if($kondisi['total']>0){
          $n=0;
          foreach($encounterResult['entry'] as $ky=>$encR){
 
+         $dt['ENCOUNTER'][$ky] = $encR;
+
+      /*  if(isset( $encR['resource']['identifier'][1]['value'])){
+         $dt['ENC'][$n]['kunjunganANC'] = $encR['resource']['identifier'][1]['value'];
+        }elseif($encR['resource']['identifier'][0]['value']){
+            $dt['ENC'][$n]['kunjunganANC']=$encR['resource']['identifier'][0]['value'];
+        }else{
+            $dt['ENC'][$n]['kunjunganANC']="";
+        }*/
+
+        foreach ($encR['resource']['identifier'] as $item) {
+    if (str_contains($item['system'], 'ANC')) {
+        $dt['ENC'][$n]['jeniskunjungan_name'] = basename($item['system']); // ANC
+        $dt['ENC'][$n]['kunjunganANC'] = $item['value'];          // K2
+    }
+
+}
+
          $dt['ENC'][$n]['fullUrl'] = $encR['fullUrl'];
          $dt['ENC'][$n]['id'] = $encR['resource']['id'];
          $dt['ENC'][$n]['versionId'] = $encR['resource']['meta']['versionId'];
@@ -516,7 +534,20 @@ if($kondisi['total']>0){
          $dt['ENC'][$n]['codeRef'] = $encR['resource']['identifier'][0]['system'];
          $dt['ENC'][$n]['visitCategori'] = $encR['resource']['identifier'][0]['value'];
          $dt['ENC'][$n]['status_kedatangan'] = $encR['resource']['status'];
-        $dt['ENC'][$n]['tipe_kunjungan'] = $encR['resource']['class']['code'];
+
+        if(isset($encR['resource']['class']['code'])){
+        $visitKode = $encR['resource']['class']['code'];
+        }
+
+        if($visitKode=="AMB"){
+             $dt['ENC'][$n]['tipe_kunjungan'] = "Rawat Jalan";
+        }elseif($visitKode=="IMP"){
+
+        $dt['ENC'][$n]['tipe_kunjungan'] = "Rawat Inap";
+
+        }
+        // $dt['ENC'][$n]['tipe_kunjungan'] = $encR['resource']['class']['code'];
+
         $dt['ENC'][$n]['tipe_kunjungan_display'] = $encR['resource']['class']['display'];
          $date = Carbon::parse($encR['resource']['period']['start']);
         $dt['ENC'][$n]['tglKunjungan'] = $date->format("d M Y");
@@ -527,19 +558,22 @@ if($kondisi['total']>0){
           $dt['ENC'][$n]['patient_id'] = $encR['resource']['subject']['reference'];
           $dt['ENC'][$n]['patient_name'] = $encR['resource']['subject']['display'];
 
-          if(isset($encR['resource']['episodeOfCare'][0]['reference'])){
+  /*        if(isset($encR['resource']['episodeOfCare'][0]['reference'])){
        $dt['ENC'][$n]['episodeOfCare'] = $encR['resource']['episodeOfCare'][0]['reference'];
-       $eoc = Http::withToken($token)->get($server.$dt['ENC'][$n]['episodeOfCare']);
-       $eocResult = $eoc->json();
 
-        $dt['ENC'][$n]['jeniskunjungan'] = $eocResult['type'][0]['coding'][0]['code'];
-     $dt['ENC'][$n]['jeniskunjungan_name'] = $eocResult['type'][0]['coding'][0]['display'];
+
+       $eoc = Http::withToken($token)->get($server.$dt['ENC'][$n]['episodeOfCare']);
+     $eocResult = $eoc->json();
+
+     //   $dt['ENC'][$n]['jeniskunjungan'] = $eocResult['type'][0]['coding'][0]['code'];
+    // $dt['ENC'][$n]['jeniskunjungan_name'] = $eocResult['type'][0]['coding'][0]['display'];
 
 
           }else{
-             $dt['ENC'][$n]['jeniskunjungan'] ="-";
-             $dt['ENC'][$n]['jeniskunjungan_name'] ="-";
+             $dt['ENC'][$n]['jeniskunjungan'] ="";
+             $dt['ENC'][$n]['jeniskunjungan_name'] ="";
           }
+             */
 
 
        $dt['ENC'][$n]['practitioner'] = $encR['resource']['participant'][0]['individual']['reference'];

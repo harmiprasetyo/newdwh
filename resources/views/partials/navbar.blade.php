@@ -17,6 +17,10 @@
           <a class="nav-link"  id="rme" href="/datarme">Data RME</a>
         </li>
 
+        <li class="nav-item">
+          <a class="btn btn-success"  id="rme" href="#" id="btnlogout" onclick="logoutpage()">Logout</a>
+        </li>
+
       </ul>
       <form class="d-flex">
         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -25,3 +29,19 @@
     </div>
   </div>
 </nav>
+
+<script>
+
+    function logoutpage(){
+        $.ajax({
+    url: "/logout",
+    type: "POST",
+    data: {
+        _token: $('meta[name="csrf-token"]').attr('content')
+    },
+    success: function(){
+        window.location.href = "/login";
+    }
+});
+    }
+    </script>
