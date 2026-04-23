@@ -56,6 +56,7 @@
         <div class="input-group mb-6">
           <input type="text" id="otp" class="form-control" name="otp" placeholder="OTP">
           <input type="hidden" id="otpnik" name="otpnik" value="">
+           <input type="hidden" id="identifier" name="identifier" value="">
 
         </div>
         </form>
@@ -204,6 +205,7 @@ $('#btnSearch').show();
 });
     $('#nextModal').modal('show');
     $('#otpnik').val(response.nik);
+     $('#identifier').val(response.phone);
 
 
    }else{
@@ -245,7 +247,55 @@ $('#btnSearch').show();
         });
 
 $('#btnOTP').click(function(){
-    window.location.href="/datarme/search?nik="+$('#otpnik').val();
+
+ /*   $.post('/verify-otp', {
+    identifier: $('#identifier').val(),
+    otp: $('#otp').val(),
+    _token: $('meta[name="csrf-token"]').attr('content')
+});
+*/
+$.ajax({
+    url:'/verify-otp',
+    type:'post',
+    dataType:'json',
+    data:{
+    "identifier": $('#identifier').val(),
+    "otp": $('#otp').val(),
+    "_token": $('meta[name="csrf-token"]').attr('content')
+
+    },
+    success:function(response){
+
+        if(response.success==true){
+
+            Swal.fire({
+                title: response.message,
+                icon: "success",
+                draggable: true,
+                confirmButtonText: 'OK',
+            }).then((result)=>{
+
+   if(result.isConfirmed){
+
+  window.location.href="/datarme/search?nik="+$('#otpnik').val();
+
+   }
+
+})
+
+        }else{
+             Swal.fire({
+                title: response.message,
+                icon: "error",
+                draggable: true
+            });
+        }
+
+    }
+
+})
+
+
 })
 
 
