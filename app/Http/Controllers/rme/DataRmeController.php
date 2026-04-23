@@ -357,7 +357,7 @@ if($kondisi['total']>0){
 
         $KHobserv= Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$ids);
         $KOB = $KHobserv->json();
-       if($KOB['total']>0){
+       if(isset($KOB['total']) && $KOB['total']>0){
             foreach($KOB['entry'] as $kb=>$nnb){
 
             if(isset($nnb['resource']['code']['coding']['0']['code'])){
