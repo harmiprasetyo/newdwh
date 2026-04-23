@@ -2,7 +2,7 @@
 @section('container')
 
 <div class="container overflow-hidden mt-4">
-  <div class="row gx-5 mt-4">
+  <div class="row gx-5 mt-4 mb-2">
     <div class="col">
         <div class="card mt-4">
         <div class="card-body">
@@ -61,11 +61,22 @@
     </div>
 
 
+<!-- Start Tab Menu -->
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link active"  id="tab1" aria-current="page" >Riwayat Kunjungan</a>
+  </li>
+  @if($dt['PID']['gender']=="female")
+  <li class="nav-item">
+    <a class="nav-link" id="tab2" >Resume Layanan ANC</a>
+  </li>
+  @endif
+</ul>
+<!-- end Tab Menu -->
 
 
-
-
-    <div>
+<!--- Tab History kunjungan -->
+    <div id="history">
 
 
         <table class="table table-dark" id="riwayatKunjungan">
@@ -123,8 +134,35 @@
 
     </div>
 
+    <!-- END of History Kunjungan -->
 
 
+<!-- Start Resume Kunjungan ANC -->
+
+<div id="kunjunganANC" style="display: none">
+
+      <table class="table table-light" id="riwayatKunjungan">
+        <thead>
+            <tr>
+                <th>Jumlah Kunjungan Trimester Pertama </th><th>  kali</th>
+            </tr>
+            <tr>
+                <th>Jumlah Kunjungan Trimester Kedua </th><th>  kali</th>
+            </tr>
+            <tr>
+                <th>Jumlah Kunjungan Trimester Ketiga </th><th>  kali</th>
+            </tr>
+            <tr>
+                <th>Pemeriksaan USG oleh dr/dr. SPOG pada Trimester pertama </th><th>  kali</th>
+            </tr>
+             <tr>
+                <th>Pemeriksaan USG oleh dr/dr. SPOG pada Trimester kedua </th><th>  kali</th>
+            </tr>
+        </thead>
+      </table>
+
+</div>
+<!-- End Kunjungan ANC -->
 
 
   </div>
@@ -148,6 +186,31 @@
 $('#home').removeClass('active');
 $('#rme').addClass('active');
 
+
+
+ $('#tab2').on('click',function(){
+            $('#tab2').addClass('active');
+            $('#tab1').removeClass('active');
+
+               $('#kunjunganANC').show();
+                $('#history').hide();
+
+        })
+
+         $('#tab1').on('click',function(){
+
+
+
+               $('#history').show();
+
+
+            $('#tab1').addClass('active');
+            $('#tab2').removeClass('active');
+            $('#kunjunganANC').hide();
+
+
+
+        })
 
 
 

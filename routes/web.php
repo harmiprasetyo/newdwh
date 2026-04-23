@@ -9,6 +9,7 @@ use App\Http\Controllers\loginpage\LoginUserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\rme\DataRmeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OtpController;
 
 
 
@@ -28,6 +29,9 @@ Route::get('/', [AuthController::class, 'index']); // default ke login
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::post('/send-otp', [OtpController::class, 'sendOtp']);
+Route::post('/verify-otp', [OtpController::class, 'verifyOtp']);
 
 
 Route::middleware('auth')->group(function () {

@@ -197,8 +197,15 @@ $('#btnSearch').show();
 }).then((result)=>{
 
    if(result.isConfirmed){
+
+  $.post('/send-otp', {
+    identifier: response.phone,
+    _token: $('meta[name="csrf-token"]').attr('content')
+});
     $('#nextModal').modal('show');
     $('#otpnik').val(response.nik);
+
+
    }else{
     $('#uploadModal').modal('show');
      $('#updnik').val(response.nik);

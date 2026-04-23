@@ -24,6 +24,9 @@ class DataRmeController extends Controller
 
 
 
+
+
+
     public function checkdata(Request $request){
              $token = env('FHIR_API_TOKEN');
         $server = env('FHIR_API_URL');
@@ -34,6 +37,13 @@ class DataRmeController extends Controller
     $jdid['total'] = $data['total'];
     $jdid['status']="success";
     $jdid['nik'] = $nik;
+ foreach($data['entry'] as $key=>$hasil){
+      if($hasil['resource']['telecom'][0]['system']=='phone'){
+        $jdid['phone'] = $hasil['resource']['telecom'][0]['value'];
+        }else{
+            $jdid['phone']="";
+        }
+ }
     echo json_encode($jdid);
 
 
