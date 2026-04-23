@@ -43,6 +43,7 @@ class DataRmeController extends Controller
         }else{
             $jdid['phone']="";
         }
+         $jdid['nama'] = $hasil['resource']['name'][0]['text'];
  }
     echo json_encode($jdid);
 

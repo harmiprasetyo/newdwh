@@ -201,6 +201,7 @@ $('#btnSearch').show();
 
   $.post('/send-otp', {
     identifier: response.phone,
+    nama:response.nama,
     _token: $('meta[name="csrf-token"]').attr('content')
 });
     $('#nextModal').modal('show');

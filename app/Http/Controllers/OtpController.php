@@ -13,7 +13,8 @@ class OtpController extends Controller
 
 public function sendOtp(Request $request)
 {
-    $identifier = $request->identifier; // email / no hp
+    $identifier = $request->identifier;
+    $nama = $request->nama; // email / no hp
 
     $otp = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
 
@@ -30,7 +31,7 @@ public function sendOtp(Request $request)
     'Authorization' => 'Bearer ' . env('WA_TOKEN'),
 ])->post(env('WA_SERVICE')."api/wa/send-text", [
     'to' => $identifier,
-    'text' => "OTP E-Klinik : Ada Permintaan Ijin membuka rekam medis anda, dengan kode OTP $otp . kode ini hanya berlaku 5 menit"
+    'text' => "OTP E-Klinik : Kepada Yth, ".ucwords($nama)."  Ada Permintaan Ijin membuka rekam medis anda, dengan kode OTP $otp . kode ini hanya berlaku 5 menit"
 ]);
 
 
