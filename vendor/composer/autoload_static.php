@@ -617,6 +617,7 @@ class ComposerStaticInit7b56bfb5d21eaae286e532c3ed2f8941
         'App\\Http\\Controllers\\FhirGetDataController' => __DIR__ . '/../..' . '/app/Http/Controllers/FhirGetDataController.php',
         'App\\Http\\Controllers\\GetdataController' => __DIR__ . '/../..' . '/app/Http/Controllers/GetdataController.php',
         'App\\Http\\Controllers\\Homepage' => __DIR__ . '/../..' . '/app/Http/Controllers/Homepage.php',
+        'App\\Http\\Controllers\\OtpController' => __DIR__ . '/../..' . '/app/Http/Controllers/OtpController.php',
         'App\\Http\\Controllers\\charts\\ChartDistributionTargetController' => __DIR__ . '/../..' . '/app/Http/Controllers/charts/ChartDistributionTargetController.php',
         'App\\Http\\Controllers\\fhir\\GetFhirController' => __DIR__ . '/../..' . '/app/Http/Controllers/fhir/GetFhirController.php',
         'App\\Http\\Controllers\\loginpage\\LoginUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/loginpage/LoginUserController.php',

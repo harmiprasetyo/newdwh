@@ -82,7 +82,7 @@
         <table class="table table-dark" id="riwayatKunjungan">
          <!--   <thead>
                    <tr><td colspan="8"><pre>
-                    <?php print_r($dt['ENCOUNTER']); ?>
+
 
                     </pre></td></tr>
             </thead> -->
@@ -144,13 +144,13 @@
       <table class="table table-light" id="riwayatKunjungan">
         <thead>
             <tr>
-                <th>Jumlah Kunjungan Trimester Pertama </th><th>  kali</th>
+                <th>Jumlah Kunjungan Trimester Pertama </th><th> {{ $dt['trimester1'] }} kali</th>
             </tr>
             <tr>
-                <th>Jumlah Kunjungan Trimester Kedua </th><th>  kali</th>
+                <th>Jumlah Kunjungan Trimester Kedua </th><th> {{ $dt['trimester2'] }} kali</th>
             </tr>
             <tr>
-                <th>Jumlah Kunjungan Trimester Ketiga </th><th>  kali</th>
+                <th>Jumlah Kunjungan Trimester Ketiga </th><th> {{ $dt['trimester3'] }} kali</th>
             </tr>
             <tr>
                 <th>Pemeriksaan USG oleh dr/dr. SPOG pada Trimester pertama </th><th>  kali</th>

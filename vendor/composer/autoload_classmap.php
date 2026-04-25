@@ -34,6 +34,7 @@ return array(
     'App\\Http\\Controllers\\FhirGetDataController' => $baseDir . '/app/Http/Controllers/FhirGetDataController.php',
     'App\\Http\\Controllers\\GetdataController' => $baseDir . '/app/Http/Controllers/GetdataController.php',
     'App\\Http\\Controllers\\Homepage' => $baseDir . '/app/Http/Controllers/Homepage.php',
+    'App\\Http\\Controllers\\OtpController' => $baseDir . '/app/Http/Controllers/OtpController.php',
     'App\\Http\\Controllers\\charts\\ChartDistributionTargetController' => $baseDir . '/app/Http/Controllers/charts/ChartDistributionTargetController.php',
     'App\\Http\\Controllers\\fhir\\GetFhirController' => $baseDir . '/app/Http/Controllers/fhir/GetFhirController.php',
     'App\\Http\\Controllers\\loginpage\\LoginUserController' => $baseDir . '/app/Http/Controllers/loginpage/LoginUserController.php',

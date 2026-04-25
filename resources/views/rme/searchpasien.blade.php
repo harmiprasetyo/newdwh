@@ -249,12 +249,7 @@ $('#btnSearch').show();
 
 $('#btnOTP').click(function(){
 
- /*   $.post('/verify-otp', {
-    identifier: $('#identifier').val(),
-    otp: $('#otp').val(),
-    _token: $('meta[name="csrf-token"]').attr('content')
-});
-*/
+
 $.ajax({
     url:'/verify-otp',
     type:'post',
