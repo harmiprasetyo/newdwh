@@ -102,7 +102,7 @@
 
                 <tbody class="text-center align-top">
 
-
+@if(isset($dt['ENC']))
 @foreach ($dt['ENC'] as $encount )
 <TR><TD>{{ $loop->index+1 }}</TD>
     <TD>{{ $encount['tglKunjungan'] }}</TD>
@@ -115,7 +115,7 @@
 </TR>
 
 @endforeach
-
+@endif
                    <tfoot>
                     <tr>
                         <th colspan="8">&nbsp;</th>
@@ -144,13 +144,13 @@
       <table class="table table-light" id="riwayatKunjungan">
         <thead>
             <tr>
-                <th>Jumlah Kunjungan Trimester Pertama </th><th> {{ $dt['trimester1'] }} kali</th>
+                <th>Jumlah Kunjungan Trimester Pertama </th><th> @if(isset($dt['trimester1'])) {{ $dt['trimester1'] }} @endif kali</th>
             </tr>
             <tr>
-                <th>Jumlah Kunjungan Trimester Kedua </th><th> {{ $dt['trimester2'] }} kali</th>
+                <th>Jumlah Kunjungan Trimester Kedua </th><th> @if(isset($dt['trimester2'])) {{ $dt['trimester2'] }} @endif kali</th>
             </tr>
             <tr>
-                <th>Jumlah Kunjungan Trimester Ketiga </th><th> {{ $dt['trimester3'] }} kali</th>
+                <th>Jumlah Kunjungan Trimester Ketiga </th><th> @if(isset($dt['trimester3'])) {{ $dt['trimester3'] }} @endif kali</th>
             </tr>
             <tr>
                 <th>Pemeriksaan USG oleh dr/dr. SPOG pada Trimester pertama </th><th>  kali</th>
