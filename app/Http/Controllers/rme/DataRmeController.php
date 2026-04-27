@@ -130,76 +130,108 @@ if(isset($obserResult['total'])){
     $total = $obserResult['total'];
 }
 
-     // $dt['INFO']['total']=$obserResult['total'];
-//$dt['r'] = $obserResult['entry'];
+
 
         if(isset($obserResult['entry'])){
-            //$dt['anc_hpl']=$obserResult['resource']['valueDateTime'];
 
-        foreach($obserResult['entry'] as $k=>$obs){
-           // $dt['anc_hpl']=$obs['resource']['valueDateTime'];
-            // $dt['r1'] = $obs;
-            // $dt['anc_hpl']=$obs['resource']['valueDateTime'];
-         //  $dt['anc_hpl']=$obserResult['entry'][$k]['resource'];
+        $dt['sistole'] = null;
+$dt['diastole'] = null;
+$dt['anc_body_heigh'] = null;
 
-            if($obs['resource']['category'][0]['coding'][0]['code']=='vital-signs'){
-            $dt['OBS'][$k]['param_code'] = $obs['resource']['code']['coding'][0]['code'];
-            $dt['OBS'][$k]['param_name'] = $obs['resource']['code']['coding'][0]['display'];
-            $dt['OBS'][$k]['valueQty'] = $obs['resource']['valueQuantity']['value'];
-            $dt['OBS'][$k]['valueUnit'] = $obs['resource']['valueQuantity']['unit'];
-              if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8480-6'){
-                $dt['sistole'] = $obs['resource']['valueQuantity']['value'];
-              }else{
-                $dt['sistole'] = "-";
+$dt['VS'] = [
+    'nadi' => null,
+    'suhuBadan' => null,
+    'pernafasan' => null
+];
 
-              }
-               if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8462-4'){
-                $dt['diastole'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
-              }else{
-                $dt['diastole'] ="-";
-              }
-
-            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8302-2'){
-                $dt['anc_body_heigh']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
-            }else{
-                $dt['anc_body_heigh']="-";
-            }
-
-             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8867-4'){
-                $dt['VS']['nadi'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
-              }
-
-              if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8310-5'){
-                $dt['VS']['suhuBadan'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
-              }
-
-               if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='9279-1'){
-                $dt['VS']['pernafasan'] = $obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];;
-              }
+$dt['ANC'] = [
+    'gravida' => 0,
+    'parity' => 0,
+    'abortions' => 0,
+    'anc_hpl' => null,
+    'anc_jarak_hamil' => null,
+];
 
 
-        }elseif($obs['resource']['category'][0]['coding'][0]['code']=='survey'){
 
 
-            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11996-6'){
+foreach($obserResult['entry'] as $k=>$obs){
+     $codes = getCodes($obs);
+    $value = getVal($obs);
+    $valueANC = getValANC($obs);
+    $unit  = getUnit($obs);
+
+
+ if($obs['resource']['category'][0]['coding'][0]['code']=='vital-signs'){
+
+
+
+
+    // simpan list observasi
+    $dt['OBS'][$k] = [
+        'param_code' => $codes[0] ?? null,
+        'param_name' => data_get($obs, 'resource.code.coding.0.display'),
+        'valueQty'   => $value,
+        'valueUnit'  => $unit
+    ];
+
+    // 🔴 SISTOLE
+    if (in_array('8480-6', $codes)) {
+        $dt['sistole'] = $value;
+    }
+
+    // 🔵 DIASTOLE
+    if (in_array('8462-4', $codes)) {
+        $dt['diastole'] = $value . ' ' . $unit;
+    }
+
+    // 🟢 TINGGI BADAN
+    if (in_array('8302-2', $codes)) {
+        $dt['anc_body_heigh'] = $value . ' ' . $unit;
+         $dt['ANC']['anc_body_heigh'] = $value . ' ' . $unit;
+    }
+
+    // 💓 NADI
+    if (in_array('8867-4', $codes)) {
+        $dt['VS']['nadi'] = $value . ' ' . $unit;
+    }
+
+    // 🌡️ SUHU
+    if (in_array('8310-5', $codes)) {
+        $dt['VS']['suhuBadan'] = $value . ' ' . $unit;
+    }
+
+    // 🫁 PERNAFASAN
+    if (in_array('9279-1', $codes)) {
+        $dt['VS']['pernafasan'] = $value . ' ' . $unit;
+    }
+
+
+
+}elseif($obs['resource']['category'][0]['coding'][0]['code']=='survey'){
+
+
+          /*  if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11996-6'){
                 $dt['ANC']['gravida']=$obs['resource']['valueInteger'];
             }else{
 
             $dt['ANC']['gravida']="-";
 
             }
-            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11977-6'){
-                $dt['ANC']['parity']=$obs['resource']['valueInteger'];
+            */
+             if (in_array('11996-6', $codes)) {
+        $dt['ANC']['gravida'] = $valueANC ;
+    }
 
-            }else{
-                 $dt['ANC']['parity']="-";
-            }
+    if (in_array('11977-6', $codes)) {
+        $dt['ANC']['parity'] = $valueANC ;
+    }
 
-             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='69043-8'){
-                $dt['ANC']['abortions']=$obs['resource']['valueInteger'];
-            }else{
-                 $dt['ANC']['abortions']="-";
-            }
+   if (in_array('69043-8', $codes)) {
+        $dt['ANC']['abortions'] = $valueANC ;
+    }
+
+
 
 
 
@@ -221,6 +253,8 @@ if(isset($obserResult['total'])){
             }else{
                 $dt['anc_jarak_hamil']=" - ";
             }
+
+
 
             //$dt['anc_hpl']=$obs['resource']['valueDateTime'];
 
@@ -503,16 +537,10 @@ if($kondisi['total']>0){
         $dt['PID']['address']['village'] = $hasil['resource']['address'][0]['extension'][0]['extension'][3]['valueCoding']['code'];
         $dt['PID']['address']['district'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
         $dt['PID']['address']['city'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
-       // $dt['PID']['province_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['code'];
        $dt['PID']['address']['province'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['display'];
 
 
 
-       // $dt['PID']['city_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['code'];
-       // $dt['PID']['city_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
-
-        // $dt['PID']['subdistrict_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['code'];
-         //$dt['PID']['subdistrict_name'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
        }
 
 
@@ -529,14 +557,6 @@ if($kondisi['total']>0){
          foreach($encounterResult['entry'] as $ky=>$encR){
 
          $dt['ENCOUNTER'][$ky] = $encR;
-
-      /*  if(isset( $encR['resource']['identifier'][1]['value'])){
-         $dt['ENC'][$n]['kunjunganANC'] = $encR['resource']['identifier'][1]['value'];
-        }elseif($encR['resource']['identifier'][0]['value']){
-            $dt['ENC'][$n]['kunjunganANC']=$encR['resource']['identifier'][0]['value'];
-        }else{
-            $dt['ENC'][$n]['kunjunganANC']="";
-        }*/
 
         foreach ($encR['resource']['identifier'] as $item) {
     if (str_contains($item['system'], 'ANC')) {
@@ -581,22 +601,6 @@ if($kondisi['total']>0){
           $dt['ENC'][$n]['patient_id'] = $encR['resource']['subject']['reference'];
           $dt['ENC'][$n]['patient_name'] = $encR['resource']['subject']['display'];
 
-  /*        if(isset($encR['resource']['episodeOfCare'][0]['reference'])){
-       $dt['ENC'][$n]['episodeOfCare'] = $encR['resource']['episodeOfCare'][0]['reference'];
-
-
-       $eoc = Http::withToken($token)->get($server.$dt['ENC'][$n]['episodeOfCare']);
-     $eocResult = $eoc->json();
-
-     //   $dt['ENC'][$n]['jeniskunjungan'] = $eocResult['type'][0]['coding'][0]['code'];
-    // $dt['ENC'][$n]['jeniskunjungan_name'] = $eocResult['type'][0]['coding'][0]['display'];
-
-
-          }else{
-             $dt['ENC'][$n]['jeniskunjungan'] ="";
-             $dt['ENC'][$n]['jeniskunjungan_name'] ="";
-          }
-             */
 
 
        $dt['ENC'][$n]['practitioner'] = $encR['resource']['participant'][0]['individual']['reference'];

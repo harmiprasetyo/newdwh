@@ -569,11 +569,11 @@
                                     <td>Tekanan Darah</td><td>:</td>
                                     <td>@if(isset($dt['sistole'])) {{ $dt['sistole'] }}  @endif  / @if(isset($dt['diastole'])) {{ $dt['diastole'] }}  @endif</td></tr><tr>
                                     <td>Suhu</td><td>:</td>
-                                    <td></td></tr><tr>
+                                    <td>@if(isset($dt['VS']['suhuBadan'])) {{  $dt['VS']['suhuBadan'] }} @endif</td></tr><tr>
                                     <td>Nadi</td><td>:</td>
                                     <td>@if(isset($dt['VS']['nadi'])) {{  $dt['VS']['nadi'] }} @endif</td></tr><tr>
                                     <td>Pernafasan</td><td>:</td>
-                                    <td></td></tr><tr>
+                                    <td>@if(isset($dt['VS']['pernafasan'])) {{  $dt['VS']['pernafasan'] }} @endif</td></tr><tr>
                                     <td>Keadaan Ibu</td><td>:</td>
                                     <td></td></tr><tr>
                                     <td>Tindakan</td><td>:</td>

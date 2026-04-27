@@ -38,6 +38,7 @@ class ComposerStaticInit7b56bfb5d21eaae286e532c3ed2f8941
         'ce9671a430e4846b44e1c68c7611f9f5' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         '0b47d6d4a00ca9112ba3953b49e7c9a4' => __DIR__ . '/..' . '/yajra/laravel-datatables-oracle/src/helper.php',
+        '9eb92a60b23a168bdc5f3366f76ebf52' => __DIR__ . '/../..' . '/app/helpers/helpers.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -633,8 +634,11 @@ class ComposerStaticInit7b56bfb5d21eaae286e532c3ed2f8941
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
+        'App\\Models\\Measurement' => __DIR__ . '/../..' . '/app/Models/Measurement.php',
+        'App\\Models\\PregnancyRecord' => __DIR__ . '/../..' . '/app/Models/PregnancyRecord.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\UserGroups' => __DIR__ . '/../..' . '/app/Models/UserGroups.php',
+        'App\\Models\\VitalSign' => __DIR__ . '/../..' . '/app/Models/VitalSign.php',
         'App\\Models\\fhir\\FHIR_resource_patient' => __DIR__ . '/../..' . '/app/Models/fhir/FHIR_resource_patient.php',
         'App\\Models\\otp_table' => __DIR__ . '/../..' . '/app/Models/otp_table.php',
         'App\\Models\\tb_fhir_encounter' => __DIR__ . '/../..' . '/app/Models/tb_fhir_encounter.php',
