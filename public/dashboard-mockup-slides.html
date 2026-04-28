@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Logistik Obat</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #1a1f36; color: #fff; }
+
+  .slide-nav {
+    display: flex; justify-content: center; gap: 10px;
+    padding: 12px 16px; background: #111827;
+    position: sticky; top: 0; z-index: 100; flex-wrap: wrap;
+  }
+  .nav-btn {
+    padding: 7px 18px; border: none; border-radius: 20px;
+    cursor: pointer; font-size: 12px; font-weight: 600; transition: all .2s;
+  }
+  .nav-btn.active { background: #4F6BFF; color: #fff; }
+  .nav-btn:not(.active) { background: #2d3748; color: #a0aec0; }
+  .nav-btn:hover:not(.active) { background: #374151; color: #fff; }
+
+  .slide { display: none; padding: 18px 24px 28px; min-height: calc(100vh - 52px); }
+  .slide.active { display: block; }
+
+  .slide-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 18px; padding-bottom: 12px;
+    border-bottom: 1px solid #2d3748;
+  }
+  .slide-badge {
+    background: linear-gradient(135deg, #4F6BFF, #7C3AED);
+    color: #fff; padding: 4px 14px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;
+  }
+  .slide-header h1 { font-size: 17px; font-weight: 700; color: #e2e8f0; }
+  .slide-header p { font-size: 11px; color: #718096; margin-top: 2px; }
+
+  .cards-grid { display: grid; gap: 12px; margin-bottom: 16px; }
+  .cards-grid.c5 { grid-template-columns: repeat(5, 1fr); }
+  .cards-grid.c4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    background: #1e2540; border-radius: 12px; padding: 13px 12px;
+    border: 1px solid #2d3748; position: relative; overflow: hidden;
+  }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+  .card.blue::before { background: #4F6BFF; }
+  .card.green::before { background: #10b981; }
+  .card.yellow::before { background: #f59e0b; }
+  .card.red::before { background: #ef4444; }
+  .card.purple::before { background: #8b5cf6; }
+  .card.cyan::before { background: #06b6d4; }
+
+  .card-icon { font-size: 20px; margin-bottom: 6px; }
+  .card-val { font-size: 26px; font-weight: 800; line-height: 1; }
+  .card.blue .card-val { color: #818cf8; }
+  .card.green .card-val { color: #34d399; }
+  .card.yellow .card-val { color: #fbbf24; }
+  .card.red .card-val { color: #f87171; }
+  .card.purple .card-val { color: #a78bfa; }
+  .card.cyan .card-val { color: #22d3ee; }
+  .card-label { font-size: 10px; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
+
+  .charts-row { display: grid; gap: 14px; margin-bottom: 14px; }
+  .charts-row.col2 { grid-template-columns: 1fr 1fr; }
+  .charts-row.col3 { grid-template-columns: 1.2fr 1fr 0.8fr; }
+  .charts-row.col-3-1 { grid-template-columns: 2fr 1fr; }
+  .charts-row.col-2-1 { grid-template-columns: 1.6fr 1fr; }
+
+  .chart-box {
+    background: #1e2540; border-radius: 12px; padding: 14px 16px;
+    border: 1px solid #2d3748;
+  }
+  .chart-box h3 {
+    font-size: 11px; font-weight: 700; color: #cbd5e0;
+    margin-bottom: 2px; text-transform: uppercase; letter-spacing: .5px;
+  }
+  .chart-box p { font-size: 10px; color: #718096; margin-bottom: 10px; }
+  .chart-wrap { position: relative; }
+
+  .risk-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .risk-table th {
+    background: #111827; color: #94a3b8; text-align: left;
+    padding: 6px 10px; font-weight: 600; text-transform: uppercase;
+    font-size: 9px; letter-spacing: .5px;
+  }
+  .risk-table td { padding: 6px 10px; border-bottom: 1px solid #2d3748; color: #cbd5e0; }
+  .risk-table tr:hover td { background: #252d47; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 9px; font-weight: 700;
+  }
+  .badge.red { background: #7f1d1d; color: #fca5a5; }
+  .badge.yellow { background: #78350f; color: #fcd34d; }
+  .badge.orange { background: #7c2d12; color: #fdba74; }
+  .badge.green { background: #064e3b; color: #6ee7b7; }
+  .badge.blue { background: #1e3a5f; color: #93c5fd; }
+  .badge.gray { background: #374151; color: #d1d5db; }
+  .badge.purple { background: #3b1f6e; color: #c4b5fd; }
+
+  .prog-list { display: flex; flex-direction: column; gap: 8px; }
+  .prog-item {}
+  .prog-label { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .prog-label span:first-child { font-size: 10px; color: #cbd5e0; }
+  .prog-label span:last-child { font-size: 10px; font-weight: 700; }
+  .prog-bar { height: 7px; background: #2d3748; border-radius: 4px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 4px; }
+
+  /* FLOW / PIPELINE */
+  .flow-container { display: flex; align-items: stretch; gap: 0; margin: 10px 0 6px; }
+  .flow-step {
+    flex: 1; background: #252d47; padding: 10px 8px;
+    text-align: center; position: relative; cursor: default;
+  }
+  .flow-step:first-child { border-radius: 8px 0 0 8px; }
+  .flow-step:last-child { border-radius: 0 8px 8px 0; }
+  .flow-step::after {
+    content: ''; position: absolute; top: 50%; right: -12px;
+    transform: translateY(-50%);
+    border: 10px solid transparent;
+    border-left-width: 12px; z-index: 2;
+  }
+  .flow-step:last-child::after { display: none; }
+  .flow-step.draft { border-top: 3px solid #6b7280; }
+  .flow-step.draft::after { border-left-color: #252d47; }
+  .flow-step.submitted { border-top: 3px solid #818cf8; }
+  .flow-step.submitted::after { border-left-color: #252d47; }
+  .flow-step.verified { border-top: 3px solid #f59e0b; }
+  .flow-step.verified::after { border-left-color: #252d47; }
+  .flow-step.approved { border-top: 3px solid #10b981; }
+  .flow-num { font-size: 22px; font-weight: 800; line-height: 1; }
+  .flow-step.draft .flow-num { color: #9ca3af; }
+  .flow-step.submitted .flow-num { color: #818cf8; }
+  .flow-step.verified .flow-num { color: #fbbf24; }
+  .flow-step.approved .flow-num { color: #34d399; }
+  .flow-label { font-size: 10px; color: #94a3b8; margin-top: 4px; }
+  .flow-icon { font-size: 16px; margin-bottom: 4px; }
+
+  /* STATUS TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item { display: flex; gap: 12px; align-items: flex-start; }
+  .tl-line-wrap { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
+  .tl-connector { width: 2px; flex: 1; min-height: 24px; }
+  .tl-content { flex: 1; padding-bottom: 16px; }
+  .tl-title { font-size: 11px; font-weight: 700; color: #e2e8f0; }
+  .tl-sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+
+  /* MASTER LAPORAN TABLE */
+  .master-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  .master-table th {
+    background: #111827; color: #94a3b8; text-align: center;
+    padding: 6px 6px; font-weight: 600; text-transform: uppercase;
+    font-size: 9px; letter-spacing: .3px; border: 1px solid #2d3748;
+  }
+  .master-table th.left { text-align: left; }
+  .master-table td { padding: 5px 6px; border: 1px solid #232b3e; color: #cbd5e0; text-align: center; }
+  .master-table td.left { text-align: left; font-weight: 600; }
+  .master-table tr:hover td { background: #232d47; }
+  .cell-done { background: #064e3b; color: #6ee7b7; font-weight: 700; border-radius: 4px; padding: 2px 5px; display: inline-block; font-size: 9px; }
+  .cell-late { background: #7c2d12; color: #fdba74; font-weight: 700; border-radius: 4px; padding: 2px 5px; display: inline-block; font-size: 9px; }
+  .cell-miss { background: #7f1d1d; color: #fca5a5; font-weight: 700; border-radius: 4px; padding: 2px 5px; display: inline-block; font-size: 9px; }
+  .cell-none { color: #4b5563; }
+
+  .req-detail-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .req-mini { background: #252d47; border-radius: 8px; padding: 8px 10px; }
+  .req-mini-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: .4px; }
+  .req-mini-val { font-size: 14px; font-weight: 700; color: #a78bfa; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="slide-nav">
+  <button class="nav-btn active" onclick="showSlide(0)">📊 Slide 1 — Ringkasan & Status Stok</button>
+  <button class="nav-btn" onclick="showSlide(1)">📋 Slide 2 — Analisa & Monitoring</button>
+  <button class="nav-btn" onclick="showSlide(2)">🗂️ Slide 3 — Tata Kelola Administratif</button>
+</div>
+
+<!-- ═══ SLIDE 1 ═══ -->
+<div class="slide active" id="slide-0">
+  <div class="slide-header">
+    <div><div class="slide-badge">Slide 1 / 3</div></div>
+    <div>
+      <h1>Dashboard Logistik Obat — Ringkasan & Status Stok</h1>
+      <p>Mockup Visual · Sistem Informasi Logistik Obat Puskesmas</p>
+    </div>
+  </div>
+
+  <div class="cards-grid c5">
+    <div class="card blue"><div class="card-icon">🏥</div><div class="card-val">32</div><div class="card-label">Puskesmas Telah Melapor</div></div>
+    <div class="card purple"><div class="card-icon">✅</div><div class="card-val">28</div><div class="card-label">Laporan Terverifikasi</div></div>
+    <div class="card green"><div class="card-icon">💊</div><div class="card-val">147</div><div class="card-label">Jenis Obat Dimonitor</div></div>
+    <div class="card yellow"><div class="card-icon">⚠️</div><div class="card-val">18</div><div class="card-label">Obat Risiko Stock Out</div></div>
+    <div class="card red"><div class="card-icon">🚨</div><div class="card-val">5</div><div class="card-label">Obat Stok Kosong</div></div>
+  </div>
+
+  <div class="charts-row col3">
+    <div class="chart-box">
+      <h3>Distribusi Status Stok Obat</h3>
+      <p>Berdasarkan 147 jenis obat yang dimonitor</p>
+      <div class="chart-wrap" style="height:175px; display:flex; align-items:center; justify-content:center; gap:20px">
+        <canvas id="donutChart" width="150" height="150"></canvas>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:#94a3b8"><div style="width:10px;height:10px;border-radius:50%;background:#10b981"></div>Stok Aman — 96</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:#94a3b8"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Stok Waspada — 28</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:#94a3b8"><div style="width:10px;height:10px;border-radius:50%;background:#ef4444"></div>Risiko Stock Out — 18</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:#94a3b8"><div style="width:10px;height:10px;border-radius:50%;background:#4b5563"></div>Stok Kosong — 5</div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>Status Stok per Puskesmas</h3>
+      <p>Top 6 Puskesmas — jumlah obat per kategori</p>
+      <div class="chart-wrap" style="height:175px"><canvas id="barPusk"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>Obat Stok Kritis</h3>
+      <p>Perlu intervensi segera</p>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+        <div style="background:#2d1515;border-left:3px solid #ef4444;border-radius:6px;padding:6px 10px"><div style="font-size:10px;font-weight:700;color:#fca5a5">Amoxicillin 500mg</div><div style="font-size:9px;color:#94a3b8">PKM Suka Maju · Sisa: 12 tab</div></div>
+        <div style="background:#2d1515;border-left:3px solid #ef4444;border-radius:6px;padding:6px 10px"><div style="font-size:10px;font-weight:700;color:#fca5a5">ORS Sachet</div><div style="font-size:9px;color:#94a3b8">PKM Harapan · Sisa: 5 sachet</div></div>
+        <div style="background:#2d1a0a;border-left:3px solid #f59e0b;border-radius:6px;padding:6px 10px"><div style="font-size:10px;font-weight:700;color:#fcd34d">Paracetamol 500mg</div><div style="font-size:9px;color:#94a3b8">PKM Cendana · Sisa: 48 tab</div></div>
+        <div style="background:#2d1a0a;border-left:3px solid #f59e0b;border-radius:6px;padding:6px 10px"><div style="font-size:10px;font-weight:700;color:#fcd34d">Metformin 500mg</div><div style="font-size:9px;color:#94a3b8">PKM Mandiri · Sisa: 22 tab</div></div>
+        <div style="background:#2d1515;border-left:3px solid #ef4444;border-radius:6px;padding:6px 10px"><div style="font-size:10px;font-weight:700;color:#fca5a5">Cotrimoxazole</div><div style="font-size:9px;color:#94a3b8">PKM Melati · Sisa: 0 tab</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row col-3-1">
+    <div class="chart-box">
+      <h3>Tren Pemakaian Obat Bulanan</h3>
+      <p>Top 3 obat — Januari s/d Juni 2025</p>
+      <div class="chart-wrap" style="height:155px"><canvas id="lineChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>Kepatuhan Pelaporan LPLPO</h3>
+      <p>Status laporan bulan ini</p>
+      <div class="prog-list" style="margin-top:6px">
+        <div class="prog-item"><div class="prog-label"><span>PKM Suka Maju</span><span style="color:#34d399">100%</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#10b981"></div></div></div>
+        <div class="prog-item"><div class="prog-label"><span>PKM Harapan</span><span style="color:#34d399">87%</span></div><div class="prog-bar"><div class="prog-fill" style="width:87%;background:#10b981"></div></div></div>
+        <div class="prog-item"><div class="prog-label"><span>PKM Mandiri</span><span style="color:#fbbf24">72%</span></div><div class="prog-bar"><div class="prog-fill" style="width:72%;background:#f59e0b"></div></div></div>
+        <div class="prog-item"><div class="prog-label"><span>PKM Cendana</span><span style="color:#fbbf24">55%</span></div><div class="prog-bar"><div class="prog-fill" style="width:55%;background:#f59e0b"></div></div></div>
+        <div class="prog-item"><div class="prog-label"><span>PKM Melati</span><span style="color:#f87171">30%</span></div><div class="prog-bar"><div class="prog-fill" style="width:30%;background:#ef4444"></div></div></div>
+      </div>
+      <div style="margin-top:10px;background:#111827;border-radius:8px;padding:8px;display:flex;justify-content:space-around;text-align:center">
+        <div><div style="font-size:17px;font-weight:800;color:#34d399">27</div><div style="font-size:9px;color:#94a3b8">Sudah Lapor</div></div>
+        <div><div style="font-size:17px;font-weight:800;color:#f87171">5</div><div style="font-size:9px;color:#94a3b8">Belum Lapor</div></div>
+        <div><div style="font-size:17px;font-weight:800;color:#fbbf24">84%</div><div style="font-size:9px;color:#94a3b8">Tepat Waktu</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 2 ═══ -->
+<div class="slide" id="slide-1">
+  <div class="slide-header">
+    <div><div class="slide-badge">Slide 2 / 3</div></div>
+    <div>
+      <h1>Dashboard Logistik Obat — Analisa Lanjutan & Monitoring</h1>
+      <p>Mockup Visual · Sistem Informasi Logistik Obat Puskesmas</p>
+    </div>
+  </div>
+
+  <div class="charts-row col2">
+    <div class="chart-box">
+      <h3>🔴 Daftar Obat Risiko Stock Out</h3>
+      <p>Estimasi stok habis dalam 7–14 hari ke depan</p>
+      <table class="risk-table">
+        <thead><tr><th>Nama Obat</th><th>Puskesmas</th><th>Sisa Stok</th><th>Est. Habis</th><th>Risiko</th></tr></thead>
+        <tbody>
+          <tr><td>Amoxicillin 500mg</td><td>PKM Suka Maju</td><td>12 tab</td><td>3 hari</td><td><span class="badge red">Kritis</span></td></tr>
+          <tr><td>ORS Sachet</td><td>PKM Harapan</td><td>5 sachet</td><td>2 hari</td><td><span class="badge red">Kritis</span></td></tr>
+          <tr><td>Cotrimoxazole</td><td>PKM Melati</td><td>0 tab</td><td>Habis</td><td><span class="badge red">Kosong</span></td></tr>
+          <tr><td>Paracetamol 500mg</td><td>PKM Cendana</td><td>48 tab</td><td>7 hari</td><td><span class="badge orange">Tinggi</span></td></tr>
+          <tr><td>Metformin 500mg</td><td>PKM Mandiri</td><td>22 tab</td><td>5 hari</td><td><span class="badge orange">Tinggi</span></td></tr>
+          <tr><td>Vitamin C 50mg</td><td>PKM Sejahtera</td><td>120 tab</td><td>12 hari</td><td><span class="badge yellow">Waspada</span></td></tr>
+          <tr><td>Antasida Suspensi</td><td>PKM Bahagia</td><td>2 btl</td><td>10 hari</td><td><span class="badge yellow">Waspada</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-box">
+      <h3>📈 Analisa Konsumsi Obat Tertinggi</h3>
+      <p>Perbandingan konsumsi antar Puskesmas — Top 5 Obat</p>
+      <div class="chart-wrap" style="height:215px"><canvas id="barKonsumsi"></canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-row col3">
+    <div class="chart-box">
+      <h3>📦 Rekap Kebutuhan Obat</h3>
+      <p>Estimasi kebutuhan otomatis sistem — Top 8 obat</p>
+      <div class="chart-wrap" style="height:175px"><canvas id="barKebutuhan"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>📉 Tren per Kelompok Obat</h3>
+      <p>Perubahan pemakaian Jan–Jun 2025</p>
+      <div class="chart-wrap" style="height:175px"><canvas id="lineKelompok"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>📝 Status Permintaan Obat</h3>
+      <p>Periode bulan berjalan</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">
+        <div style="background:#252d47;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:800;color:#818cf8">42</div><div style="font-size:9px;color:#94a3b8">Total Diajukan</div></div>
+        <div style="background:#252d47;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:800;color:#fbbf24">11</div><div style="font-size:9px;color:#94a3b8">Proses Verifikasi</div></div>
+        <div style="background:#252d47;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:800;color:#34d399">26</div><div style="font-size:9px;color:#94a3b8">Disetujui</div></div>
+        <div style="background:#252d47;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:800;color:#fb7185">5</div><div style="font-size:9px;color:#94a3b8">Perlu Revisi</div></div>
+      </div>
+      <div class="chart-wrap" style="height:95px"><canvas id="doughnutReq"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3>🗂️ Tabel Kebutuhan Obat per Puskesmas</h3>
+    <p>Estimasi kebutuhan obat bulan depan berdasarkan analisa sistem</p>
+    <table class="risk-table" style="margin-top:8px">
+      <thead><tr><th>Puskesmas</th><th>Amoxicillin</th><th>Paracetamol</th><th>ORS</th><th>Metformin</th><th>Vit C</th><th>Total Kebutuhan</th></tr></thead>
+      <tbody>
+        <tr><td>PKM Suka Maju</td><td>500 tab</td><td>800 tab</td><td>100 scht</td><td>300 tab</td><td>600 tab</td><td style="color:#34d399;font-weight:700">2.300</td></tr>
+        <tr><td>PKM Harapan</td><td>350 tab</td><td>600 tab</td><td>200 scht</td><td>150 tab</td><td>400 tab</td><td style="color:#34d399;font-weight:700">1.700</td></tr>
+        <tr><td>PKM Mandiri</td><td>420 tab</td><td>750 tab</td><td>80 scht</td><td>280 tab</td><td>500 tab</td><td style="color:#34d399;font-weight:700">2.030</td></tr>
+        <tr><td>PKM Cendana</td><td>200 tab</td><td>400 tab</td><td>60 scht</td><td>200 tab</td><td>300 tab</td><td style="color:#34d399;font-weight:700">1.160</td></tr>
+        <tr><td>PKM Melati</td><td>300 tab</td><td>500 tab</td><td>90 scht</td><td>100 tab</td><td>250 tab</td><td style="color:#34d399;font-weight:700">1.240</td></tr>
+        <tr style="background:#1a2035"><td style="font-weight:700;color:#a78bfa">TOTAL KAB/KOTA</td><td style="font-weight:700;color:#a78bfa">1.770</td><td style="font-weight:700;color:#a78bfa">3.050</td><td style="font-weight:700;color:#a78bfa">530</td><td style="font-weight:700;color:#a78bfa">1.030</td><td style="font-weight:700;color:#a78bfa">2.050</td><td style="font-weight:700;color:#a78bfa">8.430</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ SLIDE 3 ═══ -->
+<div class="slide" id="slide-2">
+  <div class="slide-header">
+    <div><div class="slide-badge">Slide 3 / 3</div></div>
+    <div>
+      <h1>Dashboard Logistik Obat — Tata Kelola Administratif</h1>
+      <p>Mockup Visual · Master Laporan, Pengajuan & Persetujuan Permintaan Obat</p>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="cards-grid c4" style="margin-bottom:16px">
+    <div class="card blue"><div class="card-icon">📋</div><div class="card-val">32</div><div class="card-label">Puskesmas Terdaftar</div></div>
+    <div class="card green"><div class="card-icon">📬</div><div class="card-val">27</div><div class="card-label">Laporan Masuk Bulan Ini</div></div>
+    <div class="card yellow"><div class="card-icon">📤</div><div class="card-val">42</div><div class="card-label">Total Permintaan Diajukan</div></div>
+    <div class="card purple"><div class="card-icon">✔️</div><div class="card-val">26</div><div class="card-label">Permintaan Disetujui</div></div>
+  </div>
+
+  <!-- ROW 1: Master Laporan + Alur Status -->
+  <div class="charts-row col-2-1">
+
+    <!-- MASTER LAPORAN TABLE -->
+    <div class="chart-box">
+      <h3>📅 Master Laporan LPLPO per Bulan per Puskesmas</h3>
+      <p>Rekap status pelaporan bulanan — tahun 2025 (✔ Tepat Waktu &nbsp;|&nbsp; ⏱ Terlambat &nbsp;|&nbsp; ✕ Tidak Lapor)</p>
+      <div style="overflow-x:auto;margin-top:4px">
+        <table class="master-table">
+          <thead>
+            <tr>
+              <th class="left" style="min-width:110px">Puskesmas</th>
+              <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>Mei</th><th>Jun</th>
+              <th>Total ✔</th><th>Kepatuhan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">PKM Suka Maju</td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td style="color:#34d399;font-weight:700">6/6</td><td style="color:#34d399;font-weight:700">100%</td></tr>
+            <tr><td class="left">PKM Harapan</td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-late">⏱</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td style="color:#34d399;font-weight:700">5/6</td><td style="color:#fbbf24;font-weight:700">83%</td></tr>
+            <tr><td class="left">PKM Mandiri</td><td><span class="cell-done">✔</span></td><td><span class="cell-miss">✕</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-late">⏱</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td style="color:#fbbf24;font-weight:700">4/6</td><td style="color:#fbbf24;font-weight:700">67%</td></tr>
+            <tr><td class="left">PKM Cendana</td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-miss">✕</span></td><td><span class="cell-miss">✕</span></td><td><span class="cell-late">⏱</span></td><td><span class="cell-done">✔</span></td><td style="color:#fbbf24;font-weight:700">3/6</td><td style="color:#f87171;font-weight:700">50%</td></tr>
+            <tr><td class="left">PKM Melati</td><td><span class="cell-miss">✕</span></td><td><span class="cell-miss">✕</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-late">⏱</span></td><td><span class="cell-miss">✕</span></td><td><span class="cell-done">✔</span></td><td style="color:#f87171;font-weight:700">2/6</td><td style="color:#f87171;font-weight:700">33%</td></tr>
+            <tr><td class="left">PKM Sejahtera</td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-miss">✕</span></td><td><span class="cell-late">⏱</span></td><td style="color:#34d399;font-weight:700">4/6</td><td style="color:#fbbf24;font-weight:700">67%</td></tr>
+            <tr><td class="left">PKM Bahagia</td><td><span class="cell-done">✔</span></td><td><span class="cell-late">⏱</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td style="color:#34d399;font-weight:700">5/6</td><td style="color:#fbbf24;font-weight:700">83%</td></tr>
+            <tr><td class="left">PKM Maju Jaya</td><td><span class="cell-done">✔</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-late">⏱</span></td><td><span class="cell-done">✔</span></td><td><span class="cell-miss">✕</span></td><td><span class="cell-done">✔</span></td><td style="color:#fbbf24;font-weight:700">4/6</td><td style="color:#fbbf24;font-weight:700">67%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Legend & Summary bar -->
+      <div style="display:flex;gap:16px;margin-top:10px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;gap:10px">
+          <div style="display:flex;align-items:center;gap:5px;font-size:9px;color:#94a3b8"><span class="cell-done" style="font-size:8px">✔</span> Tepat Waktu</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:9px;color:#94a3b8"><span class="cell-late" style="font-size:8px">⏱</span> Terlambat</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:9px;color:#94a3b8"><span class="cell-miss" style="font-size:8px">✕</span> Tidak Lapor</div>
+        </div>
+        <div style="flex:1;background:#111827;border-radius:8px;padding:6px 12px;display:flex;justify-content:space-around;text-align:center">
+          <div><div style="font-size:15px;font-weight:800;color:#34d399">33</div><div style="font-size:8px;color:#94a3b8">Tepat Waktu</div></div>
+          <div><div style="font-size:15px;font-weight:800;color:#fbbf24">9</div><div style="font-size:8px;color:#94a3b8">Terlambat</div></div>
+          <div><div style="font-size:15px;font-weight:800;color:#f87171">6</div><div style="font-size:8px;color:#94a3b8">Tidak Lapor</div></div>
+          <div><div style="font-size:15px;font-weight:800;color:#a78bfa">69%</div><div style="font-size:8px;color:#94a3b8">Kepatuhan</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALUR STATUS PERMINTAAN -->
+    <div class="chart-box">
+      <h3>🔄 Alur Status Permintaan Obat (e-LPLPO)</h3>
+      <p>Alur berjenjang Draft → Submitted → Verified → Approved</p>
+
+      <!-- Flow Steps -->
+      <div class="flow-container">
+        <div class="flow-step draft"><div class="flow-icon">📝</div><div class="flow-num">8</div><div class="flow-label">Draft</div></div>
+        <div class="flow-step submitted"><div class="flow-icon">📤</div><div class="flow-num">42</div><div class="flow-label">Submitted</div></div>
+        <div class="flow-step verified"><div class="flow-icon">🔍</div><div class="flow-num">28</div><div class="flow-label">Verified</div></div>
+        <div class="flow-step approved"><div class="flow-icon">✅</div><div class="flow-num">26</div><div class="flow-label">Approved</div></div>
+      </div>
+      <div style="font-size:9px;color:#4b5563;text-align:center;margin-bottom:12px">← Angka menunjukkan jumlah surat permintaan di setiap tahap</div>
+
+      <!-- Timeline Verifikasi -->
+      <div style="font-size:10px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Alur Verifikasi Berjenjang</div>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-line-wrap">
+            <div class="tl-dot" style="background:#9ca3af"></div>
+            <div class="tl-connector" style="background:#2d3748"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-title">📝 Draft — Puskesmas</div>
+            <div class="tl-sub">Petugas farmasi menyusun daftar kebutuhan obat berdasarkan analisa sistem. Mencakup jenis obat, jumlah permintaan, dan dasar kebutuhan.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-line-wrap">
+            <div class="tl-dot" style="background:#818cf8"></div>
+            <div class="tl-connector" style="background:#2d3748"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-title">📤 Submitted — Verifikasi Internal PKM</div>
+            <div class="tl-sub">Penanggung jawab farmasi / Kepala Puskesmas memeriksa dan menyetujui kelengkapan pengajuan sebelum dikirim ke Dinas Kesehatan.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-line-wrap">
+            <div class="tl-dot" style="background:#f59e0b"></div>
+            <div class="tl-connector" style="background:#2d3748"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-title">🔍 Verified — Pengelola Farmasi Dinkes</div>
+            <div class="tl-sub">Pengelola farmasi kabupaten/kota menilai kewajaran permintaan berdasarkan data konsumsi historis dan ketersediaan stok gudang.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-line-wrap">
+            <div class="tl-dot" style="background:#10b981"></div>
+          </div>
+          <div class="tl-content" style="padding-bottom:0">
+            <div class="tl-title">✅ Approved — Dasar Distribusi / Pengadaan</div>
+            <div class="tl-sub">Permintaan yang disetujui menjadi dasar proses distribusi obat dari gudang Dinkes ke Puskesmas atau proses pengadaan tambahan.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Tabel Detail Permintaan + Chart Status -->
+  <div class="charts-row col-2-1">
+    <!-- TABEL PERMINTAAN -->
+    <div class="chart-box">
+      <h3>📦 Daftar Pengajuan Permintaan Obat Aktif</h3>
+      <p>Permintaan yang sedang diproses dalam sistem e-LPLPO</p>
+      <table class="risk-table" style="margin-top:6px">
+        <thead>
+          <tr>
+            <th>No. Permintaan</th>
+            <th>Puskesmas</th>
+            <th>Tanggal Ajuan</th>
+            <th>Jenis Obat</th>
+            <th>Dasar Kebutuhan</th>
+            <th>Status</th>
+            <th>Verifikator</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>REQ-2506-001</td><td>PKM Suka Maju</td><td>02 Jun 2025</td><td>4 item</td><td>Analisa LPLPO</td><td><span class="badge green">Approved</span></td><td>Dinkes</td></tr>
+          <tr><td>REQ-2506-002</td><td>PKM Harapan</td><td>03 Jun 2025</td><td>6 item</td><td>Analisa LPLPO</td><td><span class="badge green">Approved</span></td><td>Dinkes</td></tr>
+          <tr><td>REQ-2506-003</td><td>PKM Mandiri</td><td>04 Jun 2025</td><td>3 item</td><td>Stok Kritis</td><td><span class="badge yellow">Verified</span></td><td>Pengelola Farmasi</td></tr>
+          <tr><td>REQ-2506-004</td><td>PKM Cendana</td><td>05 Jun 2025</td><td>5 item</td><td>Analisa LPLPO</td><td><span class="badge yellow">Verified</span></td><td>Pengelola Farmasi</td></tr>
+          <tr><td>REQ-2506-005</td><td>PKM Melati</td><td>06 Jun 2025</td><td>7 item</td><td>Analisa LPLPO</td><td><span class="badge blue">Submitted</span></td><td>Ka. Puskesmas</td></tr>
+          <tr><td>REQ-2506-006</td><td>PKM Sejahtera</td><td>07 Jun 2025</td><td>4 item</td><td>Stok Habis</td><td><span class="badge blue">Submitted</span></td><td>Ka. Puskesmas</td></tr>
+          <tr><td>REQ-2506-007</td><td>PKM Bahagia</td><td>08 Jun 2025</td><td>2 item</td><td>Analisa LPLPO</td><td><span class="badge gray">Draft</span></td><td>—</td></tr>
+          <tr><td>REQ-2506-008</td><td>PKM Maju Jaya</td><td>08 Jun 2025</td><td>5 item</td><td>Analisa LPLPO</td><td><span class="badge red">Perlu Revisi</span></td><td>Pengelola Farmasi</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CHART STATUS PIE + Progress -->
+    <div class="chart-box" style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <h3>📊 Distribusi Status Permintaan</h3>
+        <p>Komposisi permintaan bulan berjalan</p>
+        <div class="chart-wrap" style="height:140px"><canvas id="pieStatus"></canvas></div>
+      </div>
+      <div>
+        <h3>⏱ Rata-rata Waktu Proses</h3>
+        <p>Dari pengajuan hingga persetujuan</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:10px;color:#cbd5e0">Draft → Submitted</span><span style="font-size:10px;font-weight:700;color:#818cf8">1.2 hari</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:20%;background:#818cf8"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:10px;color:#cbd5e0">Submitted → Verified</span><span style="font-size:10px;font-weight:700;color:#f59e0b">2.4 hari</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:40%;background:#f59e0b"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:10px;color:#cbd5e0">Verified → Approved</span><span style="font-size:10px;font-weight:700;color:#34d399">1.8 hari</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:30%;background:#10b981"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:10px;color:#e2e8f0;font-weight:700">Total Waktu Proses</span><span style="font-size:10px;font-weight:700;color:#a78bfa">5.4 hari</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:100%;background:linear-gradient(90deg,#818cf8,#f59e0b,#10b981)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+
+// Slide 1
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: { labels: ['Aman','Waspada','Risiko','Kosong'], datasets: [{ data: [96,28,18,5], backgroundColor: ['#10b981','#f59e0b','#ef4444','#4b5563'], borderWidth: 2, borderColor: '#1e2540' }] },
+  options: { ...cOpts, cutout: '68%' }
+});
+new Chart(document.getElementById('barPusk'), {
+  type: 'bar',
+  data: {
+    labels: ['Suka Maju','Harapan','Mandiri','Cendana','Melati','Bahagia'],
+    datasets: [
+      { label: 'Aman', data: [32,28,25,20,18,22], backgroundColor: '#10b981' },
+      { label: 'Waspada', data: [5,6,8,7,9,4], backgroundColor: '#f59e0b' },
+      { label: 'Kritis', data: [2,4,3,5,6,2], backgroundColor: '#ef4444' }
+    ]
+  },
+  options: { ...cOpts, indexAxis: 'y', scales: { x: { stacked: true, grid: { color: '#2d3748' }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } } }, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 } } } }
+});
+new Chart(document.getElementById('lineChart'), {
+  type: 'line',
+  data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun'], datasets: [
+    { label: 'Paracetamol', data: [1200,1350,1100,1500,1420,1600], borderColor: '#818cf8', backgroundColor: '#818cf820', tension: 0.4, fill: true, pointRadius: 3 },
+    { label: 'Amoxicillin', data: [800,950,870,1020,980,1100], borderColor: '#34d399', backgroundColor: '#34d39910', tension: 0.4, fill: true, pointRadius: 3 },
+    { label: 'ORS', data: [300,280,350,400,420,390], borderColor: '#f59e0b', backgroundColor: '#f59e0b10', tension: 0.4, fill: true, pointRadius: 3 }
+  ]},
+  options: { ...cOpts, scales: { x: { grid: { color: '#2d3748' }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { grid: { color: '#2d3748' }, ticks: { color: '#94a3b8', font: { size: 9 } } } }, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 } } } }
+});
+
+// Slide 2
+new Chart(document.getElementById('barKonsumsi'), {
+  type: 'bar',
+  data: { labels: ['Paracetamol','Amoxicillin','ORS','Metformin','Vit C'], datasets: [
+    { label: 'Suka Maju', data: [850,520,180,310,440], backgroundColor: '#818cf8' },
+    { label: 'Harapan', data: [720,380,230,180,290], backgroundColor: '#34d399' },
+    { label: 'Mandiri', data: [640,430,120,260,380], backgroundColor: '#f59e0b' },
+    { label: 'Cendana', data: [480,220,90,195,250], backgroundColor: '#f87171' },
+    { label: 'Melati', data: [590,310,140,110,230], backgroundColor: '#a78bfa' }
+  ]},
+  options: { ...cOpts, scales: { x: { grid: { color: '#2d3748' }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { grid: { color: '#2d3748' }, ticks: { color: '#94a3b8', font: { size: 9 } } } }, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 8 } } } }
+});
+new Chart(document.getElementById('barKebutuhan'), {
+  type: 'bar',
+  data: { labels: ['PCT','AMX','ORS','MTF','VitC','CTX','ANT','CPT'], datasets: [{ label: 'Kebutuhan', data: [3050,1770,530,1030,2050,680,420,760], backgroundColor: ['#818cf8','#34d399','#f59e0b','#f87171','#a78bfa','#38bdf8','#fb923c','#4ade80'], borderRadius: 4 }] },
+  options: { ...cOpts, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { grid: { color: '#2d3748' }, ticks: { color: '#94a3b8', font: { size: 9 } } } } }
+});
+new Chart(document.getElementById('lineKelompok'), {
+  type: 'line',
+  data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun'], datasets: [
+    { label: 'Antibiotik', data: [1100,1200,1050,1300,1250,1400], borderColor: '#f87171', tension: 0.4, pointRadius: 3 },
+    { label: 'Analgetik', data: [2000,2200,1900,2400,2300,2600], borderColor: '#818cf8', tension: 0.4, pointRadius: 3 },
+    { label: 'Antidiabetik', data: [600,650,620,700,720,780], borderColor: '#34d399', tension: 0.4, pointRadius: 3 }
+  ]},
+  options: { ...cOpts, scales: { x: { grid: { color: '#2d3748' }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { grid: { color: '#2d3748' }, ticks: { color: '#94a3b8', font: { size: 9 } } } }, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 } } } }
+});
+new Chart(document.getElementById('doughnutReq'), {
+  type: 'doughnut',
+  data: { labels: ['Diajukan','Verifikasi','Disetujui','Perlu Revisi'], datasets: [{ data: [42,11,26,5], backgroundColor: ['#818cf8','#fbbf24','#34d399','#fb7185'], borderWidth: 2, borderColor: '#1e2540' }] },
+  options: { ...cOpts, cutout: '60%', plugins: { legend: { display: true, position: 'right', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 8 } } } }
+});
+
+// Slide 3
+new Chart(document.getElementById('pieStatus'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Approved','Verified','Submitted','Draft','Perlu Revisi'],
+    datasets: [{ data: [26,11,8,3,5], backgroundColor: ['#10b981','#f59e0b','#818cf8','#6b7280','#ef4444'], borderWidth: 2, borderColor: '#1e2540' }]
+  },
+  options: { ...cOpts, cutout: '55%', plugins: { legend: { display: true, position: 'right', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 8 } } } }
+});
+
+function showSlide(i) {
+  document.querySelectorAll('.slide').forEach((s,j) => s.classList.toggle('active', j===i));
+  document.querySelectorAll('.nav-btn').forEach((b,j) => b.classList.toggle('active', j===i));
+}
+</script>
+</body>
+</html>

@@ -298,9 +298,16 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1a202c;min-heig
   </div>
 
   <div class="sidebar-section">Menu Utama</div>
+   <div class="sidebar-item active" onclick="goLink('dashboard-mockup-slides.html')" id="nav-dashboard">
+    <span class="icon">📊</span> Dashboard
+  </div>
+
+
   <div class="sidebar-item active" onclick="goPage('dashboard')" id="nav-dashboard">
     <span class="icon">📊</span> Beranda
   </div>
+
+
   <div class="sidebar-item" onclick="goPage('notifikasi')" id="nav-notifikasi">
     <span class="icon">🔔</span> Notifikasi
     <span class="sidebar-badge">3</span>
@@ -939,6 +946,9 @@ function simulateUpload() {
   }, 120);
 }
 
+function goLink(url) {
+    window.location.href = url;
+}
 function resetUpload() {
   uploadDone = false;
   clearInterval(uploadTimer);
