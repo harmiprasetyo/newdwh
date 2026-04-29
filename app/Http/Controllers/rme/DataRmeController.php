@@ -562,6 +562,9 @@ if($kondisi['total']>0){
     if (str_contains($item['system'], 'ANC')) {
         $dt['ENC'][$n]['jeniskunjungan_name'] = basename($item['system']); // ANC
         $dt['ENC'][$n]['kunjunganANC'] = $item['value'];          // K2
+    }else{
+        $dt['ENC'][$n]['jeniskunjungan_name'] = "Lainnya";
+        $dt['ENC'][$n]['kunjunganANC'] = "-";
     }
 
 }
