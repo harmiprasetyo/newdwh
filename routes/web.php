@@ -12,7 +12,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\master\IndonesiaController;
 use App\Http\Controllers\UserWebController;
-use App\Http\Controllers\Lplpo\Lplpocontroller;
+use App\Http\Controllers\Lplpo\LplpoController;
 
 
 
