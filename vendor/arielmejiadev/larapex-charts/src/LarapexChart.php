@@ -9,9 +9,9 @@ class LarapexChart
     | Chart
     |--------------------------------------------------------------------------
     |
-    | This class build the chart by passing setters to the object, it will
-    | use the method container and scripts to generate a JSON
-    | in blade views, it works also with Vue JS components
+    | This class build the chart by passing setters to the object, it will 
+    | use the method container and scripts to generate a JSON  
+    | in blade views, it works also with Vue JS components  
     |
     */
 
@@ -25,7 +25,7 @@ class LarapexChart
     protected string $foreColor;
     protected string $dataset = '';
     protected int $height = 500;
-    protected string $width = '100%';
+    protected int|string $width = '100%';
     protected string $colors;
     protected string $horizontal;
     protected string $xAxis;
@@ -273,7 +273,7 @@ class LarapexChart
     |--------------------------------------------------------------------------
     */
 
-    public function transformLabels(array $array): string
+    public function transformLabels(array $array): bool|string
     {
         $stringArray = array_filter($array, function($string){
             return "{$string}";
@@ -351,12 +351,12 @@ class LarapexChart
         return $this->width;
     }
 
-    public function colors(): string
+    public function colors(): bool|string
     {
         return $this->colors;
     }
 
-    public function horizontal(): string
+    public function horizontal(): bool|string
     {
         return $this->horizontal;
     }
@@ -366,12 +366,12 @@ class LarapexChart
         return $this->xAxis;
     }
 
-    public function grid(): string
+    public function grid(): bool|string
     {
         return $this->grid;
     }
 
-    public function markers(): string
+    public function markers(): bool|string
     {
         return $this->markers;
     }
@@ -381,22 +381,22 @@ class LarapexChart
         return $this->stroke;
     }
 
-    public function toolbar(): string
+    public function toolbar(): bool|string
     {
         return $this->toolbar;
     }
 
-    public function zoom(): string
+    public function zoom(): bool|string
     {
         return $this->zoom;
     }
 
-    public function dataLabels(): string
+    public function dataLabels(): bool|string
     {
         return $this->dataLabels;
     }
 
-    public function sparkline(): string
+    public function sparkline(): bool|string
     {
         return $this->sparkline;
     }

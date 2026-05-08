@@ -46,6 +46,7 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+
     ],
 
     /*
@@ -65,17 +66,29 @@ return [
     |
     */
 
-    'providers' => [
+  /*  'providers' => [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\users\authUser::class,
         ],
+        */
+
+        'providers' => [
+    'users' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\UsersApp::class,
+    ],
+    'users_api' => [
+    'driver' => 'eloquent',
+    'model' => App\Models\Api\UserApi::class,
+],
+],
 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
-    ],
+
 
     /*
     |--------------------------------------------------------------------------

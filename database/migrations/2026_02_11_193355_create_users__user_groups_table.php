@@ -13,12 +13,11 @@ class CreateUsersUserGroupsTable extends Migration
      */
     public function up()
     {
-        Schema::create('User_Groups', function (Blueprint $table) {
-            $table->id('group_id')->autoIncrement();
-            $table->string('group_name');
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('update_at')->useCurrent()->useCurrentOnUpdate();
-        });
+       Schema::create('user_groups', function (Blueprint $table) {
+    $table->id('idgroup');
+    $table->string('namagroup', 55);
+    $table->timestamps();
+});
 
     }
 
@@ -29,6 +28,6 @@ class CreateUsersUserGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('User_Groups');
+        Schema::dropIfExists('user_groups');
     }
 }

@@ -177,6 +177,9 @@ return [
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
+        Laravolt\Indonesia\ServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+        Laravel\Sanctum\SanctumServiceProvider::class,
        // ConsoleTVs\Charts\ChartsServiceProvider::class,
 
     ],
@@ -230,6 +233,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+         'Indonesia' => Laravolt\Indonesia\Facade::class
 
     ],
 

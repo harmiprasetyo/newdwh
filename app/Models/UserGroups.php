@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserGroups extends Model
 {
-protected $table = "usergroups";
-protected $fillable = ["group_name"];
-use HasFactory;
+
+
+protected $table = 'usergroups';
+protected $primaryKey = 'group_id';
+protected $fillable = ['group_name'];
+
 }

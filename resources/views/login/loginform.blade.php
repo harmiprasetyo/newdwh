@@ -92,7 +92,7 @@
     dataType: "JSON",
     cache: false,
     data: {
-        userName: username,
+        username: username,
         password: password,
         _token: token
     },

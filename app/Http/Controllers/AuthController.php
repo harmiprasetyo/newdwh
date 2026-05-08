@@ -33,12 +33,12 @@ class AuthController extends Controller
 
 
       $request->validate([
-            'userName' => 'required',
+            'username' => 'required',
             'password' => 'required'
         ]);
 
         if (Auth::attempt([
-            'userName' => $request->userName,
+            'username' => $request->username,
             'password' => $request->password
         ])) {
 
