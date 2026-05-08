@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\UserApp;
+use App\Models\UsersApp as UserApp;
 
 class UserController extends Controller
 {
