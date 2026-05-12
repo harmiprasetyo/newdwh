@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\LplpoService;
 use App\Models\Lplpo\Lplpo;
-use App\Models\master\MasterFaskes;
+use App\Models\Master\MasterFaskes;
 
 class LplpoController extends Controller
 {
