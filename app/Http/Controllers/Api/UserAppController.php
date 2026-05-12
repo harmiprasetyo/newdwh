@@ -17,11 +17,17 @@ class UserAppController extends Controller
 
    public function register(Request $request)
 {
-    $request->validate([
-        'username' => 'required|unique:users_app',
+$request->merge([
+    'groupid' => $request->groupid ?? 3 // default Puskesmas/RS
+]);
+
+$request->validate([
         'email' => 'required|email|unique:users_app',
         'namalengkap' => 'required',
-        'password' => 'required|min:6'
+        'groupid' => 'integer',
+        'kodefaskes' => 'required',
+        'kodeprovinsi' => 'required',
+        'kodekota' => 'required'
     ]);
 
     $result = $this->service->register($request->all());
@@ -29,7 +35,8 @@ class UserAppController extends Controller
     return response()->json([
         'message' => 'User created',
         'token' => $result['token'],
-        'user' => $result['user']
+        'user' => $result['user'],
+        "redirectURL" => $result['redirectURL']
     ]);
 }
 
@@ -40,11 +47,13 @@ class UserAppController extends Controller
 
             return response()->json([
                 'token' => $result['token'],
-                'user' => $result['user']
+                'user' => $result['user'],
+                'status' => 'success'
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'status' => 'error'
             ], 401);
         }
     }

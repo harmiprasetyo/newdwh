@@ -4,13 +4,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-
+use Laravel\Sanctum\HasApiTokens;
 class UsersApp extends Authenticatable
 {
-    protected $table = 'users_app';
+use HasApiTokens;
+protected $table = 'users_app';
     protected $primaryKey = 'userid';
     public $incrementing = false;
     protected $keyType = 'string';
+
 
 
 

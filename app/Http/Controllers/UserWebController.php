@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Models\UserApp;
+use App\Models\UsersApp as UserApp;
 use App\Models\UserGroups;
 
 

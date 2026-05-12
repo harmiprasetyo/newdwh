@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use App\Models\PregnancyRecord;
 use App\Models\VitalSign;
 use App\Models\Measurement;
+use App\Models\Observation\AncDeliveryRecord as AncDeliveryRecord;
+use App\Models\Observation\PncRecord;
 
 
 class DataRmeController extends Controller
@@ -32,9 +34,10 @@ class DataRmeController extends Controller
 
 
     public function checkdata(Request $request){
-             $token = env('FHIR_API_TOKEN');
+        $token = env('FHIR_API_TOKEN');
         $server = env('FHIR_API_URL');
         $nik = $request->nik;
+
         $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
         $data = $response->json();
 
@@ -58,7 +61,13 @@ class DataRmeController extends Controller
         $token = env('FHIR_API_TOKEN');
         $server = env('FHIR_API_URL');
         $nik = $request->nik;
-        $id = $request->idencounter;
+        $encounterId = $request->idencounter;
+
+
+
+
+
+
             $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
             $data = $response->json();
         $dt['INFO']['total'] = $data['total'];
@@ -98,7 +107,9 @@ class DataRmeController extends Controller
 
 
 
-    $ecounter = Http::withToken($token)->get($server.'Encounter/'.$id);
+
+
+    $ecounter = Http::withToken($token)->get($server.'Encounter/'.$encounterId);
     $encounterResult = $ecounter->json();
 
 
@@ -118,10 +129,9 @@ class DataRmeController extends Controller
       }
 
 
-
-        $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$id);
+        $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$encounterId);
         $obserResult = $observ->json();
-      //  dd($obserResult);
+      //dd($obserResult);
 
 
 
@@ -160,7 +170,7 @@ foreach($obserResult['entry'] as $k=>$obs){
     $value = getVal($obs);
     $valueANC = getValANC($obs);
     $unit  = getUnit($obs);
-
+//dd($obs);
 
  if($obs['resource']['category'][0]['coding'][0]['code']=='vital-signs'){
 
@@ -224,6 +234,8 @@ foreach($obserResult['entry'] as $k=>$obs){
     }
 
     if (in_array('11977-6', $codes)) {
+        $dt['ANC']['parity'] = $valueANC ;
+    }elseif (in_array('64708-1', $codes)) {
         $dt['ANC']['parity'] = $valueANC ;
     }
 
@@ -355,7 +367,7 @@ foreach($obserResult['entry'] as $k=>$obs){
         }
 
 
-          $condition = Http::withToken($token)->get($server."Condition?patient=".$dt['PID']['id']."&encounter=".$id);
+          $condition = Http::withToken($token)->get($server."Condition?patient=".$dt['PID']['id']."&encounter=".$encounterId);
             $kondisi = $condition->json();
 if($kondisi['total']>0){
             foreach($kondisi['entry'] as $kx=>$nres){
@@ -393,7 +405,7 @@ if($kondisi['total']>0){
 
                  $ids = $nvis['resource']['id'];
 
-        $KHobserv= Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$ids);
+        $KHobserv= Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$encounterId);
         $KOB = $KHobserv->json();
        if(isset($KOB['total']) && $KOB['total']>0){
             foreach($KOB['entry'] as $kb=>$nnb){
@@ -477,7 +489,259 @@ if($kondisi['total']>0){
 
 
 
-        return view('rme.detailpasien',["dt"=>$dt]);
+               //======== Mapping to DB =======
+
+
+
+        $ObservSTR= Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+        $data = $ObservSTR->json();
+
+        $pregnancy = [];
+        $vital = [];
+        $measure = [];
+if (isset($data['entry'])) {
+        foreach ($data['entry'] as $item) {
+
+            $r = $item['resource'];
+            $code = $r['code']['coding'][0]['code'] ?? null;
+
+            //$patient = $r['subject']['reference'] ?? null;
+            //$encounter = $r['encounter']['reference'] ?? null;
+
+            $patient = $dt['PID']['id'];
+            $encounter = $encounterId;
+
+            // base
+            $pregnancy['patient_id'] = $patient;
+            $pregnancy['encounter_id'] = $encounter;
+
+            $vital['patient_id'] = $patient;
+            $vital['encounter_id'] = $encounter;
+
+            $measure['patient_id'] = $patient;
+            $measure['encounter_id'] = $encounter;
+
+             $delivery['patient_id'] = $patient;
+            $delivery['encounter_id'] = $encounter;
+
+            $pnc['patient_id'] = $patient;
+            $pnc['encounter_id'] = $encounter;
+
+            switch ($code) {
+
+                /** ANC */
+                case '11996-6':
+                    $pregnancy['gravida'] = $r['valueInteger'];
+                    $delivery['gravida'] = $r['valueInteger'];
+                    $pnc['gravida'] = $r['valueInteger'];
+                    break;
+                case '64708-1':
+                    $pregnancy['parity'] = $r['valueInteger'];
+                    $delivery['parity'] = $r['valueInteger'];
+                    $pnc['parity'] = $r['valueInteger'];
+                    break;
+
+                case '11977-6':
+                    $pregnancy['parity'] = $r['valueInteger'];
+                    break;
+
+                case '69043-8':
+                    $pregnancy['abortus'] = $r['valueInteger'];
+                    $delivery['abortus'] = $r['valueInteger'];
+                    $pnc['abortus'] = $r['valueInteger'];
+                    break;
+
+                case '8665-2':
+                    $pregnancy['lmp'] = date('Y-m-d', strtotime($r['valueDateTime']));
+                    break;
+
+                case '11778-8':
+                    $pregnancy['edd'] = date('Y-m-d', strtotime($r['valueDateTime']));
+                    break;
+
+                case '18185-9':
+                    $pregnancy['gestational_age'] = $r['valueQuantity']['value']?? null;
+                    $delivery['gestational_age'] = $r['valueQuantity']['value'] ?? null;
+                    break;
+
+                case '32418-6':
+                    $pregnancy['trimester'] = $r['valueInteger'];
+                    break;
+
+                /** VITAL */
+                case '8480-6':
+                    $vital['systolic'] = $r['valueQuantity']['value'];
+                    break;
+
+                case '8462-4':
+                    $vital['diastolic'] = $r['valueQuantity']['value'];
+                    break;
+
+                case '8867-4':
+                    $vital['heart_rate'] = $r['valueQuantity']['value'];
+                    break;
+
+                case '9279-1':
+                    $vital['respiratory_rate'] = $r['valueQuantity']['value'];
+                    break;
+
+                case '8310-5':
+                    $vital['temperature'] = $r['valueQuantity']['value'];
+                    break;
+
+                /** MEASURE */
+                case '8302-2':
+                    $measure['height'] = $r['valueQuantity']['value'];
+                    break;
+
+                case '29463-7':
+                    $measure['weight'] = $r['valueQuantity']['value'];
+                    break;
+
+                case '56077-1':
+                    $measure['pre_weight'] = $r['valueQuantity']['value'];
+                    break;
+
+                case 'OC000010':
+                    $measure['bmi'] = $r['valueQuantity']['value'];
+                    $measure['bmi_status'] = $r['interpretation'][0]['coding'][0]['display'] ?? null;
+                    break;
+
+                case '284473002':
+                    $measure['lila'] = $r['valueQuantity']['value'];
+                    break;
+
+                case '11881-0':
+                    $measure['sfh'] = $r['valueQuantity']['value'];
+                    break;
+
+                    //Delivery
+
+
+                case '11996-6':
+                    $delivery['gravida'] = $r['valueInteger'] ?? null;
+                    break;
+
+                case '64708-1':
+                    $delivery['parity'] = $r['valueInteger'] ?? null;
+                    break;
+
+                case '69043-8':
+                    $delivery['abortus'] = $r['valueInteger'] ?? null;
+                    break;
+
+                case '93857-1':
+                    $delivery['delivery_time'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                     $pnc['delivery_time'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    break;
+
+                case '249197004':
+                    $delivery['postpartum_condition'] =
+                        $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                    break;
+
+                case 'OC000013':
+                    $delivery['delivery_helper'] =
+                        $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                    break;
+
+                case '57071-3':
+                    $delivery['delivery_method'] =
+                        $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                    break;
+
+                case '249120008':
+                    $delivery['stage1'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    break;
+
+                case '249160009':
+                    $delivery['stage2'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    break;
+
+                case 'OC000018':
+                    $delivery['stage3'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    break;
+
+                case 'OC000019':
+                    $delivery['stage4'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    break;
+
+
+            }
+        }
+
+        // SAVE
+        if(!isset($pnc['delivery_time'])){
+        PregnancyRecord::updateOrCreate(
+            [
+                'patient_id' => $pregnancy['patient_id'],
+                'encounter_id' => $pregnancy['encounter_id']
+            ],
+            $pregnancy
+        );
+        }
+
+        VitalSign::updateOrCreate(
+            [
+                'patient_id' => $vital['patient_id'],
+                'encounter_id' => $vital['encounter_id']
+            ],
+            $vital
+        );
+
+        Measurement::updateOrCreate(
+            [
+                'patient_id' => $measure['patient_id'],
+                'encounter_id' => $measure['encounter_id']
+            ],
+            $measure
+        );
+if(isset($pnc['delivery_time'])){
+         PncRecord::updateOrCreate(
+            [
+                'patient_id' => $pnc['patient_id'],
+                'encounter_id' => $pnc['encounter_id']
+            ],
+            $pnc
+        );
+}
+
+
+if(isset($delivery['delivery_time'])){
+        AncDeliveryRecord::updateOrCreate(
+            [
+                'patient_id' => $delivery['patient_id'],
+                'encounter_id' => $delivery['encounter_id']
+            ],
+            $delivery
+        );
+
+}
+
+
+
+
+$dt['trimester1'] = PregnancyRecord::where('patient_id', $patient)->where('trimester', 1)->count();
+$dt['trimester2'] = PregnancyRecord::where('patient_id', $patient)->where('trimester', 2)->count();
+$dt['trimester3'] = PregnancyRecord::where('patient_id', $patient)->where('trimester', 3)->count();
+$dt['INC'] = AncDeliveryRecord::where('patient_id', $patient)->where('encounter_id', $encounterId)->get()->toArray();
+$dt['PNC'] = PncRecord::where('patient_id', $patient)->where('encounter_id', $encounterId)->get()->toArray();
+
+
+ //       return response()->json([
+ //           'status' => 'success'
+//        ]);
+
+}
+
+//-------- End Mapping to DB -------
+/*echo "<pre>";
+print_r($KOB);
+echo "</pre>";
+*/
+
+
+  return view('rme.detailpasien',["dt"=>$dt]);
 
 
 
@@ -636,157 +900,10 @@ if($kondisi['total']>0){
 
          }
 
-         $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$dt['ENC'][$n]['id']);
-         $data = $observ->json();
+      //   $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$dt['ENC'][$n]['id']);
+      //   $data = $observ->json();
 
 
- //======== Mapping to DB =======
-
-
-
-
-
-        $pregnancy = [];
-        $vital = [];
-        $measure = [];
-if (isset($data['entry'])) {
-        foreach ($data['entry'] as $item) {
-
-            $r = $item['resource'];
-            $code = $r['code']['coding'][0]['code'] ?? null;
-
-            //$patient = $r['subject']['reference'] ?? null;
-            //$encounter = $r['encounter']['reference'] ?? null;
-
-            $patient = $dt['PID']['id'];
-            $encounter = $dt['ENC'][$n]['id'];
-
-            // base
-            $pregnancy['patient_id'] = $patient;
-            $pregnancy['encounter_id'] = $encounter;
-
-            $vital['patient_id'] = $patient;
-            $vital['encounter_id'] = $encounter;
-
-            $measure['patient_id'] = $patient;
-            $measure['encounter_id'] = $encounter;
-
-            switch ($code) {
-
-                /** ANC */
-                case '11996-6':
-                    $pregnancy['gravida'] = $r['valueInteger'];
-                    break;
-
-                case '11977-6':
-                    $pregnancy['parity'] = $r['valueInteger'];
-                    break;
-
-                case '69043-8':
-                    $pregnancy['abortus'] = $r['valueInteger'];
-                    break;
-
-                case '8665-2':
-                    $pregnancy['lmp'] = date('Y-m-d', strtotime($r['valueDateTime']));
-                    break;
-
-                case '11778-8':
-                    $pregnancy['edd'] = date('Y-m-d', strtotime($r['valueDateTime']));
-                    break;
-
-                case '18185-9':
-                    $pregnancy['gestational_age'] = $r['valueQuantity']['value'];
-                    break;
-
-                case '32418-6':
-                    $pregnancy['trimester'] = $r['valueInteger'];
-                    break;
-
-                /** VITAL */
-                case '8480-6':
-                    $vital['systolic'] = $r['valueQuantity']['value'];
-                    break;
-
-                case '8462-4':
-                    $vital['diastolic'] = $r['valueQuantity']['value'];
-                    break;
-
-                case '8867-4':
-                    $vital['heart_rate'] = $r['valueQuantity']['value'];
-                    break;
-
-                case '9279-1':
-                    $vital['respiratory_rate'] = $r['valueQuantity']['value'];
-                    break;
-
-                case '8310-5':
-                    $vital['temperature'] = $r['valueQuantity']['value'];
-                    break;
-
-                /** MEASURE */
-                case '8302-2':
-                    $measure['height'] = $r['valueQuantity']['value'];
-                    break;
-
-                case '29463-7':
-                    $measure['weight'] = $r['valueQuantity']['value'];
-                    break;
-
-                case '56077-1':
-                    $measure['pre_weight'] = $r['valueQuantity']['value'];
-                    break;
-
-                case 'OC000010':
-                    $measure['bmi'] = $r['valueQuantity']['value'];
-                    $measure['bmi_status'] = $r['interpretation'][0]['coding'][0]['display'] ?? null;
-                    break;
-
-                case '284473002':
-                    $measure['lila'] = $r['valueQuantity']['value'];
-                    break;
-
-                case '11881-0':
-                    $measure['sfh'] = $r['valueQuantity']['value'];
-                    break;
-            }
-        }
-
-        // SAVE
-        PregnancyRecord::updateOrCreate(
-            [
-                'patient_id' => $pregnancy['patient_id'],
-                'encounter_id' => $pregnancy['encounter_id']
-            ],
-            $pregnancy
-        );
-
-        VitalSign::updateOrCreate(
-            [
-                'patient_id' => $vital['patient_id'],
-                'encounter_id' => $vital['encounter_id']
-            ],
-            $vital
-        );
-
-        Measurement::updateOrCreate(
-            [
-                'patient_id' => $measure['patient_id'],
-                'encounter_id' => $measure['encounter_id']
-            ],
-            $measure
-        );
-$dt['trimester1'] = PregnancyRecord::where('patient_id', $patient)->where('trimester', 1)->count();
-$dt['trimester2'] = PregnancyRecord::where('patient_id', $patient)->where('trimester', 2)->count();
-$dt['trimester3'] = PregnancyRecord::where('patient_id', $patient)->where('trimester', 3)->count();
-
-
- //       return response()->json([
- //           'status' => 'success'
-//        ]);
-
-}
-
-//====== End Mapping ======
 
 
 

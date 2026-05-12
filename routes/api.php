@@ -30,9 +30,23 @@ Route::middleware('auth:sanctum')->group(function () {
    Route::get('/me', [AuthAuthController::class, 'me']);
 Route::post('/logout', [AuthAuthController::class, 'logout']);
 
+
+
 });
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+Route::prefix('user-app')->group(function () {
+
+    Route::post('/register', [UserAppController::class, 'register']);
+    Route::post('/login', [UserAppController::class, 'login']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/me', [UserAppController::class, 'me']);
+    });
+
+});
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -125,13 +139,4 @@ Route::prefix('apiusers')->group(function () {
 
 
 
-Route::prefix('user-app')->group(function () {
 
-    Route::post('/register', [UserAppController::class, 'register']);
-    Route::post('/login', [UserAppController::class, 'login']);
-
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/me', [UserAppController::class, 'me']);
-    });
-
-});

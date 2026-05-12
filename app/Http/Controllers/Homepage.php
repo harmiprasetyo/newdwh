@@ -8,7 +8,14 @@ class Homepage extends Controller
 {
     //
     public function index(){
-        return view('homepage');
 
+    die(auth()->user()->groupid);
+        if(auth()->user()->groupid == 3) {
+            return view('homepage');
+        }elseif(auth()->user()->groupid == 1) {
+            return view('homepageadmin');
+        }else{
+            return view('homepage');
+        }
     }
 }

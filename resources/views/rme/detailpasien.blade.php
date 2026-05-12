@@ -559,39 +559,71 @@
 
 
 
-                                    <tr><td style="width: 30%">Tanggal Persalinan</td><td>:</td><td></td></tr><tr>
-                                    <td>Penolong Persalinan</td><td>:</td>
-                                    <td></td></tr><tr>
-                                    <td>Lokasi Kelahiran</td><td>:</td>
-                                    <td></td></tr><tr>
-                                    <td>Cara Persalinan</td><td>:</td>
-                                    <td></td></tr><tr>
-                                    <td>Tekanan Darah</td><td>:</td>
-                                    <td>@if(isset($dt['sistole'])) {{ $dt['sistole'] }}  @endif  / @if(isset($dt['diastole'])) {{ $dt['diastole'] }}  @endif</td></tr><tr>
-                                    <td>Suhu</td><td>:</td>
-                                    <td>@if(isset($dt['VS']['suhuBadan'])) {{  $dt['VS']['suhuBadan'] }} @endif</td></tr><tr>
-                                    <td>Nadi</td><td>:</td>
-                                    <td>@if(isset($dt['VS']['nadi'])) {{  $dt['VS']['nadi'] }} @endif</td></tr><tr>
-                                    <td>Pernafasan</td><td>:</td>
-                                    <td>@if(isset($dt['VS']['pernafasan'])) {{  $dt['VS']['pernafasan'] }} @endif</td></tr><tr>
-                                    <td>Keadaan Ibu</td><td>:</td>
-                                    <td></td></tr><tr>
-                                    <td>Tindakan</td><td>:</td>
-                                    <td></td></tr><tr>
-                                    <td style="vertical-align: top">Laboratorium</td><td style="vertical-align: top">:</td>
-                                    <td>   @if(isset($dt['lab'])) @foreach ($dt['lab'] as $key=>$val )
-                                  {{  $val['label'] }}  : {{  $val['val'] }} </span><br>
-                                @endforeach
+                                    <tr><td style="width: 30%">Tanggal Persalinan</td><td>:</td><td>
 
-                            @endif
-                            </td></tr><tr>
-                                    <td>Obat</td><td>:</td>
-                                    <td></td></tr><tr>
-                                    <td>Rencana Tindak Lanjut</td><td>:</td>
-                                    <td></td></tr><tr>
-                                    <td>Kondisi Keluar</td><td>:</td>
-                                    <td></td>
-                                </tr>
+                                     @if(isset($dt['INC']))
+                                     {{ \Carbon\Carbon::parse($dt['INC'][0]['delivery_time'])->translatedFormat('d F Y   H:i') }}
+
+
+
+                                        @endif</td></tr>
+                                        <tr>
+                                    <td>Usia Kehamilan (minggu)</td><td>:</td>
+                                    <td>
+                                        @if(isset($dt['INC']))
+
+                                        {{ $dt['INC'][0]['gestational_age'] }}
+
+                                        @endif
+                                    </td></tr>
+
+                                        <tr>
+                                    <td>Penolong Persalinan</td><td>:</td>
+                                    <td>
+                                        @if(isset($dt['INC']))
+
+                                        {{ $dt['INC'][0]['delivery_helper'] }}
+
+                                        @endif
+                                    </td></tr><tr>
+                                    <td>Lokasi Kelahiran</td><td>:</td>
+                                    <td>{{ $dt['ENC']['serviceProvider_name'] }}</td></tr><tr>
+                                    <td>Cara Persalinan</td><td>:</td>
+                                    <td> @if(isset($dt['INC']))
+
+                                        {{ $dt['INC'][0]['delivery_method'] }}
+
+                                        @endif</td></tr><tr>
+                                    <td>Kala #1</td><td>:</td>
+                                    <td>@if(isset($dt['INC']))
+
+                                        {{ \Carbon\Carbon::parse($dt['INC'][0]['stage1'])->translatedFormat('d F Y   H:i') }}
+
+                                        @endif</td></tr><tr>
+                                    <td>Kala #2</td><td>:</td>
+                                    <td>@if(isset($dt['INC']))
+
+                                        {{ \Carbon\Carbon::parse($dt['INC'][0]['stage2'])->translatedFormat('d F Y   H:i') }}
+
+                                        @endif</td></tr><tr>
+                                    <td>Kala #3</td><td>:</td>
+                                    <td>@if(isset($dt['INC']))
+
+                                        {{ \Carbon\Carbon::parse($dt['INC'][0]['stage3'])->translatedFormat('d F Y   H:i') }}
+
+                                        @endif</td></tr><tr>
+                                    <td>Kala #4</td><td>:</td>
+                                    <td>@if(isset($dt['INC']))
+
+                                        {{ \Carbon\Carbon::parse($dt['INC'][0]['stage4'])->translatedFormat('d F Y   H:i') }}
+
+                                        @endif</td></tr><tr>
+                                    <td>Keadaan Ibu</td><td>:</td>
+                                    <td> @if(isset($dt['INC']))
+
+                                        {{ $dt['INC'][0]['postpartum_condition'] }}
+
+                                        @endif</td></tr>
                             </thead>
 
 
@@ -612,7 +644,7 @@
                    <tr>
                     <td style="width:30%">Tanggal Persalinan</td>
                     <td>:</td>
-                    <td></td>
+                    <td> @if(isset($dt['INC'][0]['delivery_time'])) {{ \Carbon\Carbon::parse($dt['INC'][0]['delivery_time'])->translatedFormat('d F Y   H:i') }} @endif</td>
                    </tr>
                    <tr>
                     <td>Jenis Kunjungan</td>
@@ -622,7 +654,7 @@
                    <tr>
                     <td>G.P.A</td>
                     <td>:</td>
-                    <td></td>
+                    <td>@if(isset($dt['PNC'][0]['gravida'])) {{ $dt['PNC'][0]['gravida'] }}  / {{ $dt['PNC'][0]['parity'] }}  / {{ $dt['PNC'][0]['abortus'] }} @endif</td>
                    </tr>
                    <tr>
                     <td>Tekanan Darah</td>

@@ -20,6 +20,10 @@
        Group User
     </a>
 
+      <a href="/logout">
+       Logout
+    </a>
+
 </div>
 
     <a href="#" class="menu-toggle
