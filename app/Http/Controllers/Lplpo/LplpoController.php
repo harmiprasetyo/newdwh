@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\LplpoService;
 use App\Models\Lplpo\Lplpo;
+use App\Models\master\MasterFaskes;
 
 class LplpoController extends Controller
 {
@@ -25,12 +26,21 @@ class LplpoController extends Controller
 
     public function dataview()
 {
-    return view('lplpo.dataview');
+  $faskes = MasterFaskes::select('kodeFaskes','namaFaskes')->get();
+return view('lplpo.dataview', compact('faskes'));
 }
 
 public function data(Request $request)
 {
-   $query = Lplpo::orderBy('id', 'desc');
+
+$query = Lplpo::query()
+    ->leftJoin('master_faskes', 'lplpo.kode_faskes', '=', 'master_faskes.kodeFaskes')
+    ->select(
+        'lplpo.*',
+        'master_faskes.namaFaskes'
+    )->orderBy('lplpo.id', 'desc');
+
+//$query = Lplpo::orderBy('id', 'desc');
 
     // FILTER
     if ($request->bulan) {

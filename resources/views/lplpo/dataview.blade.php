@@ -47,8 +47,15 @@
                 </div>
 
                 <div class="col-md-3">
-                    <input type="text" id="filter_faskes" class="form-control" placeholder="Kode Faskes">
-                </div>
+    <select id="filter_faskes" class="form-control">
+        <option value="">Semua Faskes</option>
+        @foreach($faskes as $f)
+            <option value="{{ $f->kodeFaskes }}">
+                {{ $f->namaFaskes }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
                 <div class="col-md-3">
                     <button id="btn_filter" class="btn btn-primary w-100">Filter</button>
@@ -56,39 +63,39 @@
 
             </div>
 
-           <div class="table-responsive">
-    <table class="table table-bordered table-striped w-100" id="table_lplpo">
-                <thead>
-                   <tr>
-    <th>No</th>
-    <th>Nama Obat</th>
-    <th>Faskes</th>
-    <th>Bulan</th>
-    <th>Tahun</th>
+          <div class="table-container">
+    <table id="table_lplpo" class="table table-bordered table-sm">
+               <thead>
+<tr>
+    <th rowspan="2">No</th>
+    <th rowspan="2">Nama Obat</th>
+    <th rowspan="2">Faskes</th>
+    <th rowspan="2">Bulan</th>
+    <th rowspan="2">Tahun</th>
 
-    <th>Stok Awal PKD</th>
-    <th>Stok Awal Program</th>
+    <th colspan="2">Stok Awal</th>
+    <th colspan="2">Penerimaan</th>
+    <th colspan="2">Persediaan</th>
+    <th colspan="2">Pemakaian</th>
 
-    <th>Penerimaan PKD</th>
-    <th>Penerimaan Program</th>
+    <th rowspan="2">Kadaluarsa</th>
+    <th rowspan="2">Pengembalian</th>
 
-    <th>Persediaan PKD</th>
-    <th>Persediaan Program</th>
+    <th colspan="2">Stok Akhir</th>
 
-    <th>Pemakaian PKD</th>
-    <th>Pemakaian Program</th>
-
-    <th>Kadaluarsa</th>
-    <th>Pengembalian</th>
-
-    <th>Stok Akhir PKD</th>
-    <th>Stok Akhir Program</th>
-
-    <th>RKO</th>
-    <th>Stok Optimum</th>
-    <th>Permintaan</th>
+    <th rowspan="2">RKO</th>
+    <th rowspan="2">Stok Optimum</th>
+    <th rowspan="2">Permintaan</th>
 </tr>
-                </thead>
+
+<tr>
+    <th>PKD</th><th>Program</th>
+    <th>PKD</th><th>Program</th>
+    <th>PKD</th><th>Program</th>
+    <th>PKD</th><th>Program</th>
+    <th>PKD</th><th>Program</th>
+</tr>
+</thead>
             </table>
            </div>
 
@@ -121,32 +128,35 @@ let table = $('#table_lplpo').DataTable({
     { width: "50px", targets: 0 },  // No
     { width: "200px", targets: 1 }, // Nama Obat
 ],
-    columns: [
-         {
-        data: 'DT_RowIndex',
-        orderable: false,
-        searchable: false // ✅ INI PENTING
-    },
-        { data: 'nama_obat' },
-        { data: 'kode_faskes' },
-        { data: 'bulan' },
-        { data: 'tahun' },
-        { data: 'stok_awal_pkd' },
-         { data: 'stok_awal_program' },
-        { data: 'penerimaan_pkd' },
-        { data: 'penerimaan_program' },
-        { data: 'persediaan_pkd' },
-        { data: 'persediaan_program' },
-        { data: 'pemakaian_pkd' },
-        { data: 'pemakaian_program' },
-         { data: 'kadaluarsa' },
-          { data: 'pengembalian' },
-        { data: 'stok_akhir_pkd' },
-        { data: 'stok_akhir_program' },
-        { data: 'rko' },
-        { data: 'stok_optimum' },
-        { data: 'permintaan' }
-    ],
+columns: [
+    { data: 'DT_RowIndex', orderable:false, searchable:false },
+    { data: 'nama_obat' },
+    { data: 'namaFaskes' }, // ✅ ganti ini
+    { data: 'bulan' },
+    { data: 'tahun' },
+
+    { data: 'stok_awal_pkd' },
+    { data: 'stok_awal_program' },
+
+    { data: 'penerimaan_pkd' },
+    { data: 'penerimaan_program' },
+
+    { data: 'persediaan_pkd' },
+    { data: 'persediaan_program' },
+
+    { data: 'pemakaian_pkd' },
+    { data: 'pemakaian_program' },
+
+    { data: 'kadaluarsa' },
+    { data: 'pengembalian' },
+
+    { data: 'stok_akhir_pkd' },
+    { data: 'stok_akhir_program' },
+
+    { data: 'rko' },
+    { data: 'stok_optimum' },
+    { data: 'permintaan' }
+],
     order: [[1, 'asc']]
 });
 

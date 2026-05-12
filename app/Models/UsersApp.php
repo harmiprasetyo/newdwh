@@ -38,7 +38,15 @@ class UsersApp extends Authenticatable
     }
 
 
+public function isDinkes()
+{
+    return $this->role === 'dinkes';
+}
 
+public function isFaskes()
+{
+    return $this->role === 'faskes';
+}
     public function group()
     {
         return $this->belongsTo(\App\Models\UserGroups::class, 'groupid', 'group_id');

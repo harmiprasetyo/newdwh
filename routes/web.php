@@ -13,6 +13,7 @@ use App\Http\Controllers\OtpController;
 use App\Http\Controllers\master\IndonesiaController;
 use App\Http\Controllers\UserWebController;
 use App\Http\Controllers\Lplpo\LplpoController;
+use App\Http\Controllers\Lplpo\DashboardController;
 
 
 
@@ -68,6 +69,21 @@ Route::middleware('auth')->group(function () {
     Route::post('/import', [LplpoController::class, 'import']);
     Route::get('/data', [LplpoController::class, 'data']);
      Route::get('/dataview', [LplpoController::class, 'dataview']);
+
+
+Route::prefix('faskes')->group(function () {
+Route::get('/dashboard', [DashboardController::class, 'dashboard']);
+Route::get('/dashboard-data', [DashboardController::class, 'dashboardData']);
+});
+Route::prefix('dinkes')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard-data', [DashboardController::class, 'data']);
+    Route::get('/pivot', [DashboardController::class, 'pivot']);
+Route::get('/pivot-data', [DashboardController::class, 'pivotData']);
+Route::get('/pivot-chart', [DashboardController::class, 'pivotChart']);
+
+});
+
 
 
     });
