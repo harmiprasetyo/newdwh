@@ -14,11 +14,20 @@ use App\Models\VitalSign;
 use App\Models\Measurement;
 use App\Models\Observation\AncDeliveryRecord as AncDeliveryRecord;
 use App\Models\Observation\PncRecord;
+//use App\Services\PatientService;
 
 
 class DataRmeController extends Controller
 {
     //
+ /*   protected $patientService;
+
+    public function __construct(PatientService $patientService)
+    {
+        $this->patientService = $patientService;
+    }
+*/
+
     public function index(){
         return view('rme.searchpasien');
     }
@@ -772,6 +781,11 @@ echo "</pre>";
     $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
 
           $data = $response->json();
+
+       // Simpan data pasien ke database menggunakan service
+      //    $this->patientService->saveFromFhir($data);
+
+
           $dt['INFO']['total'] = $data['total'];
           $dt['INFO']['id'] = $data['id'];
 
@@ -814,7 +828,7 @@ echo "</pre>";
 
        $ecounter = Http::withToken($token)->get($server.'Encounter?patient='.$dt['PID']['id']);
        $encounterResult = $ecounter->json();
-       if($encounterResult['total']>0){
+       if(isset($encounterResult['entry'])){
 
 
          $n=0;
