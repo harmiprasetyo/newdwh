@@ -821,6 +821,7 @@ $ImnSTR= Http::withToken($token)->get($server."Immunization?patient=".$dt['PID']
         $dataImn = $ImnSTR->json();
 $dt['IMUNISASI'] = [];
        if(isset($dataImn['entry'])) {
+        $dt['imth'] = $dataImn['entry'];
            foreach($dataImn['entry'] as $k=>$imn){
                 $dt['IMUNISASI'][$k]['code'] = $imn['resource']['vaccineCode']['coding'][0]['code'];
                 $dt['IMUNISASI'][$k]['display'] = $imn['resource']['vaccineCode']['coding'][0]['display'];
@@ -829,7 +830,7 @@ $dt['IMUNISASI'] = [];
        }
 
 
-$dt['imth'] = $dataImn['entry'];
+
   return view('rme.detailpasien',["dt"=>$dt]);
 
 
