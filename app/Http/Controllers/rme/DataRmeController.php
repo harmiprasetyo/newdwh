@@ -14,6 +14,7 @@ use App\Models\VitalSign;
 use App\Models\Measurement;
 use App\Models\Observation\AncDeliveryRecord as AncDeliveryRecord;
 use App\Models\Observation\PncRecord;
+use App\Models\Observation\NeonatalRecord;
 //use App\Services\PatientService;
 
 
@@ -536,6 +537,10 @@ if (isset($data['entry'])) {
             $pnc['patient_id'] = $patient;
             $pnc['encounter_id'] = $encounter;
 
+
+             $neonatal['patient_id'] = $patient;
+            $neonatal['encounter_id'] = $encounter;
+
             switch ($code) {
 
                 /** ANC */
@@ -675,6 +680,62 @@ if (isset($data['entry'])) {
                     $delivery['stage4'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
                     break;
 
+                    // PNC
+                    case '81661-1':
+                    $pnc['pendarahan'] = $r['valueQuantity']['value'] ?? null;
+                    break;
+
+                     case '32422-8':
+                    $pnc['pemeriksaan_payudara'] = $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                    break;
+
+                    case '364297003':
+                        $pnc['kondisi_perineum'] = $r['valueString'] ?? null;
+                        break;
+                    case 'OC000020':
+                        $pnc['tanda_infeksi_perineum'] = $r['valueBoolean']==true ? 'ada' : 'Tidak ada' ?? null;
+                        break;
+                    case 'OC000025':
+                        $pnc['tanda_infeksi_luka_sc']= $r['valueBoolean']==true ? 'ada' : 'Tidak ada' ?? null;
+                        break;
+                    case 'OC000017':
+                        $pnc['produksi_asi'] = $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                        break;
+
+
+                        // Neonatal
+                        case '57715-5':
+                            $neonatal['jam_lahir'] = $r['valueTime'] ?? null;
+                            break;
+
+                            case '8339-4':
+                                $neonatal['berat_lahir'] = $r['valueQuantity']['value'] ?? null;
+                                break;
+                            case '8330-2':
+                                $neonatal['panjang_badan'] = $r['valueQuantity']['value'] ?? null;
+                                break;
+                            case '9843-4':
+                                $neonatal['lingkar_kepala'] = $r['valueQuantity']['value'] ?? null;
+                                break;
+                                case '9279-1':
+                                    $neonatal['pernafasan'] = $r['valueQuantity']['value'] ?? null;
+                                    break;
+                                    case '8867-4':
+                                        $neonatal['nadi'] = $r['valueQuantity']['value'] ?? null;
+                                        break;
+                                        case '8310-5':
+                                            $neonatal['suhu'] = $r['valueQuantity']['value'] ?? null;
+                                            break;
+                                        case '9198-5':
+                                            $neonatal['apgar_1_menit'] = $r['valueInteger'] ?? null;
+                                            break;
+                                        case '9199-3':
+                                            $neonatal['apgar_5_menit'] = $r['valueInteger'] ?? null;
+                                            break;
+                                        case '9200-1':
+                                            $neonatal['apgar_10_menit'] = $r['valueInteger'] ?? null;
+                                            break;
+
 
             }
         }
@@ -689,6 +750,14 @@ if (isset($data['entry'])) {
             $pregnancy
         );
         }
+
+        NeonatalRecord::updateOrCreate(
+            [
+                'patient_id' => $neonatal['patient_id'],
+                'encounter_id' => $neonatal['encounter_id']
+            ],
+            $neonatal
+        );
 
         VitalSign::updateOrCreate(
             [
@@ -735,6 +804,7 @@ $dt['trimester2'] = PregnancyRecord::where('patient_id', $patient)->where('trime
 $dt['trimester3'] = PregnancyRecord::where('patient_id', $patient)->where('trimester', 3)->count();
 $dt['INC'] = AncDeliveryRecord::where('patient_id', $patient)->where('encounter_id', $encounterId)->get()->toArray();
 $dt['PNC'] = PncRecord::where('patient_id', $patient)->where('encounter_id', $encounterId)->get()->toArray();
+$dt['NEONATAL'] = NeonatalRecord::where('patient_id', $patient)->where('encounter_id', $encounterId)->get()->toArray();
 
 
  //       return response()->json([
@@ -748,6 +818,15 @@ $dt['PNC'] = PncRecord::where('patient_id', $patient)->where('encounter_id', $en
 print_r($KOB);
 echo "</pre>";
 */
+$ImnSTR= Http::withToken($token)->get($server."Immunization?patient=".$dt['PID']['id']);
+        $dataImn = $ImnSTR->json();
+
+        foreach($dataImn['entry'] as $k=>$imn){
+            $dt['IMUNISASI'][$k]['code'] = $imn['resource']['vaccineCode']['coding'][0]['code'];
+            $dt['IMUNISASI'][$k]['display'] = $imn['resource']['vaccineCode']['coding'][0]['display'];
+            $dt['IMUNISASI'][$k]['tglImunisasi'] = Carbon::parse($imn['resource']['occurrenceDateTime'])->format('d M Y');
+        }
+
 
 
   return view('rme.detailpasien',["dt"=>$dt]);

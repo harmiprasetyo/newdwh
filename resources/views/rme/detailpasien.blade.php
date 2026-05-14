@@ -561,7 +561,7 @@
 
                                     <tr><td style="width: 30%">Tanggal Persalinan</td><td>:</td><td>
 
-                                     @if(isset($dt['INC']))
+                                     @if(isset($dt['INC'][0]['delivery_time']))
                                      {{ \Carbon\Carbon::parse($dt['INC'][0]['delivery_time'])->translatedFormat('d F Y   H:i') }}
 
 
@@ -570,7 +570,7 @@
                                         <tr>
                                     <td>Usia Kehamilan (minggu)</td><td>:</td>
                                     <td>
-                                        @if(isset($dt['INC']))
+                                        @if(isset($dt['INC'][0]['gestational_age']))
 
                                         {{ $dt['INC'][0]['gestational_age'] }}
 
@@ -580,7 +580,7 @@
                                         <tr>
                                     <td>Penolong Persalinan</td><td>:</td>
                                     <td>
-                                        @if(isset($dt['INC']))
+                                        @if(isset($dt['INC'][0]['delivery_helper']))
 
                                         {{ $dt['INC'][0]['delivery_helper'] }}
 
@@ -589,37 +589,37 @@
                                     <td>Lokasi Kelahiran</td><td>:</td>
                                     <td>{{ $dt['ENC']['serviceProvider_name'] }}</td></tr><tr>
                                     <td>Cara Persalinan</td><td>:</td>
-                                    <td> @if(isset($dt['INC']))
+                                    <td> @if(isset($dt['INC'][0]['delivery_method']))
 
                                         {{ $dt['INC'][0]['delivery_method'] }}
 
                                         @endif</td></tr><tr>
                                     <td>Kala #1</td><td>:</td>
-                                    <td>@if(isset($dt['INC']))
+                                    <td>@if(isset($dt['INC'][0]['stage1']))
 
                                         {{ \Carbon\Carbon::parse($dt['INC'][0]['stage1'])->translatedFormat('d F Y   H:i') }}
 
                                         @endif</td></tr><tr>
                                     <td>Kala #2</td><td>:</td>
-                                    <td>@if(isset($dt['INC']))
+                                    <td>@if(isset($dt['INC'][0]['stage2']))
 
                                         {{ \Carbon\Carbon::parse($dt['INC'][0]['stage2'])->translatedFormat('d F Y   H:i') }}
 
                                         @endif</td></tr><tr>
                                     <td>Kala #3</td><td>:</td>
-                                    <td>@if(isset($dt['INC']))
+                                    <td>@if(isset($dt['INC'][0]['stage3']))
 
                                         {{ \Carbon\Carbon::parse($dt['INC'][0]['stage3'])->translatedFormat('d F Y   H:i') }}
 
                                         @endif</td></tr><tr>
                                     <td>Kala #4</td><td>:</td>
-                                    <td>@if(isset($dt['INC']))
+                                    <td>@if(isset($dt['INC'][0]['stage4']))
 
                                         {{ \Carbon\Carbon::parse($dt['INC'][0]['stage4'])->translatedFormat('d F Y   H:i') }}
 
                                         @endif</td></tr><tr>
                                     <td>Keadaan Ibu</td><td>:</td>
-                                    <td> @if(isset($dt['INC']))
+                                    <td> @if(isset($dt['INC'][0]['postpartum_condition']))
 
                                         {{ $dt['INC'][0]['postpartum_condition'] }}
 
@@ -689,22 +689,28 @@
                    <tr>
                     <td>Kondisi Payudara</td>
                     <td>:</td>
-                    <td></td>
+                    <td>@if(isset($dt['PNC'][0]['pemeriksaan_payudara'])) {{ $dt['PNC'][0]['pemeriksaan_payudara'] == 'Normal breast'
+        ? 'Payudara Normal'
+        : $dt['PNC'][0]['pemeriksaan_payudara'] }} @endif</td>
                    </tr>
                    <tr>
                     <td>Produksi ASI</td>
                     <td>:</td>
-                    <td></td>
+                    <td>@if(isset($dt['PNC'][0]['produksi_asi'])) {{ $dt['PNC'][0]['produksi_asi'] }} @endif</td>
                    </tr>
                    <tr>
                     <td>Pendarahan Pervaginum</td>
                     <td>:</td>
-                    <td></td>
+                    <td>@if(isset($dt['PNC'][0]['pendarahan'])) {{ $dt['PNC'][0]['pendarahan'] }} mL @endif</td>
                    </tr>
                    <tr>
                     <td>Infeksi Perineum</td>
                     <td>:</td>
-                    <td></td>
+                    <td>@if(isset($dt['PNC'][0]['tanda_infeksi_perineum']))
+
+                        {{ $dt['PNC'][0]['tanda_infeksi_perineum'] }}
+
+                        @endif</td>
                    </tr>
                    <tr>
                     <td>Konseling Perawat Bayi</td>
@@ -762,6 +768,7 @@
         <!-- NEONATUS -->
         <div class="card-body" id="neonatus">
 
+
             <table class="table table-light">
                 <thead>
                     <tr>
@@ -777,17 +784,17 @@
                     <tr>
                         <td>BB Saat Lahir</td>
                         <td>:</td>
-                        <td></td>
+                        <td>@if(isset($dt['NEONATAL'][0]['berat_lahir'])){{ $dt['NEONATAL'][0]['berat_lahir'] }} gram @endif</td>
                     </tr>
                     <tr>
                         <td>Panjang Badan</td>
                         <td>:</td>
-                        <td></td>
+                        <td>@if(isset($dt['NEONATAL'][0]['panjang_badan'])){{ $dt['NEONATAL'][0]['panjang_badan'] }} cm @endif</td>
                     </tr>
                     <tr>
                         <td>Lingkar Kepala</td>
                         <td>:</td>
-                        <td></td>
+                        <td>@if(isset($dt['NEONATAL'][0]['lingkar_kepala'])){{ $dt['NEONATAL'][0]['lingkar_kepala'] }} cm @endif</td>
                     </tr>
                     <tr>
                         <td>Suhu</td>
@@ -936,7 +943,9 @@
 
          <!-- Imunisasi -->
         <div class="card-body" id="imunisasi">
-
+<pre>
+                {{ print_r($dt['IMUNISASI']) }}
+            </pre>
             <table class="table table-light">
                 <thead>
                 <tr>
