@@ -14,7 +14,18 @@ class PncRecord extends Model
         'gravida',
         'parity',
         'abortus',
-        'delivery_time'
+        'delivery_time',
+        'pendarahan',
+        'kondisi_perineum',
+        'tanda_infeksi_perineum',
+        'tanda_infeksi_luka_sc',
+        'kontraksi_uteus',
+        'lochia',
+        'bau_lochia',
+        'produksi_asi',
+        'bak',
+        'bab',
+        'pemeriksaan_payudara'
     ];
 
     protected $casts = [

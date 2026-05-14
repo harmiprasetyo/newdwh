@@ -944,7 +944,7 @@
          <!-- Imunisasi -->
         <div class="card-body" id="imunisasi">
 <pre>
-                {{ print_r($dt['IMUNISASI']) }}
+                {{ print_r($dt) }}
             </pre>
             <table class="table table-light">
                 <thead>
