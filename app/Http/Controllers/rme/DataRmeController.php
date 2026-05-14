@@ -593,14 +593,17 @@ if (isset($data['entry'])) {
 
                 case '8867-4':
                     $vital['heart_rate'] = $r['valueQuantity']['value'];
+                    $neonatal['nadi'] = $r['valueQuantity']['value']?? null;
                     break;
 
                 case '9279-1':
                     $vital['respiratory_rate'] = $r['valueQuantity']['value'];
+                    $neonatal['pernafasan'] = $r['valueQuantity']['value']?? null;
                     break;
 
                 case '8310-5':
                     $vital['temperature'] = $r['valueQuantity']['value'];
+                    $neonatal['suhu'] = $r['valueQuantity']['value']?? null;
                     break;
 
                 /** MEASURE */
@@ -717,15 +720,7 @@ if (isset($data['entry'])) {
                             case '9843-4':
                                 $neonatal['lingkar_kepala'] = $r['valueQuantity']['value'] ?? null;
                                 break;
-                                case '9279-1':
-                                    $neonatal['pernafasan'] = $r['valueQuantity']['value'] ?? null;
-                                    break;
-                                    case '8867-4':
-                                        $neonatal['nadi'] = $r['valueQuantity']['value'] ?? null;
-                                        break;
-                                        case '8310-5':
-                                            $neonatal['suhu'] = $r['valueQuantity']['value'] ?? null;
-                                            break;
+
                                         case '9198-5':
                                             $neonatal['apgar_1_menit'] = $r['valueInteger'] ?? null;
                                             break;
@@ -751,13 +746,7 @@ if (isset($data['entry'])) {
         );
         }
 
-        NeonatalRecord::updateOrCreate(
-            [
-                'patient_id' => $neonatal['patient_id'],
-                'encounter_id' => $neonatal['encounter_id']
-            ],
-            $neonatal
-        );
+
 
         VitalSign::updateOrCreate(
             [
@@ -766,6 +755,16 @@ if (isset($data['entry'])) {
             ],
             $vital
         );
+
+
+        NeonatalRecord::updateOrCreate(
+            [
+                'patient_id' => $neonatal['patient_id'],
+                'encounter_id' => $neonatal['encounter_id']
+            ],
+            $neonatal
+        );
+
 
         Measurement::updateOrCreate(
             [
@@ -820,15 +819,17 @@ echo "</pre>";
 */
 $ImnSTR= Http::withToken($token)->get($server."Immunization?patient=".$dt['PID']['id']);
         $dataImn = $ImnSTR->json();
+$dt['IMUNISASI'] = [];
+       if(isset($dataImn['entry'])) {
+           foreach($dataImn['entry'] as $k=>$imn){
+                $dt['IMUNISASI'][$k]['code'] = $imn['resource']['vaccineCode']['coding'][0]['code'];
+                $dt['IMUNISASI'][$k]['display'] = $imn['resource']['vaccineCode']['coding'][0]['display'];
+                $dt['IMUNISASI'][$k]['tglImunisasi'] = Carbon::parse($imn['resource']['occurrenceDateTime'])->format('d M Y');
+            }
+       }
 
-        foreach($dataImn['entry'] as $k=>$imn){
-            $dt['IMUNISASI'][$k]['code'] = $imn['resource']['vaccineCode']['coding'][0]['code'];
-            $dt['IMUNISASI'][$k]['display'] = $imn['resource']['vaccineCode']['coding'][0]['display'];
-            $dt['IMUNISASI'][$k]['tglImunisasi'] = Carbon::parse($imn['resource']['occurrenceDateTime'])->format('d M Y');
-        }
 
-
-
+$dt['imth'] = $dataImn['entry'];
   return view('rme.detailpasien',["dt"=>$dt]);
 
 
