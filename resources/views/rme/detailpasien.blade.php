@@ -677,15 +677,20 @@
                     <td>@if(isset($dt['VS']['pernafasan'])) {{  $dt['VS']['pernafasan'] }} @endif</td>
                    </tr>
                    <tr>
-                    <td>Diagnosis Utama</td>
-                    <td>:</td>
-                    <td></td>
+                    <td style="vertical-align: top">Diagnosis</td>
+                    <td style="vertical-align: top">:</td>
+                    <td>@if(isset($dt['ANAMNESE']))
+                        @foreach($dt['ANAMNESE'] as $diagnose)
+
+                        <li>{{ $diagnose['diagnosa_kode'] }} - {{ $diagnose['diagnosa_display'] }}</li><br>
+
+                        @endforeach
+
+
+
+                        @endif</td>
                    </tr>
-                   <tr>
-                    <td>Diagnosis sekunder</td>
-                    <td>:</td>
-                    <td></td>
-                   </tr>
+
                    <tr>
                     <td>Kondisi Payudara</td>
                     <td>:</td>
@@ -715,7 +720,11 @@
                    <tr>
                     <td>Konseling Perawat Bayi</td>
                     <td>:</td>
-                    <td></td>
+                    <td>
+
+
+
+                        @if(isset($dt['PNCPROC'][0]['code']) && $dt['PNCPROC'][0]['code']=='408988007') Ya @endif</td>
                    </tr>
                    <tr>
                     <td>Skrining Kesehatan Jiwa</td>
@@ -735,7 +744,16 @@
                    <tr>
                     <td>Tindakan</td>
                     <td>:</td>
-                    <td></td>
+                    <td>
+
+                        @if(isset($dt['PNCPROC'][0]['procedure']))
+                        @foreach($dt['PNCPROC'][0]['procedure']['coding'] as $proc)
+                        <li>{{ $proc['code'] }} - {{ $proc['display'] }}</li>
+                        @endforeach
+                        @endif
+
+
+                    </td>
                    </tr>
                    <tr>
                     <td>Laboratorium</td>
@@ -750,7 +768,15 @@
                    <tr>
                     <td>Rencana Tindak Lanjut</td>
                     <td>:</td>
-                    <td></td>
+                    <td>
+                        @if(isset($dt['PLAN'][0]['RTL']))
+                        {{ $dt['PLAN'][0]['RTL'] }}
+
+                        @endif
+
+
+
+                    </td>
                    </tr>
                    <tr>
                     <td>Kondisi Pulang</td>
@@ -944,7 +970,7 @@
          <!-- Imunisasi -->
         <div class="card-body" id="imunisasi">
 <pre>
-                {{ print_r($dt) }}
+
             </pre>
             <table class="table table-light">
                 <thead>
@@ -1022,8 +1048,27 @@
 
                 <tr>
                     <td>Imunisasi DPT-HB-HIB 1</td>
-                    <td></td>
-                    <td></td>
+                    <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='93001282')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach
+                    </td>
+                    <td>
+                        @foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='93001282')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach
+
+
+                    </td>
                     <td></td>
                     <td></td>
                     <td></td>

@@ -172,59 +172,116 @@ async function requestOTP(nik) {
 
             },
             dataType: "json",
-            success: function(response){
+           success: async function(response){
 
-                if(response.status === "success"){
-                    if(response.total=="0"){
-                         Swal.fire({
-  title: 'Not Found',
-  text: 'Data Pasien Tidak ditemukan',
-  icon: 'info',
-  confirmButtonText: 'Ok'
-})
+    $('#loaderbtn').hide();
+    $('#btnSearch').show();
 
-$('#loaderbtn').hide();
-$('#btnSearch').show();
+    // ❌ NOT FOUND
+    if(response.status === "not_found"){
+        Swal.fire({
+            title: 'Not Found',
+            text: 'Data Pasien Tidak ditemukan',
+            icon: 'info'
+        });
+        return;
+    }
 
-                    }else{
+    // ✅ SUCCESS
+    if(response.status === "success"){
 
- Swal.fire({
-  title: 'Data Tersedia',
-  text: 'Data Pasien ditemukan silahkan input OTP atau upload inform consent untuk akses data',
-  icon: 'info',
-  showDenyButton: true,
-  confirmButtonText: 'ENTER OTP',
-  denyButtonText: `INFORM CONSENT`
-}).then((result)=>{
+        let data = response.data;
 
-   if(result.isConfirmed){
+        const result = await Swal.fire({
+            title: 'Data Tersedia',
+            text: 'Pilih metode akses data pasien',
+            icon: 'info',
+            showDenyButton: true,
+            confirmButtonText: 'ENTER OTP',
+            denyButtonText: 'INFORM CONSENT'
+        });
 
-  $.post('/send-otp', {
-    identifier: response.phone,
-    nama:response.nama,
-    _token: $('meta[name="csrf-token"]').attr('content')
-});
-    $('#nextModal').modal('show');
-    $('#otpnik').val(response.nik);
-     $('#identifier').val(response.phone);
+        // =========================
+        // OTP FLOW
+        // =========================
+        if(result.isConfirmed){
 
+            if(!data.phone){
+                Swal.fire({
+                    title: 'No Phone',
+                    text: 'Nomor HP tidak tersedia',
+                    icon: 'warning'
+                });
+                return;
+            }
 
-   }else{
-    $('#uploadModal').modal('show');
-     $('#updnik').val(response.nik);
+            // kirim OTP
+            await $.post('/send-otp', {
+                identifier: data.phone,
+                nama: data.name,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            });
 
-   }
+            // input OTP langsung
+            const { value: otp } = await Swal.fire({
+                title: 'Input OTP',
+                input: 'text',
+                inputLabel: 'Kode OTP',
+                inputPlaceholder: 'Masukkan OTP',
+                showCancelButton: true,
+                confirmButtonText: 'Verify',
+                inputAttributes: {
+                    maxlength: 6
+                },
+                inputValidator: (value) => {
+                    if (!value) return 'OTP wajib diisi';
+                }
+            });
 
-})
+            if(!otp) return;
 
-                    }
+            // verifikasi OTP
+            $.post('/verify-otp', {
+                identifier: data.phone,
+                otp: otp,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            }).done(function(res){
 
+                if(res.success){
+
+                    Swal.fire({
+                        title: 'Berhasil',
+                        text: res.message,
+                        icon: 'success'
+                    }).then(()=>{
+                        window.location.href="/datarme/search?nik="+data.nik;
+                    });
 
                 }else{
-                    $("#result").html(response.message);
+                    Swal.fire({
+                        title: 'Gagal',
+                        text: res.message,
+                        icon: 'error'
+                    });
                 }
 
-            },
+            });
+
+        }
+
+        // =========================
+        // CONSENT FLOW
+        // =========================
+        else if(result.isDenied){
+
+            $('#uploadModal').modal('show');
+            $('#updnik').val(data.nik);
+
+        }
+    }
+},
+
+            //end success response
             error: function(xhr, status, error){
                 console.log(error);
                 $("#result").html("AJAX error");

@@ -6,40 +6,41 @@
     <div class="col">
         <div class="card mt-4">
         <div class="card-body">
+
              <table class="table">
         <thead>
             <tr>
 
                 <th>ID</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['id'] }}</th>
+                <th>{{ $dt['PATIENTID']['patient_id'] }}</th>
             </tr>
             <tr>
                 <th>Nama Pasien</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['nama'] }}</th>
+                <th>{{ $dt['PATIENTID']['name'] }}</th>
             <tr>
                   <tr>
                 <th>NIK</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['nik'] }}</th>
+                <th>{{ $dt['PATIENTID']['nik'] }}</th>
             <tr>
 
                   <tr>
                 <th>Tgl Lahir</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['birthdate'] }}</th>
+                <th>{{ \Carbon\Carbon::parse($dt['PATIENTID']['birth_date'])->format('d M Y') }}</th>
             <tr>
                   <tr>
                 <th>Jenis Kelamin</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['gender'] }}</th>
+                <th>{{ $dt['PATIENTID']['gender'] }}</th>
             <tr>
 
                 <tr>
                 <th>No. Telp</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['phone'] }}</th>
+                <th>{{ $dt['PATIENTID']['phone'] }}</th>
             <tr>
 
 
@@ -47,7 +48,28 @@
                   <tr>
                 <th>Alamat</th>
                 <th>:</th>
-                <th>{{ @implode(", ",$dt['PID']['address']) }}</th>
+                <th>{{ $dt['PATIENTID']['address'] }}</th>
+            <tr>
+
+                <tr>
+                  <tr>
+                <th>Kecamatan</th>
+                <th>:</th>
+                <th>{{ $dt['PATIENTID']['district']['name'] }}</th>
+            <tr>
+
+                 <tr>
+                  <tr>
+                <th>Kab/Kota</th>
+                <th>:</th>
+                <th>{{ $dt['PATIENTID']['city']['name'] }}</th>
+            <tr>
+
+                 <tr>
+                  <tr>
+                <th>Propinsi</th>
+                <th>:</th>
+                <th>{{ $dt['PATIENTID']['province']['name'] }}</th>
             <tr>
 
         </thead>

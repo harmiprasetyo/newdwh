@@ -15,19 +15,19 @@ use App\Models\Measurement;
 use App\Models\Observation\AncDeliveryRecord as AncDeliveryRecord;
 use App\Models\Observation\PncRecord;
 use App\Models\Observation\NeonatalRecord;
-//use App\Services\PatientService;
+use App\Services\Fhir\PatientService;
 
 
 class DataRmeController extends Controller
 {
     //
- /*   protected $patientService;
+  protected $patientService;
 
     public function __construct(PatientService $patientService)
     {
         $this->patientService = $patientService;
     }
-*/
+
 
     public function index(){
         return view('rme.searchpasien');
@@ -48,24 +48,29 @@ class DataRmeController extends Controller
         $server = env('FHIR_API_URL');
         $nik = $request->nik;
 
-        $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
-        $data = $response->json();
+        $data = $this->patientService->searchByNik($nik);
 
-    $jdid['total'] = $data['total'];
-    $jdid['status']="success";
-    $jdid['nik'] = $nik;
- foreach($data['entry'] as $key=>$hasil){
-      if($hasil['resource']['telecom'][0]['system']=='phone'){
-        $jdid['phone'] = $hasil['resource']['telecom'][0]['value'];
-        }else{
-            $jdid['phone']="";
-        }
-         $jdid['nama'] = $hasil['resource']['name'][0]['text'];
- }
-    echo json_encode($jdid);
+       if(!$data){
+        return response()->json([
+            'status' => 'not_found',
+            'total' => 0,
+            'data' => null
+        ]);
+       }
+
+        return response()->json([
+        'status' => 'success',
+        'total' => 1,
+        'data' => $data,
+         'nik' => $data->nik,
+        'name' => $data->name,
+        'phone' => $data->phone
+    ]);
+
+       }
 
 
-    }
+
 
     public function dataPasien(Request $request){
         $token = env('FHIR_API_TOKEN');
@@ -821,15 +826,47 @@ $ImnSTR= Http::withToken($token)->get($server."Immunization?patient=".$dt['PID']
         $dataImn = $ImnSTR->json();
 $dt['IMUNISASI'] = [];
        if(isset($dataImn['entry'])) {
-        $dt['imth'] = $dataImn['entry'];
+      //  $dt['imth'] = $dataImn['entry'];
            foreach($dataImn['entry'] as $k=>$imn){
                 $dt['IMUNISASI'][$k]['code'] = $imn['resource']['vaccineCode']['coding'][0]['code'];
                 $dt['IMUNISASI'][$k]['display'] = $imn['resource']['vaccineCode']['coding'][0]['display'];
                 $dt['IMUNISASI'][$k]['tglImunisasi'] = Carbon::parse($imn['resource']['occurrenceDateTime'])->format('d M Y');
+                $dt['IMUNISASI'][$k]['pos'] = $imn['resource']['location']['display'];
             }
        }
 
+ $anamnese = Http::withToken($token)->get($server."Condition?encounter=".$encounterId);
+         $resAnamnese = $anamnese->json();
+         if($resAnamnese['total']>0){
+            for($i=0;$i<$resAnamnese['total'];$i++){
+                $dt['ANAMNESE'][$i]['diagnosa_kode'] = $resAnamnese['entry'][$i]['resource']['code']['coding'][0]['code'];
+                 $dt['ANAMNESE'][$i]['diagnosa_display'] = $resAnamnese['entry'][$i]['resource']['code']['coding'][0]['display'];
+                 // $dt['ANAMNESE'][$i]['note'] = $resAnamnese['entry'][$i]['resource']['note'][0]['text'];
+            }
 
+         }
+
+
+         $plan = Http::withToken($token)->get($server."CarePlan?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+         $rowPlan = $plan->json();
+         if(isset($rowPlan['entry'])){
+            foreach($rowPlan['entry'] as $k=>$pln){
+                $dt['PLAN'][$k]['RTL'] = $pln['resource']['description'];
+
+            }
+
+         }
+       $pncProcedure= Http::withToken($token)->get($server."Procedure?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+       $proceData = $pncProcedure->json();
+       $dt['PNCPROC'] = [];
+
+       if(isset($proceData['entry'])){
+        foreach($proceData['entry'] as $k=>$pr){
+            $dt['PNCPROC'][$k]['code'] = $pr['resource']['code']['coding'][0]['code'];
+            $dt['PNCPROC'][$k]['display'] = $pr['resource']['code']['coding'][0]['display'];
+            $dt['PNCPROC'][$k]['procedure'] = $pr['resource']['code'];
+        }
+       }
 
   return view('rme.detailpasien',["dt"=>$dt]);
 
@@ -845,11 +882,11 @@ $dt['IMUNISASI'] = [];
     }
 
 
-    public function searchpasien(){
+    public function searchpasien(Request $request){
 
         $token = env('FHIR_API_TOKEN');
         $server = env('FHIR_API_URL');
-        $nik = $_GET['nik'];
+        $nik = $request->nik;
 
 
 
@@ -1022,6 +1059,9 @@ $dt['IMUNISASI'] = [];
   //  echo "<pre>";
   // print_r($dt);
    // echo "</pre>";
+
+   $patient = $this->patientService->searchByNik($nik);
+   $dt['PATIENTID'] = $patient->toArray();
  return view('rme.datapasien',["dt"=>$dt]);
 
 }
