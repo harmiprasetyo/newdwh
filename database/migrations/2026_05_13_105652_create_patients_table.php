@@ -27,9 +27,9 @@ return new class extends Migration
 
     $table->text('address')->nullable();
 
-    $table->string('kode_propinsi')->nullable();
-    $table->string('kode_kota')->nullable();
-    $table->string('kode_kecamatan')->nullable();
+    #$table->string('kode_propinsi')->nullable();
+    #$table->string('kode_kota')->nullable();
+    #$table->string('kode_kecamatan')->nullable();
     $table->index('nik');
     $table->index('kode_kota');
     $table->index('kode_propinsi');
@@ -51,7 +51,7 @@ return new class extends Migration
         ->nullOnDelete();
 
          $table->index('nik');
-       
+
 
 
     $table->timestamps();
