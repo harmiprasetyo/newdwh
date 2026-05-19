@@ -964,16 +964,26 @@ if (!empty($dataImn['entry'])) {
     }
 }
 
- $anamnese = Http::withToken($token)->get($server."Condition?encounter=".$encounterId);
-         $resAnamnese = $anamnese->json();
-         if($resAnamnese['total']>0){
-            for($i=0;$i<$resAnamnese['total'];$i++){
-                $dt['ANAMNESE'][$i]['diagnosa_kode'] = $resAnamnese['entry'][$i]['resource']['code']['coding'][0]['code'];
-                 $dt['ANAMNESE'][$i]['diagnosa_display'] = $resAnamnese['entry'][$i]['resource']['code']['coding'][0]['display'];
-                 // $dt['ANAMNESE'][$i]['note'] = $resAnamnese['entry'][$i]['resource']['note'][0]['text'];
-            }
+ $anamnese = Http::withToken($token)
+    ->get($server."Condition?encounter=".$encounterId);
 
-         }
+$resAnamnese = $anamnese->json();
+
+$dt['ANAMNESE'] = [];
+
+if (!empty($resAnamnese['entry'])) {
+
+    foreach ($resAnamnese['entry'] as $i => $item) {
+
+        $r = $item['resource'] ?? [];
+
+        $dt['ANAMNESE'][] = [
+            'diagnosa_kode' => data_get($r, 'code.coding.0.code'),
+            'diagnosa_display' => data_get($r, 'code.coding.0.display'),
+            // 'note' => data_get($r, 'note.0.text'),
+        ];
+    }
+}
 
 
          $plan = Http::withToken($token)->get($server."CarePlan?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
