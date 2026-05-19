@@ -1082,7 +1082,7 @@
                 <tr>
                     <td>Imunisasi DPT-HB-HIB 1</td>
                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='VG107')
+                        @if($imn['code']=='VG107' || $imn['code']=='93001282')
                         {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
 
                         @endif
@@ -1097,7 +1097,7 @@
                     </td>
                     <td>
                          @foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='VG107')
+                         @if($imn['code']=='VG107' || $imn['code']=='93001282')
                         {{ $imn['pos'] }}
 
                         @endif
