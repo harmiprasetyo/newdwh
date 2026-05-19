@@ -37,4 +37,5 @@ return array(
     '320163ac6b93aebe3dc25b60a0533d56' => $vendorDir . '/spatie/laravel-ignition/src/helpers.php',
     '0b47d6d4a00ca9112ba3953b49e7c9a4' => $vendorDir . '/yajra/laravel-datatables-oracle/src/helper.php',
     '0dc6a3d391fac299ffec236320824a92' => $baseDir . '/app/Helpers/helpers.php',
+    'd9c7f15bd5f0e9a35272b043c60db372' => $baseDir . '/app/Helpers/LoincHelper.php',
 );

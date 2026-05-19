@@ -505,251 +505,279 @@ if (isset($data['entry'])) {
              $neonatal['patient_id'] = $patient;
             $neonatal['encounter_id'] = $encounter;
 
+            //NN
+              // mapping LOINC → field & variable
+    $map = [
+
+        // ===== NN pemeriksaan fisik =====
+        '10206-1' => ['path' => 'interpretation.0.coding.0.display', 'field' => 'kulit'],
+        '10199-8' => ['path' => 'interpretation.0.coding.0.display', 'field' => 'kepala'],
+        '10197-2' => ['path' => 'interpretation.0.coding.0.display', 'field' => 'mata'],
+        '32453-3' => ['path' => 'interpretation.0.coding.0.display', 'field' => 'mulut'],
+        '10191-5' => ['path' => 'interpretation.0.coding.0.display', 'field' => 'abdomen'],
+        '10192-3' => ['path' => 'interpretation.0.coding.0.display', 'field' => 'punggung'],
+        '11388-6' => ['path' => 'interpretation.0.coding.0.display', 'field' => 'bokong'],
+        '11400-9' => ['path' => 'interpretation.0.coding.0.display', 'field' => 'genitalia'],
+
+        // ===== APGAR 1 menit =====
+        '32406-1' => ['field' => 'color', 'var' => 'color_score'],
+        '32407-9' => ['field' => 'heartrate', 'var' => 'hr_score'],
+        '32409-5' => ['field' => 'reflex', 'var' => 'reflex_score'],
+        '32408-7' => ['field' => 'muscle', 'var' => 'muscle_score'],
+        '32410-3' => ['field' => 'respiration', 'var' => 'respiration_score'],
+
+        // ===== APGAR 5 menit =====
+        generateLoinc('32411') => ['var' => 'color5m_score'],
+        generateLoinc('32412') => ['var' => 'hr5m_score'],
+        generateLoinc('32413') => ['var' => 'muscle5m_score'],
+        generateLoinc('32414') => ['var' => 'reflex5m_score'],
+        generateLoinc('32415') => ['var' => 'resp5m_score'],
+
+        // ===== APGAR 10 menit =====
+        generateLoinc('32401') => ['var' => 'color10m_score'],
+        generateLoinc('32402') => ['var' => 'hr10m_score'],
+        generateLoinc('32403') => ['var' => 'muscle10m_score'],
+        generateLoinc('32404') => ['var' => 'reflex10m_score'],
+        generateLoinc('32405') => ['var' => 'resp10m_score'],
+    ];
+
+    foreach ($data['entry'] as $item) {
+
+        $r = $item['resource'] ?? [];
+
+        // ambil loinc code
+        $loincCode = data_get($r, 'code.coding.0.code');
+
+        if (!$loincCode || !isset($map[$loincCode])) {
+            continue;
+        }
+
+        $config = $map[$loincCode];
+
+        // ===== CASE 1: interpretation =====
+        if (isset($config['path'])) {
+            $value = data_get($r, $config['path']);
+
+            if (isset($config['field'])) {
+                $dt['NN'][$config['field']] = $value;
+            }
+
+            continue;
+        }
+
+        // ===== CASE 2: valueCodeableConcept =====
+        $coding  = data_get($r, 'valueCodeableConcept.coding.0', []);
+        $code    = $coding['code'] ?? null;
+        $display = $coding['display'] ?? $code; // fallback
+
+        if (isset($config['field'])) {
+            $dt['NN'][$config['field']] = $code;
+        }
+
+        if (isset($config['var'])) {
+            ${$config['var']} = $display;
+        }
+    }
+
 
 
             switch ($code) {
                 //NN//
-                case '10206-1':
-                    $dt['NN']['kulit'] = $r['interpretation'][0]['coding'][0]['display'];
-                    break;
-                     case '10199-8':
-                    $dt['NN']['kepala'] = $r['interpretation'][0]['coding'][0]['display'];
-                    break;
-                     case '10197-2':
-                    $dt['NN']['mata'] = $r['interpretation'][0]['coding'][0]['display'];
-                    break;
-
-                     case '32453-3':
-                    $dt['NN']['mulut'] = $r['interpretation'][0]['coding'][0]['display'];
-                    break;
-
-                     case '10191-5':
-                    $dt['NN']['abdomen'] = $r['interpretation'][0]['coding'][0]['display'];
-                    break;
-
-                    case '10192-3':
-                    $dt['NN']['punggung'] = $r['interpretation'][0]['coding'][0]['display'];
-                    break;
-
-                    case '11388-6':
-                    $dt['NN']['bokong'] = $r['interpretation'][0]['coding'][0]['display'];
-                    break;
-
-                    case '11400-9':
-                    $dt['NN']['genitalia'] = $r['interpretation'][0]['coding'][0]['display'];
-                    break;
-
-                     case '32406-1':
-                    $dt['NN']['color'] = $r['valueCodeableConcept']['coding'][0]['code'];
-                    break;
-                     case '32407-9':
-                    $dt['NN']['heartrate'] = $r['valueCodeableConcept']['coding'][0]['code'];
-                    break;
-
-                    case '32409-5':
-                    $dt['NN']['reflex'] = $r['valueCodeableConcept']['coding'][0]['code'];
-                    break;
-
-                     case '32408-7':
-                    $dt['NN']['muscle'] = $r['valueCodeableConcept']['coding'][0]['code'];
-                    break;
-
-                    case '32410-3':
-                    $dt['NN']['respiration'] = $r['valueCodeableConcept']['coding'][0]['code'];
-                    break;
-
 
 
                 /** ANC */
                 case '11996-6':
-                    $pregnancy['gravida'] = $r['valueInteger'];
-                    $delivery['gravida'] = $r['valueInteger'];
-                    $pnc['gravida'] = $r['valueInteger'];
+                    $pregnancy['gravida'] = getFhirValue('valueInteger');
+                    $delivery['gravida'] = getFhirValue('valueInteger');
+                    $pnc['gravida'] = getFhirValue('valueInteger');
                     break;
                 case '64708-1':
-                    $pregnancy['parity'] = $r['valueInteger'];
-                    $delivery['parity'] = $r['valueInteger'];
-                    $pnc['parity'] = $r['valueInteger'];
+                    $pregnancy['parity'] = getFhirValue('valueInteger');
+                    $delivery['parity'] = getFhirValue('valueInteger');
+                    $pnc['parity'] = getFhirValue('valueInteger');
                     break;
 
                 case '11977-6':
-                    $pregnancy['parity'] = $r['valueInteger'];
+                    $pregnancy['parity'] = getFhirValue('valueInteger');
                     break;
 
                 case '69043-8':
-                    $pregnancy['abortus'] = $r['valueInteger'];
-                    $delivery['abortus'] = $r['valueInteger'];
-                    $pnc['abortus'] = $r['valueInteger'];
+                    $pregnancy['abortus'] = getFhirValue('valueInteger');
+                    $delivery['abortus'] = getFhirValue('valueInteger');
+                    $pnc['abortus'] = getFhirValue('valueInteger');
                     break;
 
                 case '8665-2':
-                    $pregnancy['lmp'] = date('Y-m-d', strtotime($r['valueDateTime']));
+                    $pregnancy['lmp'] = date('Y-m-d', strtotime(getFhirValue('valueDateTime')));
                     break;
 
                 case '11778-8':
-                    $pregnancy['edd'] = date('Y-m-d', strtotime($r['valueDateTime']));
+                    $pregnancy['edd'] = date('Y-m-d', strtotime(getFhirValue('valueDateTime')));
                     break;
 
                 case '18185-9':
-                    $pregnancy['gestational_age'] = $r['valueQuantity']['value']?? null;
-                    $delivery['gestational_age'] = $r['valueQuantity']['value'] ?? null;
+                    $pregnancy['gestational_age'] = getFhirValue('valueQuantity.value')?? null;
+                    $delivery['gestational_age'] = getFhirValue('valueQuantity.value') ?? null;
                     break;
 
                 case '32418-6':
-                    $pregnancy['trimester'] = $r['valueInteger'];
+                    $pregnancy['trimester'] = getFhirValue('valueInteger');
                     break;
 
                 /** VITAL */
                 case '8480-6':
-                    $vital['systolic'] = $r['valueQuantity']['value'];
+                    $vital['systolic'] = getFhirValue('valueQuantity.value');
                     break;
 
                 case '8462-4':
-                    $vital['diastolic'] = $r['valueQuantity']['value'];
+                    $vital['diastolic'] = getFhirValue('valueQuantity.value');
                     break;
 
                 case '8867-4':
-                    $vital['heart_rate'] = $r['valueQuantity']['value'];
-                    $neonatal['nadi'] = $r['valueQuantity']['value']?? null;
+                    $vital['heart_rate'] = getFhirValue('valueQuantity.value');
+                    $neonatal['nadi'] = getFhirValue('valueQuantity.value')?? null;
                     break;
 
                 case '9279-1':
-                    $vital['respiratory_rate'] = $r['valueQuantity']['value'];
-                    $neonatal['pernafasan'] = $r['valueQuantity']['value']?? null;
+                    $vital['respiratory_rate'] = getFhirValue('valueQuantity.value');
+                    $neonatal['pernafasan'] = getFhirValue('valueQuantity.value')?? null;
                     break;
 
                 case '8310-5':
-                    $vital['temperature'] = $r['valueQuantity']['value'];
-                    $neonatal['suhu'] = $r['valueQuantity']['value']?? null;
+                    $vital['temperature'] = getFhirValue('valueQuantity.value');
+                    $neonatal['suhu'] = getFhirValue('valueQuantity.value')?? null;
                     break;
 
                 /** MEASURE */
                 case '8302-2':
-                    $measure['height'] = $r['valueQuantity']['value'];
+                    $measure['height'] = getFhirValue('valueQuantity.value');
                     break;
 
                 case '29463-7':
-                    $measure['weight'] = $r['valueQuantity']['value'];
+                    $measure['weight'] = getFhirValue('valueQuantity.value');
                     break;
 
                 case '56077-1':
-                    $measure['pre_weight'] = $r['valueQuantity']['value'];
+                    $measure['pre_weight'] = getFhirValue('valueQuantity.value');
                     break;
 
                 case 'OC000010':
-                    $measure['bmi'] = $r['valueQuantity']['value'];
+                    $measure['bmi'] = getFhirValue('valueQuantity.value');
                     $measure['bmi_status'] = $r['interpretation'][0]['coding'][0]['display'] ?? null;
                     break;
 
                 case '284473002':
-                    $measure['lila'] = $r['valueQuantity']['value'];
+                    $measure['lila'] = getFhirValue('valueQuantity.value');
                     break;
 
                 case '11881-0':
-                    $measure['sfh'] = $r['valueQuantity']['value'];
+                    $measure['sfh'] = getFhirValue('valueQuantity.value');
                     break;
 
                     //Delivery
 
 
                 case '11996-6':
-                    $delivery['gravida'] = $r['valueInteger'] ?? null;
+                    $delivery['gravida'] = getFhirValue('valueInteger') ?? null;
                     break;
 
                 case '64708-1':
-                    $delivery['parity'] = $r['valueInteger'] ?? null;
+                    $delivery['parity'] = getFhirValue('valueInteger') ?? null;
                     break;
 
                 case '69043-8':
-                    $delivery['abortus'] = $r['valueInteger'] ?? null;
+                    $delivery['abortus'] = getFhirValue('valueInteger') ?? null;
                     break;
 
                 case '93857-1':
-                    $delivery['delivery_time'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
-                     $pnc['delivery_time'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    $delivery['delivery_time'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
+                     $pnc['delivery_time'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                 case '249197004':
                     $delivery['postpartum_condition'] =
-                        $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                       getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
                     break;
 
                 case 'OC000013':
                     $delivery['delivery_helper'] =
-                        $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                       getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
                     break;
 
                 case '57071-3':
                     $delivery['delivery_method'] =
-                        $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                       getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
                     break;
 
                 case '249120008':
-                    $delivery['stage1'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    $delivery['stage1'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                 case '249160009':
-                    $delivery['stage2'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    $delivery['stage2'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                 case 'OC000018':
-                    $delivery['stage3'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    $delivery['stage3'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                 case 'OC000019':
-                    $delivery['stage4'] = Carbon::parse($r['valueDateTime'])->format('Y-m-d H:i:s') ?? null;
+                    $delivery['stage4'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                     // PNC
                     case '81661-1':
-                    $pnc['pendarahan'] = $r['valueQuantity']['value'] ?? null;
+                    $pnc['pendarahan'] = getFhirValue('valueQuantity.value') ?? null;
                     break;
 
                      case '32422-8':
-                    $pnc['pemeriksaan_payudara'] = $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                    $pnc['pemeriksaan_payudara'] =getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
                     break;
 
                     case '364297003':
-                        $pnc['kondisi_perineum'] = $r['valueString'] ?? null;
+                        $pnc['kondisi_perineum'] = getFhirValue('valueString') ?? null;
                         break;
                     case 'OC000020':
-                        $pnc['tanda_infeksi_perineum'] = $r['valueBoolean']==true ? 'ada' : 'Tidak ada' ?? null;
+                        $pnc['tanda_infeksi_perineum'] = getFhirValue('valueBoolean') ? 'ada' : 'Tidak ada' ?? null;
                         break;
                     case 'OC000025':
-                        $pnc['tanda_infeksi_luka_sc']= $r['valueBoolean']==true ? 'ada' : 'Tidak ada' ?? null;
+                        $pnc['tanda_infeksi_luka_sc']= getFhirValue('valueBoolean') ? 'ada' : 'Tidak ada' ?? null;
                         break;
                     case 'OC000017':
-                        $pnc['produksi_asi'] = $r['valueCodeableConcept']['coding'][0]['display'] ?? null;
+                        $pnc['produksi_asi'] =getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
                         break;
 
 
                         // Neonatal
                         case '57715-5':
-                            $neonatal['jam_lahir'] = $r['valueTime'] ?? null;
+                            $neonatal['jam_lahir'] = getFhirValue('valueTime') ?? null;
                             break;
 
                             case '8339-4':
-                                $neonatal['berat_lahir'] = $r['valueQuantity']['value'] ?? null;
+                                $neonatal['berat_lahir'] = getFhirValue('valueQuantity.value') ?? null;
                                 break;
-                            case '8330-2':
-                                $neonatal['panjang_badan'] = $r['valueQuantity']['value'] ?? null;
+                            case '89269-5':
+                                $neonatal['panjang_badan'] = getFhirValue('valueQuantity.value') ?? null;
                                 break;
                             case '9843-4':
-                                $neonatal['lingkar_kepala'] = $r['valueQuantity']['value'] ?? null;
+                                $neonatal['lingkar_kepala'] = getFhirValue('valueQuantity.value') ?? null;
                                 break;
 
                                         case '9198-5':
-                                            $neonatal['apgar_1_menit'] = $r['valueInteger'] ?? null;
+                                            $neonatal['apgar_1_menit'] = getFhirValue('valueInteger') ?? null;
                                             break;
                                         case '9199-3':
-                                            $neonatal['apgar_5_menit'] = $r['valueInteger'] ?? null;
+                                            $neonatal['apgar_5_menit'] = getFhirValue('valueInteger') ?? null;
                                             break;
                                         case '9200-1':
-                                            $neonatal['apgar_10_menit'] = $r['valueInteger'] ?? null;
+                                            $neonatal['apgar_10_menit'] = getFhirValue('valueInteger') ?? null;
                                             break;
 
 
             }
+
+
+
         }
 
         // SAVE
@@ -762,77 +790,62 @@ if (isset($data['entry'])) {
             $pregnancy
         );
         }
+$loincMap = [
+    '32406-1' => ['field' => 'color', 'var' => 'color_score'],
+    '32407-9' => ['field' => 'heartrate', 'var' => 'hr_score'],
+    '32409-5' => ['field' => 'reflex', 'var' => 'reflex_score'],
+    '32408-7' => ['field' => 'muscle', 'var' => 'muscle_score'],
+    '32410-3' => ['field' => 'respiration', 'var' => 'respiration_score'],
 
+    generateLoinc('32411') => ['var' => 'color5m_score'],
+    generateLoinc('32412') => ['var' => 'hr5m_score'],
+    generateLoinc('32413') => ['var' => 'muscle5m_score'],
+    generateLoinc('32414') => ['var' => 'reflex5m_score'],
+    generateLoinc('32415') => ['var' => 'resp5m_score'],
 
-        $score = [
-    'color' => [
-        'LA6724-4' => 0,
-        'LA6725-1' => 1,
-        'LA6726-9' => 2,
-    ],
-    'heartrate' => [
-        'LA6718-6' => 0,
-        'LA6719-4' => 1,
-        'LA6720-2' => 2,
-    ],
-    'reflex' => [
-        'LA6721-0' => 0,
-        'LA6722-8' => 1,
-        'LA6723-6' => 2,
-    ],
-    'muscle' => [
-        'LA6714-5' => 0,
-        'LA6715-2' => 1,
-        'LA6716-0' => 2,
-    ],
-    'respiration'=>[
-        'LA6727-7' => 0,
-        'LA6728-5' => 1,
-        'LA6729-3' => 2,
-    ]
+    generateLoinc('32401') => ['var' => 'color10m_score'],
+    generateLoinc('32402') => ['var' => 'hr10m_score'],
+    generateLoinc('32403') => ['var' => 'muscle10m_score'],
+    generateLoinc('32404') => ['var' => 'reflex10m_score'],
+    generateLoinc('32405') => ['var' => 'resp10m_score'],
 ];
-if(isset($dt['NN']['color'])){
-$dt['NN']['color_score'] = $score['color'][$dt['NN']['color']] ?? null;
+
+if (isset($loincMap[$loincCode])) {
+
+    $config = $loincMap[$loincCode];
+
+    // kalau ada field → masuk ke dt
+    if (isset($config['field'])) {
+        $dt['NN'][$config['field']] = $code;
+    }
+
+    // set variable score (dynamic)
+    if (isset($config['var'])) {
+        ${$config['var']} = $display;
+    }
 }
-
-if(isset($dt['NN']['heartrate'])){
-$dt['NN']['heartrate_score'] = $score['heartrate'][$dt['NN']['heartrate']] ?? null;
-}
-
-if(isset($dt['NN']['reflex'])){
-$dt['NN']['reflex_score'] = $score['reflex'][$dt['NN']['reflex']] ?? null;
-}
-if(isset($dt['NN']['muscle'])){
-$dt['NN']['muscle_score'] = $score['muscle'][$dt['NN']['muscle']] ?? null;
-}
-if(isset($dt['NN']['respiration'])){
-$dt['NN']['respiration_score'] = $score['respiration'][$dt['NN']['respiration']] ?? null;
-}
-
-
-/*dd([
-    'color' => $dt['NN']['color'] ?? null,
-    'color_score' => $dt['NN']['color_score'] ?? null,
-
-    'hr' => $dt['NN']['heartrate'] ?? null,
-    'hr_score' => $dt['NN']['heartrate_score'] ?? null,
-
-    'reflex' => $dt['NN']['reflex'] ?? null,
-    'reflex_score' => $dt['NN']['reflex_score'] ?? null,
-
-    'muscle' => $dt['NN']['muscle'] ?? null,
-    'muscle_score' => $dt['NN']['muscle_score'] ?? null,
-
-    'resp' => $dt['NN']['respiration'] ?? null,
-    'resp_score' => $dt['NN']['respiration_score'] ?? null,
-]);*/
 
 $dt['APGAR1'] =
-    ($dt['NN']['color_score'] ?? 0) +
-    ($dt['NN']['heartrate_score'] ?? 0) +
-    ($dt['NN']['reflex_score'] ?? 0) +
-    ($dt['NN']['muscle_score'] ?? 0) +
-    ($dt['NN']['respiration_score'] ?? 0);
+    (int)($color_score ?? 0) +
+    (int)($hr_score ?? 0) +
+   (int) ($reflex_score ?? 0) +
+    (int)($muscle_score ?? 0) +
+    (int)($respiration_score ?? 0);
+
+    $dt['APGAR5'] =
+     (int)($color5m_score ?? 0) +
+     (int)($hr5m_score ?? 0) +
+     (int)($reflex5m_score ?? 0) +
+     (int)($muscle5m_score ?? 0) +
+     (int)($resp5m_score ?? 0);
+
+    $dt['APGAR10'] =
+     (int)($color10m_score ?? 0) +
+     (int)($hr10m_score ?? 0) +
+     (int)($reflex10m_score ?? 0) +
+     (int)($muscle10m_score ?? 0) +
+     (int)($resp10m_score ?? 0);
+
         VitalSign::updateOrCreate(
             [
                 'patient_id' => $vital['patient_id'],
@@ -902,18 +915,54 @@ $dt['NEONATAL'] = NeonatalRecord::where('patient_id', $patient)->where('encounte
 print_r($KOB);
 echo "</pre>";
 */
-$ImnSTR= Http::withToken($token)->get($server."Immunization?patient=".$dt['PATIENTID']['patient_id']);
-        $dataImn = $ImnSTR->json();
+$ImnSTR = Http::withToken($token)
+    ->get($server."Immunization?patient=".$dt['PATIENTID']['patient_id']);
+
+$dataImn = $ImnSTR->json();
+
 $dt['IMUNISASI'] = [];
-       if(isset($dataImn['entry'])) {
-      //  $dt['imth'] = $dataImn['entry'];
-           foreach($dataImn['entry'] as $k=>$imn){
-                $dt['IMUNISASI'][$k]['code'] = $imn['resource']['vaccineCode']['coding'][0]['code'];
-                $dt['IMUNISASI'][$k]['display'] = $imn['resource']['vaccineCode']['coding'][0]['display'];
-                $dt['IMUNISASI'][$k]['tglImunisasi'] = Carbon::parse($imn['resource']['occurrenceDateTime'])->format('d M Y');
-                $dt['IMUNISASI'][$k]['pos'] = $imn['resource']['location']['display'];
-            }
-       }
+$dt['IMN_NN'] = [];
+
+if (!empty($dataImn['entry'])) {
+
+    foreach ($dataImn['entry'] as $imn) {
+
+        $r = $imn['resource'] ?? [];
+
+        // ===== ambil coding aman =====
+        $coding = data_get($r, 'vaccineCode.coding.0', []);
+        $code   = $coding['code'] ?? null;
+        $display= $coding['display'] ?? null;
+
+        // ===== tanggal =====
+        $tgl = data_get($r, 'occurrenceDateTime');
+        $tglFormatted = $tgl ? Carbon::parse($tgl)->format('d M Y') : null;
+
+        // ===== lokasi =====
+        $pos = data_get($r, 'location.display');
+
+        // ===== encounter =====
+        $encRef = data_get($r, 'encounter.reference');
+        $encId  = $encRef ? explode('/', $encRef)[1] ?? null : null;
+
+        // ===== push ke array =====
+        $dt['IMUNISASI'][] = [
+            'code' => $code,
+            'display' => $display,
+            'tglImunisasi' => $tglFormatted,
+            'pos' => $pos,
+        ];
+
+        // ===== khusus imunisasi neonatal =====
+        if ($code === '93008995' && $encId===$encounterId) {
+
+            $dt['IMN_NN'][] = [
+                'tglImunisasi' => $tglFormatted,
+                'encounter' => $encId,
+            ];
+        }
+    }
+}
 
  $anamnese = Http::withToken($token)->get($server."Condition?encounter=".$encounterId);
          $resAnamnese = $anamnese->json();
@@ -941,12 +990,16 @@ $dt['IMUNISASI'] = [];
        $dt['PNCPROC'] = [];
 
        if(isset($proceData['entry'])){
+        $dt['proc'] = $proceData;
         foreach($proceData['entry'] as $k=>$pr){
             $dt['PNCPROC'][$k]['code'] = $pr['resource']['code']['coding'][0]['code'];
             $dt['PNCPROC'][$k]['display'] = $pr['resource']['code']['coding'][0]['display'];
             $dt['PNCPROC'][$k]['procedure'] = $pr['resource']['code'];
+            $dt['PNCPROC'][$k]['tglvitamin'] = $pr['resource']['performedPeriod']['start'];
         }
        }
+
+
 
   return view('rme.detailpasien',["dt"=>$dt]);
 
@@ -999,5 +1052,12 @@ $dt['IMUNISASI'] = [];
 
 
 }
+
+
+
+
+
+
+
 
 

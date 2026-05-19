@@ -138,8 +138,27 @@
                             <td>@if(isset($dt['VS'])) {{ $dt['VS']['suhuBadan'] }} @endif</td>
                             <td>@if(isset($dt['VS'])) {{ $dt['VS']['nadi'] }} @endif</td>
                             <td>@if(isset($dt['VS'])) {{ $dt['VS']['pernafasan'] }} @endif</td>
-                            <td></td>
-                            <td></td>
+                            <td>
+
+                                @if(isset($dt['ANAMNESE']))
+                        @foreach($dt['ANAMNESE'] as $diagnose)
+
+                        <li>{{ $diagnose['diagnosa_kode'] }} - {{ $diagnose['diagnosa_display'] }}</li>
+
+                        @endforeach
+
+
+
+                        @endif</td>
+
+                            </td>
+                            <td>
+                                @if(isset($dt['PNCPROC'][0]['procedure']))
+                        @foreach($dt['PNCPROC'][0]['procedure']['coding'] as $proc)
+                        <li>{{ $proc['code'] }} - {{ $proc['display'] }}</li>
+                        @endforeach
+                        @endif
+                            </td>
                             <td><span>
 
                                 @if (isset($dt['lab']))
@@ -158,8 +177,19 @@
 
                             </td>
                             <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>  @if(isset($dt['PLAN'][0]['RTL']))
+                        {{ $dt['PLAN'][0]['RTL'] }}
+
+                        @endif</td>
+                            <td>
+
+                                 @foreach($dt['ANAMNESE'] as $k=>$v)
+                            @if($v['code']=='359746009')
+                            {{  $v['display'] }}
+                            @endif
+                            @endforeach
+
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -760,7 +790,17 @@
                    <tr>
                     <td>Laboratorium</td>
                     <td>:</td>
-                    <td></td>
+                    <td><span>
+
+                                @if (isset($dt['lab']))
+
+
+
+                                  @foreach ($dt['lab'] as $key=>$val )
+                                  {{  $val['label'] }}  : {{  $val['val'] }} </span><br>
+                                @endforeach
+
+                                     @endif</td>
                    </tr>
                    <tr>
                     <td>Obat</td>
@@ -783,7 +823,11 @@
                    <tr>
                     <td>Kondisi Pulang</td>
                     <td>:</td>
-                    <td></td>
+                    <td> @foreach($dt['ANAMNESE'] as $k=>$v)
+                            @if($v['diagnosa_kode']=='359746009')
+                            {{  $v['diagnosa_display'] }}
+                            @endif
+                            @endforeach</td>
                    </tr>
                 </thead>
             </table>
@@ -799,16 +843,8 @@
 
             <table class="table table-light">
                 <thead>
-                    <tr>
-                        <td style="width:30%">Tanggal Lahir</td>
-                        <td style="width: 5%">:</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>Jenis Kunjungan</td>
-                        <td>:</td>
-                        <td></td>
-                    </tr>
+
+
                     <tr>
                         <td>BB Saat Lahir</td>
                         <td>:</td>
@@ -825,32 +861,6 @@
                         <td>@if(isset($dt['NEONATAL'][0]['lingkar_kepala'])){{ $dt['NEONATAL'][0]['lingkar_kepala'] }} cm @endif</td>
                     </tr>
                     <tr>
-                        <td>Suhu</td>
-                        <td>:</td>
-                        <td>
-                            @if(isset($dt['NEONATAL']['suhu']))
-                            {{ $dt['NEONATAL']['suhu'] }}
-
-                            @endif
-
-
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Nadi</td>
-                        <td>:</td>
-                        <td>
-
-
-
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Pernapasan</td>
-                        <td>:</td>
-                        <td></td>
-                    </tr>
-                    <tr>
                         <td>Skor APGAR (menit 1)</td>
                         <td>:</td>
                         <td>
@@ -864,43 +874,67 @@
                     <tr>
                         <td>Skor APGAR (menit 5)</td>
                         <td>:</td>
-                        <td></td>
+                        <td>  @if(isset($dt['APGAR5']))
+                            {{ $dt['APGAR5'] }}
+                            @endif</td>
                     </tr>
                     <tr>
                         <td>Skor APGAR (menit 10)</td>
                         <td>:</td>
-                        <td></td>
+                        <td>  @if(isset($dt['APGAR10']))
+                            {{ $dt['APGAR10'] }}
+                            @endif</td>
                     </tr>
-                    <tr>
+                <!--    <tr>
                         <td>Triple Eliminasi</td>
                         <td>:</td>
                         <td></td>
-                    </tr>
+                    </tr> -->
                     <tr>
                         <td>Vitamin K1 Injeksi</td>
                         <td>:</td>
-                        <td></td>
+                        <td>
+
+
+                            @foreach($dt['PNCPROC'] as $k=>$val)
+                            @if($val['code']=='448883004')
+                            {{ \Carbon\Carbon::parse($val['tglvitamin'])->format("d M Y") }}
+                            @endif
+                            @endforeach
+
+                        </td>
                     </tr>
-                    <tr>
+                 <!--   <tr>
                         <td>Vitamin A</td>
                         <td>:</td>
                         <td></td>
-                    </tr>
+                    </tr> -->
                     <tr>
                         <td>Imunisasi HB0</td>
                         <td>:</td>
-                        <td></td>
+                        <td>
+
+                            @if(isset($dt['IMN_NN'][0]['tglImunisasi'])){{ $dt['IMN_NN'][0]['tglImunisasi'] }} @endif</td>
                     </tr>
                     <tr>
                         <td>Tindakan</td>
                         <td>:</td>
-                        <td></td>
+                        <td>
+
+                             @foreach($dt['PNCPROC'] as $k=>$val)
+                            @if($val['code']!='448883004')
+                            <li>{{ $val['display'] }}
+                            @endif
+                            @endforeach
+
+
+                        </td>
                     </tr>
-                    <tr>
+                   <!-- <tr>
                         <td>Laboratorium</td>
                         <td>:</td>
                         <td></td>
-                    </tr>
+                    </tr> -->
                     <tr>
                         <td>Obat</td>
                         <td>:</td>
@@ -909,12 +943,22 @@
                     <tr>
                         <td>Rencana tindak Lanjut</td>
                         <td>:</td>
-                        <td></td>
+                        <td>  @if(isset($dt['PLAN'][0]['RTL']))
+                        {{ $dt['PLAN'][0]['RTL'] }}
+
+                        @endif</td>
                     </tr>
                     <tr>
                         <td>Kondisi Pulang</td>
                         <td>:</td>
-                        <td></td>
+                        <td>
+                            @foreach($dt['ANAMNESE'] as $k=>$v)
+                            @if($v['diagnosa_kode']=='359746009')
+                            {{  $v['diagnosa_display'] }}
+                            @endif
+                            @endforeach
+
+                        </td>
                     </tr>
 
                     <tr><td colspan='3' class="text-center">

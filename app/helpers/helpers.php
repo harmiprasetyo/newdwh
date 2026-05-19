@@ -32,4 +32,12 @@ function getValANC($obs)
     return data_get($obs, 'resource.valueInteger');
 }
 
-
+function getFhirValue($r)
+{
+    return data_get($r, 'valueQuantity.value')
+        ?? data_get($r, 'valueInteger')
+        ?? data_get($r, 'valueString')
+        ?? data_get($r, 'valueBoolean')
+        ?? data_get($r, 'valueDateTime')
+        ?? data_get($r, 'valueCodeableConcept.coding.0.display');
+}
