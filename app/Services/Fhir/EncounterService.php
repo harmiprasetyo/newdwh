@@ -167,22 +167,22 @@ public function getByPatient($patientId)
 
 public function getById($encounterID)
 {
-    return Cache::remember("encounter:$encounterID", 300, function () use ($encounterID) {
+   // return Cache::remember("encounter:$encounterID", 10, function () use ($encounterID) {
 
-        $encounters = Encounter::where('encounter_id', $encounterID)->get();
+        // Ambil dari DB dulu
+        $local = Encounter::where('encounter_id', $encounterID)->get();
 
-        if ($encounters->isNotEmpty()) {
-            return $encounters;
-        }
-
+        // Ambil dari FHIR
         $fhir = app(FhirClient::class)->getEncounterByID($encounterID);
 
-        if (!$fhir || empty($fhir['entry'])) {
-            return collect();
+        if ($fhir && !empty($fhir['entry'])) {
+            // Update / insert dari FHIR
+            $this->saveFromFhir($fhir);
         }
 
-        return collect($this->saveFromFhir($fhir));
-    });
+        // Return data terbaru dari DB
+        return Encounter::where('encounter_id', $encounterID)->get();
+   // });
 }
 
 }
