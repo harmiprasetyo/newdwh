@@ -11,27 +11,40 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('encounters', function (Blueprint $table) {
+      Schema::create('encounters', function (Blueprint $table) {
     $table->id();
+
+    // FHIR ID
     $table->string('encounter_id')->unique();
 
+    // relasi ke patient
     $table->string('patient_id')->index();
 
+    // identifier lokal (no kunjungan)
+    $table->string('identifier')->nullable();
+
+    // status
     $table->string('status')->nullable();
+
+    // class (AMB / IMP)
     $table->string('class_code')->nullable();
     $table->string('class_display')->nullable();
 
+    // dokter / tenaga kesehatan
     $table->string('practitioner_name')->nullable();
-    $table->string('location')->nullable();
+    $table->string('practitioner_id')->nullable();
 
-    $table->string('provider_id')->nullable();
+    // lokasi
+    $table->string('location_name')->nullable();
+    $table->string('location_id')->nullable();
 
-    $table->string('visit_type')->nullable(); // K1, K2, dll
-
-    $table->dateTime('start_at')->nullable();
-    $table->dateTime('end_at')->nullable();
+    // waktu
+    $table->dateTime('start')->nullable();
+    $table->dateTime('end')->nullable();
 
     $table->timestamps();
+
+
 });
     }
 

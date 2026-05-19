@@ -88,7 +88,7 @@
   <li class="nav-item">
     <a class="nav-link active"  id="tab1" aria-current="page" >Riwayat Kunjungan</a>
   </li>
-  @if($dt['PID']['gender']=="female")
+  @if($dt['PATIENTID']['gender']=="female")
   <li class="nav-item">
     <a class="nav-link" id="tab2" >Resume Layanan ANC</a>
   </li>
@@ -124,16 +124,16 @@
 
                 <tbody class="text-center align-top">
 
-@if(isset($dt['ENC']))
-@foreach ($dt['ENC'] as $encount )
+@if(isset($dt['ENCOUNTER']))
+@foreach ($dt['ENCOUNTER'] as $k=>$encount )
 <TR><TD>{{ $loop->index+1 }}</TD>
-    <TD>{{ $encount['tglKunjungan'] }}</TD>
-    <TD>{{ $encount['tipe_kunjungan'] }}</TD>
-    <TD>{{ $encount['serviceProvider_name'] }}</TD>
-    <TD>{{ $encount['unit_poli'] }}</TD>
-    <TD>{{ $encount['jeniskunjungan_name'] }} ( {{ $encount['kunjunganANC'] }})</TD>
+    <TD>{{ $encount['start'] }}</TD>
+    <TD>@if($encount['class_code']=="AMB") Rawat Jalan @else Rawat Inap @endif</TD>
+    <TD>{{ $encount['service_provider_name'] }}</TD>
+    <TD>{{ $encount['location_name'] }}</TD>
+    <TD>{{ $dt['SUBENC'][$k]['jeniskunjungan_name'] }} ( {{ $dt['SUBENC'][$k]['kunjunganANC'] }})</TD>
     <TD>{{ $encount['practitioner_name'] }} </TD>
-    <td><button class="btn btn-secondary btn-outline-light btn-sm" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="getDetail('{{ $dt['PID']['nik'] }}','{{ $encount['id'] }}')">Detail</button></td>
+    <td><button class="btn btn-secondary btn-outline-light btn-sm" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="getDetail('{{ $dt['PATIENTID']['nik'] }}','{{ $encount['encounter_id'] }}')">Detail</button></td>
 </TR>
 
 @endforeach

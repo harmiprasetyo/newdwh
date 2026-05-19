@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('patients', function (Blueprint $table) {
+      Schema::create('patients', function (Blueprint $table) {
     $table->id();
 
     $table->string('patient_id')->unique();
@@ -27,32 +27,31 @@ return new class extends Migration
 
     $table->text('address')->nullable();
 
-    #$table->string('kode_propinsi')->nullable();
-    #$table->string('kode_kota')->nullable();
-    #$table->string('kode_kecamatan')->nullable();
+    // COLUMNS
+    $table->string('kode_propinsi')->nullable();
+    $table->string('kode_kota')->nullable();
+    $table->string('kode_kecamatan')->nullable();
+
+    // INDEXES
     $table->index('nik');
-    $table->index('kode_kota');
     $table->index('kode_propinsi');
+    $table->index('kode_kota');
 
-      // RELASI KE LARAVOLT
-    $table->foreignId('kode_propinsi')
-    ->references('code')
-        ->constrained('indonesia_provinces')
+    // FOREIGN KEYS
+    $table->foreign('kode_propinsi')
+        ->references('code')
+        ->on('indonesia_provinces')
         ->nullOnDelete();
 
-    $table->foreignId('kode_kota')
-    ->references('code')
-        ->constrained('indonesia_cities')
+    $table->foreign('kode_kota')
+        ->references('code')
+        ->on('indonesia_cities')
         ->nullOnDelete();
 
-    $table->foreignId('kode_kecamatan')
-    ->references('code')
-        ->constrained('indonesia_districts')
+    $table->foreign('kode_kecamatan')
+        ->references('code')
+        ->on('indonesia_districts')
         ->nullOnDelete();
-
-         $table->index('nik');
-
-
 
     $table->timestamps();
 });

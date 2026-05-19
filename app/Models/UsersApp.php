@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Str;
 
 use Laravel\Sanctum\HasApiTokens;
 class UsersApp extends Authenticatable
@@ -72,5 +73,17 @@ public function isFaskes()
     public function faskes()
     {
         return $this->belongsTo(\App\Models\Master\MasterFaskes::class, 'kodeFaskes', 'kodeFaskes');
+    }
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->userid)) {
+                $model->userid = (string) Str::uuid();
+            }
+        });
     }
 }

@@ -1,71 +1,188 @@
 <?php
-namespace App\Services\FHIR;
+namespace App\Services\Fhir;
 
+use App\Models\Rme\Encounter;
+use App\Services\Fhir\FhirClient;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
-
 class EncounterService
 {
-    public function map($r)
+    public function saveFromFhir($data)
     {
-        return [
-
-            'encounter_id' => $r['id'],
-
-            'patient_id' => $this->extractId($r['subject']['reference'] ?? null),
-
-            'status' => $r['status'] ?? null,
-
-            'class_code' => $r['class']['code'] ?? null,
-            'class_display' => $r['class']['display'] ?? null,
-
-            'practitioner_name' =>
-                $r['participant'][0]['individual']['display'] ?? null,
-
-            'location' =>
-                $r['location'][0]['location']['display'] ?? null,
-
-            'provider_id' =>
-                $this->extractId($r['serviceProvider']['reference'] ?? null),
-
-            'visit_type' =>
-                $this->extractVisitType($r['identifier'] ?? []),
-
-            'start_at' =>
-                $this->parseDate($r['period']['start'] ?? null),
-
-            'end_at' =>
-                $this->extractEndDate($r['statusHistory'] ?? []),
-        ];
-    }
-
-    private function extractId($ref)
-    {
-        if (!$ref) return null;
-        return explode('/', $ref)[1] ?? null;
-    }
-
-    private function extractVisitType($identifiers)
-    {
-        foreach ($identifiers as $id) {
-            if (str_contains($id['system'], 'episodeofcare')) {
-                return $id['value'] ?? null;
-            }
+        if (!isset($data['entry'])) {
+            return [];
         }
-        return null;
-    }
 
-    private function extractEndDate($history)
-    {
-        foreach ($history as $h) {
-            if (($h['status'] ?? '') === 'finished') {
-                return $this->parseDate($h['period']['end'] ?? null);
+        $results = [];
+        $orgCache = [];
+
+        foreach ($data['entry'] as $entry) {
+
+            $r = $entry['resource'] ?? null;
+            if (!$r) continue;
+
+            // =========================
+            // IDENTIFIER
+            // =========================
+            $identifier = $r['identifier'][0]['value'] ?? null;
+
+            // =========================
+            // CLASS
+            // =========================
+            $classCode = $r['class']['code'] ?? null;
+            $classDisplay = $r['class']['display'] ?? null;
+
+            // =========================
+            // PRACTITIONER
+            // =========================
+            $practitionerName = null;
+            $practitionerId = null;
+
+            if (!empty($r['participant'][0]['individual'])) {
+                $practitionerName = $r['participant'][0]['individual']['display'] ?? null;
+
+                $ref = $r['participant'][0]['individual']['reference'] ?? null;
+                $practitionerId = $ref ? explode('/', $ref)[1] : null;
             }
-        }
-        return null;
+
+            // =========================
+            // LOCATION
+            // =========================
+            $locationName = null;
+            $locationId = null;
+
+            if (!empty($r['location'][0]['location'])) {
+                $locationName = $r['location'][0]['location']['display'] ?? null;
+
+                $ref = $r['location'][0]['location']['reference'] ?? null;
+                $locationId = $ref ? explode('/', $ref)[1] : null;
+            }
+
+            // =========================
+            // PATIENT
+            // =========================
+            $patientRef = $r['subject']['reference'] ?? null;
+            $patientId = $patientRef ? explode('/', $patientRef)[1] : null;
+
+            // =========================
+            // TIME
+            // =========================
+           $start = !empty($r['period']['start'])
+    ? Carbon::parse($r['period']['start'])->format('Y-m-d H:i:s')
+    : null;
+
+$end = !empty($r['period']['end'])
+    ? Carbon::parse($r['period']['end'])->format('Y-m-d H:i:s')
+    : null;
+
+
+    // =========================
+// SERVICE PROVIDER
+// =========================
+$serviceProviderId = null;
+$serviceProviderName = null;
+
+if (!empty($r['serviceProvider']['reference'])) {
+    $ref = $r['serviceProvider']['reference'];
+    $serviceProviderId = explode('/', $ref)[1];
+}
+
+
+
+
+if ($serviceProviderId) {
+
+    if (!isset($orgCache[$serviceProviderId])) {
+        $orgCache[$serviceProviderId] = app(FhirClient::class)
+            ->getOrganization($serviceProviderId);
     }
 
-    private function parseDate($date)
-    {
-        return $date ? Carbon::parse($date)->format('Y-m-d H:i:s') : null;
+    $serviceProviderName = $orgCache[$serviceProviderId]['name'] ?? null;
+}
+
+// ambil semua identifier
+$identifiers = $r['identifier'] ?? [];
+
+// ambil identifier utama (first value)
+$identifier = collect($identifiers)
+    ->pluck('value')
+    ->filter()
+    ->first();
+
+
+
+            // =========================
+            // SAVE
+            // =========================
+            $enc = Encounter::updateOrCreate(
+                [
+                    'encounter_id' => $r['id']
+                ],
+                [
+                    'patient_id' => $patientId,
+                    'identifier' => $identifier,
+                    'identifiers' => json_encode($identifiers), // ✅ full JSON
+                    'status' => $r['status'] ?? null,
+                    'class_code' => $classCode,
+                    'class_display' => $classDisplay,
+                    'practitioner_name' => $practitionerName,
+                    'practitioner_id' => $practitionerId,
+                    'location_name' => $locationName,
+                    'location_id' => $locationId,
+                    'start' => $start,
+                    'end' => $end,
+                     'service_provider_id' => $serviceProviderId,
+    'service_provider_name' => $serviceProviderName
+                ]
+            );
+
+            $results[] = $enc;
+        }
+
+        return $results;
     }
+
+
+
+
+public function getByPatient($patientId)
+{
+    return Cache::remember("encounter:$patientId", 300, function () use ($patientId) {
+
+        $encounters = Encounter::where('patient_id', $patientId)->get();
+
+        if ($encounters->isNotEmpty()) {
+            return $encounters;
+        }
+
+        $fhir = app(FhirClient::class)->getEncounterByPatient($patientId);
+
+        if (!$fhir || empty($fhir['entry'])) {
+            return collect();
+        }
+
+        return collect($this->saveFromFhir($fhir));
+    });
+}
+
+public function getById($encounterID)
+{
+    return Cache::remember("encounter:$encounterID", 300, function () use ($encounterID) {
+
+        $encounters = Encounter::where('encounter_id', $encounterID)->get();
+
+        if ($encounters->isNotEmpty()) {
+            return $encounters;
+        }
+
+        $fhir = app(FhirClient::class)->getEncounterByID($encounterID);
+
+        if (!$fhir || empty($fhir['entry'])) {
+            return collect();
+        }
+
+        return collect($this->saveFromFhir($fhir));
+    });
+}
+
 }

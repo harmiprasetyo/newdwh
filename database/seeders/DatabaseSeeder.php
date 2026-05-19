@@ -6,6 +6,8 @@ use App\Models\UserGroups;
 use Illuminate\Database\Seeder;
 use App\Models\users\authUser;
 use Illuminate\Support\Facades\Hash;
+use App\Models\UsersApp;
+use Illuminate\Support\Str;
 
 
 class DatabaseSeeder extends Seeder
@@ -25,22 +27,26 @@ class DatabaseSeeder extends Seeder
     ["group_name"=>"Dokter/Tenaga Kesehatan"]
 ]);
 
-      authUser::insert([
+      UsersApp::insert([
     [
-        "email"=>"admin@dwh.org",
-        "userName"=>"admin",
-        "userGroupId"=>"1",
-        "userFullName"=>"Administrator",
-        "password"=>Hash::make("54321")
+    "userid"=>Str::uuid(),
+    "email"=>"admin@dwh.org",
+        "username"=>"admin",
+        "groupid"=>"1",
+        "namalengkap"=>"Administrator",
+        "password"=>Hash::make("123456")
     ],
     [
-        "email"=>"dokter@dwh.org",
-        "userName"=>"dokter",
-        "userGroupId"=>"4",
-        "userFullName"=>"dr. Ahmad Yani",
-        "password"=>Hash::make("54321")
+     "userid"=>Str::uuid(),
+    "email"=>"dokter@dwh.org",
+        "username"=>"dokter",
+        "groupid"=>"4",
+        "namalengkap"=>"dr. Ahmad Yani",
+        "password"=>Hash::make("123456")
     ]
 ]);
+
+
 
 
     }

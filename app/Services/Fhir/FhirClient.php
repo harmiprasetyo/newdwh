@@ -32,8 +32,71 @@ class FhirClient
             ->json();
     }
 
+    public function getOrganization($id)
+{
+    $url = $this->baseUrl . '/Organization/' . $id;
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $this->token,
+        'Accept' => 'application/json'
+    ])->get($url);
+
+    if ($response->failed()) {
+        return null;
+    }
+
+    return $response->json();
+}
+
+
     public function encounter($pid){
         return Http::withToken($this->token)->get($this->baseUrl.'Encounter?patient='.$pid)->json();
     }
+
+    public function getEncounterByPatient($patientId)
+{
+    $url = $this->baseUrl . '/Encounter';
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $this->token,
+        'Accept' => 'application/json'
+    ])->get($url, [
+        'patient' => $patientId
+    ]);
+
+    if ($response->failed()) {
+        return null;
+    }
+
+    return $response->json();
+}
+
+
+
+
+public function getEncounterByID($encounterID)
+{
+    $url = $this->baseUrl . '/Encounter';
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $this->token,
+        'Accept' => 'application/json'
+    ])->get($url.'/'.$encounterID);
+
+    if ($response->failed()) {
+        return null;
+    }
+
+    return $response->json();
+}
+
+
+public function getImmunizationByPatient($patientId)
+{
+
+    return Http::withToken($this->token)->get($this->baseUrl.'Immunization?patient='.$patientId)->json();
+}
+
+
 
 }

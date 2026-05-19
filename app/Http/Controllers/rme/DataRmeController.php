@@ -16,16 +16,28 @@ use App\Models\Observation\AncDeliveryRecord as AncDeliveryRecord;
 use App\Models\Observation\PncRecord;
 use App\Models\Observation\NeonatalRecord;
 use App\Services\Fhir\PatientService;
+use App\Services\Fhir\EncounterService;
+use App\Services\Fhir\ImmunizationService;
+
 
 
 class DataRmeController extends Controller
 {
     //
-  protected $patientService;
 
-    public function __construct(PatientService $patientService)
-    {
+
+     protected $patientService;
+    protected $encounterService;
+    protected $immunizationService;
+
+    public function __construct(
+        PatientService $patientService,
+        EncounterService $encounterService,
+        ImmunizationService $immunizationService
+    ){
         $this->patientService = $patientService;
+        $this->encounterService = $encounterService;
+        $this->immunizationService = $immunizationService;
     }
 
 
@@ -78,42 +90,14 @@ class DataRmeController extends Controller
         $nik = $request->nik;
         $encounterId = $request->idencounter;
 
+  $patient = $this->patientService->searchByNik($nik);
+   $dt['PATIENTID'] = $patient->toArray();
+    $encounters = $this->encounterService->getByID($encounterId);
+    $dt['ENCOUNTER'] = $encounters->toArray();
 
-
-
-
-
-            $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
-            $data = $response->json();
-        $dt['INFO']['total'] = $data['total'];
-        $dt['INFO']['id'] = $data['id'];
-        foreach($data['entry'] as $key=>$hasil){
-      // echo $key."<br>";
-        $dt['PID']['fullUrl'] = $hasil['fullUrl'];
-        $dt['PID']['id'] = $hasil['resource']['id'];
-        $dt['PID']['versionId'] = $hasil['resource']['meta']['versionId'];
-        $dt['PID']['lastUpdate'] = $hasil['resource']['meta']['lastUpdated'];
-        $dt['PID']['nik'] = $hasil['resource']['identifier'][1]['value'];
-        $dt['PID']['norm'] = $hasil['resource']['identifier'][1]['value'];
-        $dt['PID']['nama'] = $hasil['resource']['name'][0]['text'];
-        $dt['PID']['family'] = $hasil['resource']['name'][0]['family'];
-        if($hasil['resource']['telecom'][0]['system']=='phone'){
-        $dt['PID']['phone'] = $hasil['resource']['telecom'][0]['value'];
-        }else{
-            $dt['PID']['phone']="";
-        }
-
-        $dt['PID']['gender'] = $hasil['resource']['gender'];
-        $dt['PID']['birthdate'] = Carbon::parse($hasil['resource']['birthDate'])->format('d M Y');
-       $dt['PID']['address']['street'] = $hasil['resource']['address']['0']['line'][0];
-        $dt['PID']['address']['village'] = $hasil['resource']['address'][0]['extension'][0]['extension'][3]['valueCoding']['code'];
-        $dt['PID']['address']['district'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
-        $dt['PID']['address']['city'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
-       // $dt['PID']['province_code'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['code'];
-       $dt['PID']['address']['province'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['display'];
-
-
-       }
+    $dt['IMMUNO'] = $this->immunizationService
+    ->getByPatient($patient->patient_id)
+    ->toArray();
 
 
 
@@ -122,29 +106,7 @@ class DataRmeController extends Controller
 
 
 
-
-
-    $ecounter = Http::withToken($token)->get($server.'Encounter/'.$encounterId);
-    $encounterResult = $ecounter->json();
-
-
-
-     $date = Carbon::parse($encounterResult['period']['start']);
-      $dt['ENC']['tglKunjungan'] = $date->format("d M Y");
-
-       $faskes = Http::withToken($token)->get($server.$encounterResult['serviceProvider']['reference']);
-         $resFaskes = $faskes->json();
-         $dt['ENC']['serviceProvider_code'] = $resFaskes['identifier'][0]['value'];
-         $dt['ENC']['serviceProvider_name'] = $resFaskes['name'];
-
-    foreach($encounterResult as $ky=>$encR){
-
-
-
-      }
-
-
-        $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+        $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
         $obserResult = $observ->json();
       //dd($obserResult);
 
@@ -236,14 +198,6 @@ foreach($obserResult['entry'] as $k=>$obs){
 }elseif($obs['resource']['category'][0]['coding'][0]['code']=='survey'){
 
 
-          /*  if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11996-6'){
-                $dt['ANC']['gravida']=$obs['resource']['valueInteger'];
-            }else{
-
-            $dt['ANC']['gravida']="-";
-
-            }
-            */
              if (in_array('11996-6', $codes)) {
         $dt['ANC']['gravida'] = $valueANC ;
     }
@@ -382,7 +336,7 @@ foreach($obserResult['entry'] as $k=>$obs){
         }
 
 
-          $condition = Http::withToken($token)->get($server."Condition?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+          $condition = Http::withToken($token)->get($server."Condition?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
             $kondisi = $condition->json();
 if($kondisi['total']>0){
             foreach($kondisi['entry'] as $kx=>$nres){
@@ -396,7 +350,7 @@ if($kondisi['total']>0){
 //KOHORT
 
 
-    $eCare = Http::withToken($token)->get($server.'EpisodeOfCare?patient='.$dt['PID']['id']);
+    $eCare = Http::withToken($token)->get($server.'EpisodeOfCare?patient='.$dt['PATIENTID']['patient_id']);
        $eRes = $eCare->json();
        $year = date("Y");
 
@@ -412,7 +366,7 @@ if($kondisi['total']>0){
             foreach($nilai as $k1=>$val1){
 
             if(isset($val1['id'])){
-                $visits = Http::withToken($token)->get($server.'/Encounter?patient='.$dt['PID']['id'].'&episode-of-care='.$val1['id']);
+                $visits = Http::withToken($token)->get($server.'/Encounter?patient='.$dt['PATIENTID']['patient_id'].'&episode-of-care='.$val1['id']);
                 $vis = $visits->json();
                 if($vis['total']>0){
                 foreach($vis['entry'] as $kvis=>$nvis){
@@ -420,7 +374,7 @@ if($kondisi['total']>0){
 
                  $ids = $nvis['resource']['id'];
 
-        $KHobserv= Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+        $KHobserv= Http::withToken($token)->get($server."Observation?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
         $KOB = $KHobserv->json();
        if(isset($KOB['total']) && $KOB['total']>0){
             foreach($KOB['entry'] as $kb=>$nnb){
@@ -508,8 +462,11 @@ if($kondisi['total']>0){
 
 
 
-        $ObservSTR= Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+        $ObservSTR= Http::withToken($token)->get($server."Observation?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
         $data = $ObservSTR->json();
+
+
+
 
         $pregnancy = [];
         $vital = [];
@@ -517,13 +474,15 @@ if($kondisi['total']>0){
 if (isset($data['entry'])) {
         foreach ($data['entry'] as $item) {
 
+
+
             $r = $item['resource'];
             $code = $r['code']['coding'][0]['code'] ?? null;
 
             //$patient = $r['subject']['reference'] ?? null;
             //$encounter = $r['encounter']['reference'] ?? null;
 
-            $patient = $dt['PID']['id'];
+            $patient = $dt['PATIENTID']['patient_id'];
             $encounter = $encounterId;
 
             // base
@@ -546,7 +505,60 @@ if (isset($data['entry'])) {
              $neonatal['patient_id'] = $patient;
             $neonatal['encounter_id'] = $encounter;
 
+
+
             switch ($code) {
+                //NN//
+                case '10206-1':
+                    $dt['NN']['kulit'] = $r['interpretation'][0]['coding'][0]['display'];
+                    break;
+                     case '10199-8':
+                    $dt['NN']['kepala'] = $r['interpretation'][0]['coding'][0]['display'];
+                    break;
+                     case '10197-2':
+                    $dt['NN']['mata'] = $r['interpretation'][0]['coding'][0]['display'];
+                    break;
+
+                     case '32453-3':
+                    $dt['NN']['mulut'] = $r['interpretation'][0]['coding'][0]['display'];
+                    break;
+
+                     case '10191-5':
+                    $dt['NN']['abdomen'] = $r['interpretation'][0]['coding'][0]['display'];
+                    break;
+
+                    case '10192-3':
+                    $dt['NN']['punggung'] = $r['interpretation'][0]['coding'][0]['display'];
+                    break;
+
+                    case '11388-6':
+                    $dt['NN']['bokong'] = $r['interpretation'][0]['coding'][0]['display'];
+                    break;
+
+                    case '11400-9':
+                    $dt['NN']['genitalia'] = $r['interpretation'][0]['coding'][0]['display'];
+                    break;
+
+                     case '32406-1':
+                    $dt['NN']['color'] = $r['valueCodeableConcept']['coding'][0]['code'];
+                    break;
+                     case '32407-9':
+                    $dt['NN']['heartrate'] = $r['valueCodeableConcept']['coding'][0]['code'];
+                    break;
+
+                    case '32409-5':
+                    $dt['NN']['reflex'] = $r['valueCodeableConcept']['coding'][0]['code'];
+                    break;
+
+                     case '32408-7':
+                    $dt['NN']['muscle'] = $r['valueCodeableConcept']['coding'][0]['code'];
+                    break;
+
+                    case '32410-3':
+                    $dt['NN']['respiration'] = $r['valueCodeableConcept']['coding'][0]['code'];
+                    break;
+
+
 
                 /** ANC */
                 case '11996-6':
@@ -752,7 +764,75 @@ if (isset($data['entry'])) {
         }
 
 
+        $score = [
+    'color' => [
+        'LA6724-4' => 0,
+        'LA6725-1' => 1,
+        'LA6726-9' => 2,
+    ],
+    'heartrate' => [
+        'LA6718-6' => 0,
+        'LA6719-4' => 1,
+        'LA6720-2' => 2,
+    ],
+    'reflex' => [
+        'LA6721-0' => 0,
+        'LA6722-8' => 1,
+        'LA6723-6' => 2,
+    ],
+    'muscle' => [
+        'LA6714-5' => 0,
+        'LA6715-2' => 1,
+        'LA6716-0' => 2,
+    ],
+    'respiration'=>[
+        'LA6727-7' => 0,
+        'LA6728-5' => 1,
+        'LA6729-3' => 2,
+    ]
+];
+if(isset($dt['NN']['color'])){
+$dt['NN']['color_score'] = $score['color'][$dt['NN']['color']] ?? null;
+}
 
+if(isset($dt['NN']['heartrate'])){
+$dt['NN']['heartrate_score'] = $score['heartrate'][$dt['NN']['heartrate']] ?? null;
+}
+
+if(isset($dt['NN']['reflex'])){
+$dt['NN']['reflex_score'] = $score['reflex'][$dt['NN']['reflex']] ?? null;
+}
+if(isset($dt['NN']['muscle'])){
+$dt['NN']['muscle_score'] = $score['muscle'][$dt['NN']['muscle']] ?? null;
+}
+if(isset($dt['NN']['respiration'])){
+$dt['NN']['respiration_score'] = $score['respiration'][$dt['NN']['respiration']] ?? null;
+}
+
+
+/*dd([
+    'color' => $dt['NN']['color'] ?? null,
+    'color_score' => $dt['NN']['color_score'] ?? null,
+
+    'hr' => $dt['NN']['heartrate'] ?? null,
+    'hr_score' => $dt['NN']['heartrate_score'] ?? null,
+
+    'reflex' => $dt['NN']['reflex'] ?? null,
+    'reflex_score' => $dt['NN']['reflex_score'] ?? null,
+
+    'muscle' => $dt['NN']['muscle'] ?? null,
+    'muscle_score' => $dt['NN']['muscle_score'] ?? null,
+
+    'resp' => $dt['NN']['respiration'] ?? null,
+    'resp_score' => $dt['NN']['respiration_score'] ?? null,
+]);*/
+
+$dt['APGAR1'] =
+    ($dt['NN']['color_score'] ?? 0) +
+    ($dt['NN']['heartrate_score'] ?? 0) +
+    ($dt['NN']['reflex_score'] ?? 0) +
+    ($dt['NN']['muscle_score'] ?? 0) +
+    ($dt['NN']['respiration_score'] ?? 0);
         VitalSign::updateOrCreate(
             [
                 'patient_id' => $vital['patient_id'],
@@ -822,7 +902,7 @@ $dt['NEONATAL'] = NeonatalRecord::where('patient_id', $patient)->where('encounte
 print_r($KOB);
 echo "</pre>";
 */
-$ImnSTR= Http::withToken($token)->get($server."Immunization?patient=".$dt['PID']['id']);
+$ImnSTR= Http::withToken($token)->get($server."Immunization?patient=".$dt['PATIENTID']['patient_id']);
         $dataImn = $ImnSTR->json();
 $dt['IMUNISASI'] = [];
        if(isset($dataImn['entry'])) {
@@ -847,7 +927,7 @@ $dt['IMUNISASI'] = [];
          }
 
 
-         $plan = Http::withToken($token)->get($server."CarePlan?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+         $plan = Http::withToken($token)->get($server."CarePlan?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
          $rowPlan = $plan->json();
          if(isset($rowPlan['entry'])){
             foreach($rowPlan['entry'] as $k=>$pln){
@@ -856,7 +936,7 @@ $dt['IMUNISASI'] = [];
             }
 
          }
-       $pncProcedure= Http::withToken($token)->get($server."Procedure?patient=".$dt['PID']['id']."&encounter=".$encounterId);
+       $pncProcedure= Http::withToken($token)->get($server."Procedure?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
        $proceData = $pncProcedure->json();
        $dt['PNCPROC'] = [];
 
@@ -888,180 +968,31 @@ $dt['IMUNISASI'] = [];
         $server = env('FHIR_API_URL');
         $nik = $request->nik;
 
-
-
-
-
-
-
-
-
-    $response = Http::withToken($token)->get($server.'Patient?identifier='.$nik);
-
-          $data = $response->json();
-
-       // Simpan data pasien ke database menggunakan service
-      //    $this->patientService->saveFromFhir($data);
-
-
-          $dt['INFO']['total'] = $data['total'];
-          $dt['INFO']['id'] = $data['id'];
-
-        if($data['total']>0){
-          $i=0;
-       foreach($data['entry'] as $key=>$hasil){
-
-
-      // echo $key."<br>";
-        $dt['PID']['fullUrl'] = $hasil['fullUrl'];
-        $dt['PID']['id'] = $hasil['resource']['id'];
-        $dt['PID']['versionId'] = $hasil['resource']['meta']['versionId'];
-        $dt['PID']['lastUpdate'] = $hasil['resource']['meta']['lastUpdated'];
-        $dt['PID']['nik'] = $hasil['resource']['identifier'][1]['value'];
-        $dt['PID']['norm'] = $hasil['resource']['identifier'][1]['value'];
-        $dt['PID']['nama'] = $hasil['resource']['name'][0]['text'];
-        $dt['PID']['family'] = $hasil['resource']['name'][0]['family'];
-        if($hasil['resource']['telecom'][0]['system']=='phone'){
-        $dt['PID']['phone'] = $hasil['resource']['telecom'][0]['value'];
-        }else{
-            $dt['PID']['phone']="";
-        }
-
-        $dt['PID']['gender'] = $hasil['resource']['gender'];
-        $dt['PID']['birthdate'] = Carbon::parse($hasil['resource']['birthDate'])->format('d M Y');
-        $dt['PID']['address']['street'] = $hasil['resource']['address']['0']['line'][0];
-        $dt['PID']['address']['village'] = $hasil['resource']['address'][0]['extension'][0]['extension'][3]['valueCoding']['code'];
-        $dt['PID']['address']['district'] = $hasil['resource']['address'][0]['extension'][0]['extension'][2]['valueCoding']['display'];
-        $dt['PID']['address']['city'] = $hasil['resource']['address'][0]['extension'][0]['extension'][1]['valueCoding']['display'];
-       $dt['PID']['address']['province'] = $hasil['resource']['address'][0]['extension'][0]['extension'][0]['valueCoding']['display'];
-
-
-
-       }
-
-
-
-
-
-
-       $ecounter = Http::withToken($token)->get($server.'Encounter?patient='.$dt['PID']['id']);
-       $encounterResult = $ecounter->json();
-       if(isset($encounterResult['entry'])){
-
-
-         $n=0;
-         foreach($encounterResult['entry'] as $ky=>$encR){
-
-         $dt['ENCOUNTER'][$ky] = $encR;
-
-        foreach ($encR['resource']['identifier'] as $item) {
-    if (str_contains($item['system'], 'ANC')) {
-        $dt['ENC'][$n]['jeniskunjungan_name'] = basename($item['system']); // ANC
-        $dt['ENC'][$n]['kunjunganANC'] = $item['value'];          // K2
-    }else{
-        $dt['ENC'][$n]['jeniskunjungan_name'] = "Lainnya";
-        $dt['ENC'][$n]['kunjunganANC'] = "-";
-    }
-
-}
-
-         $dt['ENC'][$n]['fullUrl'] = $encR['fullUrl'];
-         $dt['ENC'][$n]['id'] = $encR['resource']['id'];
-         $dt['ENC'][$n]['versionId'] = $encR['resource']['meta']['versionId'];
-
-
-         $dt['ENC'][$n]['lastUpdated'] = $encR['resource']['meta']['lastUpdated'];
-
-
-         $dt['ENC'][$n]['codeRef'] = $encR['resource']['identifier'][0]['system'];
-         $dt['ENC'][$n]['visitCategori'] = $encR['resource']['identifier'][0]['value'];
-         $dt['ENC'][$n]['status_kedatangan'] = $encR['resource']['status'];
-
-        if(isset($encR['resource']['class']['code'])){
-        $visitKode = $encR['resource']['class']['code'];
-        }
-
-        if($visitKode=="AMB"){
-             $dt['ENC'][$n]['tipe_kunjungan'] = "Rawat Jalan";
-        }elseif($visitKode=="IMP"){
-
-        $dt['ENC'][$n]['tipe_kunjungan'] = "Rawat Inap";
-
-        }
-        // $dt['ENC'][$n]['tipe_kunjungan'] = $encR['resource']['class']['code'];
-
-        $dt['ENC'][$n]['tipe_kunjungan_display'] = $encR['resource']['class']['display'];
-         $date = Carbon::parse($encR['resource']['period']['start']);
-        $dt['ENC'][$n]['tglKunjungan'] = $date->format("d M Y");
-
-
-          $dt['ENC'][$n]['start_periode'] = $encR['resource']['period']['start'];
-          $dt['ENC'][$n]['jenis_perawatan'] = $encR['resource']['class']['display'];
-          $dt['ENC'][$n]['patient_id'] = $encR['resource']['subject']['reference'];
-          $dt['ENC'][$n]['patient_name'] = $encR['resource']['subject']['display'];
-
-
-
-       $dt['ENC'][$n]['practitioner'] = $encR['resource']['participant'][0]['individual']['reference'];
-       $practitioner =  Http::withToken($token)->get($server.$dt['ENC'][$n]['practitioner']);
-       $practResult = $practitioner->json();
-     //  dd($practResult);
-       $dt['ENC'][$n]['practitioner_number']=$practResult['identifier'][0]['value'];
-        $dt['ENC'][$n]['practitioner_nik']=$practResult['identifier'][1]['value'];
-        $dt['ENC'][$n]['practitioner_name']=$practResult['name'][0]['text'];
-         $dt['ENC'][$n]['practitioner_strkki']=$practResult['qualification'][0]['code']['coding'][0]['code'];
-
-         $dt['ENC'][$n]['unit_poli'] = $encR['resource']['location'][0]['location']['display'];
-         $dt['ENC'][$n]['unit_poli_id'] = $encR['resource']['location'][0]['location']['reference'];
-
-         $dt['ENC'][$n]['serviceProvider_id'] = $encR['resource']['serviceProvider']['reference'];
-
-         $faskes = Http::withToken($token)->get($server.$dt['ENC'][$n]['serviceProvider_id']);
-         $resFaskes = $faskes->json();
-         $dt['ENC'][$n]['serviceProvider_code'] = $resFaskes['identifier'][0]['value'];
-         $dt['ENC'][$n]['serviceProvider_name'] = $resFaskes['name'];
-
-        $anamnese = Http::withToken($token)->get($server."Condition?encounter=".$dt['ENC'][$n]['id']);
-         $resAnamnese = $anamnese->json();
-         if($resAnamnese['total']>0){
-            for($i=0;$i<$resAnamnese['total'];$i++){
-                $dt['ANAMNESE'][$i]['keluhan_kode'] = $resAnamnese['entry'][$i]['resource']['code']['coding'][0]['code'];
-                 $dt['ANAMNESE'][$i]['keluhan_display'] = $resAnamnese['entry'][$i]['resource']['code']['coding'][0]['display'];
-                 // $dt['ANAMNESE'][$i]['note'] = $resAnamnese['entry'][$i]['resource']['note'][0]['text'];
-            }
-
-         }
-
-      //   $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PID']['id']."&encounter=".$dt['ENC'][$n]['id']);
-      //   $data = $observ->json();
-
-
-
-
-
-
-
-
-
-         $n++;
-         }
-
-       }
-
-
-
-
-        }else{
-            $dt['message']="Data Tidak ditemukan";
-        }
-
-
-  //  echo "<pre>";
-  // print_r($dt);
-   // echo "</pre>";
-
    $patient = $this->patientService->searchByNik($nik);
    $dt['PATIENTID'] = $patient->toArray();
+    $encounters = $this->encounterService->getByPatient($dt['PATIENTID']['patient_id']);
+    $dt['ENCOUNTER'] = $encounters->toArray();
+
+   foreach ($dt['ENCOUNTER'] as $k => $v) {
+
+    $identifiers = is_string($v['identifiers'])
+        ? json_decode($v['identifiers'], true)
+        : $v['identifiers'];
+
+    $anc = collect($identifiers ?? [])
+        ->first(function ($item) {
+            return str_contains($item['system'] ?? '', 'ANC');
+        });
+
+    if ($anc) {
+        $dt['SUBENC'][$k]['jeniskunjungan_name'] = 'ANC';
+        $dt['SUBENC'][$k]['kunjunganANC'] = $anc['value'] ?? '-';
+    } else {
+        $dt['SUBENC'][$k]['jeniskunjungan_name'] = "Lainnya";
+        $dt['SUBENC'][$k]['kunjunganANC'] = "-";
+    }
+}
+
  return view('rme.datapasien',["dt"=>$dt]);
 
 }

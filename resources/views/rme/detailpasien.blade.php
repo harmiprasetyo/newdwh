@@ -7,53 +7,55 @@
     <div class="col">
         <div class="card mt-4">
         <div class="card-body">
+
+
              <table class="table">
         <thead>
             <tr>
 
                 <th>ID</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['id'] }}</th>
+                <th>{{ $dt['PATIENTID']['patient_id'] }}</th>
             </tr>
             <tr>
                 <th>Nama Pasien</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['nama'] }}</th>
+                <th>{{ $dt['PATIENTID']['name'] }}</th>
             </tr>
                   <tr>
                 <th>NIK</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['nik'] }}</th>
+                <th>{{ $dt['PATIENTID']['nik'] }}</th>
                   </tr>
 
                   <tr>
                 <th>No. Telp</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['phone'] }}</th>
+                <th>{{ $dt['PATIENTID']['phone'] }}</th>
             <tr>
 
 
                   <tr>
                 <th>Tgl Lahir</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['birthdate'] }}</th>
+                <th>{{ \Carbon\Carbon::parse($dt['PATIENTID']['birth_date'])->format('d M Y') }}</th>
                   </tr>
                   <tr>
                 <th>Jenis Kelamin</th>
                 <th>:</th>
-                <th>{{ $dt['PID']['gender'] }}</th>
+                <th>{{ $dt['PATIENTID']['gender'] }}</th>
                   </tr>
 
                   <tr>
                 <th>Tanggal Kunjungan</th>
                 <th>:</th>
-                <th>{{ $dt['ENC']['tglKunjungan'] }}</th>
+                <th>{{ $dt['ENCOUNTER'][0]['start'] }}</th>
                   </tr>
 
                    <tr>
                 <th>Fasilitas Kesehatan</th>
                 <th>:</th>
-                <th>{{ $dt['ENC']['serviceProvider_name'] }}</th>
+                <th>{{ $dt['ENCOUNTER'][0]['service_provider_name'] }}</th>
                   </tr>
                   <tr>
                     <th>Status G/P/A</th>
@@ -82,7 +84,7 @@
        <div class="card">
          @include('partials.tabpasien')
         <div class="card-body" id="maincard">
-            @if ($dt['INFO']['total']==0)
+              @if(!isset($dt['OBS']))
                 Data Pemeriksaan Vital Sign Tidak ditemukan
                 @else
                 <table class="table">
@@ -112,7 +114,7 @@
 
 
          <div class="card-body" id="layananUmum">
-            @if ($dt['INFO']['total']==0)
+            @if (!isset($dt['INFO']['total']))
                 Data  Tidak ditemukan
                 @else
                 <table class="table" style="width: 1200px">
@@ -587,7 +589,7 @@
                                         @endif
                                     </td></tr><tr>
                                     <td>Lokasi Kelahiran</td><td>:</td>
-                                    <td>{{ $dt['ENC']['serviceProvider_name'] }}</td></tr><tr>
+                                    <td>{{ $dt['ENCOUNTER'][0]['service_provider_name'] }}</td></tr><tr>
                                     <td>Cara Persalinan</td><td>:</td>
                                     <td> @if(isset($dt['INC'][0]['delivery_method']))
 
@@ -825,12 +827,23 @@
                     <tr>
                         <td>Suhu</td>
                         <td>:</td>
-                        <td></td>
+                        <td>
+                            @if(isset($dt['NEONATAL']['suhu']))
+                            {{ $dt['NEONATAL']['suhu'] }}
+
+                            @endif
+
+
+                        </td>
                     </tr>
                     <tr>
                         <td>Nadi</td>
                         <td>:</td>
-                        <td></td>
+                        <td>
+
+
+
+                        </td>
                     </tr>
                     <tr>
                         <td>Pernapasan</td>
@@ -840,7 +853,13 @@
                     <tr>
                         <td>Skor APGAR (menit 1)</td>
                         <td>:</td>
-                        <td></td>
+                        <td>
+                            @if(isset($dt['APGAR1']))
+                            {{ $dt['APGAR1'] }}
+                            @endif
+
+
+                        </td>
                     </tr>
                     <tr>
                         <td>Skor APGAR (menit 5)</td>
@@ -917,14 +936,14 @@
                                     <td>Lubang Anus</td>
                                 </tr>
                                 <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
+                                    <td>@if(isset($dt['NN']['kulit'])) {{ $dt['NN']['kulit'] }} @endif</td>
+                                    <td>@if(isset($dt['NN']['kepala'])) {{ $dt['NN']['kepala'] }} @endif</td>
+                                    <td>@if(isset($dt['NN']['mata'])) {{ $dt['NN']['mata'] }} @endif</td>
+                                    <td>@if(isset($dt['NN']['mulut'])) {{ $dt['NN']['mulut'] }} @endif</td>
+                                    <td>@if(isset($dt['NN']['abdomen'])) {{ $dt['NN']['abdomen'] }} @endif</td>
+                                    <td>@if(isset($dt['NN']['punggung'])) {{ $dt['NN']['punggung'] }} @endif</td>
+                                    <td>@if(isset($dt['NN']['genitalia'])) {{ $dt['NN']['genitalia'] }} @endif</td>
+                                    <td>@if(isset($dt['NN']['bokong'])) {{ $dt['NN']['bokong'] }} @endif</td>
                                 </tr>
 
 
@@ -997,9 +1016,23 @@
 
                  <tr>
                     <td>Imunisasi BCG 1</td>
+                    <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG19')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG19')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1049,7 +1082,7 @@
                 <tr>
                     <td>Imunisasi DPT-HB-HIB 1</td>
                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='93001282')
+                        @if($imn['code']=='VG107')
                         {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
 
                         @endif
@@ -1058,18 +1091,20 @@
                         @endforeach
                     </td>
                     <td>
-                        @foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='93001282')
+
+
+
+                    </td>
+                    <td>
+                         @foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG107')
                         {{ $imn['pos'] }}
 
                         @endif
 
 
                         @endforeach
-
-
                     </td>
-                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1077,9 +1112,23 @@
 
                  <tr>
                     <td>Imunisasi DPT-HB-HIB 2</td>
+                    <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG17')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG17')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1087,9 +1136,23 @@
 
                  <tr>
                     <td>Imunisasi DPT-HB-HIB 3</td>
+                    <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG45')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG45')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1098,9 +1161,23 @@
 
                  <tr>
                     <td>Imunisasi IPV 1</td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG89' && $imm['display']=='IPV 1')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG89' && $imm['display']=='IPV 1')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1108,9 +1185,23 @@
 
                  <tr>
                     <td>Imunisasi IPV 2</td>
+                    <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG89' && $imm['display']=='IPV 2')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG89' && $imm['display']=='IPV 2')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1119,9 +1210,23 @@
 
                  <tr>
                     <td>Imunisasi ROTA 1</td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG122')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                         @if($imn['code']=='VG122')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1149,9 +1254,23 @@
 
                 <tr>
                     <td>Imunisasi PCV 1</td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG152' && $imm['display']=='PCV 1')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                         @if($imn['code']=='VG152' && $imm['display']=='PCV 1')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1159,9 +1278,23 @@
 
                  <tr>
                     <td>Imunisasi PCV 2</td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG152' && $imm['display']=='PCV 2')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                         @if($imn['code']=='VG152' && $imm['display']=='PCV 2')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1169,9 +1302,23 @@
 
                  <tr>
                     <td>Imunisasi JE 1</td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG129')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                         @if($imn['code']=='VG129')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1179,9 +1326,47 @@
 
                  <tr>
                     <td>Imunisasi MR 1</td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG03')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
+                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                         @if($imn['code']=='VG03')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>
+                </tr>
+
+                <tr>
+                    <td>Polio</td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                        @if($imn['code']=='VG89' && $imn['display']=='POLIO')
+                        {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
+
+                        @endif
+
+
+                        @endforeach</td>
+                    <td></td>
+                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+                          @if($imn['code']=='VG89' && $imn['display']=='POLIO')
+                        {{ $imn['pos'] }}
+
+                        @endif
+
+
+                        @endforeach</td>
                     <td></td>
                     <td></td>
                     <td></td>

@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
-
+use App\Models\Rme\Encounter;
+use App\Models\Rme\Immunization;
 
 
 class Patient extends Model
@@ -41,7 +42,23 @@ use HasFactory;
         );
     }
 
+public function encounters()
+{
+    return $this->hasMany(
+        Encounter::class,
+        'patient_id',
+        'patient_id'
+    );
+}
 
+public function immunizations()
+{
+    return $this->hasMany(
+        Immunization::class,
+        'patient_id',
+        'patient_id'
+    );
+}
 protected $fillable = [
         'patient_id',
         'ihs_number',
