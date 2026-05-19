@@ -41,3 +41,4 @@ function getFhirValue($r)
         ?? data_get($r, 'valueDateTime')
         ?? data_get($r, 'valueCodeableConcept.coding.0.display');
 }
+#
