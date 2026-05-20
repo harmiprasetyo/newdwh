@@ -1061,6 +1061,7 @@
                  <tr>
                     <td>Imunisasi BCG 1</td>
                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
+
                         @if($imn['code']=='VG19')
                         {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
 

@@ -924,7 +924,7 @@ if (!empty($resAnamnese['entry'])) {
        }
 
 
-
+//dd($dt['IMUNISASI']);
   return view('rme.detailpasien',["dt"=>$dt]);
 
 
