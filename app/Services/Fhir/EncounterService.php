@@ -147,13 +147,13 @@ $identifier = collect($identifiers)
 
 public function getByPatient($patientId)
 {
-    return Cache::remember("encounter:$patientId", 300, function () use ($patientId) {
+   // return Cache::remember("encounter:$patientId", 300, function () use ($patientId) {
 
-        $encounters = Encounter::where('patient_id', $patientId)->get();
+       /* $encounters = Encounter::where('patient_id', $patientId)->get();
 
         if ($encounters->isNotEmpty()) {
             return $encounters;
-        }
+        }*/
 
         $fhir = app(FhirClient::class)->getEncounterByPatient($patientId);
 
@@ -162,7 +162,7 @@ public function getByPatient($patientId)
         }
 
         return collect($this->saveFromFhir($fhir));
-    });
+   // });
 }
 
 public function getById($encounterID)

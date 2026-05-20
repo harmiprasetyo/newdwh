@@ -184,7 +184,7 @@
                             <td>
 
                                  @foreach($dt['ANAMNESE'] as $k=>$v)
-                            @if($v['code']=='359746009')
+                            @if(isset($v['code']) && $v['code']=='359746009')
                             {{  $v['display'] }}
                             @endif
                             @endforeach
