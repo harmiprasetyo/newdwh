@@ -14,7 +14,7 @@ class NeonatalRecord extends Model
             'encounter_id',
             'jenis_kelamin',
             'berat_lahir',
-            'panjang_lahir',
+            'panjang_badan',
             'lingkar_kepala',
             'apgar_1_menit',
             'apgar_5_menit',

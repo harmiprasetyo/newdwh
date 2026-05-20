@@ -32,8 +32,14 @@ function getValANC($obs)
     return data_get($obs, 'resource.valueInteger');
 }
 
-function getFhirValue($r)
+function getFhirValue($r, $path = null)
 {
+    // kalau path spesifik diminta
+    if ($path) {
+        return data_get($r, $path);
+    }
+
+    // fallback universal
     return data_get($r, 'valueQuantity.value')
         ?? data_get($r, 'valueInteger')
         ?? data_get($r, 'valueString')
@@ -41,4 +47,3 @@ function getFhirValue($r)
         ?? data_get($r, 'valueDateTime')
         ?? data_get($r, 'valueCodeableConcept.coding.0.display');
 }
-#

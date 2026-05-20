@@ -580,206 +580,321 @@ if (isset($data['entry'])) {
     }
 
 
-
+/*
             switch ($code) {
                 //NN//
 
 
-                /** ANC */
+
                 case '11996-6':
-                    $pregnancy['gravida'] = getFhirValue('valueInteger');
-                    $delivery['gravida'] = getFhirValue('valueInteger');
-                    $pnc['gravida'] = getFhirValue('valueInteger');
+                    $pregnancy['gravida'] = getFhirValue($r,'valueInteger');
+                    $delivery['gravida'] = getFhirValue($r,'valueInteger');
+                    $pnc['gravida'] = getFhirValue($r,'valueInteger');
                     break;
                 case '64708-1':
-                    $pregnancy['parity'] = getFhirValue('valueInteger');
-                    $delivery['parity'] = getFhirValue('valueInteger');
-                    $pnc['parity'] = getFhirValue('valueInteger');
+                    $pregnancy['parity'] = getFhirValue($r,'valueInteger');
+                    $delivery['parity'] = getFhirValue($r,'valueInteger');
+                    $pnc['parity'] = getFhirValue($r,'valueInteger');
                     break;
 
                 case '11977-6':
-                    $pregnancy['parity'] = getFhirValue('valueInteger');
+                    $pregnancy['parity'] = getFhirValue($r,'valueInteger');
                     break;
 
                 case '69043-8':
-                    $pregnancy['abortus'] = getFhirValue('valueInteger');
-                    $delivery['abortus'] = getFhirValue('valueInteger');
-                    $pnc['abortus'] = getFhirValue('valueInteger');
+                    $pregnancy['abortus'] = getFhirValue($r,'valueInteger');
+                    $delivery['abortus'] = getFhirValue($r,'valueInteger');
+                    $pnc['abortus'] = getFhirValue($r,'valueInteger');
                     break;
 
                 case '8665-2':
-                    $pregnancy['lmp'] = date('Y-m-d', strtotime(getFhirValue('valueDateTime')));
+                    $pregnancy['lmp'] = date('Y-m-d', strtotime(getFhirValue($r,'valueDateTime')));
                     break;
 
                 case '11778-8':
-                    $pregnancy['edd'] = date('Y-m-d', strtotime(getFhirValue('valueDateTime')));
+                    $pregnancy['edd'] = date('Y-m-d', strtotime(getFhirValue($r,'valueDateTime')));
                     break;
 
                 case '18185-9':
-                    $pregnancy['gestational_age'] = getFhirValue('valueQuantity.value')?? null;
-                    $delivery['gestational_age'] = getFhirValue('valueQuantity.value') ?? null;
+                    $pregnancy['gestational_age'] = getFhirValue($r,'valueQuantity.value')?? null;
+                    $delivery['gestational_age'] = getFhirValue($r,'valueQuantity.value') ?? null;
                     break;
 
                 case '32418-6':
-                    $pregnancy['trimester'] = getFhirValue('valueInteger');
+                    $pregnancy['trimester'] = getFhirValue($r,'valueInteger');
                     break;
 
-                /** VITAL */
+
                 case '8480-6':
-                    $vital['systolic'] = getFhirValue('valueQuantity.value');
+                    $vital['systolic'] = getFhirValue($r,'valueQuantity.value');
                     break;
 
                 case '8462-4':
-                    $vital['diastolic'] = getFhirValue('valueQuantity.value');
+                    $vital['diastolic'] = getFhirValue($r,'valueQuantity.value');
                     break;
 
                 case '8867-4':
-                    $vital['heart_rate'] = getFhirValue('valueQuantity.value');
-                    $neonatal['nadi'] = getFhirValue('valueQuantity.value')?? null;
+                    $vital['heart_rate'] = getFhirValue($r,'valueQuantity.value');
+                    $neonatal['nadi'] = getFhirValue($r,'valueQuantity.value')?? null;
                     break;
 
                 case '9279-1':
-                    $vital['respiratory_rate'] = getFhirValue('valueQuantity.value');
-                    $neonatal['pernafasan'] = getFhirValue('valueQuantity.value')?? null;
+                    $vital['respiratory_rate'] = getFhirValue($r,'valueQuantity.value');
+                    $neonatal['pernafasan'] = getFhirValue($r,'valueQuantity.value')?? null;
                     break;
 
                 case '8310-5':
-                    $vital['temperature'] = getFhirValue('valueQuantity.value');
-                    $neonatal['suhu'] = getFhirValue('valueQuantity.value')?? null;
+                    $vital['temperature'] = getFhirValue($r,'valueQuantity.value');
+                    $neonatal['suhu'] = getFhirValue($r,'valueQuantity.value')?? null;
                     break;
 
-                /** MEASURE */
+
                 case '8302-2':
-                    $measure['height'] = getFhirValue('valueQuantity.value');
+                    $measure['height'] = getFhirValue($r,'valueQuantity.value');
                     break;
 
                 case '29463-7':
-                    $measure['weight'] = getFhirValue('valueQuantity.value');
+                    $measure['weight'] = getFhirValue($r,'valueQuantity.value');
                     break;
 
                 case '56077-1':
-                    $measure['pre_weight'] = getFhirValue('valueQuantity.value');
+                    $measure['pre_weight'] = getFhirValue($r,'valueQuantity.value');
                     break;
 
                 case 'OC000010':
-                    $measure['bmi'] = getFhirValue('valueQuantity.value');
+                    $measure['bmi'] = getFhirValue($r,'valueQuantity.value');
                     $measure['bmi_status'] = $r['interpretation'][0]['coding'][0]['display'] ?? null;
                     break;
 
                 case '284473002':
-                    $measure['lila'] = getFhirValue('valueQuantity.value');
+                    $measure['lila'] = getFhirValue($r,'valueQuantity.value');
                     break;
 
                 case '11881-0':
-                    $measure['sfh'] = getFhirValue('valueQuantity.value');
+                    $measure['sfh'] = getFhirValue($r,'valueQuantity.value');
                     break;
 
-                    //Delivery
+
 
 
                 case '11996-6':
-                    $delivery['gravida'] = getFhirValue('valueInteger') ?? null;
+                    $delivery['gravida'] = getFhirValue($r,'valueInteger') ?? null;
                     break;
 
                 case '64708-1':
-                    $delivery['parity'] = getFhirValue('valueInteger') ?? null;
+                    $delivery['parity'] = getFhirValue($r,'valueInteger') ?? null;
                     break;
 
                 case '69043-8':
-                    $delivery['abortus'] = getFhirValue('valueInteger') ?? null;
+                    $delivery['abortus'] = getFhirValue($r,'valueInteger') ?? null;
                     break;
 
                 case '93857-1':
-                    $delivery['delivery_time'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
-                     $pnc['delivery_time'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
+                    $delivery['delivery_time'] = Carbon::parse(getFhirValue($r,'valueDateTime'))->format('Y-m-d H:i:s') ?? null;
+                     $pnc['delivery_time'] = Carbon::parse(getFhirValue($r,'valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                 case '249197004':
                     $delivery['postpartum_condition'] =
-                       getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
+                       getFhirValue($r,'valueCodeableConcept.coding.0.display') ?? null;
                     break;
 
                 case 'OC000013':
                     $delivery['delivery_helper'] =
-                       getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
+                       getFhirValue($r,'valueCodeableConcept.coding.0.display') ?? null;
                     break;
 
                 case '57071-3':
                     $delivery['delivery_method'] =
-                       getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
+                       getFhirValue($r,'valueCodeableConcept.coding.0.display') ?? null;
                     break;
 
                 case '249120008':
-                    $delivery['stage1'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
+                    $delivery['stage1'] = Carbon::parse(getFhirValue($r,'valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                 case '249160009':
-                    $delivery['stage2'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
+                    $delivery['stage2'] = Carbon::parse(getFhirValue($r,'valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                 case 'OC000018':
-                    $delivery['stage3'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
+                    $delivery['stage3'] = Carbon::parse(getFhirValue($r,'valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                 case 'OC000019':
-                    $delivery['stage4'] = Carbon::parse(getFhirValue('valueDateTime'))->format('Y-m-d H:i:s') ?? null;
+                    $delivery['stage4'] = Carbon::parse(getFhirValue($r,'valueDateTime'))->format('Y-m-d H:i:s') ?? null;
                     break;
 
                     // PNC
                     case '81661-1':
-                    $pnc['pendarahan'] = getFhirValue('valueQuantity.value') ?? null;
+                    $pnc['pendarahan'] = getFhirValue($r,'valueQuantity.value') ?? null;
                     break;
 
                      case '32422-8':
-                    $pnc['pemeriksaan_payudara'] =getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
+                    $pnc['pemeriksaan_payudara'] =getFhirValue($r,'valueCodeableConcept.coding.0.display') ?? null;
                     break;
 
                     case '364297003':
-                        $pnc['kondisi_perineum'] = getFhirValue('valueString') ?? null;
+                        $pnc['kondisi_perineum'] = getFhirValue($r,'valueString') ?? null;
                         break;
                     case 'OC000020':
-                        $pnc['tanda_infeksi_perineum'] = getFhirValue('valueBoolean') ? 'ada' : 'Tidak ada' ?? null;
+                        $pnc['tanda_infeksi_perineum'] = getFhirValue($r,'valueBoolean') ? 'ada' : 'Tidak ada' ?? null;
                         break;
                     case 'OC000025':
-                        $pnc['tanda_infeksi_luka_sc']= getFhirValue('valueBoolean') ? 'ada' : 'Tidak ada' ?? null;
+                        $pnc['tanda_infeksi_luka_sc']= getFhirValue($r,'valueBoolean') ? 'ada' : 'Tidak ada' ?? null;
                         break;
                     case 'OC000017':
-                        $pnc['produksi_asi'] =getFhirValue('valueCodeableConcept.coding.0.display') ?? null;
+                        $pnc['produksi_asi'] =getFhirValue($r,'valueCodeableConcept.coding.0.display') ?? null;
                         break;
 
 
                         // Neonatal
                         case '57715-5':
-                            $neonatal['jam_lahir'] = getFhirValue('valueTime') ?? null;
+                            $neonatal['jam_lahir'] = getFhirValue($r,'valueTime') ?? null;
                             break;
 
                             case '8339-4':
-                                $neonatal['berat_lahir'] = getFhirValue('valueQuantity.value') ?? null;
+                                $neonatal['berat_lahir'] = getFhirValue($r,'valueQuantity.value') ?? null;
                                 break;
                             case '89269-5':
-                                $neonatal['panjang_badan'] = getFhirValue('valueQuantity.value') ?? null;
+                                $neonatal['panjang_badan'] = getFhirValue($r,'valueQuantity.value') ?? null;
                                 break;
                             case '9843-4':
-                                $neonatal['lingkar_kepala'] = getFhirValue('valueQuantity.value') ?? null;
+                                $neonatal['lingkar_kepala'] = getFhirValue($r,'valueQuantity.value') ?? null;
                                 break;
 
                                         case '9198-5':
-                                            $neonatal['apgar_1_menit'] = getFhirValue('valueInteger') ?? null;
+                                            $neonatal['apgar_1_menit'] = getFhirValue($r,'valueInteger') ?? null;
                                             break;
                                         case '9199-3':
-                                            $neonatal['apgar_5_menit'] = getFhirValue('valueInteger') ?? null;
+                                            $neonatal['apgar_5_menit'] = getFhirValue($r,'valueInteger') ?? null;
                                             break;
                                         case '9200-1':
-                                            $neonatal['apgar_10_menit'] = getFhirValue('valueInteger') ?? null;
+                                            $neonatal['apgar_10_menit'] = getFhirValue($r,'valueInteger') ?? null;
                                             break;
 
 
+            }*/
+
+
+
+
+
+
+        $map = [
+
+    // ===== ANC =====
+    '11996-6' => [
+        ['target' => 'pregnancy', 'field' => 'gravida', 'path' => 'valueInteger'],
+        ['target' => 'delivery',  'field' => 'gravida', 'path' => 'valueInteger'],
+        ['target' => 'pnc',       'field' => 'gravida', 'path' => 'valueInteger'],
+    ],
+
+    '64708-1' => [
+        ['target' => 'pregnancy', 'field' => 'parity', 'path' => 'valueInteger'],
+        ['target' => 'delivery',  'field' => 'parity', 'path' => 'valueInteger'],
+        ['target' => 'pnc',       'field' => 'parity', 'path' => 'valueInteger'],
+    ],
+
+    '69043-8' => [
+        ['target' => 'pregnancy', 'field' => 'abortus', 'path' => 'valueInteger'],
+        ['target' => 'delivery',  'field' => 'abortus', 'path' => 'valueInteger'],
+        ['target' => 'pnc',       'field' => 'abortus', 'path' => 'valueInteger'],
+    ],
+
+    '8665-2' => [
+        ['target' => 'pregnancy', 'field' => 'lmp', 'path' => 'valueDateTime', 'format' => 'date'],
+    ],
+
+    '11778-8' => [
+        ['target' => 'pregnancy', 'field' => 'edd', 'path' => 'valueDateTime', 'format' => 'date'],
+    ],
+
+    // ===== VITAL =====
+    '8480-6' => [
+        ['target' => 'vital', 'field' => 'systolic', 'path' => 'valueQuantity.value'],
+    ],
+
+    '8867-4' => [
+        ['target' => 'vital',     'field' => 'heart_rate', 'path' => 'valueQuantity.value'],
+        ['target' => 'neonatal',  'field' => 'nadi',       'path' => 'valueQuantity.value'],
+    ],
+
+    '9279-1' => [
+        ['target' => 'vital',     'field' => 'respiratory_rate', 'path' => 'valueQuantity.value'],
+        ['target' => 'neonatal',  'field' => 'pernafasan',       'path' => 'valueQuantity.value'],
+    ],
+
+    '8310-5' => [
+        ['target' => 'vital',     'field' => 'temperature', 'path' => 'valueQuantity.value'],
+        ['target' => 'neonatal',  'field' => 'suhu',        'path' => 'valueQuantity.value'],
+    ],
+
+    '9843-4'=>[
+         ['target' => 'neonatal',  'field' => 'lingkar_kepala',        'path' => 'valueQuantity.value'],
+    ],
+
+    // ===== MEASURE =====
+    '29463-7' => [
+        ['target' => 'measure', 'field' => 'weight', 'path' => 'valueQuantity.value'],
+    ],
+    '89269-5'=>[
+         ['target' => 'neonatal',  'field' => 'panjang_badan','path' => 'valueQuantity.value'],
+
+    ],
+
+    // ===== DELIVERY =====
+    '93857-1' => [
+        ['target' => 'delivery', 'field' => 'delivery_time', 'path' => 'valueDateTime', 'format' => 'datetime'],
+        ['target' => 'pnc',      'field' => 'delivery_time', 'path' => 'valueDateTime', 'format' => 'datetime'],
+    ],
+
+    // ===== NEONATAL =====
+    '8339-4' => [
+        ['target' => 'neonatal', 'field' => 'berat_lahir', 'path' => 'valueQuantity.value'],
+    ],
+
+    '9198-5' => [
+        ['target' => 'neonatal', 'field' => 'apgar_1_menit', 'path' => 'valueInteger'],
+    ],
+];
+
+$containers = [
+    'pregnancy' => &$pregnancy,
+    'delivery'  => &$delivery,
+    'pnc'       => &$pnc,
+    'vital'     => &$vital,
+    'measure'   => &$measure,
+    'neonatal'  => &$neonatal,
+];
+
+foreach ($data['entry'] as $item) {
+
+    $r = $item['resource'] ?? [];
+    $code = data_get($r, 'code.coding.0.code');
+
+    if (!$code || !isset($map[$code])) {
+        continue;
+    }
+
+    foreach ($map[$code] as $cfg) {
+
+        $value = getFhirValue($r, $cfg['path']);
+
+        // format tanggal
+        if (!empty($cfg['format']) && $value) {
+            if ($cfg['format'] === 'date') {
+                $value = Carbon::parse($value)->format('Y-m-d');
+            } elseif ($cfg['format'] === 'datetime') {
+                $value = Carbon::parse($value)->format('Y-m-d H:i:s');
             }
-
-
-
         }
 
+        $containers[$cfg['target']][$cfg['field']] = $value;
+    }
+}
+        }
+//dd($neonatal);
         // SAVE
         if(!isset($pnc['delivery_time'])){
         PregnancyRecord::updateOrCreate(
