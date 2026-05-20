@@ -934,12 +934,12 @@
                         <td>Laboratorium</td>
                         <td>:</td>
                         <td></td>
-                    </tr> -->
+                    </tr>
                     <tr>
                         <td>Obat</td>
                         <td>:</td>
                         <td></td>
-                    </tr>
+                    </tr>  -->
                     <tr>
                         <td>Rencana tindak Lanjut</td>
                         <td>:</td>
@@ -1083,7 +1083,7 @@
                     <td></td>
                 </tr>
 
-                 <tr>
+              <!--   <tr>
                     <td>Imunisasi POLIO 1</td>
                     <td></td>
                     <td></td>
@@ -1122,7 +1122,7 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                </tr>
+                </tr> -->
 
                 <tr>
                     <td>Imunisasi DPT-HB-HIB 1</td>
@@ -1204,10 +1204,10 @@
                 </tr>
 
 
-                 <tr>
+            <tr>
                     <td>Imunisasi IPV 1</td>
                      <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='VG89' && $imm['display']=='IPV 1')
+                        @if($imn['code']=='VG89' && $imn['display']=='IPV 1')
                         {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
 
                         @endif
@@ -1216,7 +1216,7 @@
                         @endforeach</td>
                     <td></td>
                      <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='VG89' && $imm['display']=='IPV 1')
+                        @if($imn['code']=='VG89' && $imn['display']=='IPV 1')
                         {{ $imn['pos'] }}
 
                         @endif
@@ -1231,7 +1231,7 @@
                  <tr>
                     <td>Imunisasi IPV 2</td>
                     <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='VG89' && $imm['display']=='IPV 2')
+                        @if($imn['code']=='VG89' && $imn['display']=='IPV 2')
                         {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
 
                         @endif
@@ -1240,7 +1240,7 @@
                         @endforeach</td>
                     <td></td>
                      <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='VG89' && $imm['display']=='IPV 2')
+                        @if($imn['code']=='VG89' && $imn['display']=='IPV 2')
                         {{ $imn['pos'] }}
 
                         @endif
@@ -1300,7 +1300,7 @@
                 <tr>
                     <td>Imunisasi PCV 1</td>
                      <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='VG152' && $imm['display']=='PCV 1')
+                        @if($imn['code']=='VG152' && $imn['display']=='PCV 1')
                         {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
 
                         @endif
@@ -1309,7 +1309,7 @@
                         @endforeach</td>
                     <td></td>
                      <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                         @if($imn['code']=='VG152' && $imm['display']=='PCV 1')
+                         @if($imn['code']=='VG152' && $imn['display']=='PCV 1')
                         {{ $imn['pos'] }}
 
                         @endif
@@ -1324,7 +1324,7 @@
                  <tr>
                     <td>Imunisasi PCV 2</td>
                      <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                        @if($imn['code']=='VG152' && $imm['display']=='PCV 2')
+                        @if($imn['code']=='VG152' && $imn['display']=='PCV 2')
                         {{ \Carbon\Carbon::parse($imn['tglImunisasi'])->format('d M Y') }}
 
                         @endif
@@ -1333,7 +1333,7 @@
                         @endforeach</td>
                     <td></td>
                      <td>@foreach($dt['IMUNISASI'] as $n=>$imn)
-                         @if($imn['code']=='VG152' && $imm['display']=='PCV 2')
+                         @if($imn['code']=='VG152' && $imn['display']=='PCV 2')
                         {{ $imn['pos'] }}
 
                         @endif
