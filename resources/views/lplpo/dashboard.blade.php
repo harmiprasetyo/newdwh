@@ -206,6 +206,8 @@
   </div>
 
   <div class="charts-row col3">
+
+  <!--
     <div class="chart-box">
       <h3>Distribusi Status Stok Obat</h3>
       <p>Berdasarkan 147 jenis obat yang dimonitor</p>
@@ -219,6 +221,9 @@
         </div>
       </div>
     </div>
+-->
+
+
     <div class="chart-box">
       <h3>Status Stok per Puskesmas</h3>
       <p>Top 6 Puskesmas — jumlah obat per kategori</p>
