@@ -155,6 +155,35 @@
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
+
+
+function toggleFaskesField() {
+    let groupid = document.getElementById('groupid').value;
+
+    let isDisable = (groupid == 1 || groupid == 2);
+
+    // disable select
+    document.getElementById('kodeKecamatan').disabled = isDisable;
+    document.getElementById('kodeFaskes').disabled = isDisable;
+
+    // hide field (container .mb-3)
+    document.getElementById('kodeKecamatan').closest('.mb-3').style.display = isDisable ? 'none' : 'block';
+    document.getElementById('kodeFaskes').closest('.mb-3').style.display = isDisable ? 'none' : 'block';
+
+    // reset value kalau disable
+    if (isDisable) {
+        document.getElementById('kodeKecamatan').value = '';
+        document.getElementById('kodeFaskes').value = '';
+    }
+}
+
+// trigger saat dropdown berubah
+document.getElementById('groupid').addEventListener('change', toggleFaskesField);
+
+// trigger saat pertama load
+window.addEventListener('load', toggleFaskesField);
+
+
     let table;
 
 $(document).ready(function(){

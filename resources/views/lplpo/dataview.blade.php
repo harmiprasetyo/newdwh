@@ -69,19 +69,21 @@
 <tr>
     <th rowspan="2">No</th>
     <th rowspan="2">Nama Obat</th>
+    <th rowspan="2">Satuan</th>
+    <th rowspan="2">Kode Obat</th>
     <th rowspan="2">Faskes</th>
     <th rowspan="2">Bulan</th>
     <th rowspan="2">Tahun</th>
 
-    <th colspan="2">Stok Awal</th>
-    <th colspan="2">Penerimaan</th>
-    <th colspan="2">Persediaan</th>
-    <th colspan="2">Pemakaian</th>
+    <th colspan="3">Stok Awal</th>
+    <th colspan="3">Penerimaan</th>
+    <th colspan="3">Persediaan</th>
+    <th colspan="3">Pemakaian</th>
 
     <th rowspan="2">Kadaluarsa</th>
     <th rowspan="2">Pengembalian</th>
 
-    <th colspan="2">Stok Akhir</th>
+    <th colspan="3">Stok Akhir</th>
 
     <th rowspan="2">RKO</th>
     <th rowspan="2">Stok Optimum</th>
@@ -89,11 +91,11 @@
 </tr>
 
 <tr>
-    <th>PKD</th><th>Program</th>
-    <th>PKD</th><th>Program</th>
-    <th>PKD</th><th>Program</th>
-    <th>PKD</th><th>Program</th>
-    <th>PKD</th><th>Program</th>
+    <th>PKD</th><th>Program</th><th>JKN</th>
+    <th>PKD</th><th>Program</th><th>JKN</th>
+    <th>PKD</th><th>Program</th><th>JKN</th>
+    <th>PKD</th><th>Program</th><th>JKN</th>
+    <th>PKD</th><th>Program</th><th>JKN</th>
 </tr>
 </thead>
             </table>
@@ -131,27 +133,34 @@ let table = $('#table_lplpo').DataTable({
 columns: [
     { data: 'DT_RowIndex', orderable:false, searchable:false },
     { data: 'nama_obat' },
+     { data: 'satuan' },
+      { data: 'kode_obat' },
     { data: 'namaFaskes' }, // ✅ ganti ini
     { data: 'bulan' },
     { data: 'tahun' },
 
-    { data: 'stok_awal_pkd' },
-    { data: 'stok_awal_program' },
+    { data: 'stok_awal_field1' },
+    { data: 'stok_awal_field2' },
+     { data: 'stok_awal_field3' },
 
-    { data: 'penerimaan_pkd' },
-    { data: 'penerimaan_program' },
+    { data: 'penerimaan_field1' },
+    { data: 'penerimaan_field2' },
+    { data: 'penerimaan_field3' },
 
-    { data: 'persediaan_pkd' },
-    { data: 'persediaan_program' },
+    { data: 'persediaan_field1' },
+    { data: 'persediaan_field2' },
+      { data: 'persediaan_field3' },
 
-    { data: 'pemakaian_pkd' },
-    { data: 'pemakaian_program' },
+    { data: 'pemakaian_field1' },
+    { data: 'pemakaian_field2' },
+     { data: 'pemakaian_field3' },
 
     { data: 'kadaluarsa' },
     { data: 'pengembalian' },
 
-    { data: 'stok_akhir_pkd' },
-    { data: 'stok_akhir_program' },
+    { data: 'stok_akhir_field1' },
+    { data: 'stok_akhir_field2' },
+        { data: 'stok_akhir_field3' },
 
     { data: 'rko' },
     { data: 'stok_optimum' },

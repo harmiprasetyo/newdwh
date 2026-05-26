@@ -2,6 +2,12 @@
     <h4>⚡ Admin</h4>
     <hr>
 
+
+    <a href="/homepage" class="menu-toggle">
+
+    <i class="fa fa-home"></i> Beranda
+</a>
+
 <a href="#" class="menu-toggle
 {{ request()->is('adminpanel/user*') ? 'active' : '' }}">
     <i class="fa fa-users"></i> User Management

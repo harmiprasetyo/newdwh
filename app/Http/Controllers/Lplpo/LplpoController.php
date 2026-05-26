@@ -34,11 +34,11 @@ public function data(Request $request)
 {
 
 $query = Lplpo::query()
-    ->leftJoin('master_faskes', 'lplpo.kode_faskes', '=', 'master_faskes.kodeFaskes')
+    ->leftJoin('master_faskes', 'lplpo_temp.kode_faskes', '=', 'master_faskes.kodeFaskes')
     ->select(
-        'lplpo.*',
+        'lplpo_temp.*',
         'master_faskes.namaFaskes'
-    )->orderBy('lplpo.id', 'desc');
+    )->orderBy('lplpo_temp.id', 'desc');
 
 //$query = Lplpo::orderBy('id', 'desc');
 
@@ -72,19 +72,25 @@ $query = Lplpo::query()
         return view('lplpo.upload');
     }
 
-   public function import(Request $request)
+  public function import(Request $request)
 {
     $request->validate([
         'file' => 'required|mimes:xlsx,xls',
         'bulan' => 'required|integer|min:1|max:12',
-        'tahun' => 'required|integer|min:2000'
+        'tahun' => 'required|integer|min:'.date('Y')
     ]);
 
-    $this->service->import(
+    $result = $this->service->import(
         $request->file('file'),
         $request->bulan,
         $request->tahun
     );
+
+    if (!empty($result['errors'])) {
+        return back()
+            ->with('import_error', $result['errors'])
+            ->with('error_file', $result['file']); // ✅ dynamic file
+    }
 
     return back()->with('success', 'Data berhasil diimport!');
 }

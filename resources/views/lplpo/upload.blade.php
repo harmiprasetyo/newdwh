@@ -20,12 +20,53 @@
                 {{-- Body --}}
                 <div class="card-body p-4">
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+
+
+@if(session('error_file'))
+    <a href="{{ asset(session('error_file')) }}" class="btn btn-danger">
+        Download File Error
+    </a>
+@endif
+
+
+
+                   @if(session('import_error'))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let errors = @json(session('import_error'));
+
+    let html = '<ul style="text-align:left">';
+    errors.forEach(function(err){
+        html += '<li>'+err+'</li>';
+    });
+    html += '</ul>';
+
+    Swal.fire({
+        icon: 'error',
+        title: 'Import Gagal',
+        html: html,
+        width: 600
+    });
+});
+</script>
+@endif
+
+
+               @if(session('success'))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: '{{ session('success') }}',
+        timer: 3000,
+        showConfirmButton: false
+    }).then(() => {
+        window.location.href = '/lplpo/dataview';
+    });
+});
+</script>
+@endif
 
                     <form action="/lplpo/import" method="POST" enctype="multipart/form-data">
                         @csrf
