@@ -3,10 +3,13 @@
 namespace App\Models\Lplpo;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Lplpo\LplpoHeaderReport;
 
 class Lplpo extends Model
 {
     protected $table = 'lplpo_temp';
+    protected $headerId;
 
     protected $fillable = [
         'nama_obat',
@@ -32,6 +35,13 @@ class Lplpo extends Model
         'stok_akhir_field3',
         'rko',
         'stok_optimum',
-        'permintaan'
+        'permintaan',
+        'pemberian',
+        'header_id'
     ];
+
+    public function header()
+{
+    return $this->belongsTo(LplpoHeaderReport::class, 'header_id');
+}
 }

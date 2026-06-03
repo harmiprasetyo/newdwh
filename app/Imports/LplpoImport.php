@@ -7,12 +7,22 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-class LplpoImport implements ToCollection, WithCalculatedFormulas
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\BeforeSheet;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use App\Models\Lplpo\LplpoHeaderReport;
+
+class LplpoImport implements ToCollection, WithCalculatedFormulas, WithEvents
 {
     protected $bulan;
     protected $tahun;
     protected $errors = [];
     protected $errorCells = [];
+    protected $sheetName;
+    protected static $processed = false;
+    protected $isActiveSheet = false;
+    protected $headerId;
 
 
     // Label kolom biar user friendly
@@ -22,11 +32,60 @@ class LplpoImport implements ToCollection, WithCalculatedFormulas
         'kode_obat' => 'Kode Obat',
     ];
 
-    public function __construct($bulan, $tahun)
+ /*   public function __construct($bulan, $tahun)
     {
         $this->bulan = $bulan;
         $this->tahun = $tahun;
     }
+*/
+protected $isFinal = false;
+
+public function __construct($bulan, $tahun)
+{
+    $this->bulan = $bulan;
+    $this->tahun = $tahun;
+
+    $kodeFaskes = auth()->user()->kodeFaskes ?? 'DEFAULT';
+
+    $existingFinal = LplpoHeaderReport::where([
+        'kode_faskes' => $kodeFaskes,
+        'bulan' => $bulan,
+        'tahun' => $tahun,
+        'final' => true
+    ])->first();
+
+    // ❌ JANGAN throw disini
+    if ($existingFinal) {
+        $this->isFinal = true;
+        return;
+    }
+
+    $header = LplpoHeaderReport::updateOrCreate(
+        [
+            'kode_faskes' => $kodeFaskes,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+        ],
+        [
+            'final' => false
+        ]
+    );
+
+    $this->headerId = $header->id;
+}
+
+   public function registerEvents(): array
+{
+    return [
+        BeforeSheet::class => function (BeforeSheet $event) {
+
+            // kalau belum ada yang diproses → ini sheet aktif
+            if (!self::$processed) {
+                $this->isActiveSheet = true;
+            }
+        },
+    ];
+}
 
 
     private function cell($colIndex, $rowIndex)
@@ -39,6 +98,11 @@ class LplpoImport implements ToCollection, WithCalculatedFormulas
     {
         return $this->errors;
     }
+
+    public function isFinal()
+{
+    return $this->isFinal;
+}
 
      public function getErrorCells()
     {
@@ -84,7 +148,112 @@ private function col($i)
 
 public function collection(Collection $rows)
 {
-    foreach ($rows as $index => $row) {
+
+ if ($this->isFinal) {
+        return; // stop semua proses
+    }
+
+// ⛔ skip semua sheet selain yang aktif
+    if (!$this->isActiveSheet) {
+        return;
+    }
+
+    // ⛔ kalau sudah pernah diproses, skip
+    if (self::$processed) {
+        return;
+    }
+
+// ======================
+// VALIDASI TEMPLATE LPLPO
+// ======================
+
+// 🔥 AUTO DETECT HEADER (tidak hardcode index)
+$header1 = null;
+$header3 = null;
+
+foreach ($rows as $i => $row) {
+    $text = strtolower(implode(' ', $row->toArray()));
+
+    if (!$header1 && str_contains($text, 'nama') && str_contains($text, 'satuan')) {
+        $header1 = $row;
+        $header1Index = $i;
+    }
+
+    if (!$header3 && str_contains($text, 'pkd') && str_contains($text, 'jkn')) {
+        $header3 = $row;
+        $header3Index = $i;
+    }
+}
+if (!$header1 || !$header3) {
+    $this->errors[] = "[Sheet: {$this->sheetName}] Format file tidak valid (header tidak ditemukan)";
+    return;
+}
+
+self::$processed = true;
+// ======================
+// NORMALIZE
+// ======================
+$normalize = function ($text) {
+    return strtolower(trim(preg_replace('/\s+/', ' ', $text)));
+};
+
+// ======================
+// VALIDASI HEADER UTAMA
+// ======================
+$aliases = [
+    1 => ['nama', 'barang', 'obat'],
+    2 => ['satuan'],
+    3 => ['kode'],
+];
+
+foreach ($aliases as $col => $keywords) {
+    $actual = $normalize($header1[$col] ?? '');
+
+    $match = false;
+    foreach ($keywords as $keyword) {
+        if (str_contains($actual, $keyword)) {
+            $match = true;
+            break;
+        }
+    }
+
+    if (!$match) {
+       $this->errors[] = "[Sheet: {$this->sheetName}] Header tidak sesuai di ".$this->cell($col, $header1Index)." (".$actual.")";
+        return;
+    }
+}
+
+// ======================
+// VALIDASI SUB HEADER
+// ======================
+$subHeaderCheck = ['pkd', 'jkn', 'program'];
+
+foreach ([4,5,6] as $col) {
+    $actual = $normalize($header3[$col] ?? '');
+
+    $valid = false;
+    foreach ($subHeaderCheck as $keyword) {
+        if (str_contains($actual, $keyword)) {
+            $valid = true;
+            break;
+        }
+    }
+
+    if (!$valid) {
+        $this->errors[] = "[Sheet: {$this->sheetName}] Sub header tidak sesuai di ".$this->cell($col, $header3Index)." (".$actual.")";
+        return;
+    }
+}
+
+// ======================
+// VALIDASI JUMLAH KOLOM
+// ======================
+if (count($header1) < 26) {
+    $this->errors[] = 'Jumlah kolom tidak sesuai template LPLPO';
+    return;
+}
+
+foreach ($rows as $index => $row) {
 
         if ($index < 3) continue; // skip header
 
@@ -356,15 +525,18 @@ public function collection(Collection $rows)
             // ======================
             // SIMPAN
             // ======================
-            Lplpo::updateOrCreate(
-                [
-                    'kode_faskes' => auth()->user()->kodeFaskes ?? 'DEFAULT',
-                    'bulan' => $this->bulan,
-                    'tahun' => $this->tahun,
-                    'kode_obat' => $kode_obat,
-                ],
-                [
-                    'nama_obat' => $nama_obat,
+           Lplpo::updateOrCreate(
+    [
+        'header_id' => $this->headerId,
+        'kode_obat' => $kode_obat,
+    ],
+    [
+        'kode_faskes' => auth()->user()->kodeFaskes ?? 'DEFAULT',
+        'bulan' => $this->bulan,
+        'tahun' => $this->tahun,
+
+
+                'nama_obat' => $nama_obat,
                     'satuan' => $satuan,
                     'stok_awal_field1' => $stok_awal_field1,
                     'stok_awal_field2' => $stok_awal_field2,

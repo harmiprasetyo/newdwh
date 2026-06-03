@@ -48,6 +48,19 @@ class AuthController extends Controller
             // penting untuk security
             $request->session()->regenerate();
 
+              // 🔥 AMBIL USER
+        $user = Auth::user();
+
+        // 🔥 SIMPAN KE SESSION
+        session([
+            'group' => $user->groupid,
+            'kodeFaskes' => $user->kodeFaskes,
+            'kab' => $user->kodeKota,
+            'prop' => $user->kodePropinsi
+        ]);
+
+
+
             return response()->json([
                 'success' => true,
                 'redirect' => route('homepage')

@@ -14,11 +14,13 @@ use App\Http\Controllers\master\IndonesiaController;
 use App\Http\Controllers\UserWebController;
 use App\Http\Controllers\Lplpo\LplpoController;
 use App\Http\Controllers\Lplpo\DashboardController;
+use App\Http\Controllers\master\LabelLplpoController;
+use App\Http\Controllers\master\MasterWebObatController;
+use App\Http\Controllers\Lplpo\LplpoFinalController;
 
 
 
 /*
-|--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 |
@@ -41,6 +43,7 @@ Route::post('/verify-otp', [OtpController::class, 'verifyOtp']);
 
 
 Route::middleware('auth')->group(function () {
+    Route::post('/lplpo/bulk-update-pemberian', [LplpoController::class, 'bulkUpdatePemberian']);
 
     Route::get('/homepage', [AuthController::class, 'home'])->name('homepage');
     Route::get('/home', [DashController::class, 'index']);
@@ -137,10 +140,35 @@ Route::prefix('adminpanel')->group(function () {
     Route::get('/provinsi', [IndonesiaController::class, 'geojsonProvinsi']);
     });
 
+
+
+
+   Route::get('/label-lplpo', [LabelLplpoController::class, 'index']);
+Route::post('/label-lplpo', [LabelLplpoController::class, 'store']);
+
+// routes/web.php
+Route::get('/masterobat', [MasterWebObatController::class, 'index']);
+// AJAX kabupaten by kode provinsi
+
+
 });
 
 
 
+
+
+Route::prefix('lplpo-final')->group(function () {
+    Route::get('/', [LplpoFinalController::class, 'index'])->name('lplpo.final.index');
+    Route::get('/data', [LplpoFinalController::class, 'data'])->name('lplpo.final.data');
+
+    Route::get('/detail/{header_id}', [LplpoFinalController::class, 'detail'])->name('lplpo.final.detail');
+    Route::get('/detail-data/{header_id}', [LplpoFinalController::class, 'detailData'])->name('lplpo.final.detail.data');
 });
+
+
+});
+
+
+Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getKabupaten']);
 
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\AuthController as AuthAuthController;
 use App\Http\Controllers\Api\LplpoController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\UserAppController;
+use App\Http\Controllers\Api\MasterObatController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -136,6 +137,9 @@ Route::prefix('apiusers')->group(function () {
     });
 
 });
+
+// routes/api.php
+Route::apiResource('master-obat', MasterObatController::class);
 
 
 

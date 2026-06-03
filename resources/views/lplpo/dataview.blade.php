@@ -88,6 +88,9 @@
     <th rowspan="2">RKO</th>
     <th rowspan="2">Stok Optimum</th>
     <th rowspan="2">Permintaan</th>
+    @if(session('group') == 2)
+        <th rowspan="2">Pemberian</th>
+    @endif
 </tr>
 
 <tr>
@@ -99,12 +102,22 @@
 </tr>
 </thead>
             </table>
+            @if(session('group') == 2)
+<div class="mb-3 text-end">
+    <button id="btn_submit_pemberian" class="btn btn-success">
+        Submit Verifikasi
+    </button>
+</div>
+@endif
            </div>
 
         </div>
     </div>
 
+
 </div>
+
+
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -164,7 +177,18 @@ columns: [
 
     { data: 'rko' },
     { data: 'stok_optimum' },
-    { data: 'permintaan' }
+    { data: 'permintaan' },
+    @if(session('group') == 2)
+        {
+            data: 'pemberian',
+            render: function(data, type, row){
+                return `<input type="number"
+                        class="form-control form-control-sm pemberian-input"
+                        data-id="${row.id}"
+                        value="${data ?? 0}">`;
+            }
+        }
+        @endif
 ],
     order: [[1, 'asc']]
 });
@@ -172,6 +196,54 @@ columns: [
 // trigger filter
 $('#btn_filter').click(function () {
     table.ajax.reload();
+});
+
+
+$('#btn_submit_pemberian').click(function(){
+
+    let data = [];
+
+    let table = $('#table_lplpo').DataTable();
+
+    table.rows().every(function () {
+
+        let rowNode = this.node();
+
+        let input = $(rowNode).find('.pemberian-input');
+
+        let value = input.val();
+
+        console.log('ID:', input.data('id'), 'VALUE:', value); // 🔥 debug
+
+        if (value === null || value.trim() === '') {
+            value = 0;
+        }
+
+        data.push({
+            id: input.data('id'),
+            pemberian: parseInt(value)
+        });
+
+    });
+
+    console.log(data); // 🔥 cek final
+
+   $.ajax({
+    url: '/lplpo/bulk-update-pemberian',
+    method: 'POST',
+    data: {
+        data: data,
+        _token: '{{ csrf_token() }}'
+    },
+    success: function(res){
+        Swal.fire('Success', res.message, 'success');
+    },
+    error: function(xhr){
+        let msg = xhr.responseJSON?.message || 'Terjadi kesalahan';
+        Swal.fire('Error', msg, 'error');
+    }
+});
+
 });
 </script>
 

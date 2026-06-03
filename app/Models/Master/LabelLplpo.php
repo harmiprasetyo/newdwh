@@ -4,6 +4,7 @@ namespace App\Models\Master;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravolt\Indonesia\Models\City;
 
 class LabelLplpo extends Model
 {
@@ -13,4 +14,12 @@ class LabelLplpo extends Model
         "kodeKab",
         "field1","field2","field3"
     ];
+
+    // LabelLplpo.php
+public function kabupaten()
+{
+    return $this->belongsTo(City::class, 'kodeKab', 'code');
+}
+
+
 }

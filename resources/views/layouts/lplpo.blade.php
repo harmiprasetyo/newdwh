@@ -80,11 +80,24 @@
 
 <div class="sidebar">
     <h4 class="mb-4">LPLPO</h4>
+     <a href="/homepage">
+       Beranda
+    </a>
 
     <a href="/lplpo/dashboard">📊 Dashboard</a>
+    @if(session('group') == 3)
     <a href="/lplpo/upload">📤 Upload LPLPO</a>
+@endif
+
     <a href="/lplpo/dataview">📋 Data LPLPO</a>
+    <a href="/lplpo-final">📋 LPLPO Final</a>
+
+     <a href="/logout">
+       Logout
+    </a>
 </div>
+
+
 
 <div class="content">
     @yield('content')

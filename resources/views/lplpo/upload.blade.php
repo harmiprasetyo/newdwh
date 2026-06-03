@@ -30,26 +30,7 @@
 
 
 
-                   @if(session('import_error'))
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    let errors = @json(session('import_error'));
 
-    let html = '<ul style="text-align:left">';
-    errors.forEach(function(err){
-        html += '<li>'+err+'</li>';
-    });
-    html += '</ul>';
-
-    Swal.fire({
-        icon: 'error',
-        title: 'Import Gagal',
-        html: html,
-        width: 600
-    });
-});
-</script>
-@endif
 
 
                @if(session('success'))
@@ -154,6 +135,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     </form>
 
                 </div>
+
+
+
+                @if(session('import_error'))
+    <div class="mt-4">
+        <div class="alert alert-danger">
+            <strong>Import Gagal</strong>
+        </div>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th style="width:50px;">No</th>
+                    <th>Pesan Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(session('import_error') as $index => $err)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $err }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endif
             </div>
 
         </div>
