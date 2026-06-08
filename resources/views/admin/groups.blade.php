@@ -3,12 +3,14 @@
 @section('content')
 
 <div class="container-fluid">
+     <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">👤 User GroupManagement</h5>
+        <button class="btn btn-primary"  onclick="openModal()">+ Tambah User</button>
+    </div>
 
-    <h4 class="mb-3">User Group Management</h4>
 
-    <button class="btn btn-primary mb-3" onclick="openModal()">
-        + Tambah Group
-    </button>
+
 
     <table id="groupTable" class="table table-bordered">
         <thead>
@@ -56,8 +58,13 @@
 <script>
 let table;
 let saveMethod = "create";
-
+window.API_KEY = '{{ config("app.api_key") }}';
 $(document).ready(function () {
+      $.ajaxSetup({
+    headers: {
+        'X-API-KEY': window.API_KEY
+    }
+});
 
     // ======================
     // DATATABLE

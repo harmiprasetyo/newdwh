@@ -43,7 +43,10 @@ class Kernel extends HttpKernel
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            'tenant.api_key', // <-- tambahkan middleware custom untuk API Key & Tenant
+            'api.key', // <-- tambahkan middleware custom untuk API Key sederhana
         ],
+
     ];
 
     /**
@@ -63,5 +66,7 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'tenant.api_key' => \App\Http\Middleware\ApiKeyTenantMiddleware::class, // <-- middleware custom untuk API Key & Tenant
+         'api.key' => \App\Http\Middleware\ApiKeyMiddleware::class, // <-- middleware custom untuk API Key sederhana
     ];
 }

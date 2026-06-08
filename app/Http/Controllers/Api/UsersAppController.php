@@ -15,7 +15,7 @@ class UsersAppController extends Controller
 
 public function index(Request $request)
 {
-    $query = UsersApp::with(['group', 'faskes', 'provinsi', 'kota', 'kecamatan']);
+    $query = UsersApp::with(['role','group', 'faskes', 'provinsi', 'kota', 'kecamatan']);
 
     // ======================
     // 🔎 FILTER
@@ -68,6 +68,7 @@ public function index(Request $request)
             'username' => 'required|unique:users_app,username',
             'email' => 'required|email|unique:users_app,email',
             'groupid' => 'required',
+            'role_id' => 'required',
             'namalengkap' => 'required',
             'password' => 'required|min:6'
         ]);
@@ -76,6 +77,7 @@ public function index(Request $request)
             'userid' => Str::uuid(),
             'username' => $request->username,
             'groupid' => $request->groupid,
+            'role_id' => $request->role_id,
             'email' => $request->email,
             'namalengkap' => $request->namalengkap,
             'kodeFaskes' => $request->kodeFaskes,
@@ -101,6 +103,7 @@ public function index(Request $request)
         $data->update([
             'username' => $request->username,
             'groupid' => $request->groupid,
+            'role_id' => $request->role_id,
             'email' => $request->email,
             'namalengkap' => $request->namalengkap,
             'kodeFaskes' => $request->kodeFaskes,

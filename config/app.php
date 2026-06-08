@@ -118,6 +118,7 @@ return [
     | will not be safe. Please do this before deploying an application!
     |
     */
+    'api_key' => env('XAPIKEY'),
 
     'key' => env('APP_KEY'),
 

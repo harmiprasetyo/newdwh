@@ -163,10 +163,15 @@
 
 <script>
 let table;
+window.API_KEY = '{{ config("app.api_key") }}';
 
 $(document).ready(function () {
 
-
+ $.ajaxSetup({
+    headers: {
+        'X-API-KEY': window.API_KEY
+    }
+});
 
   table = $('#faskesTable').DataTable({
     processing: true,

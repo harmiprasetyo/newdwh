@@ -57,11 +57,14 @@
 let table;
 let mode = "create";
 
+window.API_KEY = '{{ config("app.api_key") }}';
 $(document).ready(function () {
+
 
     $.ajaxSetup({
     headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+        'X-API-KEY': window.API_KEY
     }
 });
 

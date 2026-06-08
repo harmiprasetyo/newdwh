@@ -17,7 +17,8 @@ use App\Http\Controllers\Lplpo\DashboardController;
 use App\Http\Controllers\master\LabelLplpoController;
 use App\Http\Controllers\master\MasterWebObatController;
 use App\Http\Controllers\Lplpo\LplpoFinalController;
-
+use App\Http\Controllers\Dashboard\FhirImportController;
+use App\Http\Controllers\Dashboard\DashboardPageController;
 
 
 /*
@@ -171,4 +172,4 @@ Route::prefix('lplpo-final')->group(function () {
 
 Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getKabupaten']);
 
-
+Route::get('/dashboard', [DashboardPageController::class, 'index']);

@@ -47,6 +47,16 @@
 </div>
 
 <script>
+    window.API_KEY = '{{ config("app.api_key") }}';
+
+
+
+    $.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+        'X-API-KEY': window.API_KEY
+    }
+});
     let table = $('#tableObat').DataTable({
     ajax: '/api/master-obat',
     columns: [

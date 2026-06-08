@@ -13,6 +13,10 @@ use App\Http\Controllers\Api\LplpoController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\UserAppController;
 use App\Http\Controllers\Api\MasterObatController;
+use App\Http\Controllers\Api\UserRoleController;
+use App\Http\Middleware\ApiKeyMiddleware;
+use App\Http\Controllers\Dashboard\FhirImportController;
+use App\Http\Controllers\Dashboard\DashboardController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -23,6 +27,8 @@ use App\Http\Controllers\Api\MasterObatController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
 Route::prefix('newauth')->group(function () {
 Route::post('/login', [AuthAuthController::class, 'login']);
 
@@ -144,3 +150,22 @@ Route::apiResource('master-obat', MasterObatController::class);
 
 
 
+
+
+
+Route::middleware('api.key')->group(function () {
+
+    Route::get('/secure-data', function () {
+        return response()->json([
+            'message' => 'Success access API with API KEY'
+        ]);
+    });
+
+    Route::apiResource('user-roles', UserRoleController::class);
+    Route::post('/user-roles/bulk', [UserRoleController::class, 'bulkStore']);
+    Route::get('/user-roles/by-group/{groupId}', [UserRoleController::class, 'byGroup']);
+
+Route::post('/fhir/import', [FhirImportController::class, 'import']);
+Route::get('/dashboard', [DashboardController::class, 'index']);
+
+});

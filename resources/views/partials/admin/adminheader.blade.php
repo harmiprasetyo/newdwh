@@ -83,5 +83,20 @@
             padding: 20px;
             color: white;
         }
+
+
+        .table td {
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+.btn-sm {
+    margin-right: 4px;
+}
+
     </style>
 </head>

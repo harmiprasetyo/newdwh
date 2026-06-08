@@ -4,7 +4,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Str;
-
+use App\Models\UserGroups;
+use App\Models\UserRoles;
 use Laravel\Sanctum\HasApiTokens;
 class UsersApp extends Authenticatable
 {
@@ -29,7 +30,8 @@ protected $table = 'users_app';
     'kodeKota',
     'kodeKecamatan',
     'password',
-    'api_token'
+    'api_token',
+    'role_id'
     ];
 
       protected $hidden = ['password'];
@@ -39,7 +41,10 @@ protected $table = 'users_app';
     {
         return 'username';
     }
-
+public function role()
+{
+    return $this->belongsTo(UserRoles::class, 'role_id');
+}
 
 public function isDinkes()
 {

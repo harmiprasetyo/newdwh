@@ -4,11 +4,15 @@
 
 <div class="container-fluid mt-3">
 
-    <h4>👤 User Management</h4>
+    <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">👤 User Management</h5>
+        <button class="btn btn-primary"  onclick="openModal()">+ Tambah User</button>
+    </div>
 
-    <button class="btn btn-primary mb-3" onclick="openModal()">+ Tambah User</button>
+    <div class="card-body">
 
-    <div class="row mb-3">
+            <div class="row mb-3">
     <div class="col-md-4">
         <label>Provinsi</label>
         <select id="fProvinsi" class="form-control">
@@ -24,42 +28,32 @@
     </div>
 </div>
 
-    <table id="userTable" class="table table-bordered table-hover">
-
-        <thead>
+        <table id="userTable" class="table table-hover table-bordered">
+             <thead>
         <tr>
             <th>Username</th>
             <th>Nama</th>
             <th>Email</th>
             <th>Group</th>
+             <th>Tugas/Fungsi</th>
             <th>Faskes</th>
             <th>Kab/Kota</th>
-            <th width="150">Aksi</th>
+            <th>Aksi</th>
         </tr>
 
-        <!-- FILTER -->
-     <!--   <tr>
-            <th><input type="text" id="fUsername" class="form-control form-control-sm"></th>
-            <th></th>
-            <th></th>
-            <th></th>
 
-            <th>
-                <select id="fFaskes" class="form-select form-select-sm"></select>
-            </th>
-
-            <th>
-          <select id="fProvinsi" class="form-select form-select-sm"></select>
-                <select id="fKota" class="form-select form-select-sm mt-1"></select>
-                <select id="fKecamatan" class="form-select form-select-sm mt-1"></select>
-            </th>
-
-            <th></th>
-        </tr> -->
 
         </thead>
+        </table>
+    </div>
+</div>
 
-    </table>
+
+
+
+
+
+
 
 </div>
 
@@ -107,6 +101,13 @@
             <label class="form-label">Group User</label>
             <select id="groupid" class="form-select"></select>
         </div>
+
+        <div class="form-group mt-2">
+    <label>Tugas/Fungsi</label>
+    <select id="role_id" name="role_id" class="form-control">
+        <option value="">Pilih Role</option>
+    </select>
+</div>
 
     </div>
 
@@ -183,10 +184,18 @@ document.getElementById('groupid').addEventListener('change', toggleFaskesField)
 // trigger saat pertama load
 window.addEventListener('load', toggleFaskesField);
 
-
+window.API_KEY = '{{ config("app.api_key") }}';
     let table;
 
 $(document).ready(function(){
+
+    $.ajaxSetup({
+    headers: {
+        'X-API-KEY': window.API_KEY
+    }
+});
+
+
 
 $('#userForm').on('submit', function(e){
     e.preventDefault();
@@ -214,6 +223,7 @@ $('#userForm').on('submit', function(e){
             kodeKota: $('#kodeKota').val(),
             kodeKecamatan: $('#kodeKecamatan').val(),
             kodeFaskes: $('#kodeFaskes').val(),
+            role_id: $('#role_id').val() // 🔥 kirim role_id
         },
         success: function(){
 
@@ -261,22 +271,44 @@ table = $('#userTable').DataTable({
         }
     },
     columns: [
-        {data:'username'},
-        {data:'namalengkap'},
-        {data:'email'},
-        {data:'group.group_name'},
-        {data:'faskes.namaFaskes', defaultContent:'-'},
+        {data:'username', width:'10%'},
+        {data:'namalengkap', width:'15%'},
+        {data:'email', width:'15%'},
+       {
+    data: 'group.group_name', width: '10%',
+    render: function(data) {
+        return `<span class="badge bg-primary">${data}</span>`;
+    }
+},
+{
+    data: 'role.role_name',width:'10%',
+    render: function(data) {
+        return data
+            ? `<span class="badge bg-success">${data}</span>`
+            : `<span class="badge bg-secondary">-</span>`;
+    }
+},
+        {data:'faskes.namaFaskes',width:'15%', defaultContent:'-'},
         {
-            data:null,
-            render:d => `${d.kota?.name ?? ''}`
-        },
-        {
-            data:null,
-            render:d=>`
-                <button onclick="edit('${d.userid}')" class="btn btn-warning btn-sm">Edit</button>
-                <button onclick="hapus('${d.userid}')" class="btn btn-danger btn-sm">Hapus</button>
-            `
-        }
+    data: 'kota.name',width:'15%',
+    defaultContent: '-'
+},
+      {
+    data: 'userid',
+    width: '20%',
+    render: function(id) {
+        return `
+            <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-info btn-edit" onclick="edit('${id}')">
+                    ✏️ EDIT
+                </button>
+                <button class="btn btn-sm btn-danger btn-delete" onclick="hapus('${id}')">
+                    🗑️ HAPUS
+                </button>
+            </div>
+        `;
+    }
+}
     ]
 });
 
@@ -439,6 +471,7 @@ function edit(id){
 
         // 🔥 langsung load + select
         loadGroupUser(data.groupid);
+        loadUserRoles(data.groupid, data.role_id);
 
         $('#userModal').modal('show');
     });
@@ -484,6 +517,72 @@ function loadGroupUser(selected = null) {
 
     });
 }
+
+
+function loadUserRoles(groupId, selectedRole = null) {
+
+    $.ajax({
+        url: `/api/user-roles/by-group/${groupId}`,
+        headers: {
+            'X-API-KEY': window.API_KEY
+        },
+        success: function(res) {
+
+            let opt = '<option value="">Pilih Role</option>';
+
+            res.data.forEach(role => {
+                opt += `<option value="${role.id}">${role.role_name}</option>`;
+            });
+
+            $('#user_role_id').html(opt);
+
+            if (selectedRole) {
+                $('#user_role_id').val(selectedRole).trigger('change');
+            }
+        }
+    });
+}
+
+
+$('#groupid').on('change', function () {
+
+    let groupId = $(this).val();
+
+    if (!groupId) {
+        $('#role_id').html('<option value="">Pilih Role</option>');
+        return;
+    }
+
+    $.ajax({
+        url: `/api/user-roles/by-group/${groupId}`,
+        type: 'GET',
+        headers: {
+            'X-API-KEY': window.API_KEY // kalau pakai API key
+        },
+        success: function(res) {
+
+            let opt = '<option value="">Pilih Role</option>';
+
+            res.data.forEach(role => {
+                opt += `<option value="${role.id}">${role.role_name}</option>`;
+            });
+
+            $('#role_id').html(opt);
+        },
+        error: function(xhr) {
+            console.log(xhr.responseText);
+        }
+    });
+
+
+
+
+
+
+});
+
+
+
 
 
 

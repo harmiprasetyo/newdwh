@@ -11,12 +11,56 @@ use App\Models\UsersApp;
 use App\Models\Master\ListTypeFaskes;
 use App\Models\Master\MasterFaskes;
 use App\Models\Master\LabelLplpo;
-
+use App\Models\Api\Tenant;
+use App\Models\Api\ApiKey;
+use App\Models\UserRoles;
 class DatabaseSeeder extends Seeder
 {
     public function run()
     {
-        /**
+
+
+
+   UserRoles::upsert([[
+        'role_name' => 'Super Admin',
+        'groupId' => 1
+    ],
+    [
+        'role_name' => 'program',
+        'groupId' => 2
+    ],
+     [
+        'role_name' => 'farmasi',
+        'groupId' => 2
+    ],
+    [
+        'role_name' => 'program',
+        'groupId' => 3
+    ],
+    [
+        'role_name' => 'farmasi',
+        'groupId' => 3
+    ],
+    [
+        'role_name' => 'Dokter',
+        'groupId' => 4
+    ],
+    [
+        'role_name' => 'Perawat',
+        'groupId' => 4
+    ],
+    [
+        'role_name' => 'Bidan',
+        'groupId' => 4
+     ],
+        [
+            'role_name' => 'Tenaga Kesehatan Lain',
+            'groupId' => 4
+        ]
+    ],['role_name','groupId'],['role_name','groupId']);
+
+
+    /**
          * =========================
          * USER GROUPS
          * =========================

@@ -12,9 +12,9 @@
 @section('content')
 <body class="bg-light">
 
-<div class="container mt-4">
 
-    <div class="card shadow">
+
+    <div class="card shadow" style="width: 100%;">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Data LPLPO</h5>
         </div>
@@ -115,7 +115,7 @@
     </div>
 
 
-</div>
+
 
 
 
