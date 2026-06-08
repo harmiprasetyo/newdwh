@@ -60,7 +60,7 @@
         <div class="row justify-content-center g-4">
 
             <div class="col-md-3">
-                <a href="/home" class="menu-box">
+                <a href="/dashboard" class="menu-box">
                     <i class="bi bi-speedometer2 menu-icon"></i>
                     <div>Dashboard</div>
                 </a>

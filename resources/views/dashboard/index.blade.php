@@ -35,7 +35,7 @@
 <!-- SIDEBAR -->
 <div class="sidebar">
     <h4>Menu</h4>
-    <a href="/home">🏠 Beranda</a>
+    <a href="/homepage">🏠 Beranda</a>
     <a href="/dashboard" class="active">📊 Dashboard</a>
     <a href="/logout">🚪 Logout</a>
 </div>
