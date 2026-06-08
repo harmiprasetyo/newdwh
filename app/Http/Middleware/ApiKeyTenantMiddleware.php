@@ -35,11 +35,11 @@ class ApiKeyTenantMiddleware
         if ($tenant->environment === 'production') {
             $allowedIps = $tenant->ip_whitelist ?? [];
 
-            if (!in_array($request->ip(), $allowedIps)) {
+            /*if (!in_array($request->ip(), $allowedIps)) {
                 return response()->json([
                     'message' => 'IP not allowed'
                 ], 403);
-            }
+            }*/
         }
 
         // inject tenant ke request biar bisa dipakai di controller
