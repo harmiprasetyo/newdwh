@@ -12,11 +12,13 @@ class DashboardPageController extends Controller
     public function index()
     {
         $groupId = session('group'); // atau auth()->user()->groupid
+        $faskes = session('faskes'); // atau auth()->user()->faskes
 
        // dd($groupId);
 
         return view('dashboard.index', [
-            'groupId' => $groupId
+            'groupId' => $groupId,
+            'faskes' => $faskes
         ]);
     }
 }

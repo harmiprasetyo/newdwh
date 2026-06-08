@@ -28,7 +28,6 @@ class PatientService
 
             if ($code == 'IHS') $ihs = $id['value'];
             if ($code == 'NIK') $nik = $id['value'];
-            if ($code == 'BPJS-Kes') $bpjs = $id['value'];
         }
 
         // =========================
