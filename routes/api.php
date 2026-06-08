@@ -165,7 +165,8 @@ Route::middleware('api.key')->group(function () {
     Route::post('/user-roles/bulk', [UserRoleController::class, 'bulkStore']);
     Route::get('/user-roles/by-group/{groupId}', [UserRoleController::class, 'byGroup']);
 
-Route::post('/fhir/import', [FhirImportController::class, 'import']);
-Route::get('/dashboard', [DashboardController::class, 'index']);
 
 });
+
+Route::post('/fhir/import', [FhirImportController::class, 'import']);
+Route::get('/dashboard', [DashboardController::class, 'index']);
