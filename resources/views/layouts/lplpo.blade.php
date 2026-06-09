@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>LPLPO System</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
     <style>
@@ -75,6 +76,8 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
 <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
 
@@ -84,7 +87,7 @@
        Beranda
     </a>
 
-    <a href="/lplpo/dashboard">📊 Dashboard</a>
+    <a href="/dashboard-lplpo">📊 Dashboard</a>
     @if(session('group') == 3)
     <a href="/lplpo/upload">📤 Upload LPLPO</a>
 @endif
@@ -102,6 +105,6 @@
 <div class="content">
     @yield('content')
 </div>
-
+@stack('scripts')
 </body>
 </html>

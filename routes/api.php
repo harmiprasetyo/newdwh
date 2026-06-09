@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\UserRoleController;
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Controllers\Dashboard\FhirImportController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Api\BaselineController;
+use App\Http\Controllers\Api\DashboardLplpoController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -170,3 +172,8 @@ Route::middleware('api.key')->group(function () {
 
 Route::post('/fhir/import', [FhirImportController::class, 'import']);
 Route::get('/dashboard', [DashboardController::class, 'index']);
+Route::apiResource('baseline', BaselineController::class);
+Route::get('/dashboard-lplpo', [DashboardLplpoController::class, 'index']);
+
+Route::get('/api/dashboard-lplpo', [DashboardLplpoController::class, 'index']);
+Route::get('/api/dashboard-lplpo/export', [DashboardLplpoController::class, 'export']);

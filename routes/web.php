@@ -19,6 +19,7 @@ use App\Http\Controllers\master\MasterWebObatController;
 use App\Http\Controllers\Lplpo\LplpoFinalController;
 use App\Http\Controllers\Dashboard\FhirImportController;
 use App\Http\Controllers\Dashboard\DashboardPageController;
+use App\Http\Controllers\Lplpo\BaselineFormController;
 
 
 /*
@@ -45,6 +46,7 @@ Route::post('/verify-otp', [OtpController::class, 'verifyOtp']);
 
 Route::middleware('auth')->group(function () {
     Route::post('/lplpo/bulk-update-pemberian', [LplpoController::class, 'bulkUpdatePemberian']);
+    Route::get('lplpo/baseline-form', [BaselineFormController::class, 'index'])->name('lplpo.baseline_form');
 
     Route::get('/homepage', [AuthController::class, 'home'])->name('homepage');
     Route::get('/home', [DashController::class, 'index']);
@@ -171,5 +173,10 @@ Route::prefix('lplpo-final')->group(function () {
 
 
 Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getKabupaten']);
+  Route::get('/dashboard', [DashboardPageController::class, 'index']);
 
-Route::get('/dashboard', [DashboardPageController::class, 'index']);
+
+
+Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
+
+

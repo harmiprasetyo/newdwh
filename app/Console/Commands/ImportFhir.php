@@ -30,13 +30,5 @@ class ImportFhir extends Command
 
 
 
-    protected $signature = 'fhir:import';
 
-    public function handle()
-    {
-        app(\App\Http\Controllers\Api\FhirImportController::class)
-            ->import();
-
-        $this->info('FHIR import selesai');
-    }
 }

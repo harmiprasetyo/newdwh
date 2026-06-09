@@ -75,7 +75,7 @@
 
 
             <div class="col-md-3">
-                <a href="/lplpo/dashboard" class="menu-box">
+                <a href="/dashboard-lplpo" class="menu-box">
                    <i class="bi bi-capsule-pill menu-icon"></i>
                     <div>L.P.L.P.O</div>
                 </a>
