@@ -21,7 +21,7 @@ public function import()
 
  $token = env('FHIR_API_TOKEN');
         $server = env('FHIR_API_URL');
-          $response = Http::withToken($token)->get($server.'Patient/');
+          $response = Http::withToken($token)->get($server.'Patient?_count=1000');
           $data = $response->json();
 
 //$bundle = $request->input('data'); // FHIR Bundle
@@ -52,7 +52,7 @@ public function import()
         // ======================
 
 
-         $response2 = Http::withToken($token)->get($server.'Encounter?patient='.$resource['id']);
+         $response2 = Http::withToken($token)->get($server.'Encounter?patient='.$resource['id'].'&_count=1000');
           $data2 = $response2->json();
 
           foreach ($data2['entry'] ?? [] as $entry2) {
