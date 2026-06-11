@@ -173,10 +173,10 @@ Route::prefix('lplpo-final')->group(function () {
 
 
 Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getKabupaten']);
-  Route::get('/dashboard', [DashboardPageController::class, 'index']);
-
-
-
+Route::prefix('dashboard')->group(function () {
+  Route::get('/', [DashboardPageController::class, 'index']);
+Route::get('/realtime', [DashboardPageController::class, 'realtime']);
+});
 Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
 
 

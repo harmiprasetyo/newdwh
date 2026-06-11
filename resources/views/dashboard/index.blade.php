@@ -1,47 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-    <style>
-        body { display: flex; }
-        .sidebar {
-            width: 220px;
-            height: 100vh;
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-        }
-        .sidebar a {
-            color: white;
-            display: block;
-            margin: 10px 0;
-            text-decoration: none;
-        }
-        .sidebar a.active { font-weight: bold; }
-
-        .content {
-            flex: 1;
-            padding: 20px;
-        }
-    </style>
-</head>
-
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h4>Menu</h4>
-    <a href="/homepage">🏠 Beranda</a>
-    <a href="/dashboard" class="active">📊 Dashboard</a>
-    <a href="/logout">🚪 Logout</a>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
+@extends('layouts.dashboard.maindash')
+@section('content')
 
    <h3 class="mb-3">📊 Dashboard</h3>
 
@@ -146,7 +106,10 @@
     @endif
 
 </div>
-</div>
+@endsection
+
+@push('scripts')
+
 
 <script>
     window.API_KEY = '{{ config("app.api_key") }}';
@@ -266,6 +229,6 @@ function loadData() {
 // load awal
 loadData();
 </script>
+@endpush
 
-</body>
-</html>
+

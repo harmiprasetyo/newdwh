@@ -53,7 +53,7 @@ class FhirClient
         return Http::withToken($this->token)->get($this->baseUrl.'Encounter?patient='.$pid)->json();
     }
 
-    public function getEncounterByPatient($patientId)
+ /*   public function getEncounterByPatient($patientId)
 {
     $url = $this->baseUrl . '/Encounter';
 
@@ -63,13 +63,36 @@ class FhirClient
     ])->get($url, [
         'patient' => $patientId
     ]);
+    dd($response->json());
 
     if ($response->failed()) {
         return null;
     }
 
     return $response->json();
+}*/
+
+public function getEncounterByPatient($patientId)
+{
+    $url = $this->baseUrl . '/Encounter';
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $this->token,
+        'Accept' => 'application/json'
+    ])->get($url, [
+        // 🔥 FIX DI SINI
+        'patient' => $patientId,
+        '_count' => 100
+    ]);
+
+    if ($response->failed()) {
+        \Log::error($response->body());
+        return null;
+    }
+
+    return $response->json();
 }
+
 
 
 

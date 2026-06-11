@@ -948,7 +948,9 @@ if (!empty($resAnamnese['entry'])) {
    $patient = $this->patientService->searchByNik($nik);
    $dt['PATIENTID'] = $patient->toArray();
     $encounters = $this->encounterService->getByPatient($dt['PATIENTID']['patient_id']);
+
     $dt['ENCOUNTER'] = $encounters->toArray();
+   // dd($dt['PATIENTID']['patient_id']);
 
    foreach ($dt['ENCOUNTER'] as $k => $v) {
 

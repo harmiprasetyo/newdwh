@@ -21,4 +21,9 @@ class DashboardPageController extends Controller
             'faskes' => $faskes
         ]);
     }
+
+    public function realtime()
+    {
+        return view('dashboard.realtime');
+    }
 }

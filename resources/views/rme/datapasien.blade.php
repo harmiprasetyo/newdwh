@@ -55,21 +55,21 @@
                   <tr>
                 <th>Kecamatan</th>
                 <th>:</th>
-                <th>{{ $dt['PATIENTID']['district']['name'] }}</th>
+                <th>{{ $dt['PATIENTID']['district']['name'] ?? '-' }}</th>
             <tr>
 
                  <tr>
                   <tr>
                 <th>Kab/Kota</th>
                 <th>:</th>
-                <th>{{ $dt['PATIENTID']['city']['name'] }}</th>
+                <th>{{ $dt['PATIENTID']['city']['name'] ?? '-' }}</th>
             <tr>
 
                  <tr>
                   <tr>
                 <th>Propinsi</th>
                 <th>:</th>
-                <th>{{ $dt['PATIENTID']['province']['name'] }}</th>
+                <th>{{ $dt['PATIENTID']['province']['name'] ?? '-' }}</th>
             <tr>
 
         </thead>

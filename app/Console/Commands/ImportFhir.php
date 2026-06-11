@@ -1,34 +1,20 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\FhirImportService;
 
 class ImportFhir extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:import-fhir';
+    protected $signature = 'fhir:import';
+    protected $description = 'Import data FHIR';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(FhirImportService $service)
     {
-        //
+        $this->info('Start import FHIR...');
+
+        $service->run();
+
+        $this->info('Done!');
     }
-
-
-
-
 }
