@@ -7,14 +7,14 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page"  id="home" href="/home">Data Ibu</a>
+          <a class="nav-link active" aria-current="page"  id="home" href="/homepage">Beranda</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link"  id="anak" href="/home/anak">Data Anak</a>
+          <a class="nav-link"  id="anak" href="/dashboard">Dashboard</a>
         </li>
 
          <li class="nav-item">
-          <a class="nav-link"  id="rme" href="/datarme">Data RME</a>
+          <a class="nav-link"  id="rme" href="/datarme">Lihat Data RME</a>
         </li>
 
         <li class="nav-item">
