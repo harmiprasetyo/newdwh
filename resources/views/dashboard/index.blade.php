@@ -28,7 +28,7 @@
                 </select>
             </div>
 
-            @if($groupId == 2)
+            @if($groupId == 2 || $groupId== 1)
             <div class="col-md-3">
                 <input type="text" id="faskes" class="form-control" placeholder="Faskes">
             </div>
