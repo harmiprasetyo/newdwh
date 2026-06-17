@@ -75,7 +75,7 @@
     </div>
 
     <!-- PROVIDER (ONLY GROUP 2) -->
-    @if($groupId == 2)
+    @if($groupId == 2 || $groupId== 1)
     <div class="col-md-6">
 
         <!-- CHART PROVIDER -->
