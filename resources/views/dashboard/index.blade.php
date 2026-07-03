@@ -28,11 +28,15 @@
                 </select>
             </div>
 
-            @if($groupId == 2 || $groupId== 1)
-            <div class="col-md-3">
-                <input type="text" id="faskes" class="form-control" placeholder="Faskes">
-            </div>
-            @endif
+
+
+            @if($groupId == 2 || $groupId == 1)
+<div class="col-md-4">
+    <select id="faskes" class="form-control" style="width:100%">
+        <option value="">-- Pilih Faskes --</option>
+    </select>
+</div>
+@endif
 
             <div class="col-md-2">
                 <button class="btn btn-primary w-100" onclick="loadData()">🔍 Filter</button>
@@ -114,6 +118,8 @@
 <script>
     window.API_KEY = '{{ config("app.api_key") }}';
 let chartLocation, chartProvider;
+
+
 
 function loadData() {
 
@@ -228,6 +234,76 @@ function loadData() {
 
 // load awal
 loadData();
+
+
+$(function () {
+
+    $('#faskes').select2({
+
+        placeholder: 'Cari Faskes...',
+
+        allowClear: true,
+
+        ajax: {
+
+            url: '/api/organizations',
+
+            dataType: 'json',
+
+            delay: 300,
+            headers: {
+            'X-API-KEY': window.API_KEY,
+            'Accept': 'application/json'
+        },
+
+            data: function(params){
+
+                return {
+
+                    search: params.term
+
+                };
+
+            },
+
+            processResults: function(data){
+
+                return {
+
+                    results: $.map(data.data,function(item){
+
+                        return {
+
+                            id: item.name,
+                            text: item.name
+
+                        }
+
+                    })
+
+                };
+
+            },
+
+            cache:true
+
+        }
+
+    });
+
+
+        // otomatis reload ketika memilih faskes
+    $('#faskes').on('select2:select', function (e) {
+        loadData();
+    });
+
+    // otomatis reload ketika pilihan dihapus
+    $('#faskes').on('select2:clear', function (e) {
+        loadData();
+    });
+
+
+});
 </script>
 @endpush
 

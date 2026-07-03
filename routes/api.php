@@ -20,6 +20,7 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Api\BaselineController;
 use App\Http\Controllers\Api\DashboardLplpoController;
 use App\Http\Controllers\Api\EncounterController;
+use App\Http\Controllers\Api\OrganizationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -179,3 +180,4 @@ Route::get('/dashboard-lplpo', [DashboardLplpoController::class, 'index']);
 Route::get('/api/dashboard-lplpo', [DashboardLplpoController::class, 'index']);
 Route::get('/api/dashboard-lplpo/export', [DashboardLplpoController::class, 'export']);
 Route::get('/encounter/realtime', [EncounterController::class, 'realtime']);
+Route::get('/organizations',[OrganizationController::class,'organization']);

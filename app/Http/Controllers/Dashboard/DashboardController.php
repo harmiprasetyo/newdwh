@@ -13,7 +13,9 @@ class DashboardController extends Controller
 
 public function index(Request $request)
 {
-    $groupId = $request->group_id ?? 2;
+
+//dd($request->all());
+$groupId = $request->group_id ?? 2;
 
     $query = Encounter::query();
 
@@ -29,6 +31,7 @@ public function index(Request $request)
     if ($request->faskes) {
         $query->where('service_provider', 'like', '%' . $request->faskes . '%');
     }
+   // dd($query->toSql(), $query->getBindings());
 
     $result = [];
 
