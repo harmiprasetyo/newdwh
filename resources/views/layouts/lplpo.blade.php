@@ -95,6 +95,8 @@
     <a href="/lplpo/dataview">📋 Data LPLPO</a>
     <a href="/lplpo-final">📋 LPLPO Final</a>
 
+    <a href="/bekasi/lplpo">📋 LPLPO Bekasi</a>
+
      <a href="/logout">
        Logout
     </a>

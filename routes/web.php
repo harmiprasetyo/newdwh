@@ -20,6 +20,7 @@ use App\Http\Controllers\Lplpo\LplpoFinalController;
 use App\Http\Controllers\Dashboard\FhirImportController;
 use App\Http\Controllers\Dashboard\DashboardPageController;
 use App\Http\Controllers\Lplpo\BaselineFormController;
+use App\Http\Controllers\Lplpo\LplpoBekasiController;
 
 
 /*
@@ -31,6 +32,10 @@ use App\Http\Controllers\Lplpo\BaselineFormController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+Route::get('/bekasi/lplpo', [LplpoBekasiController::class, 'index']);
+Route::get('/bekasi/lplpo/api/data', [LplpoBekasiController::class, 'data']);
 
 
 Route::get('/', [AuthController::class, 'index']); // default ke login
