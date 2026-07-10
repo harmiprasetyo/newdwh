@@ -20,7 +20,7 @@ class LplpoBekasiController extends Controller
             'Cookie' => 'aksara_beY76xxoDJiV9xyr=eoqi5gh8prq9e5v8tdjfrcme2q3u4it5'
         ])->get('https://sipo.bekasikota.go.id/api/sisfomedika/lplpo',[
             'tahun' => $request->tahun ?? 2026,
-            'bulan' => $request->bulan ?? 6,
+            'bulan' => $request->bulan ?? 7,
             'sub_unit' => $request->sub_unit ?? 5,
             'limit' => 5000,
             'page' => 1

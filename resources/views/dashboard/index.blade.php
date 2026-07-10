@@ -47,7 +47,32 @@
 </div>
 
 <!-- DASHBOARD GRID -->
-<div class="row">
+
+<div class="row mt-3">
+
+<div class="col-md-12">
+
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<h6>
+
+📈 Cakupan ANC K1
+
+</h6>
+
+<div id="chartAncK1"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="row mt-3">
 
     <!-- LOCATION -->
     <div class="col-md-6">
@@ -117,8 +142,10 @@
 
 <script>
     window.API_KEY = '{{ config("app.api_key") }}';
-let chartLocation, chartProvider;
-
+//let chartLocation, chartProvider;
+let chartLocation;
+let chartProvider;
+let chartAncK1;
 
 
 function loadData() {
@@ -213,7 +240,128 @@ function loadData() {
                 }
             });
 
-            chartProvider.render();
+          const monthName = [
+    "",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Agu",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des"
+];
+
+let ancLabel = [];
+let ancValue = [];
+
+if(data.anc_k1){
+
+    data.anc_k1.forEach(function(item){
+
+        ancLabel.push(monthName[item.bulan]);
+
+        ancValue.push(item.percentage);
+
+    });
+
+    if(chartAncK1){
+
+        chartAncK1.destroy();
+
+    }
+
+    chartAncK1 = new ApexCharts(
+
+        document.querySelector("#chartAncK1"),
+
+        {
+
+            chart:{
+                type:'bar',
+                height:350,
+                toolbar:{
+                    show:false
+                }
+            },
+
+            series:[{
+
+                name:'ANC K1',
+
+                data:ancValue
+
+            }],
+
+            xaxis:{
+
+                categories:ancLabel,
+
+                title:{
+                    text:'Bulan'
+                }
+
+            },
+
+            yaxis:{
+
+                max:100,
+
+                title:{
+                    text:'Persentase (%)'
+                }
+
+            },
+
+            plotOptions:{
+
+                bar:{
+
+                    columnWidth:'45%',
+                    borderRadius:4
+
+                }
+
+            },
+
+            dataLabels:{
+
+                enabled:true,
+
+                formatter:function(val){
+
+                    return val+"%";
+
+                }
+
+            },
+
+            tooltip:{
+
+                y:{
+
+                    formatter:function(val){
+
+                        return val+" %";
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+    chartAncK1.render();
+
+}
+
 
             // ======================
             // TABLE PROVIDER
