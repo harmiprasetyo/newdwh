@@ -81,7 +81,7 @@
 
             {{-- LPLPO --}}
             <div class="col-md-3">
-                <a href="/lplpo/dashboard" class="menu-box">
+                <a href="/newlplpo/buatlplpo" class="menu-box">
                     <i class="bi bi-capsule menu-icon"></i>
                     <div>L.P.L.P.O</div>
                 </a>

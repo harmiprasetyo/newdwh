@@ -12,8 +12,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\master\IndonesiaController;
 use App\Http\Controllers\UserWebController;
-use App\Http\Controllers\Lplpo\LplpoController;
-use App\Http\Controllers\Lplpo\DashboardController;
+use App\Http\Controllers\NewLplpo\LplpoController;
+use App\Http\Controllers\Lplpo\DashboardController as OldDashboard;
 use App\Http\Controllers\master\LabelLplpoController;
 use App\Http\Controllers\master\MasterWebObatController;
 use App\Http\Controllers\Lplpo\LplpoFinalController;
@@ -21,8 +21,12 @@ use App\Http\Controllers\Dashboard\FhirImportController;
 use App\Http\Controllers\Dashboard\DashboardPageController;
 use App\Http\Controllers\Lplpo\BaselineFormController;
 use App\Http\Controllers\Lplpo\LplpoBekasiController;
-
-
+use App\Http\Controllers\NewLplpo\LplpoItemController;
+use App\Http\Controllers\NewLplpo\DashboardController;
+  use App\Http\Controllers\NewLplpo\MasterObatController;
+  use App\Http\Controllers\NewLplpo\LplpoVerificationController;
+  use App\Http\Controllers\NewLplpo\LplpoPemberianController;
+use App\Http\Controllers\NewLplpo\LplpoArsipController;
 /*
 | Web Routes
 |--------------------------------------------------------------------------
@@ -80,42 +84,30 @@ Route::middleware('auth')->group(function () {
     Route::get('/upload', [LplpoController::class, 'uploadPage']);
     Route::post('/import', [LplpoController::class, 'import']);
     Route::get('/data', [LplpoController::class, 'data']);
-     Route::get('/dataview', [LplpoController::class, 'dataview']);
+    Route::get('/dataview', [LplpoController::class, 'dataview']);
 
 
-Route::prefix('faskes')->group(function () {
-Route::get('/dashboard', [DashboardController::class, 'dashboard']);
-Route::get('/dashboard-data', [DashboardController::class, 'dashboardData']);
-});
-Route::prefix('dinkes')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index']);
-    Route::get('/dashboard-data', [DashboardController::class, 'data']);
-    Route::get('/pivot', [DashboardController::class, 'pivot']);
-Route::get('/pivot-data', [DashboardController::class, 'pivotData']);
-Route::get('/pivot-chart', [DashboardController::class, 'pivotChart']);
-
-});
 
 
+
+     Route::prefix('faskes')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'dashboard']);
+        Route::get('/dashboard-data', [DashboardController::class, 'dashboardData']);
+        });
+        Route::prefix('dinkes')->group(function () {
+            Route::get('/dashboard', [DashboardController::class, 'index']);
+            Route::get('/dashboard-data', [DashboardController::class, 'data']);
+            Route::get('/pivot', [DashboardController::class, 'pivot']);
+            Route::get('/pivot-data', [DashboardController::class, 'pivotData']);
+            Route::get('/pivot-chart', [DashboardController::class, 'pivotChart']);
+            });
 
     });
-
-
-
-
-
-
-
-Route::prefix('adminpanel')->group(function () {
-
-    // Dashboard
+    Route::prefix('adminpanel')->group(function () {// Dashboard
     Route::get('/', fn() => view('admin.adminhome'));
     Route::get('/usergroups', fn() => view('admin.groups'));
-
-     Route::get('/faskes', fn() => view('admin.masterfaskes'));
-     Route::get('/typefaskes', fn() => view('admin.listtypefaskes'));
-
-    // USER
+    Route::get('/faskes', fn() => view('admin.masterfaskes'));
+    Route::get('/typefaskes', fn() => view('admin.listtypefaskes'));
     Route::prefix('users')->group(function () {
         Route::get('/', [UserWebController::class,'index']);
         Route::get('/list', [UserWebController::class,'data']);
@@ -123,58 +115,94 @@ Route::prefix('adminpanel')->group(function () {
         Route::post('/', [UserWebController::class,'store']);
         Route::post('/{id}', [UserWebController::class,'update']);
         Route::delete('/{id}', [UserWebController::class,'destroy']);
-
     });
 
     Route::prefix('wilayah')->group(function () {
          Route::get('/listpropinsi', [IndonesiaController::class, 'listprovince'])->name('listprovince');
          Route::get('/mapprovince', [IndonesiaController::class, 'mapprovince'])->name('mapprovince');
          Route::get('/listkota', [IndonesiaController::class, 'listkota'])->name('listkota');
-        Route::get('/listkecamatan', [IndonesiaController::class, 'listkecamatan'])->name('listkecamatan');
-        Route::get('/listdesa', [IndonesiaController::class, 'listdesa'])->name('listdesa');
+         Route::get('/listkecamatan', [IndonesiaController::class, 'listkecamatan'])->name('listkecamatan');
+         Route::get('/listdesa', [IndonesiaController::class, 'listdesa'])->name('listdesa');
     });
-
-    // GROUP USER
-
-    //Route::get('/groups', [UserWebController::class,'groups']);
-
-    // WILAYAH (VIEW ONLY)
     Route::get('/provinsi', fn() => view('admin.propinsi'));
     Route::get('/kota', fn() => view('admin.kota'));
     Route::get('/kecamatan', fn() => view('admin.kecamatan'));
     Route::get('/desa', fn() => view('admin.desa'));
-
     Route::prefix('geojson')->group(function () {
     Route::get('/provinsi', [IndonesiaController::class, 'geojsonProvinsi']);
     });
-
-
-
-
-   Route::get('/label-lplpo', [LabelLplpoController::class, 'index']);
-Route::post('/label-lplpo', [LabelLplpoController::class, 'store']);
-
-// routes/web.php
-Route::get('/masterobat', [MasterWebObatController::class, 'index']);
-// AJAX kabupaten by kode provinsi
-
-
-});
-
-
-
-
-
-Route::prefix('lplpo-final')->group(function () {
+    Route::get('/label-lplpo', [LabelLplpoController::class, 'index']);
+    Route::post('/label-lplpo', [LabelLplpoController::class, 'store']);
+    Route::get('/masterobat', [MasterWebObatController::class, 'index']);
+    });
+    Route::prefix('lplpo-final')->group(function () {
     Route::get('/', [LplpoFinalController::class, 'index'])->name('lplpo.final.index');
     Route::get('/data', [LplpoFinalController::class, 'data'])->name('lplpo.final.data');
 
     Route::get('/detail/{header_id}', [LplpoFinalController::class, 'detail'])->name('lplpo.final.detail');
     Route::get('/detail-data/{header_id}', [LplpoFinalController::class, 'detailData'])->name('lplpo.final.detail.data');
-});
+    });
 
 
+
+Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
+    Route::prefix('arsip')->name('arsip.')->group(function () {
+
+    Route::get('/', [LplpoArsipController::class,'index'])
+        ->name('index');
+
+    Route::get('/datatable', [LplpoArsipController::class,'datatable'])
+        ->name('datatable');
+
+    Route::get('/{id}', [LplpoArsipController::class,'detail'])
+        ->name('detail');
+
+    Route::get('/{id}/print', [LplpoArsipController::class,'print'])
+        ->name('print');
+
 });
+
+    Route::prefix('verifikasi')->name('verifikasi.')->group(function(){
+                    Route::get('/',[LplpoVerificationController::class,'index'])->name('index');
+                    Route::get('/datatable',[LplpoVerificationController::class,'datatable'])->name('datatable');
+                    Route::get('/{id}',[LplpoVerificationController::class,'detail'])->name('detail');
+                    Route::post('/{id}/approve',[LplpoVerificationController::class,'approve'])->name('approve');
+                    Route::post('/{id}/reject',[LplpoVerificationController::class,'reject'])->name('reject');
+                    });
+    Route::prefix('pemberian')->name('pemberian.')->group(function(){
+        Route::get('/',[LplpoPemberianController::class,'index'])->name('index');
+        Route::get('/datatable',[LplpoPemberianController::class,'datatable'])->name('datatable');
+        Route::get('/{id}',[LplpoPemberianController::class,'detail'])->name('detail');
+        Route::post('/item/{id}',[LplpoPemberianController::class,'updatePemberian'])->name('item.update');
+        Route::post('/{id}/finish',[LplpoPemberianController::class,'finish'])->name('finish');
+    });
+
+
+     Route::prefix('item')->name('item.')->group(function () {
+        Route::get('/default',[LplpoItemController::class,'defaultValue'])->name('default');
+        Route::get('/{report}', [LplpoItemController::class,'list'])->name('list');
+        Route::post('/', [LplpoItemController::class,'store'])->name('store');
+        Route::put('/{id}', [LplpoItemController::class,'update'])->name('update');
+        Route::delete('/{id}', [LplpoItemController::class,'destroy'])->name('destroy');
+        });
+    Route::prefix('masterobat')->name('masterobat.')->group(function(){
+        Route::get('/datatable',[MasterObatController::class,'datatable'])->name('datatable');
+        });
+    Route::get('/laporan', [LplpoController::class,'laporan'])->name('laporan');
+    Route::get('/laporan/datatable', [LplpoController::class,'laporanDatatable'])->name('laporan.datatable');
+    Route::get('/', [DashboardController::class,'index'])->name('index');
+    Route::get('/buatlplpo',[LplpoController::class,'create'])->name('create');
+    Route::post('/buatlplpo',[LplpoController::class,'store'])->name('store');
+    Route::get('/{id}/edit',[LplpoController::class,'edit'])->name('edit');
+    Route::get('/{id}/detail', [LplpoController::class,'detail'])->name('detail');
+    Route::get('/arsiplplpo',[LplpoController::class,'arsip'])->name('arsip');
+    Route::get('/pemberian-obat',[LplpoController::class,'pemberian'])->name('pemberian');
+    Route::put('/{id}',[LplpoController::class,'update'])->name('update');
+    Route::delete('/{id}',[LplpoController::class,'destroy'])->name('destroy');
+
+        });
+
+                    });//End Of AUTH
 
 
 Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getKabupaten']);
@@ -183,5 +211,9 @@ Route::prefix('dashboard')->group(function () {
 Route::get('/realtime', [DashboardPageController::class, 'realtime']);
 });
 Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
+
+
+
+
 
 

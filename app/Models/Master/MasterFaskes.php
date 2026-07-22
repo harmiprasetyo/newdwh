@@ -42,4 +42,9 @@ public function kecamatan()
 {
     return $this->belongsTo(District::class, 'kodeKecamatan', 'code');
 }
+
+
+
+
+
 }

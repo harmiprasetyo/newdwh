@@ -14,6 +14,7 @@ class MasterObat extends Model
         'satuan',
         'kelompok_obat',
         'golongan_obat',
-        'kategori_obat'
+        'kategori_obat',
+        'stok_minimal'
     ];
 }
