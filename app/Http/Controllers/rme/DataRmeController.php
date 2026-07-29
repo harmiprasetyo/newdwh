@@ -40,6 +40,40 @@ class DataRmeController extends Controller
         $this->immunizationService = $immunizationService;
     }
 
+    private function getObservationValue(array $resource): string
+{
+    if (isset($resource['valueQuantity'])) {
+        $value = data_get($resource, 'valueQuantity.value', '');
+        $unit  = data_get($resource, 'valueQuantity.unit')
+              ?? data_get($resource, 'valueQuantity.code')
+              ?? '';
+
+        return trim($value . ' ' . $unit);
+    }
+
+    if (isset($resource['valueCodeableConcept'])) {
+        return data_get(
+            $resource,
+            'valueCodeableConcept.coding.0.display',
+            data_get($resource, 'valueCodeableConcept.text', '-')
+        );
+    }
+
+    if (isset($resource['valueString'])) {
+        return $resource['valueString'];
+    }
+
+    if (isset($resource['valueInteger'])) {
+        return (string) $resource['valueInteger'];
+    }
+
+    if (isset($resource['valueBoolean'])) {
+        return $resource['valueBoolean'] ? 'Yes' : 'No';
+    }
+
+    return '-';
+}
+
 
     public function index(){
         return view('rme.searchpasien');
@@ -106,8 +140,9 @@ class DataRmeController extends Controller
 
 
 
-        $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
+        $observ = Http::withToken($token)->get($server."Observation?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId."&_count=100");
         $obserResult = $observ->json();
+      //dd($obserResult);
       //dd($obserResult);
 
 
@@ -134,9 +169,13 @@ $dt['VS'] = [
 $dt['ANC'] = [
     'gravida' => 0,
     'parity' => 0,
+    'anc_hpht'=>null,
     'abortions' => 0,
     'anc_hpl' => null,
     'anc_jarak_hamil' => null,
+    'anc_usia_kehamilan'=> null,
+    'anc_smooking'=> null,
+    'anc_perut'=>null
 ];
 
 
@@ -147,6 +186,10 @@ foreach($obserResult['entry'] as $k=>$obs){
     $value = getVal($obs);
     $valueANC = getValANC($obs);
     $unit  = getUnit($obs);
+
+
+
+
 //dd($obs);
 
  if($obs['resource']['category'][0]['coding'][0]['code']=='vital-signs'){
@@ -195,12 +238,41 @@ foreach($obserResult['entry'] as $k=>$obs){
 
 
 
+}elseif($obs['resource']['category'][0]['coding'][0]['code']=='social-history'){
+     // dd($obs['resource']);
+   if (data_get($obs, 'resource.code.coding.0.code') === '72166-2') {
+
+            $dt['ANC']['anc_smooking'] = data_get(
+                $obs,
+                'resource.valueCodeableConcept.coding.0.display',
+                '-'
+            );
+
+            // sudah ketemu, tidak perlu cek social-history lainnya
+            continue;
+        }
+
+         if (data_get($obs, 'resource.code.coding.0.code') === '11331-6') {
+
+            $dt['ANC']['anc_alch'] = data_get(
+                $obs,
+                'resource.valueCodeableConcept.coding.0.display',
+                '-'
+            );
+
+            // sudah ketemu, tidak perlu cek social-history lainnya
+            continue;
+        }
+
+
+
 }elseif($obs['resource']['category'][0]['coding'][0]['code']=='survey'){
 
 
              if (in_array('11996-6', $codes)) {
         $dt['ANC']['gravida'] = $valueANC ;
     }
+
 
     if (in_array('11977-6', $codes)) {
         $dt['ANC']['parity'] = $valueANC ;
@@ -217,6 +289,46 @@ foreach($obserResult['entry'] as $k=>$obs){
 
 
 //$dt['anc_hpl']=$obs['resource']['valueDateTime'];
+
+if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='8665-2'){
+                 $dt['codeHPL'] = $obs['resource']['code']['coding'][0]['code'];
+                 $dt['ANC']['anc_hpht']=Carbon::parse($obs['resource']['valueDateTime'])->format("d M Y");
+                 //$dt['ANC']['test'] = "exit";
+
+            }else{
+                $dt['anc_hpht']=" - ";
+                }
+
+
+                if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='32418-6'){
+                 $dt['codeHPL'] = $obs['resource']['code']['coding'][0]['code'];
+                 $dt['ANC']['anc_trimester']=$obs['resource']['valueInteger'];
+                 //$dt['ANC']['test'] = "exit";
+
+            }else{
+                $dt['anc_trimester']=" - ";
+                }
+
+                if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='56077-1'){
+                 $dt['codeHPL'] = $obs['resource']['code']['coding'][0]['code'];
+                 $dt['ANC']['anc_bb_pre']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
+                 //$dt['ANC']['test'] = "exit";
+
+            }else{
+                $dt['anc_bb_pre']=" - ";
+                }
+
+
+                if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='18185-9'){
+                 $dt['codeHPL'] = $obs['resource']['code']['coding'][0]['code'];
+                 $dt['ANC']['anc_usia_kehamilan']=$obs['resource']['valueQuantity']['value']." minggu";;
+                 //$dt['ANC']['test'] = "exit";
+
+            }else{
+                $dt['anc_usia_kehamilan']=" - ";
+                }
+
+
 
             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='11778-8'){
                  $dt['codeHPL'] = $obs['resource']['code']['coding'][0]['code'];
@@ -247,14 +359,43 @@ foreach($obserResult['entry'] as $k=>$obs){
 
         if(isset($obs['resource']['code']['coding'][0]['code'])){
 
-        if($obs['resource']['code']['coding'][0]['code']=='718-7'){
+        /*if($obs['resource']['code']['coding'][0]['code']=='718-7'){
                 $dt['lab']['lab_hb']['val']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
                  $dt['lab']['lab_hb']['label']="Hemoglobin";
             }else{
                 $dt['lab']['lab_hb']['val']="-";
                  $dt['lab']['lab_hb']['label']="Hemoglobin";
 
-            }
+            }*/
+
+if (data_get($obs, 'resource.code.coding.0.code') == '718-7') {
+    $dt['lab']['lab_hb']['label'] = 'Hemoglobin';
+    $dt['lab']['lab_hb']['val'] = $this->getObservationValue($obs['resource']);
+}
+
+
+
+if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
+
+    $dt['lab']['lab_rh']['label'] = 'RH';
+
+    if (isset($obs['resource']['valueQuantity'])) {
+
+        $dt['lab']['lab_rh']['val'] =
+            $obs['resource']['valueQuantity']['value'] . ' ' .
+            $obs['resource']['valueQuantity']['unit'];
+
+    } elseif (isset($obs['resource']['valueCodeableConcept'])) {
+
+        $dt['lab']['lab_rh']['val'] =
+            data_get($obs, 'resource.valueCodeableConcept.coding.0.display', '-');
+
+    } else {
+
+        $dt['lab']['lab_rh']['val'] = '-';
+
+    }
+}
 
             if($obs['resource']['code']['coding'][0]['code']=='5804-0'){
                 $dt['lab']['lab_urin_protein']['val']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
@@ -306,6 +447,57 @@ foreach($obserResult['entry'] as $k=>$obs){
                 $dt['ANC']['anc_lila']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
             }
 
+             if(isset($obs['resource']['code']['coding'][1]['code']) && $obs['resource']['code']['coding'][1]['code']=='ANC.SS.DE26'){
+                $dt['ANC']['anc_conjungtiva']=$obs['resource']['valueString'];
+            }
+
+             if(isset($obs['resource']['code']['coding'][1]['code']) && $obs['resource']['code']['coding'][1]['code']=='ANC.SS.DE27'){
+                $dt['ANC']['anc_sklera']=$obs['resource']['valueString'];
+            }
+
+             if(isset($obs['resource']['code']['coding'][1]['code']) && $obs['resource']['code']['coding'][1]['code']=='ANC.SS.DE28'){
+                $dt['ANC']['anc_leher']=$obs['resource']['valueString'];
+            }
+
+              if(isset($obs['resource']['code']['coding'][1]['code']) && $obs['resource']['code']['coding'][1]['code']=='ANC.SS.DE29'){
+                $dt['ANC']['anc_mulut']=$obs['resource']['valueString'];
+            }
+
+             if(isset($obs['resource']['code']['coding'][1]['code']) && $obs['resource']['code']['coding'][1]['code']=='ANC.SS.DE30'){
+                $dt['ANC']['anc_tht']=$obs['resource']['valueString'];
+            }
+
+             if(isset($obs['resource']['code']['coding'][1]['code']) && $obs['resource']['code']['coding'][1]['code']=='ANC.SS.DE31'){
+                $dt['ANC']['anc_jantung']=$obs['resource']['valueString'];
+            }
+
+             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='10191-5'){
+                $dt['ANC']['anc_perut']=$obs['resource']['valueString'];
+            }
+
+              if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='246435002'){
+                $dt['ANC']['anc_jumlah_janin']=$obs['resource']['valueInteger'];
+            }
+
+            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='89087-1'){
+                 $dt['ANC']['anc_tbj']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
+            }
+
+             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='72155-5'){
+                 $dt['ANC']['anc_presentasi']=$obs['resource']['valueCodeableConcept']['coding'][0]['display'];
+            }
+
+             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='249111004'){
+                 $dt['ANC']['anc_head']=$obs['resource']['valueCodeableConcept']['coding'][0]['display'];
+            }
+
+              if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='55283-6'){
+                 $dt['ANC']['anc_djj']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
+            }
+
+
+
+
 
 
         }
@@ -327,6 +519,7 @@ foreach($obserResult['entry'] as $k=>$obs){
             $dt['ANC']['abortions']="-";
             $dt['ANC']['anc_jarak_hamil']="-";
             $dt['ANC']['anc_hpl']="-";
+             $dt['ANC']['anc_hpht']="-";
             $dt['ANC']['anc_body_heigh']="-";
             $dt['ANC']['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
 
@@ -336,14 +529,56 @@ foreach($obserResult['entry'] as $k=>$obs){
         }
 
 
-          $condition = Http::withToken($token)->get($server."Condition?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
-            $kondisi = $condition->json();
-if($kondisi['total']>0){
-            foreach($kondisi['entry'] as $kx=>$nres){
+        $dt['ANC']['anc_diagnosa'] = [];
+       $condition = Http::withToken($token)->get(
+    $server . "Condition?patient=" .
+    $dt['PATIENTID']['patient_id'] .
+    "&encounter=" . $encounterId .
+    "&_count=100"
+);
+
+$kondisi = $condition->json();
+
+$dt['ANC']['anc_diagnosa'] = [];
+
+if (($kondisi['total'] ?? 0) > 0) {
+
+    foreach ($kondisi['entry'] as $nres) {
+
+        $dt['ANC']['anc_diagnosa'][] = [
+            'code' => data_get($nres, 'resource.code.coding.0.code'),
+            'display' => data_get($nres, 'resource.code.coding.0.display'),
+            'system' => data_get($nres, 'resource.code.coding.0.system'),
+            'category' => data_get($nres, 'resource.category.0.coding.0.display'),
+        ];
+    }
+}
 
 
 
-            }
+$procedure = Http::withToken($token)->get(
+    $server . "Procedure?patient=" .
+    $dt['PATIENTID']['patient_id'] .
+    "&encounter=" . $encounterId .
+    "&_count=100"
+);
+
+$prosedur = $procedure->json();
+
+$dt['ANC']['anc_usg'] = 'Tidak Dilakukan';
+
+if (($prosedur['total'] ?? 0) > 0) {
+
+    foreach ($prosedur['entry'] as $proc) {
+
+        if (
+            data_get($proc, 'resource.code.coding.0.system') === 'http://hl7.org/fhir/sid/icd-9-cm' &&
+            data_get($proc, 'resource.code.coding.0.code') === '88.78'
+        ) {
+            $dt['ANC']['anc_usg'] = 'Dilakukan';
+            break;
+        }
+    }
 }
 
 

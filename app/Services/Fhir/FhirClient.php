@@ -50,7 +50,7 @@ class FhirClient
 
 
     public function encounter($pid){
-        return Http::withToken($this->token)->get($this->baseUrl.'Encounter?patient='.$pid)->json();
+        return Http::withToken($this->token)->get($this->baseUrl.'Encounter?patient='.$pid."&_count=100")->json();
     }
 
  /*   public function getEncounterByPatient($patientId)

@@ -203,6 +203,12 @@
             <table class="table">
             <thead>
                 <tr>
+                    <th>Trimester Ke </th>
+                    <th>:</th>
+                    <th>@if(isset($dt['ANC']['anc_trimester'])){{ $dt['ANC']['anc_trimester'] }} @endif</th>
+                    <th></th>
+                </tr>
+                <tr>
                     <th>Jarak Kehamilan</th>
                     <th>:</th>
                     <th>@if(isset($dt['ANC']['anc_jarak_hamil'])){{ $dt['ANC']['anc_jarak_hamil'] }} @endif</th>
@@ -218,6 +224,31 @@
                     <th></th>
                 </tr>
 
+                 <tr>
+                    <th>HPHT</th>
+                    <th>:</th>
+                    <th>
+
+                        @if(isset($dt['ANC']['anc_hpht'])){{ $dt['ANC']['anc_hpht'] }} @endif
+
+                </th>
+                    <th></th>
+                </tr>
+
+
+                <tr>
+                    <th>Usia Kehamilan</th>
+                    <th>:</th>
+                    <th>
+
+                        @if(isset($dt['ANC']['anc_usia_kehamilan'])){{ $dt['ANC']['anc_usia_kehamilan'] }} @endif
+
+                </th>
+                    <th></th>
+                </tr>
+
+
+
                 <tr>
                     <th>Tinggi Badan</th>
                     <th>:</th>
@@ -226,6 +257,18 @@
                         </th>
                     <th></th>
                 </tr>
+
+
+                 <tr>
+                    <th>BB Sebelum Hamil</th>
+                    <th>:</th>
+                    <th>
+                        @if(isset($dt['ANC']['anc_bb_pre'])){{ $dt['ANC']['anc_bb_pre'] }} @endif
+                        </th>
+                    <th></th>
+                </tr>
+
+
 
                 <tr>
                     <th>LILA</th>
@@ -252,7 +295,186 @@
                     <th></th>
                 </tr>
 
+                  <tr>
+                    <th>Merokok</th>
+                    <th>:</th>
+                    <th>
+
+                        @if(isset($dt['ANC']['anc_smooking'])){{ $dt['ANC']['anc_smooking'] }} @endif
+
+
+
+
+                    </th>
+                    <th></th>
+                </tr>
+
                  <tr>
+                    <th>Riwayat Alkohol</th>
+                    <th>:</th>
+                    <th>
+
+                        @if(isset($dt['ANC']['anc_smooking'])){{ $dt['ANC']['anc_alch'] }} @endif
+
+
+
+
+                    </th>
+                    <th></th>
+                </tr>
+
+
+                 <tr>
+                    <th colspan="4" class="text-center"> <h2>Pemeriksaan Fisik</h2></th>
+                </tr>
+
+                 <tr>
+                    <th>Pemeriksaan Fisik Konjungtiva</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_conjungtiva'])){{ $dt['ANC']['anc_conjungtiva'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>Pemeriksaan Fisik Skelra</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_sklera'])){{ $dt['ANC']['anc_sklera'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>Pemeriksaan Fisik Leher</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_leher'])){{ $dt['ANC']['anc_leher'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>Pemeriksaan Fisik Mulut</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_mulut'])){{ $dt['ANC']['anc_leher'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>Pemeriksaan Fisik THT</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_tht'])){{ $dt['ANC']['anc_leher'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>Pemeriksaan Fisik Jantung</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_jantung'])){{ $dt['ANC']['anc_leher'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>Pemeriksaan Fisik Perut</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_perut'])){{ $dt['ANC']['anc_perut'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                 <tr>
+                    <th colspan="4" class="text-center"> <h2>Pemeriksaan Janin</h2></th>
+                </tr>
+
+
+
+                 <tr>
+                    <th>Jumlah Janin</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_jumlah_janin'])){{ $dt['ANC']['anc_jumlah_janin'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>TBJ</th>
+                    <th>:</th>
+                    <th>@if(isset($dt['ANC']['anc_tbj'])){{ $dt['ANC']['anc_tbj'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>TFU</th>
+                    <th>:</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>DJJ</th>
+                    <th>:</th>
+                    <th>>@if(isset($dt['ANC']['anc_djj'])){{ $dt['ANC']['anc_djj'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>Posisi Kepala</th>
+                    <th>:</th>
+                    <th>@if(isset($dt['ANC']['anc_head'])){{ $dt['ANC']['anc_head'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+                <tr>
+                    <th>Presentasi</th>
+                    <th>:</th>
+                    <th>@if(isset($dt['ANC']['anc_presentasi'])){{ $dt['ANC']['anc_presentasi'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+
+
+
+
+
+
+                 <tr>
+                    <th colspan="4" class="text-center"> &nbsp;</th>
+                </tr>
+                 <tr>
+                    <th style="vertical-align: middle">Diagnosis</th>
+                    <th style="vertical-align: middle">:</th>
+                    <th>
+                       @if(!empty($dt['ANC']['anc_diagnosa']))
+    <ul>
+        @foreach($dt['ANC']['anc_diagnosa'] as $diagnosa)
+            <li>
+                {{ $diagnosa['display'] }}
+                @if(!empty($diagnosa['code']))
+                    ({{ $diagnosa['code'] }})
+                @endif
+            </li>
+        @endforeach
+    </ul>
+@else
+    -
+@endif
+
+
+                    </th>
+                    <th></th>
+                </tr>
+
+                 <tr>
+                    <th style="vertical-align: middle">Pemeriksaan USG</th>
+                    <th style="vertical-align: middle">:</th>
+                    <th>
+
+@if(isset($dt['anc_usg']))
+{{  $dt['anc_usg'] }}
+@endif
+
+
+                    </th>
+                    <th></th>
+                </tr>
+
+
+
+                <tr>
                     <th colspan="4" class="text-center"> <h2>Pemeriksaan Laboratorium</h2></th>
                 </tr>
 
@@ -260,7 +482,7 @@
                     <th>HB</th>
                     <th>:</th>
                     <th>
-                        @if(isset($dt['lab']))
+                        @if(isset($dt['lab_hb']))
                         {{ $dt['lab']['lab_hb']['val'] }}
                     @endif
 
@@ -273,6 +495,17 @@
                     <th>Gol Darah</th>
                     <th>:</th>
                     <th>-</th>
+                    <th></th>
+                </tr>
+                  <tr>
+                    <th>Rhesus</th>
+                    <th>:</th>
+                    <th>
+  @if(isset($dt['lab_rh']))
+                        {{ $dt['lab']['lab_rh']['val'] }}
+                    @endif
+
+                    </th>
                     <th></th>
                 </tr>
 

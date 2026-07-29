@@ -27,6 +27,8 @@ use App\Http\Controllers\NewLplpo\DashboardController;
   use App\Http\Controllers\NewLplpo\LplpoVerificationController;
   use App\Http\Controllers\NewLplpo\LplpoPemberianController;
 use App\Http\Controllers\NewLplpo\LplpoArsipController;
+ use App\Http\Controllers\AdminPanel\PosyanduController;
+ use App\Http\Controllers\AdminPanel\Master\TargetSasaranController;
 /*
 | Web Routes
 |--------------------------------------------------------------------------
@@ -145,6 +147,71 @@ Route::middleware('auth')->group(function () {
 
 
 
+
+
+Route::prefix('adminpanel')->group(function(){
+
+    Route::get(
+        '/posyandu',
+        [PosyanduController::class,'index']
+    );
+
+    Route::post(
+        '/posyandu/store',
+        [PosyanduController::class,'store']
+    );
+
+
+
+    Route::get(
+        '/faskes/list',
+        [PosyanduController::class,'faskes']
+    );
+
+
+    Route::prefix('master')
+    ->name('master.')
+    ->group(function(){
+
+    Route::get(
+        'target-sasaran/datatable',
+        [TargetSasaranController::class,'datatable']
+    )->name('target-sasaran.datatable');
+
+    Route::resource(
+        'target-sasaran',
+        TargetSasaranController::class
+    );
+
+});
+
+});
+
+
+Route::prefix('adminpanel/posyandu')->group(function(){
+
+       Route::get('/',
+            [PosyanduController::class,'index']
+        )->name('index');
+
+    Route::get('/data', [PosyanduController::class,'data']);
+
+    Route::get('/create', [PosyanduController::class,'create']);
+
+    Route::get('/edit/{id}', [PosyanduController::class,'edit']);
+
+    Route::delete('/delete/{id}', [PosyanduController::class,'destroy']);
+
+
+
+});
+
+Route::get(
+    '/propinsi',
+    [PosyanduController::class,'provinces']
+);
+
+
 Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
     Route::prefix('arsip')->name('arsip.')->group(function () {
 
@@ -211,9 +278,3 @@ Route::prefix('dashboard')->group(function () {
 Route::get('/realtime', [DashboardPageController::class, 'realtime']);
 });
 Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
-
-
-
-
-
-

@@ -42,7 +42,7 @@
 $(function(){
 
     // 🔥 LOAD PROVINSI
-    $.get('/api/wilayah/provinsi', function(res){
+     $.get('/propinsi', function(res){
         res.forEach(p=>{
             $('#provinsi').append(`<option value="${p.code}">${p.name}</option>`);
         });

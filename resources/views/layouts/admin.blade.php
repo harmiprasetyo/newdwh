@@ -27,6 +27,6 @@ $('.menu-toggle').click(function(){
     $(this).next('.submenu').slideToggle();
 });
 </script>
-
+@stack('scripts')
 </body>
 </html>

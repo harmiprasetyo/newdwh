@@ -67,6 +67,9 @@
        class="{{ request()->is('adminpanel/faskes*') ? 'active' : '' }}">
        Master Faskes
     </a>
+      <a href="/adminpanel/posyandu" class="{{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">Master Posyandu</a>
+        <a href="/adminpanel/posyandu/wilayahkerja" class="{{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">Wilayah Kerja</a>
+         <a href="{{ route('master.target-sasaran.index') }}" class="{{ request()->is('adminpanel/master/target*') ? 'active' : '' }}">Target Sasaran</a>
 
 </div>
     <a href="#" class="menu-toggle

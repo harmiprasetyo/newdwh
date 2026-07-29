@@ -40,7 +40,13 @@ $('#provinsi').change(function(){
     $('#kota').prop('disabled', !code);
 });
     // 🔥 load provinsi
-    $.get('/api/wilayah/provinsi', function(res){
+   /* $.get('/api/wilayah/provinsi', function(res){
+        res.forEach(p=>{
+            $('#provinsi').append(`<option value="${p.code}">${p.name}</option>`);
+        });
+    });*/
+
+        $.get('/propinsi', function(res){
         res.forEach(p=>{
             $('#provinsi').append(`<option value="${p.code}">${p.name}</option>`);
         });
