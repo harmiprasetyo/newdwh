@@ -400,7 +400,7 @@
                 <tr>
                     <th>TFU</th>
                     <th>:</th>
-                    <th></th>
+                    <th>@if(isset($ndt['ANC']['anc_tfu'])){{ $ndt['ANC']['anc_tfu'] }} @endif</th>
                     <th></th>
                 </tr>
 
@@ -463,8 +463,23 @@
                     <th style="vertical-align: middle">:</th>
                     <th>
 
-@if(isset($dt['anc_usg']))
-{{  $dt['anc_usg'] }}
+@if(isset($dt['ANC']['anc_usg']))
+{{  $dt['ANC']['anc_usg'] }}
+@endif
+
+
+                    </th>
+                    <th></th>
+                </tr>
+
+
+                            <tr>
+                    <th style="vertical-align: middle">Edukasi</th>
+                    <th style="vertical-align: middle">:</th>
+                    <th>
+
+@if(isset($dt['ANC']['anc_education']))
+{{  $dt['ANC']['anc_education'] }}
 @endif
 
 
@@ -593,6 +608,8 @@
             <tbody>
                 <tr>
                 <td colspan="4">
+
+                    <!--
 
  <table class="table table-light">
                 <thead>
@@ -803,7 +820,7 @@
                        @endforeach
                    </tr>
                 </thead>
-            </table>
+            </table> -->
 
 
 
@@ -825,70 +842,112 @@
 
 
                                     <tr><td style="width: 30%">Tanggal Persalinan</td><td>:</td><td>
+                                        @if(isset($ndt['INC']['inc_dtd']))
+                                        {{ $ndt['INC']['inc_dtd'] }}
+                                        @endif
 
-                                     @if(isset($dt['INC'][0]['delivery_time']))
-                                     {{ \Carbon\Carbon::parse($dt['INC'][0]['delivery_time'])->translatedFormat('d F Y   H:i') }}
+                                    </td></tr>
 
+                                     <tr><td style="width: 30%">GPA</td><td>:</td><td>
 
+                                        @if(isset($ndt['gravida']))
+                                        {{ $ndt['gradiva'] }} / {{ $ndt['parity'] }} / {{ $ndt['abortions'] }}
+                                        @elseif(isset($dt['ANC']['gravida']))
+                                        {{ $dt['ANC']['gravida'] }} / {{ $dt['ANC']['parity'] }} / {{ $dt['ANC']['abortions'] }}
+                                        @endif
 
-                                        @endif</td></tr>
+                                    </td></tr>
+
                                         <tr>
                                     <td>Usia Kehamilan (minggu)</td><td>:</td>
                                     <td>
-                                        @if(isset($dt['INC'][0]['gestational_age']))
-
-                                        {{ $dt['INC'][0]['gestational_age'] }}
-
+                                        @if(isset($ndt['ANC']['anc_usia_kehamilan']))
+                                        {{ str_replace('wk','mg',$ndt['ANC']['anc_usia_kehamilan']) }}
                                         @endif
                                     </td></tr>
 
                                         <tr>
                                     <td>Penolong Persalinan</td><td>:</td>
                                     <td>
-                                        @if(isset($dt['INC'][0]['delivery_helper']))
+                                        @if(isset($ndt['INC']['inc_penolong']))
 
-                                        {{ $dt['INC'][0]['delivery_helper'] }}
+                                        {{ $ndt['INC']['inc_penolong'] }}
 
                                         @endif
                                     </td></tr><tr>
                                     <td>Lokasi Kelahiran</td><td>:</td>
                                     <td>{{ $dt['ENCOUNTER'][0]['service_provider_name'] }}</td></tr><tr>
                                     <td>Cara Persalinan</td><td>:</td>
-                                    <td> @if(isset($dt['INC'][0]['delivery_method']))
+                                    <td> @if(isset($ndt['INC']['inc_cara_persalinan']))
 
-                                        {{ $dt['INC'][0]['delivery_method'] }}
+                                        {{ $ndt['INC']['inc_cara_persalinan'] }}
 
                                         @endif</td></tr><tr>
                                     <td>Kala #1</td><td>:</td>
-                                    <td>@if(isset($dt['INC'][0]['stage1']))
+                                    <td>@if(isset($ndt['INC']['inc_kala1']))
 
-                                        {{ \Carbon\Carbon::parse($dt['INC'][0]['stage1'])->translatedFormat('d F Y   H:i') }}
+                                        {{ $ndt['INC']['inc_kala1'] }}
 
                                         @endif</td></tr><tr>
                                     <td>Kala #2</td><td>:</td>
-                                    <td>@if(isset($dt['INC'][0]['stage2']))
+                                    <td>@if(isset($ndt['INC']['inc_kala2']))
 
-                                        {{ \Carbon\Carbon::parse($dt['INC'][0]['stage2'])->translatedFormat('d F Y   H:i') }}
+                                        {{ $ndt['INC']['inc_kala2'] }}
 
                                         @endif</td></tr><tr>
                                     <td>Kala #3</td><td>:</td>
-                                    <td>@if(isset($dt['INC'][0]['stage3']))
+                                    <td>@if(isset($ndt['INC']['inc_kala3']))
 
-                                        {{ \Carbon\Carbon::parse($dt['INC'][0]['stage3'])->translatedFormat('d F Y   H:i') }}
+                                        {{ $ndt['INC']['inc_kala3'] }}
 
                                         @endif</td></tr><tr>
                                     <td>Kala #4</td><td>:</td>
-                                    <td>@if(isset($dt['INC'][0]['stage4']))
+                                    <td>@if(isset($ndt['INC']['inc_kala4']))
 
-                                        {{ \Carbon\Carbon::parse($dt['INC'][0]['stage4'])->translatedFormat('d F Y   H:i') }}
+                                        {{ $ndt['INC']['inc_kala4'] }}
 
                                         @endif</td></tr><tr>
                                     <td>Keadaan Ibu</td><td>:</td>
-                                    <td> @if(isset($dt['INC'][0]['postpartum_condition']))
+                                    <td> @if(isset($ndt['INC']['inc_keadaan_ibu']))
 
-                                        {{ $dt['INC'][0]['postpartum_condition'] }}
+                                        {{ $ndt['INC']['inc_keadaan_ibu'] }}
 
                                         @endif</td></tr>
+
+                                        <tr>
+                    <td style="vertical-align: middle">Diagnosis</td>
+                    <td style="vertical-align: middle">:</td>
+                    <td>
+                       @if(!empty($dt['ANC']['anc_diagnosa']))
+    <ul>
+        @foreach($dt['ANC']['anc_diagnosa'] as $diagnosa)
+            <li>
+                {{ $diagnosa['display'] }}
+                @if(!empty($diagnosa['code']))
+                    ({{ $diagnosa['code'] }})
+                @endif
+            </li>
+        @endforeach
+    </ul>
+@else
+    -
+@endif
+
+
+                    </td>
+                    <td></td>
+                </tr>
+
+                 <tr>
+                                    <td>Tindakan</td><td>:</td>
+                                    <td>
+                                        @if(isset($ndt['INC']['inc_tindakan']))
+
+                                        {{ $ndt['INC']['inc_tindakan'] }}
+
+                                        @endif
+                                    </td></tr>
+
                             </thead>
 
 

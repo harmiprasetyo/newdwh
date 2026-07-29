@@ -18,6 +18,8 @@ use App\Models\Observation\NeonatalRecord;
 use App\Services\Fhir\PatientService;
 use App\Services\Fhir\EncounterService;
 use App\Services\Fhir\ImmunizationService;
+use App\Services\Fhir\ObservationParserService;
+use App\Services\Fhir\ObservationMapper;
 
 
 
@@ -29,15 +31,21 @@ class DataRmeController extends Controller
      protected $patientService;
     protected $encounterService;
     protected $immunizationService;
+    protected $observationParser;
+     protected $mapper;
 
     public function __construct(
         PatientService $patientService,
         EncounterService $encounterService,
-        ImmunizationService $immunizationService
+        ImmunizationService $immunizationService,
+        ObservationParserService $observationParser,
+        ObservationMapper $mapper
     ){
         $this->patientService = $patientService;
         $this->encounterService = $encounterService;
         $this->immunizationService = $immunizationService;
+        $this->observationParser = $observationParser;
+        $this->mapper = $mapper;
     }
 
     private function getObservationValue(array $resource): string
@@ -145,7 +153,23 @@ class DataRmeController extends Controller
       //dd($obserResult);
       //dd($obserResult);
 
+/*=============================== Gunakan Service Observation Parser Service -===================================*/
 
+
+
+$observations = $this->observationParser->parse($obserResult);
+
+$dtx = [];
+
+$dtx = $this->mapper->map(
+    $observations,
+    $dtx
+);
+
+
+//dd($dtx);
+
+/*======================================= End Of Observation Parser ==============================================*/
 
 
 if(isset($obserResult['total'])){
@@ -177,6 +201,8 @@ $dt['ANC'] = [
     'anc_smooking'=> null,
     'anc_perut'=>null
 ];
+
+
 
 
 
@@ -283,6 +309,15 @@ foreach($obserResult['entry'] as $k=>$obs){
    if (in_array('69043-8', $codes)) {
         $dt['ANC']['abortions'] = $valueANC ;
     }
+
+   if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='93857-1'){
+                 $dt['codeHPL'] = $obs['resource']['code']['coding'][0]['code'];
+                 $dt['INC']['inc_dtd']=Carbon::parse($obs['resource']['valueDateTime'])->format("d M Y");
+                 //$dt['ANC']['test'] = "exit";
+
+            }else{
+                $dt['INC']['inc_dtd']=" - ";
+                }
 
 
 
@@ -576,6 +611,23 @@ if (($prosedur['total'] ?? 0) > 0) {
             data_get($proc, 'resource.code.coding.0.code') === '88.78'
         ) {
             $dt['ANC']['anc_usg'] = 'Dilakukan';
+            break;
+        }
+
+         if (
+            data_get($proc, 'resource.code.coding.0.system') === 'http://snomed.info/sct' &&
+            data_get($proc, 'resource.code.coding.0.code') === '408988007'
+        ) {
+            $dt['ANC']['anc_education'] =  data_get($proc, 'resource.code.coding.0.display');
+            break;
+        }
+
+
+         if (
+            data_get($proc, 'resource.code.coding.0.system') === 'http://hl7.org/fhir/sid/icd-9-cm' &&
+            data_get($proc, 'resource.code.coding.0.code') === '73.01'
+        ) {
+            $dtx['INC']['inc_tindakan'] =  data_get($proc, 'resource.code.coding.0.display');
             break;
         }
     }
@@ -1160,7 +1212,7 @@ if (!empty($resAnamnese['entry'])) {
 
 
 //dd($dt['IMUNISASI']);
-  return view('rme.detailpasien',["dt"=>$dt]);
+  return view('rme.detailpasien',["dt"=>$dt,"ndt"=>$dtx]);
 
 
 
