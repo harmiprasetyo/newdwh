@@ -131,16 +131,12 @@ class DashboardController extends Controller
         |
         */
 
-        $jumlahPuskesmas = (clone $reportQuery)
-            ->whereNotNull('kode_faskes')
-            ->where(
-                'kode_faskes',
-                '!=',
-                ''
-            )
-            ->distinct()
-            ->count('kode_faskes');
-
+       $jumlahPuskesmas = (clone $reportQuery)
+    ->whereNotNull('kode_faskes')
+    ->where('kode_faskes', '!=', '')
+    ->where('report_status', '!=', 'DRAFT')
+    ->distinct()
+    ->count('kode_faskes');
 
         /*
         |--------------------------------------------------------------------------
@@ -251,6 +247,11 @@ class DashboardController extends Controller
             'r.tahun',
             $tahun
         )
+        ->where(
+    'r.report_status',
+    '!=',
+    'DRAFT'
+)
 
         ->select(
 
