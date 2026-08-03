@@ -30,6 +30,8 @@ use App\Http\Controllers\NewLplpo\LplpoArsipController;
  use App\Http\Controllers\AdminPanel\PosyanduController;
  use App\Http\Controllers\AdminPanel\Master\TargetSasaranController;
  use App\Http\Controllers\AdminPanel\WilayahKerja\WilayahKerjaPosyanduController;
+ use App\Http\Controllers\NewLplpo\ProgramController;
+ use App\Http\Controllers\NewLplpo\MasterDataObatController;
 /*
 | Web Routes
 |--------------------------------------------------------------------------
@@ -261,6 +263,61 @@ Route::get(
 
 
 Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
+
+
+Route::prefix('masterdataobat')
+    ->name('masterdataobat.')
+    ->group(function () {
+
+        Route::get(
+            '/',
+            [MasterDataObatController::class, 'index']
+        )->name('index');
+
+        Route::get(
+            '/datatable',
+            [MasterDataObatController::class, 'datatable']
+        )->name('datatable');
+
+    });
+
+Route::prefix('program')
+            ->name('program.')
+            ->group(function () {
+
+                Route::get(
+                    '/',
+                    [ProgramController::class, 'index']
+                )->name('index');
+
+                Route::get(
+                    '/datatable',
+                    [ProgramController::class, 'datatable']
+                )->name('datatable');
+
+                Route::post(
+                    '/',
+                    [ProgramController::class, 'store']
+                )->name('store');
+
+                Route::get(
+                    '/{id}',
+                    [ProgramController::class, 'show']
+                )->name('show');
+
+                Route::put(
+                    '/{id}',
+                    [ProgramController::class, 'update']
+                )->name('update');
+
+                Route::delete(
+                    '/{id}',
+                    [ProgramController::class, 'destroy']
+                )->name('destroy');
+
+            });
+
+
     Route::prefix('arsip')->name('arsip.')->group(function () {
 
     Route::get('/', [LplpoArsipController::class,'index'])
@@ -276,6 +333,8 @@ Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
         ->name('print');
 
 });
+
+
 
     Route::prefix('verifikasi')->name('verifikasi.')->group(function(){
                     Route::get('/',[LplpoVerificationController::class,'index'])->name('index');
