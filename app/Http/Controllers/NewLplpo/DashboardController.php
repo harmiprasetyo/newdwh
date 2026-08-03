@@ -304,9 +304,7 @@ class DashboardController extends Controller
 
         $statusSummary = [
 
-            'DRAFT' => (clone $reportQuery)
-                ->where('report_status', 'DRAFT')
-                ->count(),
+
 
             'SUBMITED' => (clone $reportQuery)
                 ->where('report_status', 'SUBMITED')
