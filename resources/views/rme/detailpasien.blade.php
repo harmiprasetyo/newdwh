@@ -509,7 +509,7 @@
                 <tr>
                     <th>Gol Darah</th>
                     <th>:</th>
-                    <th>-</th>
+                    <th>@if(isset($ndt['ANC']['anc_gol_darah'])){{ $ndt['ANC']['anc_gol_darah'] }} @endif</th>
                     <th></th>
                 </tr>
                   <tr>

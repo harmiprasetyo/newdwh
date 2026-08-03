@@ -204,6 +204,10 @@ protected array $map = [
           '55283-6' => [
             'field' => 'ANC.anc_djj',
         ],
+         'ANC.B9.DE24' => [
+            'field' => 'ANC.anc_gol_darah',
+        ],
+
 
 
 

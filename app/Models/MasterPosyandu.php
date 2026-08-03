@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Master\MasterFaskes;
+use Laravolt\Indonesia\Models\Village;
 class MasterPosyandu extends Model
 {
     protected $table = 'master_posyandu';
@@ -30,4 +31,23 @@ class MasterPosyandu extends Model
             'kodeFaskes'
         );
     }
+
+    public function wilayahKerja()
+{
+    return $this->hasMany(
+        \App\Models\AdminPanel\WilayahKerja\WilayahKerjaPosyandu::class,
+        'kodePosyandu',
+        'kodePosyandu'
+    );
+}
+
+ public function desa()
+    {
+        return $this->belongsTo(
+            Village::class,
+            'kodeDesa',
+            'code'
+        );
+    }
+
 }

@@ -29,6 +29,7 @@ use App\Http\Controllers\NewLplpo\DashboardController;
 use App\Http\Controllers\NewLplpo\LplpoArsipController;
  use App\Http\Controllers\AdminPanel\PosyanduController;
  use App\Http\Controllers\AdminPanel\Master\TargetSasaranController;
+ use App\Http\Controllers\AdminPanel\WilayahKerja\WilayahKerjaPosyanduController;
 /*
 | Web Routes
 |--------------------------------------------------------------------------
@@ -189,6 +190,53 @@ Route::prefix('adminpanel')->group(function(){
 
 
 Route::prefix('adminpanel/posyandu')->group(function(){
+
+Route::get(
+    '/select-posyandu',
+    [WilayahKerjaPosyanduController::class,'selectPosyandu']
+)->name('selectPosyandu');
+
+Route::prefix('wilayah-kerja')
+    ->name('wilayahkerja.')
+    ->group(function(){
+
+    Route::get(
+        '/',
+        [WilayahKerjaPosyanduController::class,'index']
+    )->name('index');
+
+    Route::get(
+        '/datatable',
+        [WilayahKerjaPosyanduController::class,'datatable']
+    )->name('datatable');
+
+    Route::get(
+        '/create',
+        [WilayahKerjaPosyanduController::class,'create']
+    )->name('create');
+
+    Route::post(
+        '/',
+        [WilayahKerjaPosyanduController::class,'store']
+    )->name('store');
+
+    Route::get(
+        '/{id}/edit',
+        [WilayahKerjaPosyanduController::class,'edit']
+    )->name('edit');
+
+    Route::put(
+        '/{id}',
+        [WilayahKerjaPosyanduController::class,'update']
+    )->name('update');
+
+    Route::delete(
+        '/{id}',
+        [WilayahKerjaPosyanduController::class,'destroy']
+    )->name('destroy');
+
+});
+
 
        Route::get('/',
             [PosyanduController::class,'index']

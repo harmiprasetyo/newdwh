@@ -26,9 +26,7 @@
        Group User
     </a>
 
-      <a href="/logout">
-       Logout
-    </a>
+
 
 </div>
 
@@ -69,9 +67,33 @@
     </a>
       <a href="/adminpanel/posyandu" class="{{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">Master Posyandu</a>
         <a href="/adminpanel/posyandu/wilayahkerja" class="{{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">Wilayah Kerja</a>
-         <a href="{{ route('master.target-sasaran.index') }}" class="{{ request()->is('adminpanel/master/target*') ? 'active' : '' }}">Target Sasaran</a>
+
 
 </div>
+<a href="#" class="menu-toggle
+{{ request()->is('adminpanel/posyandu/wilayah-kerja') ? 'active' : '' }}">
+    <i class="fa fa-map"></i> Wilayah Kerja
+</a>
+<div class="submenu
+{{ request()->is('adminpanel/posyandu/wilayah-*') ? 'd-block' : '' }}">
+
+ <a href="/adminpanel/posyandu/wilayah-kerja" class="{{ request()->is('adminpanel/posyandu/wilayah-*') ? 'active' : '' }}">Wilayah Kerja Posyandu</a>
+
+
+</div>
+
+
+
+<a href="#" class="menu-toggle
+{{ request()->is('adminpanel/master/target*') ? 'active' : '' }}">
+    <i class="fa fa-map"></i> Data Target
+</a>
+<div class="submenu
+{{ request()->is('adminpanel/master/target*','adminpanel/faskes*') ? 'd-block' : '' }}">
+
+  <a href="{{ route('master.target-sasaran.index') }}" class="{{ request()->is('adminpanel/master/target*') ? 'active' : '' }}">Target Sasaran</a>
+</div>
+
     <a href="#" class="menu-toggle
 {{ request()->is('adminpanel/masterobat*','adminpanel/parameterperingatan*','adminpanel/label-lplpo*') ? 'active' : '' }}">
     <i class="fa fa-map"></i> Master Data LPLPO
@@ -95,6 +117,11 @@
     </a>
 
 </div>
+
+  <a href="/logout">
+      <i class="fa fa-lock"></i> Logout
+    </a>
+
 </div>
 
 
