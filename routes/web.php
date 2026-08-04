@@ -32,6 +32,7 @@ use App\Http\Controllers\NewLplpo\LplpoArsipController;
  use App\Http\Controllers\AdminPanel\WilayahKerja\WilayahKerjaPosyanduController;
  use App\Http\Controllers\NewLplpo\ProgramController;
  use App\Http\Controllers\NewLplpo\MasterDataObatController;
+ use App\Http\Controllers\NewLplpo\LplpoRekapController;
 /*
 | Web Routes
 |--------------------------------------------------------------------------
@@ -263,6 +264,17 @@ Route::get(
 
 
 Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
+
+ Route::get(
+            '/rekap',
+            [LplpoRekapController::class, 'index']
+        )->name('rekap');
+
+        Route::get(
+            '/rekap/data',
+            [LplpoRekapController::class, 'data']
+        )->name('rekap.data');
+
 
 
 Route::prefix('masterdataobat')

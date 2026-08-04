@@ -86,6 +86,10 @@
             ➜ Arsip LPLPO
         </a>
 
+        <a href="{{ route('newlplpo.rekap') }}">
+    ➜ Rekap LPLPO
+</a>
+
         <a href="{{ route('newlplpo.verifikasi.index') }}">
             ➜ Verifikasi LPLPO
         </a>
@@ -145,6 +149,9 @@
           <a href="{{ route('newlplpo.arsip.index') }}">
             ➜ Arsip LPLPO
         </a>
+        <a href="{{ route('newlplpo.rekap') }}">
+    ➜ Rekap LPLPO
+</a>
 
     </div>
 

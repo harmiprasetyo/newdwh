@@ -180,7 +180,7 @@
 
                                 <small class="text-muted">
 
-                                    Puskesmas unik
+                                    Puskesmas
 
                                 </small>
 
