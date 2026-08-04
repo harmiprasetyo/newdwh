@@ -61,6 +61,23 @@ class DashboardController extends Controller
             $tahun = now()->year;
         }
 
+         /*
+        |--------------------------------------------------------------------------
+        | DASHBOARD Administrator
+        |--------------------------------------------------------------------------
+        */
+
+        if ($groupId === 1) {
+
+            return $this->dashboardDinkes(
+                $bulan,
+                $tahun
+            );
+
+        }
+
+
+
         /*
         |--------------------------------------------------------------------------
         | DASHBOARD DINAS KESEHATAN
