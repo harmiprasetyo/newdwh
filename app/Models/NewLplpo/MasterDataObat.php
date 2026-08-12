@@ -15,12 +15,22 @@ class MasterDataObat extends Model
         'kode_obat',
         'nama_obat',
         'satuan',
-        'stok_minimum',
-        'stok_optimum'
+        'obat_napza',
+        'kelompok_obat',
+        'golongan_obat',
+        'kategori_obat',
     ];
 
     protected $casts = [
-        'stok_minimum' => 'integer',
-        'stok_optimum' => 'integer',
+        'obat_napza' => 'string',
     ];
+
+    public function stokMinimal()
+    {
+        return $this->hasMany(
+            StokMinimalObat::class,
+            'kode_obat',
+            'kode_obat'
+        );
+    }
 }

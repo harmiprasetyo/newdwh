@@ -68,6 +68,32 @@
 
 @endsection
 
+@push('styles')
+<style>
+    .btn-action {
+        width: 36px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-radius: 6px;
+    }
+
+    .btn-action i {
+        font-size: 16px;
+    }
+
+    .action-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+    }
+</style>
+
+@endpush
+
 @push('scripts')
 
 <script>

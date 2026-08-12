@@ -41,54 +41,126 @@ $(function(){
       DATATABLE MASTER OBAT
     ==================================================*/
 
-    let tableObat = $('#tblMasterObat').DataTable({
+  let tableObat = $('#tblMasterObat').DataTable({
 
-        processing:true,
-        serverSide:true,
-        searching:true,
-        ordering:true,
-        responsive:true,
+    processing: true,
 
-        ajax:{
-            url:"{{ route('newlplpo.masterobat.datatable') }}"
+    serverSide: true,
+
+    searching: true,
+
+    ordering: true,
+
+    responsive: true,
+
+    ajax: {
+
+        url: "{{ route('newlplpo.masterdataobat.datatableforcanvas') }}",
+
+        data: function (d) {
+
+            d.tahun = $('#tahunCanvas').val();
+
+            /*
+             * Untuk user faskes sebenarnya tidak wajib
+             * karena backend mengambil dari auth()->user()
+             */
+            d.kodeFaskes = $('#kodeFaskes').val() || '';
+
+        }
+
+    },
+
+    columns: [
+
+        {
+            data: 'kode_obat',
+            name: 'master_obat.kode_obat'
         },
 
-        columns:[
+        {
+            data: 'nama_obat',
+            name: 'master_obat.nama_obat',
 
-            {data:'kode_obat'},
+            render: function (data, type, row) {
 
-            {data:'nama_obat'},
-
-            {data:'satuan'},
-
-            {
-                data:null,
-                orderable:false,
-                searchable:false,
-                className:'text-center',
-
-                render:function(data){
+                /*
+                 * Tandai obat NAPZA
+                 */
+                if (row.obat_napza === 'ya') {
 
                     return `
-                        <button
-                            class="btn btn-success btn-sm pilih-obat"
-                            data-kode="${data.kode_obat}"
-                            data-nama="${data.nama_obat}"
-                            data-satuan="${data.satuan}"
-                            data-min="${data.stok_minimum ?? 0}"
-                            data-opt="${data.stok_optimum ?? 0}">
-                            Pilih
-                        </button>
+                        <span class="text-danger fw-bold">
+                            ${data}
+                            <span class="badge bg-danger ms-1">
+                                NAPZA
+                            </span>
+                        </span>
                     `;
 
                 }
 
+                return data;
+
             }
 
-        ]
+        },
 
-    });
+        {
+            data: 'satuan',
+            name: 'master_obat.satuan'
+        },
 
+        {
+            data: null,
+
+            orderable: false,
+
+            searchable: false,
+
+            className: 'text-center',
+
+            render: function (data) {
+
+                return `
+                    <button
+                        type="button"
+                        class="btn btn-success btn-sm pilih-obat"
+
+                        data-id="${data.id}"
+
+                        data-kode="${data.kode_obat}"
+
+                        data-nama="${data.nama_obat}"
+
+                        data-satuan="${data.satuan}"
+
+                        data-min="${data.stok_minimal ?? 0}"
+
+                        data-opt="${data.stok_optimum ?? 0}"
+
+                        data-napza="${data.obat_napza ?? 'tidak'}"
+
+                        data-esensial="${data.obat_esensial ?? 'tidak'}"
+
+                        data-formularium="${data.obat_formularium_puskesmas ?? 'tidak'}"
+
+                    >
+
+                        <i class="bi bi-check-circle me-1"></i>
+
+                        Pilih
+
+                    </button>
+                `;
+
+            }
+
+        }
+
+    ]
+
+});
 
     $('#btnTambah').on('click',function(){
 
@@ -111,53 +183,278 @@ $(function(){
 
     });
 
+/*==================================================
+      Loadstok Setting
+    ==================================================*/
+    function loadStokSetting()
+{
+
+    if (!selectedObat) {
+        return;
+    }
+
+
+    let kodeFaskes =
+        $('#kodeFaskes').val();
+
+    let tahun =
+        $('#tahun').val();
+
+
+    if (!kodeFaskes || !tahun) {
+
+        return;
+
+    }
+
+
+    $.ajax({
+
+        url:
+            "{{ route('newlplpo.stok-esensial.setting') }}",
+
+        type:
+            "GET",
+
+        data: {
+
+            kode_obat:
+                selectedObat.kode,
+
+            kodeFaskes:
+                kodeFaskes,
+
+            tahun:
+                tahun
+
+        },
+
+        success:
+            function (res) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | DEFAULT
+                |--------------------------------------------------------------------------
+                */
+
+                let stokMinimal = 0;
+
+                let stokOptimum = 0;
+
+                let obatEsensial = 'noe';
+
+                let formularium = 'false';
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | JIKA SETTING DITEMUKAN
+                |--------------------------------------------------------------------------
+                */
+
+                if (res.exists) {
+
+                    stokMinimal =
+                        res.stok_minimal ?? 0;
+
+                    stokOptimum =
+                        res.stok_optimum ?? 0;
+
+                    obatEsensial =
+                        res.obat_esensial ?? 'noe';
+
+                    formularium =
+                        res.obat_formularium_puskesmas ?? 'false';
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SET FORM
+                |--------------------------------------------------------------------------
+                */
+
+                $('#stok_minimum')
+                    .val(stokMinimal);
+
+                $('#stok_optimum')
+                    .val(stokOptimum);
+
+                $('#obat_esensial')
+                    .val(obatEsensial);
+
+                $('#obat_formularium_puskesmas')
+                    .val(formularium);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | DEBUG
+                |--------------------------------------------------------------------------
+                */
+
+                console.log(
+                    'Setting obat:',
+                    {
+                        kode_obat:
+                            selectedObat.kode,
+
+                        kodeFaskes:
+                            kodeFaskes,
+
+                        tahun:
+                            tahun,
+
+                        stok_minimal:
+                            stokMinimal,
+
+                        stok_optimum:
+                            stokOptimum,
+
+                        obat_esensial:
+                            obatEsensial,
+
+                        formularium:
+                            formularium
+                    }
+                );
+
+            },
+
+        error:
+            function (xhr) {
+
+                console.error(
+                    xhr.responseText
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | JIKA ERROR, TETAP DEFAULT
+                |--------------------------------------------------------------------------
+                */
+
+                $('#stok_minimum')
+                    .val(0);
+
+                $('#stok_optimum')
+                    .val(0);
+
+                $('#obat_esensial')
+                    .val('noe');
+
+                $('#obat_formularium_puskesmas')
+                    .val('false');
+
+            }
+
+    });
+
+}
 
     /*==================================================
       PILIH OBAT
     ==================================================*/
 
-   /* $(document).on('click','.pilih-obat',function(){
 
-        $('#kode_obat').val($(this).data('kode'));
+   $(document).on('click', '.pilih-obat', function () {
 
-        $('#nama_obat').val($(this).data('nama'));
+    const button = $(this);
 
-        $('#satuan').val($(this).data('satuan'));
+    const kode = button.data('kode');
+    const nama = button.data('nama');
+    const satuan = button.data('satuan');
 
-        $('#stok_minimum').val($(this).data('min'));
+    const stokMinimal = parseInt(
+        button.attr('data-min')
+    ) || 0;
 
-        $('#stok_optimum').val($(this).data('opt'));
+    const stokOptimum = parseInt(
+        button.attr('data-opt')
+    ) || 0;
 
-        $('#previewKode').html($(this).data('kode'));
 
-        $('#previewNama').html($(this).data('nama'));
+    /*
+    |--------------------------------------------------------------------------
+    | ISI INFORMASI OBAT
+    |--------------------------------------------------------------------------
+    */
 
-    }); */
+    $('#kode_obat').val(kode);
 
-    $(document).on('click','.pilih-obat',function(){
+    $('#nama_obat').val(nama);
+
+    $('#satuan').val(satuan);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ISI PARAMETER STOK
+    |--------------------------------------------------------------------------
+    */
+
+    $('#stok_minimum').val(stokMinimal);
+
+    $('#stok_optimum').val(stokOptimum);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PREVIEW
+    |--------------------------------------------------------------------------
+    */
+
+    $('#previewKode').text(kode);
+
+    $('#previewNama').text(nama);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SIMPAN OBAT YANG DIPILIH
+    |--------------------------------------------------------------------------
+    */
 
     selectedObat = {
 
-        kode: $(this).data('kode'),
-        nama: $(this).data('nama'),
-        satuan: $(this).data('satuan'),
-        min: $(this).data('min'),
-        opt: $(this).data('opt')
+        kode: kode,
+
+        nama: nama,
+
+        satuan: satuan,
+
+        min: stokMinimal,
+
+        opt: stokOptimum,
+
+        napza: button.attr('data-napza') || 'tidak',
+
+        esensial: button.attr('data-esensial') || 'tidak',
+
+        formularium:
+            button.attr('data-formularium') || 'tidak'
 
     };
 
-    $('#kode_obat').val(selectedObat.kode);
-    $('#nama_obat').val(selectedObat.nama);
-    $('#satuan').val(selectedObat.satuan);
 
-    $('#stok_minimum').val(selectedObat.min);
-    $('#stok_optimum').val(selectedObat.opt);
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD DEFAULT ITEM
+    |--------------------------------------------------------------------------
+    */
 
-    $('#previewKode').html(selectedObat.kode);
-    $('#previewNama').html(selectedObat.nama);
+    if (
+        $('[name="program_id"]').val()
+    ) {
+
+        loadDefaultItem();
+
+    }
 
 });
-
 
 
     /*==================================================
@@ -331,7 +628,8 @@ $(function(){
     let pemakaianPKD = angka('pemakaian_program_pkd');
     let pemakaianJKN = angka('pemakaian_jkn');
 
-    let expired = angka('item_expired');
+    let expiredPKD = angka('item_expired_pkd');
+      let expiredJKN = angka('item_expired_jkn');
 
     let stokAkhirPKD = angka('stok_akhir_program_pkd');
     let stokAkhirJKN = angka('stok_akhir_jkn');
@@ -350,13 +648,13 @@ $(function(){
 
     cekPersediaan(
         '[name=stok_akhir_program_pkd]',
-        persediaanPKD - pemakaianPKD - expired,
+        persediaanPKD - pemakaianPKD - expiredPKD,
         stokAkhirPKD
     );
 
     cekPersediaan(
         '[name=stok_akhir_jkn]',
-        persediaanJKN - pemakaianJKN,
+        persediaanJKN - pemakaianJKN - expiredJKN,
         stokAkhirJKN
     );
 
@@ -513,6 +811,8 @@ success:function(res){
     });
 
 });
+
+
 
 </script>
 

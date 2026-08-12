@@ -131,7 +131,8 @@ class LplpoVerificationController extends Controller
      */
   public function detail($id)
 {
-    $report = Report::findOrFail($id);
+    $report = Report::with('kunjungan')
+        ->findOrFail($id);
 
     $items = Item::with('program')
         ->where('report_id', $report->id)

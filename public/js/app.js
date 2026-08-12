@@ -1,1912 +1,3609 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ({
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/axios/index.js":
-/*!*************************************!*\
-  !*** ./node_modules/axios/index.js ***!
-  \*************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(/*! ./lib/axios */ "./node_modules/axios/lib/axios.js");
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/adapters/xhr.js":
-/*!************************************************!*\
-  !*** ./node_modules/axios/lib/adapters/xhr.js ***!
-  \************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-var settle = __webpack_require__(/*! ./../core/settle */ "./node_modules/axios/lib/core/settle.js");
-var buildURL = __webpack_require__(/*! ./../helpers/buildURL */ "./node_modules/axios/lib/helpers/buildURL.js");
-var buildFullPath = __webpack_require__(/*! ../core/buildFullPath */ "./node_modules/axios/lib/core/buildFullPath.js");
-var parseHeaders = __webpack_require__(/*! ./../helpers/parseHeaders */ "./node_modules/axios/lib/helpers/parseHeaders.js");
-var isURLSameOrigin = __webpack_require__(/*! ./../helpers/isURLSameOrigin */ "./node_modules/axios/lib/helpers/isURLSameOrigin.js");
-var createError = __webpack_require__(/*! ../core/createError */ "./node_modules/axios/lib/core/createError.js");
-
-module.exports = function xhrAdapter(config) {
-  return new Promise(function dispatchXhrRequest(resolve, reject) {
-    var requestData = config.data;
-    var requestHeaders = config.headers;
-
-    if (utils.isFormData(requestData)) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
-
-    var request = new XMLHttpRequest();
-
-    // HTTP basic authentication
-    if (config.auth) {
-      var username = config.auth.username || '';
-      var password = config.auth.password || '';
-      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
-    }
-
-    var fullPath = buildFullPath(config.baseURL, config.url);
-    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
-    request.timeout = config.timeout;
-
-    // Listen for ready state
-    request.onreadystatechange = function handleLoad() {
-      if (!request || request.readyState !== 4) {
-        return;
-      }
-
-      // The request errored out and we didn't get a response, this will be
-      // handled by onerror instead
-      // With one exception: request that using file: protocol, most browsers
-      // will return status as 0 even though it's a successful request
-      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-        return;
-      }
-
-      // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-      var response = {
-        data: responseData,
-        status: request.status,
-        statusText: request.statusText,
-        headers: responseHeaders,
-        config: config,
-        request: request
-      };
-
-      settle(resolve, reject, response);
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle browser request cancellation (as opposed to a manual cancellation)
-    request.onabort = function handleAbort() {
-      if (!request) {
-        return;
-      }
-
-      reject(createError('Request aborted', config, 'ECONNABORTED', request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle low level network errors
-    request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle timeout
-    request.ontimeout = function handleTimeout() {
-      var timeoutErrorMessage = 'timeout of ' + config.timeout + 'ms exceeded';
-      if (config.timeoutErrorMessage) {
-        timeoutErrorMessage = config.timeoutErrorMessage;
-      }
-      reject(createError(timeoutErrorMessage, config, 'ECONNABORTED',
-        request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(/*! ./../helpers/cookies */ "./node_modules/axios/lib/helpers/cookies.js");
-
-      // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
-        cookies.read(config.xsrfCookieName) :
-        undefined;
-
-      if (xsrfValue) {
-        requestHeaders[config.xsrfHeaderName] = xsrfValue;
-      }
-    }
-
-    // Add headers to the request
-    if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
-          delete requestHeaders[key];
-        } else {
-          // Otherwise add header to the request
-          request.setRequestHeader(key, val);
-        }
-      });
-    }
-
-    // Add withCredentials to request if needed
-    if (!utils.isUndefined(config.withCredentials)) {
-      request.withCredentials = !!config.withCredentials;
-    }
-
-    // Add responseType to request if needed
-    if (config.responseType) {
-      try {
-        request.responseType = config.responseType;
-      } catch (e) {
-        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
-        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
-        if (config.responseType !== 'json') {
-          throw e;
-        }
-      }
-    }
-
-    // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', config.onDownloadProgress);
-    }
-
-    // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', config.onUploadProgress);
-    }
-
-    if (config.cancelToken) {
-      // Handle cancellation
-      config.cancelToken.promise.then(function onCanceled(cancel) {
-        if (!request) {
-          return;
-        }
-
-        request.abort();
-        reject(cancel);
-        // Clean up request
-        request = null;
-      });
-    }
-
-    if (requestData === undefined) {
-      requestData = null;
-    }
-
-    // Send the request
-    request.send(requestData);
-  });
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/axios.js":
-/*!*****************************************!*\
-  !*** ./node_modules/axios/lib/axios.js ***!
-  \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./utils */ "./node_modules/axios/lib/utils.js");
-var bind = __webpack_require__(/*! ./helpers/bind */ "./node_modules/axios/lib/helpers/bind.js");
-var Axios = __webpack_require__(/*! ./core/Axios */ "./node_modules/axios/lib/core/Axios.js");
-var mergeConfig = __webpack_require__(/*! ./core/mergeConfig */ "./node_modules/axios/lib/core/mergeConfig.js");
-var defaults = __webpack_require__(/*! ./defaults */ "./node_modules/axios/lib/defaults.js");
-
-/**
- * Create an instance of Axios
- *
- * @param {Object} defaultConfig The default config for the instance
- * @return {Axios} A new instance of Axios
- */
-function createInstance(defaultConfig) {
-  var context = new Axios(defaultConfig);
-  var instance = bind(Axios.prototype.request, context);
-
-  // Copy axios.prototype to instance
-  utils.extend(instance, Axios.prototype, context);
-
-  // Copy context to instance
-  utils.extend(instance, context);
-
-  return instance;
-}
-
-// Create the default instance to be exported
-var axios = createInstance(defaults);
-
-// Expose Axios class to allow class inheritance
-axios.Axios = Axios;
-
-// Factory for creating new instances
-axios.create = function create(instanceConfig) {
-  return createInstance(mergeConfig(axios.defaults, instanceConfig));
-};
-
-// Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(/*! ./cancel/Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
-axios.CancelToken = __webpack_require__(/*! ./cancel/CancelToken */ "./node_modules/axios/lib/cancel/CancelToken.js");
-axios.isCancel = __webpack_require__(/*! ./cancel/isCancel */ "./node_modules/axios/lib/cancel/isCancel.js");
-
-// Expose all/spread
-axios.all = function all(promises) {
-  return Promise.all(promises);
-};
-axios.spread = __webpack_require__(/*! ./helpers/spread */ "./node_modules/axios/lib/helpers/spread.js");
-
-module.exports = axios;
-
-// Allow use of default import syntax in TypeScript
-module.exports.default = axios;
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/cancel/Cancel.js":
-/*!*************************************************!*\
-  !*** ./node_modules/axios/lib/cancel/Cancel.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
-}
-
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
-};
-
-Cancel.prototype.__CANCEL__ = true;
-
-module.exports = Cancel;
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/cancel/CancelToken.js":
-/*!******************************************************!*\
-  !*** ./node_modules/axios/lib/cancel/CancelToken.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Cancel = __webpack_require__(/*! ./Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
-
-/**
- * A `CancelToken` is an object that can be used to request cancellation of an operation.
- *
- * @class
- * @param {Function} executor The executor function.
- */
-function CancelToken(executor) {
-  if (typeof executor !== 'function') {
-    throw new TypeError('executor must be a function.');
-  }
-
-  var resolvePromise;
-  this.promise = new Promise(function promiseExecutor(resolve) {
-    resolvePromise = resolve;
-  });
-
-  var token = this;
-  executor(function cancel(message) {
-    if (token.reason) {
-      // Cancellation has already been requested
-      return;
-    }
-
-    token.reason = new Cancel(message);
-    resolvePromise(token.reason);
-  });
-}
-
-/**
- * Throws a `Cancel` if cancellation has been requested.
- */
-CancelToken.prototype.throwIfRequested = function throwIfRequested() {
-  if (this.reason) {
-    throw this.reason;
-  }
-};
-
-/**
- * Returns an object that contains a new `CancelToken` and a function that, when called,
- * cancels the `CancelToken`.
- */
-CancelToken.source = function source() {
-  var cancel;
-  var token = new CancelToken(function executor(c) {
-    cancel = c;
-  });
-  return {
-    token: token,
-    cancel: cancel
-  };
-};
-
-module.exports = CancelToken;
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/cancel/isCancel.js":
-/*!***************************************************!*\
-  !*** ./node_modules/axios/lib/cancel/isCancel.js ***!
-  \***************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/Axios.js":
-/*!**********************************************!*\
-  !*** ./node_modules/axios/lib/core/Axios.js ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-var buildURL = __webpack_require__(/*! ../helpers/buildURL */ "./node_modules/axios/lib/helpers/buildURL.js");
-var InterceptorManager = __webpack_require__(/*! ./InterceptorManager */ "./node_modules/axios/lib/core/InterceptorManager.js");
-var dispatchRequest = __webpack_require__(/*! ./dispatchRequest */ "./node_modules/axios/lib/core/dispatchRequest.js");
-var mergeConfig = __webpack_require__(/*! ./mergeConfig */ "./node_modules/axios/lib/core/mergeConfig.js");
-
-/**
- * Create a new instance of Axios
- *
- * @param {Object} instanceConfig The default config for the instance
- */
-function Axios(instanceConfig) {
-  this.defaults = instanceConfig;
-  this.interceptors = {
-    request: new InterceptorManager(),
-    response: new InterceptorManager()
-  };
-}
-
-/**
- * Dispatch a request
- *
- * @param {Object} config The config specific for this request (merged with this.defaults)
- */
-Axios.prototype.request = function request(config) {
-  /*eslint no-param-reassign:0*/
-  // Allow for axios('example/url'[, config]) a la fetch API
-  if (typeof config === 'string') {
-    config = arguments[1] || {};
-    config.url = arguments[0];
-  } else {
-    config = config || {};
-  }
-
-  config = mergeConfig(this.defaults, config);
-
-  // Set config.method
-  if (config.method) {
-    config.method = config.method.toLowerCase();
-  } else if (this.defaults.method) {
-    config.method = this.defaults.method.toLowerCase();
-  } else {
-    config.method = 'get';
-  }
-
-  // Hook up interceptors middleware
-  var chain = [dispatchRequest, undefined];
-  var promise = Promise.resolve(config);
-
-  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
-    chain.unshift(interceptor.fulfilled, interceptor.rejected);
-  });
-
-  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
-    chain.push(interceptor.fulfilled, interceptor.rejected);
-  });
-
-  while (chain.length) {
-    promise = promise.then(chain.shift(), chain.shift());
-  }
-
-  return promise;
-};
-
-Axios.prototype.getUri = function getUri(config) {
-  config = mergeConfig(this.defaults, config);
-  return buildURL(config.url, config.params, config.paramsSerializer).replace(/^\?/, '');
-};
-
-// Provide aliases for supported request methods
-utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
-  /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, config) {
-    return this.request(utils.merge(config || {}, {
-      method: method,
-      url: url
-    }));
-  };
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, data, config) {
-    return this.request(utils.merge(config || {}, {
-      method: method,
-      url: url,
-      data: data
-    }));
-  };
-});
-
-module.exports = Axios;
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/InterceptorManager.js":
-/*!***********************************************************!*\
-  !*** ./node_modules/axios/lib/core/InterceptorManager.js ***!
-  \***********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-
-function InterceptorManager() {
-  this.handlers = [];
-}
-
-/**
- * Add a new interceptor to the stack
- *
- * @param {Function} fulfilled The function to handle `then` for a `Promise`
- * @param {Function} rejected The function to handle `reject` for a `Promise`
- *
- * @return {Number} An ID used to remove interceptor later
- */
-InterceptorManager.prototype.use = function use(fulfilled, rejected) {
-  this.handlers.push({
-    fulfilled: fulfilled,
-    rejected: rejected
-  });
-  return this.handlers.length - 1;
-};
-
-/**
- * Remove an interceptor from the stack
- *
- * @param {Number} id The ID that was returned by `use`
- */
-InterceptorManager.prototype.eject = function eject(id) {
-  if (this.handlers[id]) {
-    this.handlers[id] = null;
-  }
-};
-
-/**
- * Iterate over all the registered interceptors
- *
- * This method is particularly useful for skipping over any
- * interceptors that may have become `null` calling `eject`.
- *
- * @param {Function} fn The function to call for each interceptor
- */
-InterceptorManager.prototype.forEach = function forEach(fn) {
-  utils.forEach(this.handlers, function forEachHandler(h) {
-    if (h !== null) {
-      fn(h);
-    }
-  });
-};
-
-module.exports = InterceptorManager;
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/buildFullPath.js":
-/*!******************************************************!*\
-  !*** ./node_modules/axios/lib/core/buildFullPath.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var isAbsoluteURL = __webpack_require__(/*! ../helpers/isAbsoluteURL */ "./node_modules/axios/lib/helpers/isAbsoluteURL.js");
-var combineURLs = __webpack_require__(/*! ../helpers/combineURLs */ "./node_modules/axios/lib/helpers/combineURLs.js");
-
-/**
- * Creates a new URL by combining the baseURL with the requestedURL,
- * only when the requestedURL is not already an absolute URL.
- * If the requestURL is absolute, this function returns the requestedURL untouched.
- *
- * @param {string} baseURL The base URL
- * @param {string} requestedURL Absolute or relative URL to combine
- * @returns {string} The combined full path
- */
-module.exports = function buildFullPath(baseURL, requestedURL) {
-  if (baseURL && !isAbsoluteURL(requestedURL)) {
-    return combineURLs(baseURL, requestedURL);
-  }
-  return requestedURL;
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/createError.js":
-/*!****************************************************!*\
-  !*** ./node_modules/axios/lib/core/createError.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var enhanceError = __webpack_require__(/*! ./enhanceError */ "./node_modules/axios/lib/core/enhanceError.js");
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/dispatchRequest.js":
-/*!********************************************************!*\
-  !*** ./node_modules/axios/lib/core/dispatchRequest.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-var transformData = __webpack_require__(/*! ./transformData */ "./node_modules/axios/lib/core/transformData.js");
-var isCancel = __webpack_require__(/*! ../cancel/isCancel */ "./node_modules/axios/lib/cancel/isCancel.js");
-var defaults = __webpack_require__(/*! ../defaults */ "./node_modules/axios/lib/defaults.js");
-
-/**
- * Throws a `Cancel` if cancellation has been requested.
- */
-function throwIfCancellationRequested(config) {
-  if (config.cancelToken) {
-    config.cancelToken.throwIfRequested();
-  }
-}
-
-/**
- * Dispatch a request to the server using the configured adapter.
- *
- * @param {object} config The config that is to be used for the request
- * @returns {Promise} The Promise to be fulfilled
- */
-module.exports = function dispatchRequest(config) {
-  throwIfCancellationRequested(config);
-
-  // Ensure headers exist
-  config.headers = config.headers || {};
-
-  // Transform request data
-  config.data = transformData(
-    config.data,
-    config.headers,
-    config.transformRequest
-  );
-
-  // Flatten headers
-  config.headers = utils.merge(
-    config.headers.common || {},
-    config.headers[config.method] || {},
-    config.headers
-  );
-
-  utils.forEach(
-    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
-    function cleanHeaderConfig(method) {
-      delete config.headers[method];
-    }
-  );
-
-  var adapter = config.adapter || defaults.adapter;
-
-  return adapter(config).then(function onAdapterResolution(response) {
-    throwIfCancellationRequested(config);
-
-    // Transform response data
-    response.data = transformData(
-      response.data,
-      response.headers,
-      config.transformResponse
-    );
-
-    return response;
-  }, function onAdapterRejection(reason) {
-    if (!isCancel(reason)) {
-      throwIfCancellationRequested(config);
-
-      // Transform response data
-      if (reason && reason.response) {
-        reason.response.data = transformData(
-          reason.response.data,
-          reason.response.headers,
-          config.transformResponse
-        );
-      }
-    }
-
-    return Promise.reject(reason);
-  });
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/enhanceError.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/axios/lib/core/enhanceError.js ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Update an Error with the specified config, error code, and response.
- *
- * @param {Error} error The error to update.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The error.
- */
-module.exports = function enhanceError(error, config, code, request, response) {
-  error.config = config;
-  if (code) {
-    error.code = code;
-  }
-
-  error.request = request;
-  error.response = response;
-  error.isAxiosError = true;
-
-  error.toJSON = function() {
-    return {
-      // Standard
-      message: this.message,
-      name: this.name,
-      // Microsoft
-      description: this.description,
-      number: this.number,
-      // Mozilla
-      fileName: this.fileName,
-      lineNumber: this.lineNumber,
-      columnNumber: this.columnNumber,
-      stack: this.stack,
-      // Axios
-      config: this.config,
-      code: this.code
-    };
-  };
-  return error;
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/mergeConfig.js":
-/*!****************************************************!*\
-  !*** ./node_modules/axios/lib/core/mergeConfig.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ../utils */ "./node_modules/axios/lib/utils.js");
-
-/**
- * Config-specific merge-function which creates a new config-object
- * by merging two configuration objects together.
- *
- * @param {Object} config1
- * @param {Object} config2
- * @returns {Object} New object resulting from merging config2 to config1
- */
-module.exports = function mergeConfig(config1, config2) {
-  // eslint-disable-next-line no-param-reassign
-  config2 = config2 || {};
-  var config = {};
-
-  var valueFromConfig2Keys = ['url', 'method', 'params', 'data'];
-  var mergeDeepPropertiesKeys = ['headers', 'auth', 'proxy'];
-  var defaultToConfig2Keys = [
-    'baseURL', 'url', 'transformRequest', 'transformResponse', 'paramsSerializer',
-    'timeout', 'withCredentials', 'adapter', 'responseType', 'xsrfCookieName',
-    'xsrfHeaderName', 'onUploadProgress', 'onDownloadProgress',
-    'maxContentLength', 'validateStatus', 'maxRedirects', 'httpAgent',
-    'httpsAgent', 'cancelToken', 'socketPath'
-  ];
-
-  utils.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
-    if (typeof config2[prop] !== 'undefined') {
-      config[prop] = config2[prop];
-    }
-  });
-
-  utils.forEach(mergeDeepPropertiesKeys, function mergeDeepProperties(prop) {
-    if (utils.isObject(config2[prop])) {
-      config[prop] = utils.deepMerge(config1[prop], config2[prop]);
-    } else if (typeof config2[prop] !== 'undefined') {
-      config[prop] = config2[prop];
-    } else if (utils.isObject(config1[prop])) {
-      config[prop] = utils.deepMerge(config1[prop]);
-    } else if (typeof config1[prop] !== 'undefined') {
-      config[prop] = config1[prop];
-    }
-  });
-
-  utils.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
-    if (typeof config2[prop] !== 'undefined') {
-      config[prop] = config2[prop];
-    } else if (typeof config1[prop] !== 'undefined') {
-      config[prop] = config1[prop];
-    }
-  });
-
-  var axiosKeys = valueFromConfig2Keys
-    .concat(mergeDeepPropertiesKeys)
-    .concat(defaultToConfig2Keys);
-
-  var otherKeys = Object
-    .keys(config2)
-    .filter(function filterAxiosKeys(key) {
-      return axiosKeys.indexOf(key) === -1;
-    });
-
-  utils.forEach(otherKeys, function otherKeysDefaultToConfig2(prop) {
-    if (typeof config2[prop] !== 'undefined') {
-      config[prop] = config2[prop];
-    } else if (typeof config1[prop] !== 'undefined') {
-      config[prop] = config1[prop];
-    }
-  });
-
-  return config;
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/settle.js":
-/*!***********************************************!*\
-  !*** ./node_modules/axios/lib/core/settle.js ***!
-  \***********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var createError = __webpack_require__(/*! ./createError */ "./node_modules/axios/lib/core/createError.js");
-
-/**
- * Resolve or reject a Promise based on response status.
- *
- * @param {Function} resolve A function that resolves the promise.
- * @param {Function} reject A function that rejects the promise.
- * @param {object} response The response.
- */
-module.exports = function settle(resolve, reject, response) {
-  var validateStatus = response.config.validateStatus;
-  if (!validateStatus || validateStatus(response.status)) {
-    resolve(response);
-  } else {
-    reject(createError(
-      'Request failed with status code ' + response.status,
-      response.config,
-      null,
-      response.request,
-      response
-    ));
-  }
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/core/transformData.js":
-/*!******************************************************!*\
-  !*** ./node_modules/axios/lib/core/transformData.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-
-/**
- * Transform the data for a request or a response
- *
- * @param {Object|String} data The data to be transformed
- * @param {Array} headers The headers for the request or response
- * @param {Array|Function} fns A single function or Array of functions
- * @returns {*} The resulting transformed data
- */
-module.exports = function transformData(data, headers, fns) {
-  /*eslint no-param-reassign:0*/
-  utils.forEach(fns, function transform(fn) {
-    data = fn(data, headers);
-  });
-
-  return data;
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/defaults.js":
-/*!********************************************!*\
-  !*** ./node_modules/axios/lib/defaults.js ***!
-  \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var utils = __webpack_require__(/*! ./utils */ "./node_modules/axios/lib/utils.js");
-var normalizeHeaderName = __webpack_require__(/*! ./helpers/normalizeHeaderName */ "./node_modules/axios/lib/helpers/normalizeHeaderName.js");
-
-var DEFAULT_CONTENT_TYPE = {
-  'Content-Type': 'application/x-www-form-urlencoded'
-};
-
-function setContentTypeIfUnset(headers, value) {
-  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
-    headers['Content-Type'] = value;
-  }
-}
-
-function getDefaultAdapter() {
-  var adapter;
-  if (typeof XMLHttpRequest !== 'undefined') {
-    // For browsers use XHR adapter
-    adapter = __webpack_require__(/*! ./adapters/xhr */ "./node_modules/axios/lib/adapters/xhr.js");
-  } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
-    // For node use HTTP adapter
-    adapter = __webpack_require__(/*! ./adapters/http */ "./node_modules/axios/lib/adapters/xhr.js");
-  }
-  return adapter;
-}
-
-var defaults = {
-  adapter: getDefaultAdapter(),
-
-  transformRequest: [function transformRequest(data, headers) {
-    normalizeHeaderName(headers, 'Accept');
-    normalizeHeaderName(headers, 'Content-Type');
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
-    ) {
-      return data;
-    }
-    if (utils.isArrayBufferView(data)) {
-      return data.buffer;
-    }
-    if (utils.isURLSearchParams(data)) {
-      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
-      return data.toString();
-    }
-    if (utils.isObject(data)) {
-      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
-      return JSON.stringify(data);
-    }
-    return data;
-  }],
-
-  transformResponse: [function transformResponse(data) {
-    /*eslint no-param-reassign:0*/
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (e) { /* Ignore */ }
-    }
-    return data;
-  }],
-
-  /**
-   * A timeout in milliseconds to abort a request. If set to 0 (default) a
-   * timeout is not created.
-   */
-  timeout: 0,
-
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN',
-
-  maxContentLength: -1,
-
-  validateStatus: function validateStatus(status) {
-    return status >= 200 && status < 300;
-  }
-};
-
-defaults.headers = {
-  common: {
-    'Accept': 'application/json, text/plain, */*'
-  }
-};
-
-utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-  defaults.headers[method] = {};
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
-});
-
-module.exports = defaults;
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../process/browser.js */ "./node_modules/process/browser.js")))
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/bind.js":
-/*!************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/bind.js ***!
-  \************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function bind(fn, thisArg) {
-  return function wrap() {
-    var args = new Array(arguments.length);
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i];
-    }
-    return fn.apply(thisArg, args);
-  };
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/buildURL.js":
-/*!****************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/buildURL.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-
-function encode(val) {
-  return encodeURIComponent(val).
-    replace(/%40/gi, '@').
-    replace(/%3A/gi, ':').
-    replace(/%24/g, '$').
-    replace(/%2C/gi, ',').
-    replace(/%20/g, '+').
-    replace(/%5B/gi, '[').
-    replace(/%5D/gi, ']');
-}
-
-/**
- * Build a URL by appending params to the end
- *
- * @param {string} url The base of the url (e.g., http://www.google.com)
- * @param {object} [params] The params to be appended
- * @returns {string} The formatted url
- */
-module.exports = function buildURL(url, params, paramsSerializer) {
-  /*eslint no-param-reassign:0*/
-  if (!params) {
-    return url;
-  }
-
-  var serializedParams;
-  if (paramsSerializer) {
-    serializedParams = paramsSerializer(params);
-  } else if (utils.isURLSearchParams(params)) {
-    serializedParams = params.toString();
-  } else {
-    var parts = [];
-
-    utils.forEach(params, function serialize(val, key) {
-      if (val === null || typeof val === 'undefined') {
-        return;
-      }
-
-      if (utils.isArray(val)) {
-        key = key + '[]';
-      } else {
-        val = [val];
-      }
-
-      utils.forEach(val, function parseValue(v) {
-        if (utils.isDate(v)) {
-          v = v.toISOString();
-        } else if (utils.isObject(v)) {
-          v = JSON.stringify(v);
-        }
-        parts.push(encode(key) + '=' + encode(v));
-      });
-    });
-
-    serializedParams = parts.join('&');
-  }
-
-  if (serializedParams) {
-    var hashmarkIndex = url.indexOf('#');
-    if (hashmarkIndex !== -1) {
-      url = url.slice(0, hashmarkIndex);
-    }
-
-    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
-  }
-
-  return url;
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/combineURLs.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/combineURLs.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Creates a new URL by combining the specified URLs
- *
- * @param {string} baseURL The base URL
- * @param {string} relativeURL The relative URL
- * @returns {string} The combined URL
- */
-module.exports = function combineURLs(baseURL, relativeURL) {
-  return relativeURL
-    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
-    : baseURL;
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/cookies.js":
-/*!***************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/cookies.js ***!
-  \***************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-
-module.exports = (
-  utils.isStandardBrowserEnv() ?
-
-  // Standard browser envs support document.cookie
-    (function standardBrowserEnv() {
-      return {
-        write: function write(name, value, expires, path, domain, secure) {
-          var cookie = [];
-          cookie.push(name + '=' + encodeURIComponent(value));
-
-          if (utils.isNumber(expires)) {
-            cookie.push('expires=' + new Date(expires).toGMTString());
-          }
-
-          if (utils.isString(path)) {
-            cookie.push('path=' + path);
-          }
-
-          if (utils.isString(domain)) {
-            cookie.push('domain=' + domain);
-          }
-
-          if (secure === true) {
-            cookie.push('secure');
-          }
-
-          document.cookie = cookie.join('; ');
-        },
-
-        read: function read(name) {
-          var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-          return (match ? decodeURIComponent(match[3]) : null);
-        },
-
-        remove: function remove(name) {
-          this.write(name, '', Date.now() - 86400000);
-        }
-      };
-    })() :
-
-  // Non standard browser env (web workers, react-native) lack needed support.
-    (function nonStandardBrowserEnv() {
-      return {
-        write: function write() {},
-        read: function read() { return null; },
-        remove: function remove() {}
-      };
-    })()
-);
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/isAbsoluteURL.js":
-/*!*********************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/isAbsoluteURL.js ***!
-  \*********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Determines whether the specified URL is absolute
- *
- * @param {string} url The URL to test
- * @returns {boolean} True if the specified URL is absolute, otherwise false
- */
-module.exports = function isAbsoluteURL(url) {
-  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
-  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
-  // by any combination of letters, digits, plus, period, or hyphen.
-  return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/isURLSameOrigin.js":
-/*!***********************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/isURLSameOrigin.js ***!
-  \***********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-
-module.exports = (
-  utils.isStandardBrowserEnv() ?
-
-  // Standard browser envs have full support of the APIs needed to test
-  // whether the request URL is of the same origin as current location.
-    (function standardBrowserEnv() {
-      var msie = /(msie|trident)/i.test(navigator.userAgent);
-      var urlParsingNode = document.createElement('a');
-      var originURL;
-
-      /**
-    * Parse a URL to discover it's components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */
-      function resolveURL(url) {
-        var href = url;
-
-        if (msie) {
-        // IE needs attribute set twice to normalize properties
-          urlParsingNode.setAttribute('href', href);
-          href = urlParsingNode.href;
-        }
-
-        urlParsingNode.setAttribute('href', href);
-
-        // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-        return {
-          href: urlParsingNode.href,
-          protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-          host: urlParsingNode.host,
-          search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-          hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-          hostname: urlParsingNode.hostname,
-          port: urlParsingNode.port,
-          pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-            urlParsingNode.pathname :
-            '/' + urlParsingNode.pathname
-        };
-      }
-
-      originURL = resolveURL(window.location.href);
-
-      /**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */
-      return function isURLSameOrigin(requestURL) {
-        var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
-        return (parsed.protocol === originURL.protocol &&
-            parsed.host === originURL.host);
-      };
-    })() :
-
-  // Non standard browser envs (web workers, react-native) lack needed support.
-    (function nonStandardBrowserEnv() {
-      return function isURLSameOrigin() {
-        return true;
-      };
-    })()
-);
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/normalizeHeaderName.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/normalizeHeaderName.js ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ../utils */ "./node_modules/axios/lib/utils.js");
-
-module.exports = function normalizeHeaderName(headers, normalizedName) {
-  utils.forEach(headers, function processHeader(value, name) {
-    if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
-      headers[normalizedName] = value;
-      delete headers[name];
-    }
-  });
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/parseHeaders.js":
-/*!********************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/parseHeaders.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/helpers/spread.js":
+/***/ "./node_modules/alpinejs/dist/module.esm.js"
 /*!**************************************************!*\
-  !*** ./node_modules/axios/lib/helpers/spread.js ***!
+  !*** ./node_modules/alpinejs/dist/module.esm.js ***!
   \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-
-
-/**
- * Syntactic sugar for invoking a function and expanding an array for arguments.
- *
- * Common use case would be to use `Function.prototype.apply`.
- *
- *  ```js
- *  function f(x, y, z) {}
- *  var args = [1, 2, 3];
- *  f.apply(null, args);
- *  ```
- *
- * With `spread` this example can be re-written.
- *
- *  ```js
- *  spread(function(x, y, z) {})([1, 2, 3]);
- *  ```
- *
- * @param {Function} callback
- * @returns {Function}
- */
-module.exports = function spread(callback) {
-  return function wrap(arr) {
-    return callback.apply(null, arr);
-  };
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/axios/lib/utils.js":
-/*!*****************************************!*\
-  !*** ./node_modules/axios/lib/utils.js ***!
-  \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var bind = __webpack_require__(/*! ./helpers/bind */ "./node_modules/axios/lib/helpers/bind.js");
-
-/*global toString:true*/
-
-// utils is a library of generic helper functions non-specific to axios
-
-var toString = Object.prototype.toString;
-
-/**
- * Determine if a value is an Array
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an Array, otherwise false
- */
-function isArray(val) {
-  return toString.call(val) === '[object Array]';
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Alpine: () => (/* binding */ src_default),
+/* harmony export */   "default": () => (/* binding */ module_default)
+/* harmony export */ });
+// packages/alpinejs/src/scheduler.js
+var flushPending = false;
+var flushing = false;
+var queue = [];
+var lastFlushedIndex = -1;
+var transactionActive = false;
+function scheduler(callback) {
+  queueJob(callback);
 }
-
-/**
- * Determine if a value is undefined
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if the value is undefined, otherwise false
- */
-function isUndefined(val) {
-  return typeof val === 'undefined';
+function startTransaction() {
+  transactionActive = true;
 }
-
-/**
- * Determine if a value is a Buffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Buffer, otherwise false
- */
-function isBuffer(val) {
-  return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
-    && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
+function commitTransaction() {
+  transactionActive = false;
+  queueFlush();
 }
-
-/**
- * Determine if a value is an ArrayBuffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an ArrayBuffer, otherwise false
- */
-function isArrayBuffer(val) {
-  return toString.call(val) === '[object ArrayBuffer]';
+function queueJob(job) {
+  if (!queue.includes(job))
+    queue.push(job);
+  queueFlush();
 }
-
-/**
- * Determine if a value is a FormData
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an FormData, otherwise false
- */
-function isFormData(val) {
-  return (typeof FormData !== 'undefined') && (val instanceof FormData);
+function dequeueJob(job) {
+  let index = queue.indexOf(job);
+  if (index !== -1 && index > lastFlushedIndex)
+    queue.splice(index, 1);
 }
-
-/**
- * Determine if a value is a view on an ArrayBuffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
- */
-function isArrayBufferView(val) {
-  var result;
-  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
-    result = ArrayBuffer.isView(val);
-  } else {
-    result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
+function queueFlush() {
+  if (!flushing && !flushPending) {
+    if (transactionActive)
+      return;
+    flushPending = true;
+    queueMicrotask(flushJobs);
   }
+}
+function flushJobs() {
+  flushPending = false;
+  flushing = true;
+  for (let i = 0; i < queue.length; i++) {
+    queue[i]();
+    lastFlushedIndex = i;
+  }
+  queue.length = 0;
+  lastFlushedIndex = -1;
+  flushing = false;
+}
+
+// packages/alpinejs/src/reactivity.js
+var reactive;
+var effect;
+var release;
+var raw;
+var shouldSchedule = true;
+function disableEffectScheduling(callback) {
+  shouldSchedule = false;
+  callback();
+  shouldSchedule = true;
+}
+function setReactivityEngine(engine) {
+  reactive = engine.reactive;
+  release = engine.release;
+  effect = (callback) => engine.effect(callback, { scheduler: (task) => {
+    if (shouldSchedule) {
+      scheduler(task);
+    } else {
+      task();
+    }
+  } });
+  raw = engine.raw;
+}
+function overrideEffect(override) {
+  effect = override;
+}
+function elementBoundEffect(el) {
+  let cleanup2 = () => {
+  };
+  let wrappedEffect = (callback) => {
+    let effectReference = effect(callback);
+    if (!el._x_effects) {
+      el._x_effects = /* @__PURE__ */ new Set();
+      el._x_runEffects = () => {
+        el._x_effects.forEach((i) => i());
+      };
+    }
+    el._x_effects.add(effectReference);
+    cleanup2 = () => {
+      if (effectReference === void 0)
+        return;
+      el._x_effects.delete(effectReference);
+      release(effectReference);
+    };
+    return effectReference;
+  };
+  return [wrappedEffect, () => {
+    cleanup2();
+  }];
+}
+function watch(getter, callback) {
+  let firstTime = true;
+  let oldValue;
+  let effectReference = effect(() => {
+    let value = getter();
+    JSON.stringify(value);
+    if (!firstTime) {
+      if (typeof value === "object" || value !== oldValue) {
+        let previousValue = oldValue;
+        queueMicrotask(() => {
+          callback(value, previousValue);
+        });
+      }
+    }
+    oldValue = value;
+    firstTime = false;
+  });
+  return () => release(effectReference);
+}
+async function transaction(callback) {
+  startTransaction();
+  try {
+    await callback();
+    await Promise.resolve();
+  } finally {
+    commitTransaction();
+  }
+}
+
+// packages/alpinejs/src/mutation.js
+var onAttributeAddeds = [];
+var onElRemoveds = [];
+var onElAddeds = [];
+function onElAdded(callback) {
+  onElAddeds.push(callback);
+}
+function onElRemoved(el, callback) {
+  if (typeof callback === "function") {
+    if (!el._x_cleanups)
+      el._x_cleanups = [];
+    el._x_cleanups.push(callback);
+  } else {
+    callback = el;
+    onElRemoveds.push(callback);
+  }
+}
+function onAttributesAdded(callback) {
+  onAttributeAddeds.push(callback);
+}
+function onAttributeRemoved(el, name, callback) {
+  if (!el._x_attributeCleanups)
+    el._x_attributeCleanups = {};
+  if (!el._x_attributeCleanups[name])
+    el._x_attributeCleanups[name] = [];
+  el._x_attributeCleanups[name].push(callback);
+}
+function cleanupAttributes(el, names) {
+  if (!el._x_attributeCleanups)
+    return;
+  Object.entries(el._x_attributeCleanups).forEach(([name, value]) => {
+    if (names === void 0 || names.includes(name)) {
+      value.forEach((i) => i());
+      delete el._x_attributeCleanups[name];
+    }
+  });
+}
+function cleanupElement(el) {
+  el._x_effects?.forEach(dequeueJob);
+  while (el._x_cleanups?.length)
+    el._x_cleanups.pop()();
+}
+var observer = new MutationObserver(onMutate);
+var currentlyObserving = false;
+function startObservingMutations() {
+  observer.observe(document, { subtree: true, childList: true, attributes: true, attributeOldValue: true });
+  currentlyObserving = true;
+}
+function stopObservingMutations() {
+  flushObserver();
+  observer.disconnect();
+  currentlyObserving = false;
+}
+var queuedMutations = [];
+function flushObserver() {
+  let records = observer.takeRecords();
+  queuedMutations.push(() => records.length > 0 && onMutate(records));
+  let queueLengthWhenTriggered = queuedMutations.length;
+  queueMicrotask(() => {
+    if (queuedMutations.length === queueLengthWhenTriggered) {
+      while (queuedMutations.length > 0)
+        queuedMutations.shift()();
+    }
+  });
+}
+function mutateDom(callback) {
+  if (!currentlyObserving)
+    return callback();
+  stopObservingMutations();
+  let result = callback();
+  startObservingMutations();
   return result;
 }
-
-/**
- * Determine if a value is a String
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a String, otherwise false
- */
-function isString(val) {
-  return typeof val === 'string';
+var isCollecting = false;
+var deferredMutations = [];
+function deferMutations() {
+  isCollecting = true;
 }
-
-/**
- * Determine if a value is a Number
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Number, otherwise false
- */
-function isNumber(val) {
-  return typeof val === 'number';
+function flushAndStopDeferringMutations() {
+  isCollecting = false;
+  onMutate(deferredMutations);
+  deferredMutations = [];
 }
-
-/**
- * Determine if a value is an Object
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an Object, otherwise false
- */
-function isObject(val) {
-  return val !== null && typeof val === 'object';
-}
-
-/**
- * Determine if a value is a Date
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Date, otherwise false
- */
-function isDate(val) {
-  return toString.call(val) === '[object Date]';
-}
-
-/**
- * Determine if a value is a File
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a File, otherwise false
- */
-function isFile(val) {
-  return toString.call(val) === '[object File]';
-}
-
-/**
- * Determine if a value is a Blob
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Blob, otherwise false
- */
-function isBlob(val) {
-  return toString.call(val) === '[object Blob]';
-}
-
-/**
- * Determine if a value is a Function
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Function, otherwise false
- */
-function isFunction(val) {
-  return toString.call(val) === '[object Function]';
-}
-
-/**
- * Determine if a value is a Stream
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Stream, otherwise false
- */
-function isStream(val) {
-  return isObject(val) && isFunction(val.pipe);
-}
-
-/**
- * Determine if a value is a URLSearchParams object
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a URLSearchParams object, otherwise false
- */
-function isURLSearchParams(val) {
-  return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
-}
-
-/**
- * Trim excess whitespace off the beginning and end of a string
- *
- * @param {String} str The String to trim
- * @returns {String} The String freed of excess whitespace
- */
-function trim(str) {
-  return str.replace(/^\s*/, '').replace(/\s*$/, '');
-}
-
-/**
- * Determine if we're running in a standard browser environment
- *
- * This allows axios to run in a web worker, and react-native.
- * Both environments support XMLHttpRequest, but not fully standard globals.
- *
- * web workers:
- *  typeof window -> undefined
- *  typeof document -> undefined
- *
- * react-native:
- *  navigator.product -> 'ReactNative'
- * nativescript
- *  navigator.product -> 'NativeScript' or 'NS'
- */
-function isStandardBrowserEnv() {
-  if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||
-                                           navigator.product === 'NativeScript' ||
-                                           navigator.product === 'NS')) {
-    return false;
-  }
-  return (
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined'
-  );
-}
-
-/**
- * Iterate over an Array or an Object invoking a function for each item.
- *
- * If `obj` is an Array callback will be called passing
- * the value, index, and complete array for each item.
- *
- * If 'obj' is an Object callback will be called passing
- * the value, key, and complete object for each property.
- *
- * @param {Object|Array} obj The object to iterate
- * @param {Function} fn The callback to invoke for each item
- */
-function forEach(obj, fn) {
-  // Don't bother if no value provided
-  if (obj === null || typeof obj === 'undefined') {
+function onMutate(mutations) {
+  if (isCollecting) {
+    deferredMutations = deferredMutations.concat(mutations);
     return;
   }
-
-  // Force an array if not already something iterable
-  if (typeof obj !== 'object') {
-    /*eslint no-param-reassign:0*/
-    obj = [obj];
-  }
-
-  if (isArray(obj)) {
-    // Iterate over array values
-    for (var i = 0, l = obj.length; i < l; i++) {
-      fn.call(null, obj[i], i, obj);
+  let addedNodes = [];
+  let removedNodes = /* @__PURE__ */ new Set();
+  let addedAttributes = /* @__PURE__ */ new Map();
+  let removedAttributes = /* @__PURE__ */ new Map();
+  for (let i = 0; i < mutations.length; i++) {
+    if (mutations[i].target._x_ignoreMutationObserver)
+      continue;
+    if (mutations[i].type === "childList") {
+      mutations[i].removedNodes.forEach((node) => {
+        if (node.nodeType !== 1)
+          return;
+        if (!node._x_marker)
+          return;
+        removedNodes.add(node);
+      });
+      mutations[i].addedNodes.forEach((node) => {
+        if (node.nodeType !== 1)
+          return;
+        if (removedNodes.has(node)) {
+          removedNodes.delete(node);
+          return;
+        }
+        if (node._x_marker)
+          return;
+        addedNodes.push(node);
+      });
     }
-  } else {
-    // Iterate over object keys
-    for (var key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        fn.call(null, obj[key], key, obj);
+    if (mutations[i].type === "attributes") {
+      let el = mutations[i].target;
+      let name = mutations[i].attributeName;
+      let oldValue = mutations[i].oldValue;
+      let add2 = () => {
+        if (!addedAttributes.has(el))
+          addedAttributes.set(el, []);
+        addedAttributes.get(el).push({ name, value: el.getAttribute(name) });
+      };
+      let remove = () => {
+        if (!removedAttributes.has(el))
+          removedAttributes.set(el, []);
+        removedAttributes.get(el).push(name);
+      };
+      if (el.hasAttribute(name) && oldValue === null) {
+        add2();
+      } else if (el.hasAttribute(name)) {
+        remove();
+        add2();
+      } else {
+        remove();
       }
     }
   }
+  removedAttributes.forEach((attrs, el) => {
+    cleanupAttributes(el, attrs);
+  });
+  addedAttributes.forEach((attrs, el) => {
+    onAttributeAddeds.forEach((i) => i(el, attrs));
+  });
+  for (let node of removedNodes) {
+    if (addedNodes.some((i) => i.contains(node)))
+      continue;
+    onElRemoveds.forEach((i) => i(node));
+  }
+  for (let node of addedNodes) {
+    if (!node.isConnected)
+      continue;
+    onElAddeds.forEach((i) => i(node));
+  }
+  addedNodes = null;
+  removedNodes = null;
+  addedAttributes = null;
+  removedAttributes = null;
 }
 
-/**
- * Accepts varargs expecting each argument to be an object, then
- * immutably merges the properties of each object and returns result.
- *
- * When multiple objects contain the same key the later object in
- * the arguments list will take precedence.
- *
- * Example:
- *
- * ```js
- * var result = merge({foo: 123}, {foo: 456});
- * console.log(result.foo); // outputs 456
- * ```
- *
- * @param {Object} obj1 Object to merge
- * @returns {Object} Result of all merge properties
- */
-function merge(/* obj1, obj2, obj3, ... */) {
-  var result = {};
-  function assignValue(val, key) {
-    if (typeof result[key] === 'object' && typeof val === 'object') {
-      result[key] = merge(result[key], val);
+// packages/alpinejs/src/scope.js
+function scope(node) {
+  return mergeProxies(closestDataStack(node));
+}
+function addScopeToNode(node, data2, referenceNode) {
+  node._x_dataStack = [data2, ...closestDataStack(referenceNode || node)];
+  return () => {
+    node._x_dataStack = node._x_dataStack.filter((i) => i !== data2);
+  };
+}
+function closestDataStack(node) {
+  if (node._x_dataStack)
+    return node._x_dataStack;
+  if (typeof ShadowRoot === "function" && node instanceof ShadowRoot) {
+    return closestDataStack(node.host);
+  }
+  if (!node.parentNode) {
+    return [];
+  }
+  return closestDataStack(node.parentNode);
+}
+function mergeProxies(objects) {
+  return new Proxy({ objects }, mergeProxyTrap);
+}
+var mergeProxyTrap = {
+  ownKeys({ objects }) {
+    return Array.from(
+      new Set(objects.flatMap((i) => Object.keys(i)))
+    );
+  },
+  has({ objects }, name) {
+    if (name == Symbol.unscopables)
+      return false;
+    return objects.some(
+      (obj) => Object.prototype.hasOwnProperty.call(obj, name) || Reflect.has(obj, name)
+    );
+  },
+  get({ objects }, name, thisProxy) {
+    if (name == "toJSON")
+      return collapseProxies;
+    return Reflect.get(
+      objects.find(
+        (obj) => Reflect.has(obj, name)
+      ) || {},
+      name,
+      thisProxy
+    );
+  },
+  set({ objects }, name, value, thisProxy) {
+    const target = objects.find(
+      (obj) => Object.prototype.hasOwnProperty.call(obj, name)
+    ) || objects[objects.length - 1];
+    const descriptor = Object.getOwnPropertyDescriptor(target, name);
+    if (descriptor?.set && descriptor?.get)
+      return descriptor.set.call(thisProxy, value) || true;
+    return Reflect.set(target, name, value);
+  }
+};
+function collapseProxies() {
+  let keys = Reflect.ownKeys(this);
+  return keys.reduce((acc, key) => {
+    acc[key] = Reflect.get(this, key);
+    return acc;
+  }, {});
+}
+
+// packages/alpinejs/src/interceptor.js
+function initInterceptors(data2) {
+  let isObject2 = (val) => typeof val === "object" && !Array.isArray(val) && val !== null;
+  let recurse = (obj, basePath = "") => {
+    Object.entries(Object.getOwnPropertyDescriptors(obj)).forEach(([key, { value, enumerable }]) => {
+      if (enumerable === false || value === void 0)
+        return;
+      if (typeof value === "object" && value !== null && value.__v_skip)
+        return;
+      let path = basePath === "" ? key : `${basePath}.${key}`;
+      if (typeof value === "object" && value !== null && value._x_interceptor) {
+        obj[key] = value.initialize(data2, path, key);
+      } else {
+        if (isObject2(value) && value !== obj && !(value instanceof Element)) {
+          recurse(value, path);
+        }
+      }
+    });
+  };
+  return recurse(data2);
+}
+function interceptor(callback, mutateObj = () => {
+}) {
+  let obj = {
+    initialValue: void 0,
+    _x_interceptor: true,
+    initialize(data2, path, key) {
+      return callback(this.initialValue, () => get(data2, path), (value) => set(data2, path, value), path, key);
+    }
+  };
+  mutateObj(obj);
+  return (initialValue) => {
+    if (typeof initialValue === "object" && initialValue !== null && initialValue._x_interceptor) {
+      let initialize = obj.initialize.bind(obj);
+      obj.initialize = (data2, path, key) => {
+        let innerValue = initialValue.initialize(data2, path, key);
+        obj.initialValue = innerValue;
+        return initialize(data2, path, key);
+      };
     } else {
-      result[key] = val;
+      obj.initialValue = initialValue;
+    }
+    return obj;
+  };
+}
+function get(obj, path) {
+  return path.split(".").reduce((carry, segment) => carry[segment], obj);
+}
+function set(obj, path, value) {
+  if (typeof path === "string")
+    path = path.split(".");
+  if (path.length === 1)
+    obj[path[0]] = value;
+  else if (path.length === 0)
+    throw error;
+  else {
+    if (obj[path[0]])
+      return set(obj[path[0]], path.slice(1), value);
+    else {
+      obj[path[0]] = {};
+      return set(obj[path[0]], path.slice(1), value);
     }
   }
-
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    forEach(arguments[i], assignValue);
-  }
-  return result;
 }
 
-/**
- * Function equal to merge with the difference being that no reference
- * to original objects is kept.
- *
- * @see merge
- * @param {Object} obj1 Object to merge
- * @returns {Object} Result of all merge properties
- */
-function deepMerge(/* obj1, obj2, obj3, ... */) {
-  var result = {};
-  function assignValue(val, key) {
-    if (typeof result[key] === 'object' && typeof val === 'object') {
-      result[key] = deepMerge(result[key], val);
-    } else if (typeof val === 'object') {
-      result[key] = deepMerge({}, val);
-    } else {
-      result[key] = val;
+// packages/alpinejs/src/magics.js
+var magics = {};
+function magic(name, callback) {
+  magics[name] = callback;
+}
+function injectMagics(obj, el) {
+  let memoizedUtilities = getUtilities(el);
+  Object.entries(magics).forEach(([name, callback]) => {
+    Object.defineProperty(obj, `$${name}`, {
+      get() {
+        return callback(el, memoizedUtilities);
+      },
+      enumerable: false
+    });
+  });
+  return obj;
+}
+function getUtilities(el) {
+  let [utilities, cleanup2] = getElementBoundUtilities(el);
+  let utils = { interceptor, ...utilities };
+  onElRemoved(el, cleanup2);
+  return utils;
+}
+
+// packages/alpinejs/src/utils/error.js
+function tryCatch(el, expression, callback, ...args) {
+  try {
+    return callback(...args);
+  } catch (e) {
+    handleError(e, el, expression);
+  }
+}
+function handleError(...args) {
+  return errorHandler(...args);
+}
+var errorHandler = normalErrorHandler;
+function setErrorHandler(handler4) {
+  errorHandler = handler4;
+}
+function normalErrorHandler(error2, el, expression = void 0) {
+  error2 = Object.assign(
+    error2 ?? { message: "No error message given." },
+    { el, expression }
+  );
+  console.warn(`Alpine Expression Error: ${error2.message}
+
+${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
+  setTimeout(() => {
+    throw error2;
+  }, 0);
+}
+
+// packages/alpinejs/src/evaluator.js
+var shouldAutoEvaluateFunctions = true;
+function dontAutoEvaluateFunctions(callback) {
+  let cache = shouldAutoEvaluateFunctions;
+  shouldAutoEvaluateFunctions = false;
+  let result = callback();
+  shouldAutoEvaluateFunctions = cache;
+  return result;
+}
+function evaluate(el, expression, extras = {}) {
+  let result;
+  evaluateLater(el, expression)((value) => result = value, extras);
+  return result;
+}
+function evaluateLater(...args) {
+  return theEvaluatorFunction(...args);
+}
+var theEvaluatorFunction = normalEvaluator;
+function setEvaluator(newEvaluator) {
+  theEvaluatorFunction = newEvaluator;
+}
+var theRawEvaluatorFunction;
+function setRawEvaluator(newEvaluator) {
+  theRawEvaluatorFunction = newEvaluator;
+}
+function normalEvaluator(el, expression) {
+  let overriddenMagics = {};
+  injectMagics(overriddenMagics, el);
+  let dataStack = [overriddenMagics, ...closestDataStack(el)];
+  let evaluator = typeof expression === "function" ? generateEvaluatorFromFunction(dataStack, expression) : generateEvaluatorFromString(dataStack, expression, el);
+  return tryCatch.bind(null, el, expression, evaluator);
+}
+function generateEvaluatorFromFunction(dataStack, func) {
+  return (receiver = () => {
+  }, { scope: scope2 = {}, params = [], context } = {}) => {
+    if (!shouldAutoEvaluateFunctions) {
+      runIfTypeOfFunction(receiver, func, mergeProxies([scope2, ...dataStack]), params);
+      return;
     }
+    let result = func.apply(mergeProxies([scope2, ...dataStack]), params);
+    runIfTypeOfFunction(receiver, result);
+  };
+}
+var evaluatorMemo = {};
+function generateFunctionFromString(expression, el) {
+  if (evaluatorMemo[expression]) {
+    return evaluatorMemo[expression];
   }
-
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    forEach(arguments[i], assignValue);
+  let AsyncFunction = Object.getPrototypeOf(async function() {
+  }).constructor;
+  let rightSideSafeExpression = /^[\n\s]*if.*\(.*\)/.test(expression.trim()) || /^(let|const)\s/.test(expression.trim()) ? `(async()=>{ ${expression} })()` : expression;
+  const safeAsyncFunction = () => {
+    try {
+      let func2 = new AsyncFunction(
+        ["__self", "scope"],
+        `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`
+      );
+      Object.defineProperty(func2, "name", {
+        value: `[Alpine] ${expression}`
+      });
+      return func2;
+    } catch (error2) {
+      handleError(error2, el, expression);
+      return Promise.resolve();
+    }
+  };
+  let func = safeAsyncFunction();
+  evaluatorMemo[expression] = func;
+  return func;
+}
+function generateEvaluatorFromString(dataStack, expression, el) {
+  let func = generateFunctionFromString(expression, el);
+  return (receiver = () => {
+  }, { scope: scope2 = {}, params = [], context } = {}) => {
+    func.result = void 0;
+    func.finished = false;
+    let completeScope = mergeProxies([scope2, ...dataStack]);
+    if (typeof func === "function") {
+      let promise = func.call(context, func, completeScope).catch((error2) => handleError(error2, el, expression));
+      if (func.finished) {
+        runIfTypeOfFunction(receiver, func.result, completeScope, params, el);
+        func.result = void 0;
+      } else {
+        promise.then((result) => {
+          runIfTypeOfFunction(receiver, result, completeScope, params, el);
+        }).catch((error2) => handleError(error2, el, expression)).finally(() => func.result = void 0);
+      }
+    }
+  };
+}
+function runIfTypeOfFunction(receiver, value, scope2, params, el) {
+  if (shouldAutoEvaluateFunctions && typeof value === "function") {
+    let result = value.apply(scope2, params);
+    if (result instanceof Promise) {
+      result.then((i) => runIfTypeOfFunction(receiver, i, scope2, params)).catch((error2) => handleError(error2, el, value));
+    } else {
+      receiver(result);
+    }
+  } else if (typeof value === "object" && value instanceof Promise) {
+    value.then((i) => receiver(i));
+  } else {
+    receiver(value);
   }
-  return result;
+}
+function evaluateRaw(...args) {
+  return theRawEvaluatorFunction(...args);
+}
+function normalRawEvaluator(el, expression, extras = {}) {
+  let overriddenMagics = {};
+  injectMagics(overriddenMagics, el);
+  let dataStack = [overriddenMagics, ...closestDataStack(el)];
+  let scope2 = mergeProxies([extras.scope ?? {}, ...dataStack]);
+  let params = extras.params ?? [];
+  if (expression.includes("await")) {
+    let AsyncFunction = Object.getPrototypeOf(async function() {
+    }).constructor;
+    let rightSideSafeExpression = /^[\n\s]*if.*\(.*\)/.test(expression.trim()) || /^(let|const)\s/.test(expression.trim()) ? `(async()=>{ ${expression} })()` : expression;
+    let func = new AsyncFunction(
+      ["scope"],
+      `with (scope) { let __result = ${rightSideSafeExpression}; return __result }`
+    );
+    let result = func.call(extras.context, scope2);
+    return result;
+  } else {
+    let rightSideSafeExpression = /^[\n\s]*if.*\(.*\)/.test(expression.trim()) || /^(let|const)\s/.test(expression.trim()) ? `(()=>{ ${expression} })()` : expression;
+    let func = new Function(
+      ["scope"],
+      `with (scope) { let __result = ${rightSideSafeExpression}; return __result }`
+    );
+    let result = func.call(extras.context, scope2);
+    if (typeof result === "function" && shouldAutoEvaluateFunctions) {
+      return result.apply(scope2, params);
+    }
+    return result;
+  }
 }
 
-/**
- * Extends object a by mutably adding to it the properties of object b.
- *
- * @param {Object} a The object to be extended
- * @param {Object} b The object to copy properties from
- * @param {Object} thisArg The object to bind function to
- * @return {Object} The resulting value of object a
- */
-function extend(a, b, thisArg) {
-  forEach(b, function assignValue(val, key) {
-    if (thisArg && typeof val === 'function') {
-      a[key] = bind(val, thisArg);
-    } else {
-      a[key] = val;
+// packages/alpinejs/src/directives.js
+var prefixAsString = "x-";
+function prefix(subject = "") {
+  return prefixAsString + subject;
+}
+function setPrefix(newPrefix) {
+  prefixAsString = newPrefix;
+}
+var directiveHandlers = {};
+function directive(name, callback) {
+  directiveHandlers[name] = callback;
+  return {
+    before(directive2) {
+      if (!directiveHandlers[directive2]) {
+        console.warn(String.raw`Cannot find directive \`${directive2}\`. \`${name}\` will use the default order of execution`);
+        return;
+      }
+      const pos = directiveOrder.indexOf(directive2);
+      directiveOrder.splice(pos >= 0 ? pos : directiveOrder.indexOf("DEFAULT"), 0, name);
+    }
+  };
+}
+function directiveExists(name) {
+  return Object.keys(directiveHandlers).includes(name);
+}
+function directives(el, attributes, originalAttributeOverride) {
+  attributes = Array.from(attributes);
+  if (el._x_virtualDirectives) {
+    let vAttributes = Object.entries(el._x_virtualDirectives).map(([name, value]) => ({ name, value }));
+    let staticAttributes = attributesOnly(vAttributes);
+    vAttributes = vAttributes.map((attribute) => {
+      if (staticAttributes.find((attr) => attr.name === attribute.name)) {
+        return {
+          name: `x-bind:${attribute.name}`,
+          value: `"${attribute.value}"`
+        };
+      }
+      return attribute;
+    });
+    attributes = attributes.concat(vAttributes);
+  }
+  let transformedAttributeMap = {};
+  let directives2 = attributes.map(toTransformedAttributes((newName, oldName) => transformedAttributeMap[newName] = oldName)).filter(outNonAlpineAttributes).map(toParsedDirectives(transformedAttributeMap, originalAttributeOverride)).sort(byPriority);
+  return directives2.map((directive2) => {
+    return getDirectiveHandler(el, directive2);
+  });
+}
+function attributesOnly(attributes) {
+  return Array.from(attributes).map(toTransformedAttributes()).filter((attr) => !outNonAlpineAttributes(attr));
+}
+var isDeferringHandlers = false;
+var directiveHandlerStacks = /* @__PURE__ */ new Map();
+var currentHandlerStackKey = Symbol();
+function deferHandlingDirectives(callback) {
+  isDeferringHandlers = true;
+  let key = Symbol();
+  currentHandlerStackKey = key;
+  directiveHandlerStacks.set(key, []);
+  let flushHandlers = () => {
+    while (directiveHandlerStacks.get(key).length)
+      directiveHandlerStacks.get(key).shift()();
+    directiveHandlerStacks.delete(key);
+  };
+  let stopDeferring = () => {
+    isDeferringHandlers = false;
+    flushHandlers();
+  };
+  callback(flushHandlers);
+  stopDeferring();
+}
+function getElementBoundUtilities(el) {
+  let cleanups = [];
+  let cleanup2 = (callback) => cleanups.push(callback);
+  let [effect3, cleanupEffect] = elementBoundEffect(el);
+  cleanups.push(cleanupEffect);
+  let utilities = {
+    Alpine: alpine_default,
+    effect: effect3,
+    cleanup: cleanup2,
+    evaluateLater: evaluateLater.bind(evaluateLater, el),
+    evaluate: evaluate.bind(evaluate, el)
+  };
+  let doCleanup = () => cleanups.forEach((i) => i());
+  return [utilities, doCleanup];
+}
+function getDirectiveHandler(el, directive2) {
+  let noop = () => {
+  };
+  let handler4 = directiveHandlers[directive2.type] || noop;
+  let [utilities, cleanup2] = getElementBoundUtilities(el);
+  onAttributeRemoved(el, directive2.original, cleanup2);
+  let fullHandler = () => {
+    if (el._x_ignore || el._x_ignoreSelf)
+      return;
+    handler4.inline && handler4.inline(el, directive2, utilities);
+    handler4 = handler4.bind(handler4, el, directive2, utilities);
+    isDeferringHandlers ? directiveHandlerStacks.get(currentHandlerStackKey).push(handler4) : handler4();
+  };
+  fullHandler.runCleanups = cleanup2;
+  return fullHandler;
+}
+var startingWith = (subject, replacement) => ({ name, value }) => {
+  if (name.startsWith(subject))
+    name = name.replace(subject, replacement);
+  return { name, value };
+};
+var into = (i) => i;
+function toTransformedAttributes(callback = () => {
+}) {
+  return ({ name, value }) => {
+    let { name: newName, value: newValue } = attributeTransformers.reduce((carry, transform) => {
+      return transform(carry);
+    }, { name, value });
+    if (newName !== name)
+      callback(newName, name);
+    return { name: newName, value: newValue };
+  };
+}
+var attributeTransformers = [];
+function mapAttributes(callback) {
+  attributeTransformers.push(callback);
+}
+function outNonAlpineAttributes({ name }) {
+  return alpineAttributeRegex().test(name);
+}
+var alpineAttributeRegex = () => new RegExp(`^${prefixAsString}([^:^.]+)\\b`);
+function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) {
+  return ({ name, value }) => {
+    if (name === value)
+      value = "";
+    let typeMatch = name.match(alpineAttributeRegex());
+    let valueMatch = name.match(/:([a-zA-Z0-9\-_:]+)/);
+    let modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
+    let original = originalAttributeOverride || transformedAttributeMap[name] || name;
+    return {
+      type: typeMatch ? typeMatch[1] : null,
+      value: valueMatch ? valueMatch[1] : null,
+      modifiers: modifiers.map((i) => i.replace(".", "")),
+      expression: value,
+      original
+    };
+  };
+}
+var DEFAULT = "DEFAULT";
+var directiveOrder = [
+  "ignore",
+  "ref",
+  "data",
+  "id",
+  "anchor",
+  "bind",
+  "init",
+  "for",
+  "model",
+  "modelable",
+  "transition",
+  "show",
+  "if",
+  DEFAULT,
+  "teleport"
+];
+function byPriority(a, b) {
+  let typeA = directiveOrder.indexOf(a.type) === -1 ? DEFAULT : a.type;
+  let typeB = directiveOrder.indexOf(b.type) === -1 ? DEFAULT : b.type;
+  return directiveOrder.indexOf(typeA) - directiveOrder.indexOf(typeB);
+}
+
+// packages/alpinejs/src/utils/dispatch.js
+function dispatch(el, name, detail = {}) {
+  el.dispatchEvent(
+    new CustomEvent(name, {
+      detail,
+      bubbles: true,
+      // Allows events to pass the shadow DOM barrier.
+      composed: true,
+      cancelable: true
+    })
+  );
+}
+
+// packages/alpinejs/src/utils/walk.js
+function walk(el, callback) {
+  if (typeof ShadowRoot === "function" && el instanceof ShadowRoot) {
+    Array.from(el.children).forEach((el2) => walk(el2, callback));
+    return;
+  }
+  let skip = false;
+  callback(el, () => skip = true);
+  if (skip)
+    return;
+  let node = el.firstElementChild;
+  while (node) {
+    walk(node, callback, false);
+    node = node.nextElementSibling;
+  }
+}
+
+// packages/alpinejs/src/utils/warn.js
+function warn(message, ...args) {
+  console.warn(`Alpine Warning: ${message}`, ...args);
+}
+
+// packages/alpinejs/src/lifecycle.js
+var started = false;
+function start() {
+  if (started)
+    warn("Alpine has already been initialized on this page. Calling Alpine.start() more than once can cause problems.");
+  started = true;
+  if (!document.body)
+    warn("Unable to initialize. Trying to load Alpine before `<body>` is available. Did you forget to add `defer` in Alpine's `<script>` tag?");
+  dispatch(document, "alpine:init");
+  dispatch(document, "alpine:initializing");
+  startObservingMutations();
+  onElAdded((el) => initTree(el, walk));
+  onElRemoved((el) => destroyTree(el));
+  onAttributesAdded((el, attrs) => {
+    directives(el, attrs).forEach((handle) => handle());
+  });
+  let outNestedComponents = (el) => !closestRoot(el.parentElement, true);
+  Array.from(document.querySelectorAll(allSelectors().join(","))).filter(outNestedComponents).forEach((el) => {
+    initTree(el);
+  });
+  dispatch(document, "alpine:initialized");
+  setTimeout(() => {
+    warnAboutMissingPlugins();
+  });
+}
+var rootSelectorCallbacks = [];
+var initSelectorCallbacks = [];
+function rootSelectors() {
+  return rootSelectorCallbacks.map((fn) => fn());
+}
+function allSelectors() {
+  return rootSelectorCallbacks.concat(initSelectorCallbacks).map((fn) => fn());
+}
+function addRootSelector(selectorCallback) {
+  rootSelectorCallbacks.push(selectorCallback);
+}
+function addInitSelector(selectorCallback) {
+  initSelectorCallbacks.push(selectorCallback);
+}
+function closestRoot(el, includeInitSelectors = false) {
+  return findClosest(el, (element) => {
+    const selectors = includeInitSelectors ? allSelectors() : rootSelectors();
+    if (selectors.some((selector) => element.matches(selector)))
+      return true;
+  });
+}
+function findClosest(el, callback) {
+  if (!el)
+    return;
+  if (callback(el))
+    return el;
+  if (el._x_teleportBack)
+    el = el._x_teleportBack;
+  if (el.parentNode instanceof ShadowRoot) {
+    return findClosest(el.parentNode.host, callback);
+  }
+  if (!el.parentElement)
+    return;
+  return findClosest(el.parentElement, callback);
+}
+function isRoot(el) {
+  return rootSelectors().some((selector) => el.matches(selector));
+}
+var initInterceptors2 = [];
+function interceptInit(callback) {
+  initInterceptors2.push(callback);
+}
+var markerDispenser = 1;
+function initTree(el, walker = walk, intercept = () => {
+}) {
+  if (findClosest(el, (i) => i._x_ignore))
+    return;
+  deferHandlingDirectives(() => {
+    walker(el, (el2, skip) => {
+      if (el2._x_marker)
+        return;
+      intercept(el2, skip);
+      initInterceptors2.forEach((i) => i(el2, skip));
+      directives(el2, el2.attributes).forEach((handle) => handle());
+      if (!el2._x_ignore)
+        el2._x_marker = markerDispenser++;
+      el2._x_ignore && skip();
+    });
+  });
+}
+function destroyTree(root, walker = walk) {
+  walker(root, (el) => {
+    cleanupElement(el);
+    cleanupAttributes(el);
+    delete el._x_marker;
+  });
+}
+function warnAboutMissingPlugins() {
+  let pluginDirectives = [
+    ["ui", "dialog", ["[x-dialog], [x-popover]"]],
+    ["anchor", "anchor", ["[x-anchor]"]],
+    ["sort", "sort", ["[x-sort]"]]
+  ];
+  pluginDirectives.forEach(([plugin2, directive2, selectors]) => {
+    if (directiveExists(directive2))
+      return;
+    selectors.some((selector) => {
+      if (document.querySelector(selector)) {
+        warn(`found "${selector}", but missing ${plugin2} plugin`);
+        return true;
+      }
+    });
+  });
+}
+
+// packages/alpinejs/src/nextTick.js
+var tickStack = [];
+var isHolding = false;
+function nextTick(callback = () => {
+}) {
+  queueMicrotask(() => {
+    isHolding || setTimeout(() => {
+      releaseNextTicks();
+    });
+  });
+  return new Promise((res) => {
+    tickStack.push(() => {
+      callback();
+      res();
+    });
+  });
+}
+function releaseNextTicks() {
+  isHolding = false;
+  while (tickStack.length)
+    tickStack.shift()();
+}
+function holdNextTicks() {
+  isHolding = true;
+}
+
+// packages/alpinejs/src/utils/classes.js
+function setClasses(el, value) {
+  if (Array.isArray(value)) {
+    return setClassesFromString(el, value.join(" "));
+  } else if (typeof value === "object" && value !== null) {
+    return setClassesFromObject(el, value);
+  } else if (typeof value === "function") {
+    return setClasses(el, value());
+  }
+  return setClassesFromString(el, value);
+}
+function setClassesFromString(el, classString) {
+  let split = (classString2) => classString2.split(" ").filter(Boolean);
+  let missingClasses = (classString2) => classString2.split(" ").filter((i) => !el.classList.contains(i)).filter(Boolean);
+  let addClassesAndReturnUndo = (classes) => {
+    el.classList.add(...classes);
+    return () => {
+      el.classList.remove(...classes);
+    };
+  };
+  classString = classString === true ? classString = "" : classString || "";
+  return addClassesAndReturnUndo(missingClasses(classString));
+}
+function setClassesFromObject(el, classObject) {
+  let split = (classString) => classString.split(" ").filter(Boolean);
+  let forAdd = Object.entries(classObject).flatMap(([classString, bool]) => bool ? split(classString) : false).filter(Boolean);
+  let forRemove = Object.entries(classObject).flatMap(([classString, bool]) => !bool ? split(classString) : false).filter(Boolean);
+  let added = [];
+  let removed = [];
+  forRemove.forEach((i) => {
+    if (el.classList.contains(i)) {
+      el.classList.remove(i);
+      removed.push(i);
     }
   });
-  return a;
+  forAdd.forEach((i) => {
+    if (!el.classList.contains(i)) {
+      el.classList.add(i);
+      added.push(i);
+    }
+  });
+  return () => {
+    removed.forEach((i) => el.classList.add(i));
+    added.forEach((i) => el.classList.remove(i));
+  };
 }
 
-module.exports = {
-  isArray: isArray,
-  isArrayBuffer: isArrayBuffer,
-  isBuffer: isBuffer,
-  isFormData: isFormData,
-  isArrayBufferView: isArrayBufferView,
-  isString: isString,
-  isNumber: isNumber,
-  isObject: isObject,
-  isUndefined: isUndefined,
-  isDate: isDate,
-  isFile: isFile,
-  isBlob: isBlob,
-  isFunction: isFunction,
-  isStream: isStream,
-  isURLSearchParams: isURLSearchParams,
-  isStandardBrowserEnv: isStandardBrowserEnv,
-  forEach: forEach,
-  merge: merge,
-  deepMerge: deepMerge,
-  extend: extend,
-  trim: trim
+// packages/alpinejs/src/utils/styles.js
+function setStyles(el, value) {
+  if (typeof value === "object" && value !== null) {
+    return setStylesFromObject(el, value);
+  }
+  return setStylesFromString(el, value);
+}
+function setStylesFromObject(el, value) {
+  let previousStyles = {};
+  Object.entries(value).forEach(([key, value2]) => {
+    previousStyles[key] = el.style[key];
+    if (!key.startsWith("--")) {
+      key = kebabCase(key);
+    }
+    el.style.setProperty(key, value2);
+  });
+  setTimeout(() => {
+    if (el.style.length === 0) {
+      el.removeAttribute("style");
+    }
+  });
+  return () => {
+    setStyles(el, previousStyles);
+  };
+}
+function setStylesFromString(el, value) {
+  let cache = el.getAttribute("style", value);
+  el.setAttribute("style", value);
+  return () => {
+    el.setAttribute("style", cache || "");
+  };
+}
+function kebabCase(subject) {
+  return subject.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+}
+
+// packages/alpinejs/src/utils/once.js
+function once(callback, fallback = () => {
+}) {
+  let called = false;
+  return function() {
+    if (!called) {
+      called = true;
+      callback.apply(this, arguments);
+    } else {
+      fallback.apply(this, arguments);
+    }
+  };
+}
+
+// packages/alpinejs/src/directives/x-transition.js
+directive("transition", (el, { value, modifiers, expression }, { evaluate: evaluate2 }) => {
+  if (typeof expression === "function")
+    expression = evaluate2(expression);
+  if (expression === false)
+    return;
+  if (!expression || typeof expression === "boolean") {
+    registerTransitionsFromHelper(el, modifiers, value);
+  } else {
+    registerTransitionsFromClassString(el, expression, value);
+  }
+});
+function registerTransitionsFromClassString(el, classString, stage) {
+  registerTransitionObject(el, setClasses, "");
+  let directiveStorageMap = {
+    "enter": (classes) => {
+      el._x_transition.enter.during = classes;
+    },
+    "enter-start": (classes) => {
+      el._x_transition.enter.start = classes;
+    },
+    "enter-end": (classes) => {
+      el._x_transition.enter.end = classes;
+    },
+    "leave": (classes) => {
+      el._x_transition.leave.during = classes;
+    },
+    "leave-start": (classes) => {
+      el._x_transition.leave.start = classes;
+    },
+    "leave-end": (classes) => {
+      el._x_transition.leave.end = classes;
+    }
+  };
+  directiveStorageMap[stage](classString);
+}
+function registerTransitionsFromHelper(el, modifiers, stage) {
+  registerTransitionObject(el, setStyles);
+  let doesntSpecify = !modifiers.includes("in") && !modifiers.includes("out") && !stage;
+  let transitioningIn = doesntSpecify || modifiers.includes("in") || ["enter"].includes(stage);
+  let transitioningOut = doesntSpecify || modifiers.includes("out") || ["leave"].includes(stage);
+  if (modifiers.includes("in") && !doesntSpecify) {
+    modifiers = modifiers.filter((i, index) => index < modifiers.indexOf("out"));
+  }
+  if (modifiers.includes("out") && !doesntSpecify) {
+    modifiers = modifiers.filter((i, index) => index > modifiers.indexOf("out"));
+  }
+  let wantsAll = !modifiers.includes("opacity") && !modifiers.includes("scale");
+  let wantsOpacity = wantsAll || modifiers.includes("opacity");
+  let wantsScale = wantsAll || modifiers.includes("scale");
+  let opacityValue = wantsOpacity ? 0 : 1;
+  let scaleValue = wantsScale ? modifierValue(modifiers, "scale", 95) / 100 : 1;
+  let delay = modifierValue(modifiers, "delay", 0) / 1e3;
+  let origin = modifierValue(modifiers, "origin", "center");
+  let property = "opacity, transform";
+  let durationIn = modifierValue(modifiers, "duration", 150) / 1e3;
+  let durationOut = modifierValue(modifiers, "duration", 75) / 1e3;
+  let easing = `cubic-bezier(0.4, 0.0, 0.2, 1)`;
+  if (transitioningIn) {
+    el._x_transition.enter.during = {
+      transformOrigin: origin,
+      transitionDelay: `${delay}s`,
+      transitionProperty: property,
+      transitionDuration: `${durationIn}s`,
+      transitionTimingFunction: easing
+    };
+    el._x_transition.enter.start = {
+      opacity: opacityValue,
+      transform: `scale(${scaleValue})`
+    };
+    el._x_transition.enter.end = {
+      opacity: 1,
+      transform: `scale(1)`
+    };
+  }
+  if (transitioningOut) {
+    el._x_transition.leave.during = {
+      transformOrigin: origin,
+      transitionDelay: `${delay}s`,
+      transitionProperty: property,
+      transitionDuration: `${durationOut}s`,
+      transitionTimingFunction: easing
+    };
+    el._x_transition.leave.start = {
+      opacity: 1,
+      transform: `scale(1)`
+    };
+    el._x_transition.leave.end = {
+      opacity: opacityValue,
+      transform: `scale(${scaleValue})`
+    };
+  }
+}
+function registerTransitionObject(el, setFunction, defaultValue = {}) {
+  if (!el._x_transition)
+    el._x_transition = {
+      enter: { during: defaultValue, start: defaultValue, end: defaultValue },
+      leave: { during: defaultValue, start: defaultValue, end: defaultValue },
+      in(before = () => {
+      }, after = () => {
+      }) {
+        transition(el, setFunction, {
+          during: this.enter.during,
+          start: this.enter.start,
+          end: this.enter.end
+        }, before, after);
+      },
+      out(before = () => {
+      }, after = () => {
+      }) {
+        transition(el, setFunction, {
+          during: this.leave.during,
+          start: this.leave.start,
+          end: this.leave.end
+        }, before, after);
+      }
+    };
+}
+window.Element.prototype._x_toggleAndCascadeWithTransitions = function(el, value, show, hide) {
+  const nextTick2 = document.visibilityState === "visible" ? requestAnimationFrame : setTimeout;
+  let clickAwayCompatibleShow = () => nextTick2(show);
+  if (value) {
+    if (el._x_transition && (el._x_transition.enter || el._x_transition.leave)) {
+      el._x_transition.enter && (Object.entries(el._x_transition.enter.during).length || Object.entries(el._x_transition.enter.start).length || Object.entries(el._x_transition.enter.end).length) ? el._x_transition.in(show) : clickAwayCompatibleShow();
+    } else {
+      el._x_transition ? el._x_transition.in(show) : clickAwayCompatibleShow();
+    }
+    return;
+  }
+  el._x_hidePromise = el._x_transition ? new Promise((resolve, reject) => {
+    el._x_transition.out(() => {
+    }, () => resolve(hide));
+    el._x_transitioning && el._x_transitioning.beforeCancel(() => reject({ isFromCancelledTransition: true }));
+  }) : Promise.resolve(hide);
+  queueMicrotask(() => {
+    let closest = closestHide(el);
+    if (closest) {
+      if (!closest._x_hideChildren)
+        closest._x_hideChildren = [];
+      closest._x_hideChildren.push(el);
+    } else {
+      nextTick2(() => {
+        let hideAfterChildren = (el2) => {
+          let carry = Promise.all([
+            el2._x_hidePromise,
+            ...(el2._x_hideChildren || []).map(hideAfterChildren)
+          ]).then(([i]) => i?.());
+          delete el2._x_hidePromise;
+          delete el2._x_hideChildren;
+          return carry;
+        };
+        hideAfterChildren(el).catch((e) => {
+          if (!e.isFromCancelledTransition)
+            throw e;
+        });
+      });
+    }
+  });
 };
+function closestHide(el) {
+  let parent = el.parentNode;
+  if (!parent)
+    return;
+  return parent._x_hidePromise ? parent : closestHide(parent);
+}
+function transition(el, setFunction, { during, start: start2, end } = {}, before = () => {
+}, after = () => {
+}) {
+  if (el._x_transitioning)
+    el._x_transitioning.cancel();
+  if (Object.keys(during).length === 0 && Object.keys(start2).length === 0 && Object.keys(end).length === 0) {
+    before();
+    after();
+    return;
+  }
+  let undoStart, undoDuring, undoEnd;
+  performTransition(el, {
+    start() {
+      undoStart = setFunction(el, start2);
+    },
+    during() {
+      undoDuring = setFunction(el, during);
+    },
+    before,
+    end() {
+      undoStart();
+      undoEnd = setFunction(el, end);
+    },
+    after,
+    cleanup() {
+      undoDuring();
+      undoEnd();
+    }
+  });
+}
+function performTransition(el, stages) {
+  let interrupted, reachedBefore, reachedEnd;
+  let finish = once(() => {
+    mutateDom(() => {
+      interrupted = true;
+      if (!reachedBefore)
+        stages.before();
+      if (!reachedEnd) {
+        stages.end();
+        releaseNextTicks();
+      }
+      stages.after();
+      if (el.isConnected)
+        stages.cleanup();
+      delete el._x_transitioning;
+    });
+  });
+  el._x_transitioning = {
+    beforeCancels: [],
+    beforeCancel(callback) {
+      this.beforeCancels.push(callback);
+    },
+    cancel: once(function() {
+      while (this.beforeCancels.length) {
+        this.beforeCancels.shift()();
+      }
+      ;
+      finish();
+    }),
+    finish
+  };
+  mutateDom(() => {
+    stages.start();
+    stages.during();
+  });
+  holdNextTicks();
+  requestAnimationFrame(() => {
+    if (interrupted)
+      return;
+    let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, "").replace("s", "")) * 1e3;
+    let delay = Number(getComputedStyle(el).transitionDelay.replace(/,.*/, "").replace("s", "")) * 1e3;
+    if (duration === 0)
+      duration = Number(getComputedStyle(el).animationDuration.replace("s", "")) * 1e3;
+    mutateDom(() => {
+      stages.before();
+    });
+    reachedBefore = true;
+    requestAnimationFrame(() => {
+      if (interrupted)
+        return;
+      mutateDom(() => {
+        stages.end();
+      });
+      releaseNextTicks();
+      setTimeout(el._x_transitioning.finish, duration + delay);
+      reachedEnd = true;
+    });
+  });
+}
+function modifierValue(modifiers, key, fallback) {
+  if (modifiers.indexOf(key) === -1)
+    return fallback;
+  const rawValue = modifiers[modifiers.indexOf(key) + 1];
+  if (!rawValue)
+    return fallback;
+  if (key === "scale") {
+    if (isNaN(rawValue))
+      return fallback;
+  }
+  if (key === "duration" || key === "delay") {
+    let match = rawValue.match(/([0-9]+)ms/);
+    if (match)
+      return match[1];
+  }
+  if (key === "origin") {
+    if (["top", "right", "left", "center", "bottom"].includes(modifiers[modifiers.indexOf(key) + 2])) {
+      return [rawValue, modifiers[modifiers.indexOf(key) + 2]].join(" ");
+    }
+  }
+  return rawValue;
+}
+
+// packages/alpinejs/src/clone.js
+var isCloning = false;
+function skipDuringClone(callback, fallback = () => {
+}) {
+  return (...args) => isCloning ? fallback(...args) : callback(...args);
+}
+function onlyDuringClone(callback) {
+  return (...args) => isCloning && callback(...args);
+}
+var interceptors = [];
+function interceptClone(callback) {
+  interceptors.push(callback);
+}
+function cloneNode(from, to) {
+  interceptors.forEach((i) => i(from, to));
+  isCloning = true;
+  dontRegisterReactiveSideEffects(() => {
+    initTree(to, (el, callback) => {
+      callback(el, () => {
+      });
+    });
+  });
+  isCloning = false;
+}
+var isCloningLegacy = false;
+function clone(oldEl, newEl) {
+  if (!newEl._x_dataStack)
+    newEl._x_dataStack = oldEl._x_dataStack;
+  isCloning = true;
+  isCloningLegacy = true;
+  dontRegisterReactiveSideEffects(() => {
+    cloneTree(newEl);
+  });
+  isCloning = false;
+  isCloningLegacy = false;
+}
+function cloneTree(el) {
+  let hasRunThroughFirstEl = false;
+  let shallowWalker = (el2, callback) => {
+    walk(el2, (el3, skip) => {
+      if (hasRunThroughFirstEl && isRoot(el3))
+        return skip();
+      hasRunThroughFirstEl = true;
+      callback(el3, skip);
+    });
+  };
+  initTree(el, shallowWalker);
+}
+function dontRegisterReactiveSideEffects(callback) {
+  let cache = effect;
+  overrideEffect((callback2, el) => {
+    let storedEffect = cache(callback2);
+    release(storedEffect);
+    return () => {
+    };
+  });
+  callback();
+  overrideEffect(cache);
+}
+
+// packages/alpinejs/src/utils/bind.js
+function bind(el, name, value, modifiers = []) {
+  if (!el._x_bindings)
+    el._x_bindings = reactive({});
+  el._x_bindings[name] = value;
+  name = modifiers.includes("camel") ? camelCase(name) : name;
+  switch (name) {
+    case "value":
+      bindInputValue(el, value);
+      break;
+    case "style":
+      bindStyles(el, value);
+      break;
+    case "class":
+      bindClasses(el, value);
+      break;
+    case "selected":
+    case "checked":
+      bindAttributeAndProperty(el, name, value);
+      break;
+    default:
+      bindAttribute(el, name, value);
+      break;
+  }
+}
+function bindInputValue(el, value) {
+  if (isRadio(el)) {
+    if (el.attributes.value === void 0) {
+      el.value = value;
+    }
+    if (window.fromModel) {
+      if (typeof value === "boolean") {
+        el.checked = safeParseBoolean(el.value) === value;
+      } else {
+        el.checked = checkedAttrLooseCompare(el.value, value);
+      }
+    }
+  } else if (isCheckbox(el)) {
+    if (Number.isInteger(value)) {
+      el.value = value;
+    } else if (!Array.isArray(value) && typeof value !== "boolean" && ![null, void 0].includes(value)) {
+      el.value = String(value);
+    } else {
+      if (Array.isArray(value)) {
+        el.checked = value.some((val) => checkedAttrLooseCompare(val, el.value));
+      } else {
+        el.checked = !!value;
+      }
+    }
+  } else if (el.tagName === "SELECT") {
+    updateSelect(el, value);
+  } else {
+    if (el.value === value)
+      return;
+    el.value = value === void 0 ? "" : value;
+  }
+}
+function bindClasses(el, value) {
+  if (el._x_undoAddedClasses)
+    el._x_undoAddedClasses();
+  el._x_undoAddedClasses = setClasses(el, value);
+}
+function bindStyles(el, value) {
+  if (el._x_undoAddedStyles)
+    el._x_undoAddedStyles();
+  el._x_undoAddedStyles = setStyles(el, value);
+}
+function bindAttributeAndProperty(el, name, value) {
+  bindAttribute(el, name, value);
+  setPropertyIfChanged(el, name, value);
+}
+function bindAttribute(el, name, value) {
+  if ([null, void 0, false].includes(value) && attributeShouldntBePreservedIfFalsy(name)) {
+    el.removeAttribute(name);
+  } else {
+    if (isBooleanAttr(name))
+      value = name;
+    setIfChanged(el, name, value);
+  }
+}
+function setIfChanged(el, attrName, value) {
+  if (el.getAttribute(attrName) != value) {
+    el.setAttribute(attrName, value);
+  }
+}
+function setPropertyIfChanged(el, propName, value) {
+  if (el[propName] !== value) {
+    el[propName] = value;
+  }
+}
+function updateSelect(el, value) {
+  const arrayWrappedValue = [].concat(value).map((value2) => {
+    return value2 + "";
+  });
+  Array.from(el.options).forEach((option) => {
+    option.selected = arrayWrappedValue.includes(option.value);
+  });
+}
+function camelCase(subject) {
+  return subject.toLowerCase().replace(/-(\w)/g, (match, char) => char.toUpperCase());
+}
+function checkedAttrLooseCompare(valueA, valueB) {
+  return valueA == valueB;
+}
+function safeParseBoolean(rawValue) {
+  if ([1, "1", "true", "on", "yes", true].includes(rawValue)) {
+    return true;
+  }
+  if ([0, "0", "false", "off", "no", false].includes(rawValue)) {
+    return false;
+  }
+  return rawValue ? Boolean(rawValue) : null;
+}
+var booleanAttributes = /* @__PURE__ */ new Set([
+  "allowfullscreen",
+  "async",
+  "autofocus",
+  "autoplay",
+  "checked",
+  "controls",
+  "default",
+  "defer",
+  "disabled",
+  "formnovalidate",
+  "inert",
+  "ismap",
+  "itemscope",
+  "loop",
+  "multiple",
+  "muted",
+  "nomodule",
+  "novalidate",
+  "open",
+  "playsinline",
+  "readonly",
+  "required",
+  "reversed",
+  "selected",
+  "shadowrootclonable",
+  "shadowrootdelegatesfocus",
+  "shadowrootserializable"
+]);
+function isBooleanAttr(attrName) {
+  return booleanAttributes.has(attrName);
+}
+function attributeShouldntBePreservedIfFalsy(name) {
+  return !["aria-pressed", "aria-checked", "aria-expanded", "aria-selected"].includes(name);
+}
+function getBinding(el, name, fallback) {
+  if (el._x_bindings && el._x_bindings[name] !== void 0)
+    return el._x_bindings[name];
+  return getAttributeBinding(el, name, fallback);
+}
+function extractProp(el, name, fallback, extract = true) {
+  if (el._x_bindings && el._x_bindings[name] !== void 0)
+    return el._x_bindings[name];
+  if (el._x_inlineBindings && el._x_inlineBindings[name] !== void 0) {
+    let binding = el._x_inlineBindings[name];
+    binding.extract = extract;
+    return dontAutoEvaluateFunctions(() => {
+      return evaluate(el, binding.expression);
+    });
+  }
+  return getAttributeBinding(el, name, fallback);
+}
+function getAttributeBinding(el, name, fallback) {
+  let attr = el.getAttribute(name);
+  if (attr === null)
+    return typeof fallback === "function" ? fallback() : fallback;
+  if (attr === "")
+    return true;
+  if (isBooleanAttr(name)) {
+    return !![name, "true"].includes(attr);
+  }
+  return attr;
+}
+function isCheckbox(el) {
+  return el.type === "checkbox" || el.localName === "ui-checkbox" || el.localName === "ui-switch";
+}
+function isRadio(el) {
+  return el.type === "radio" || el.localName === "ui-radio";
+}
+
+// packages/alpinejs/src/utils/debounce.js
+function debounce(func, wait) {
+  let timeout;
+  return function() {
+    const context = this, args = arguments;
+    const later = function() {
+      timeout = null;
+      func.apply(context, args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// packages/alpinejs/src/utils/throttle.js
+function throttle(func, limit) {
+  let inThrottle;
+  return function() {
+    let context = this, args = arguments;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// packages/alpinejs/src/entangle.js
+function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set: innerSet }) {
+  let firstRun = true;
+  let outerHash;
+  let innerHash;
+  let reference = effect(() => {
+    let outer = outerGet();
+    let inner = innerGet();
+    if (firstRun) {
+      innerSet(cloneIfObject(outer));
+      firstRun = false;
+    } else {
+      let outerHashLatest = JSON.stringify(outer);
+      let innerHashLatest = JSON.stringify(inner);
+      if (outerHashLatest !== outerHash) {
+        innerSet(cloneIfObject(outer));
+      } else if (outerHashLatest !== innerHashLatest) {
+        outerSet(cloneIfObject(inner));
+      } else {
+      }
+    }
+    outerHash = JSON.stringify(outerGet());
+    innerHash = JSON.stringify(innerGet());
+  });
+  return () => {
+    release(reference);
+  };
+}
+function cloneIfObject(value) {
+  return typeof value === "object" ? JSON.parse(JSON.stringify(value)) : value;
+}
+
+// packages/alpinejs/src/plugin.js
+function plugin(callback) {
+  let callbacks = Array.isArray(callback) ? callback : [callback];
+  callbacks.forEach((i) => i(alpine_default));
+}
+
+// packages/alpinejs/src/store.js
+var stores = {};
+var isReactive = false;
+function store(name, value) {
+  if (!isReactive) {
+    stores = reactive(stores);
+    isReactive = true;
+  }
+  if (value === void 0) {
+    return stores[name];
+  }
+  stores[name] = value;
+  initInterceptors(stores[name]);
+  if (typeof value === "object" && value !== null && value.hasOwnProperty("init") && typeof value.init === "function") {
+    stores[name].init();
+  }
+}
+function getStores() {
+  return stores;
+}
+
+// packages/alpinejs/src/binds.js
+var binds = {};
+function bind2(name, bindings) {
+  let getBindings = typeof bindings !== "function" ? () => bindings : bindings;
+  if (name instanceof Element) {
+    return applyBindingsObject(name, getBindings());
+  } else {
+    binds[name] = getBindings;
+  }
+  return () => {
+  };
+}
+function injectBindingProviders(obj) {
+  Object.entries(binds).forEach(([name, callback]) => {
+    Object.defineProperty(obj, name, {
+      get() {
+        return (...args) => {
+          return callback(...args);
+        };
+      }
+    });
+  });
+  return obj;
+}
+function applyBindingsObject(el, obj, original) {
+  let cleanupRunners = [];
+  while (cleanupRunners.length)
+    cleanupRunners.pop()();
+  let attributes = Object.entries(obj).map(([name, value]) => ({ name, value }));
+  let staticAttributes = attributesOnly(attributes);
+  attributes = attributes.map((attribute) => {
+    if (staticAttributes.find((attr) => attr.name === attribute.name)) {
+      return {
+        name: `x-bind:${attribute.name}`,
+        value: `"${attribute.value}"`
+      };
+    }
+    return attribute;
+  });
+  directives(el, attributes, original).map((handle) => {
+    cleanupRunners.push(handle.runCleanups);
+    handle();
+  });
+  return () => {
+    while (cleanupRunners.length)
+      cleanupRunners.pop()();
+  };
+}
+
+// packages/alpinejs/src/datas.js
+var datas = {};
+function data(name, callback) {
+  datas[name] = callback;
+}
+function injectDataProviders(obj, context) {
+  Object.entries(datas).forEach(([name, callback]) => {
+    Object.defineProperty(obj, name, {
+      get() {
+        return (...args) => {
+          return callback.bind(context)(...args);
+        };
+      },
+      enumerable: false
+    });
+  });
+  return obj;
+}
+
+// packages/alpinejs/src/alpine.js
+var Alpine = {
+  get reactive() {
+    return reactive;
+  },
+  get release() {
+    return release;
+  },
+  get effect() {
+    return effect;
+  },
+  get raw() {
+    return raw;
+  },
+  get transaction() {
+    return transaction;
+  },
+  version: "3.15.8",
+  flushAndStopDeferringMutations,
+  dontAutoEvaluateFunctions,
+  disableEffectScheduling,
+  startObservingMutations,
+  stopObservingMutations,
+  setReactivityEngine,
+  onAttributeRemoved,
+  onAttributesAdded,
+  closestDataStack,
+  skipDuringClone,
+  onlyDuringClone,
+  addRootSelector,
+  addInitSelector,
+  setErrorHandler,
+  interceptClone,
+  addScopeToNode,
+  deferMutations,
+  mapAttributes,
+  evaluateLater,
+  interceptInit,
+  initInterceptors,
+  injectMagics,
+  setEvaluator,
+  setRawEvaluator,
+  mergeProxies,
+  extractProp,
+  findClosest,
+  onElRemoved,
+  closestRoot,
+  destroyTree,
+  interceptor,
+  // INTERNAL: not public API and is subject to change without major release.
+  transition,
+  // INTERNAL
+  setStyles,
+  // INTERNAL
+  mutateDom,
+  directive,
+  entangle,
+  throttle,
+  debounce,
+  evaluate,
+  evaluateRaw,
+  initTree,
+  nextTick,
+  prefixed: prefix,
+  prefix: setPrefix,
+  plugin,
+  magic,
+  store,
+  start,
+  clone,
+  // INTERNAL
+  cloneNode,
+  // INTERNAL
+  bound: getBinding,
+  $data: scope,
+  watch,
+  walk,
+  data,
+  bind: bind2
+};
+var alpine_default = Alpine;
+
+// node_modules/@vue/shared/dist/shared.esm-bundler.js
+function makeMap(str, expectsLowerCase) {
+  const map = /* @__PURE__ */ Object.create(null);
+  const list = str.split(",");
+  for (let i = 0; i < list.length; i++) {
+    map[list[i]] = true;
+  }
+  return expectsLowerCase ? (val) => !!map[val.toLowerCase()] : (val) => !!map[val];
+}
+var specialBooleanAttrs = `itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly`;
+var isBooleanAttr2 = /* @__PURE__ */ makeMap(specialBooleanAttrs + `,async,autofocus,autoplay,controls,default,defer,disabled,hidden,loop,open,required,reversed,scoped,seamless,checked,muted,multiple,selected`);
+var EMPTY_OBJ =  true ? Object.freeze({}) : 0;
+var EMPTY_ARR =  true ? Object.freeze([]) : 0;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var hasOwn = (val, key) => hasOwnProperty.call(val, key);
+var isArray = Array.isArray;
+var isMap = (val) => toTypeString(val) === "[object Map]";
+var isString = (val) => typeof val === "string";
+var isSymbol = (val) => typeof val === "symbol";
+var isObject = (val) => val !== null && typeof val === "object";
+var objectToString = Object.prototype.toString;
+var toTypeString = (value) => objectToString.call(value);
+var toRawType = (value) => {
+  return toTypeString(value).slice(8, -1);
+};
+var isIntegerKey = (key) => isString(key) && key !== "NaN" && key[0] !== "-" && "" + parseInt(key, 10) === key;
+var cacheStringFunction = (fn) => {
+  const cache = /* @__PURE__ */ Object.create(null);
+  return (str) => {
+    const hit = cache[str];
+    return hit || (cache[str] = fn(str));
+  };
+};
+var camelizeRE = /-(\w)/g;
+var camelize = cacheStringFunction((str) => {
+  return str.replace(camelizeRE, (_, c) => c ? c.toUpperCase() : "");
+});
+var hyphenateRE = /\B([A-Z])/g;
+var hyphenate = cacheStringFunction((str) => str.replace(hyphenateRE, "-$1").toLowerCase());
+var capitalize = cacheStringFunction((str) => str.charAt(0).toUpperCase() + str.slice(1));
+var toHandlerKey = cacheStringFunction((str) => str ? `on${capitalize(str)}` : ``);
+var hasChanged = (value, oldValue) => value !== oldValue && (value === value || oldValue === oldValue);
+
+// node_modules/@vue/reactivity/dist/reactivity.esm-bundler.js
+var targetMap = /* @__PURE__ */ new WeakMap();
+var effectStack = [];
+var activeEffect;
+var ITERATE_KEY = Symbol( true ? "iterate" : 0);
+var MAP_KEY_ITERATE_KEY = Symbol( true ? "Map key iterate" : 0);
+function isEffect(fn) {
+  return fn && fn._isEffect === true;
+}
+function effect2(fn, options = EMPTY_OBJ) {
+  if (isEffect(fn)) {
+    fn = fn.raw;
+  }
+  const effect3 = createReactiveEffect(fn, options);
+  if (!options.lazy) {
+    effect3();
+  }
+  return effect3;
+}
+function stop(effect3) {
+  if (effect3.active) {
+    cleanup(effect3);
+    if (effect3.options.onStop) {
+      effect3.options.onStop();
+    }
+    effect3.active = false;
+  }
+}
+var uid = 0;
+function createReactiveEffect(fn, options) {
+  const effect3 = function reactiveEffect() {
+    if (!effect3.active) {
+      return fn();
+    }
+    if (!effectStack.includes(effect3)) {
+      cleanup(effect3);
+      try {
+        enableTracking();
+        effectStack.push(effect3);
+        activeEffect = effect3;
+        return fn();
+      } finally {
+        effectStack.pop();
+        resetTracking();
+        activeEffect = effectStack[effectStack.length - 1];
+      }
+    }
+  };
+  effect3.id = uid++;
+  effect3.allowRecurse = !!options.allowRecurse;
+  effect3._isEffect = true;
+  effect3.active = true;
+  effect3.raw = fn;
+  effect3.deps = [];
+  effect3.options = options;
+  return effect3;
+}
+function cleanup(effect3) {
+  const { deps } = effect3;
+  if (deps.length) {
+    for (let i = 0; i < deps.length; i++) {
+      deps[i].delete(effect3);
+    }
+    deps.length = 0;
+  }
+}
+var shouldTrack = true;
+var trackStack = [];
+function pauseTracking() {
+  trackStack.push(shouldTrack);
+  shouldTrack = false;
+}
+function enableTracking() {
+  trackStack.push(shouldTrack);
+  shouldTrack = true;
+}
+function resetTracking() {
+  const last = trackStack.pop();
+  shouldTrack = last === void 0 ? true : last;
+}
+function track(target, type, key) {
+  if (!shouldTrack || activeEffect === void 0) {
+    return;
+  }
+  let depsMap = targetMap.get(target);
+  if (!depsMap) {
+    targetMap.set(target, depsMap = /* @__PURE__ */ new Map());
+  }
+  let dep = depsMap.get(key);
+  if (!dep) {
+    depsMap.set(key, dep = /* @__PURE__ */ new Set());
+  }
+  if (!dep.has(activeEffect)) {
+    dep.add(activeEffect);
+    activeEffect.deps.push(dep);
+    if (activeEffect.options.onTrack) {
+      activeEffect.options.onTrack({
+        effect: activeEffect,
+        target,
+        type,
+        key
+      });
+    }
+  }
+}
+function trigger(target, type, key, newValue, oldValue, oldTarget) {
+  const depsMap = targetMap.get(target);
+  if (!depsMap) {
+    return;
+  }
+  const effects = /* @__PURE__ */ new Set();
+  const add2 = (effectsToAdd) => {
+    if (effectsToAdd) {
+      effectsToAdd.forEach((effect3) => {
+        if (effect3 !== activeEffect || effect3.allowRecurse) {
+          effects.add(effect3);
+        }
+      });
+    }
+  };
+  if (type === "clear") {
+    depsMap.forEach(add2);
+  } else if (key === "length" && isArray(target)) {
+    depsMap.forEach((dep, key2) => {
+      if (key2 === "length" || key2 >= newValue) {
+        add2(dep);
+      }
+    });
+  } else {
+    if (key !== void 0) {
+      add2(depsMap.get(key));
+    }
+    switch (type) {
+      case "add":
+        if (!isArray(target)) {
+          add2(depsMap.get(ITERATE_KEY));
+          if (isMap(target)) {
+            add2(depsMap.get(MAP_KEY_ITERATE_KEY));
+          }
+        } else if (isIntegerKey(key)) {
+          add2(depsMap.get("length"));
+        }
+        break;
+      case "delete":
+        if (!isArray(target)) {
+          add2(depsMap.get(ITERATE_KEY));
+          if (isMap(target)) {
+            add2(depsMap.get(MAP_KEY_ITERATE_KEY));
+          }
+        }
+        break;
+      case "set":
+        if (isMap(target)) {
+          add2(depsMap.get(ITERATE_KEY));
+        }
+        break;
+    }
+  }
+  const run = (effect3) => {
+    if (effect3.options.onTrigger) {
+      effect3.options.onTrigger({
+        effect: effect3,
+        target,
+        key,
+        type,
+        newValue,
+        oldValue,
+        oldTarget
+      });
+    }
+    if (effect3.options.scheduler) {
+      effect3.options.scheduler(effect3);
+    } else {
+      effect3();
+    }
+  };
+  effects.forEach(run);
+}
+var isNonTrackableKeys = /* @__PURE__ */ makeMap(`__proto__,__v_isRef,__isVue`);
+var builtInSymbols = new Set(Object.getOwnPropertyNames(Symbol).map((key) => Symbol[key]).filter(isSymbol));
+var get2 = /* @__PURE__ */ createGetter();
+var readonlyGet = /* @__PURE__ */ createGetter(true);
+var arrayInstrumentations = /* @__PURE__ */ createArrayInstrumentations();
+function createArrayInstrumentations() {
+  const instrumentations = {};
+  ["includes", "indexOf", "lastIndexOf"].forEach((key) => {
+    instrumentations[key] = function(...args) {
+      const arr = toRaw(this);
+      for (let i = 0, l = this.length; i < l; i++) {
+        track(arr, "get", i + "");
+      }
+      const res = arr[key](...args);
+      if (res === -1 || res === false) {
+        return arr[key](...args.map(toRaw));
+      } else {
+        return res;
+      }
+    };
+  });
+  ["push", "pop", "shift", "unshift", "splice"].forEach((key) => {
+    instrumentations[key] = function(...args) {
+      pauseTracking();
+      const res = toRaw(this)[key].apply(this, args);
+      resetTracking();
+      return res;
+    };
+  });
+  return instrumentations;
+}
+function createGetter(isReadonly = false, shallow = false) {
+  return function get3(target, key, receiver) {
+    if (key === "__v_isReactive") {
+      return !isReadonly;
+    } else if (key === "__v_isReadonly") {
+      return isReadonly;
+    } else if (key === "__v_raw" && receiver === (isReadonly ? shallow ? shallowReadonlyMap : readonlyMap : shallow ? shallowReactiveMap : reactiveMap).get(target)) {
+      return target;
+    }
+    const targetIsArray = isArray(target);
+    if (!isReadonly && targetIsArray && hasOwn(arrayInstrumentations, key)) {
+      return Reflect.get(arrayInstrumentations, key, receiver);
+    }
+    const res = Reflect.get(target, key, receiver);
+    if (isSymbol(key) ? builtInSymbols.has(key) : isNonTrackableKeys(key)) {
+      return res;
+    }
+    if (!isReadonly) {
+      track(target, "get", key);
+    }
+    if (shallow) {
+      return res;
+    }
+    if (isRef(res)) {
+      const shouldUnwrap = !targetIsArray || !isIntegerKey(key);
+      return shouldUnwrap ? res.value : res;
+    }
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive2(res);
+    }
+    return res;
+  };
+}
+var set2 = /* @__PURE__ */ createSetter();
+function createSetter(shallow = false) {
+  return function set3(target, key, value, receiver) {
+    let oldValue = target[key];
+    if (!shallow) {
+      value = toRaw(value);
+      oldValue = toRaw(oldValue);
+      if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
+        oldValue.value = value;
+        return true;
+      }
+    }
+    const hadKey = isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target, key);
+    const result = Reflect.set(target, key, value, receiver);
+    if (target === toRaw(receiver)) {
+      if (!hadKey) {
+        trigger(target, "add", key, value);
+      } else if (hasChanged(value, oldValue)) {
+        trigger(target, "set", key, value, oldValue);
+      }
+    }
+    return result;
+  };
+}
+function deleteProperty(target, key) {
+  const hadKey = hasOwn(target, key);
+  const oldValue = target[key];
+  const result = Reflect.deleteProperty(target, key);
+  if (result && hadKey) {
+    trigger(target, "delete", key, void 0, oldValue);
+  }
+  return result;
+}
+function has(target, key) {
+  const result = Reflect.has(target, key);
+  if (!isSymbol(key) || !builtInSymbols.has(key)) {
+    track(target, "has", key);
+  }
+  return result;
+}
+function ownKeys(target) {
+  track(target, "iterate", isArray(target) ? "length" : ITERATE_KEY);
+  return Reflect.ownKeys(target);
+}
+var mutableHandlers = {
+  get: get2,
+  set: set2,
+  deleteProperty,
+  has,
+  ownKeys
+};
+var readonlyHandlers = {
+  get: readonlyGet,
+  set(target, key) {
+    if (true) {
+      console.warn(`Set operation on key "${String(key)}" failed: target is readonly.`, target);
+    }
+    return true;
+  },
+  deleteProperty(target, key) {
+    if (true) {
+      console.warn(`Delete operation on key "${String(key)}" failed: target is readonly.`, target);
+    }
+    return true;
+  }
+};
+var toReactive = (value) => isObject(value) ? reactive2(value) : value;
+var toReadonly = (value) => isObject(value) ? readonly(value) : value;
+var toShallow = (value) => value;
+var getProto = (v) => Reflect.getPrototypeOf(v);
+function get$1(target, key, isReadonly = false, isShallow = false) {
+  target = target[
+    "__v_raw"
+    /* RAW */
+  ];
+  const rawTarget = toRaw(target);
+  const rawKey = toRaw(key);
+  if (key !== rawKey) {
+    !isReadonly && track(rawTarget, "get", key);
+  }
+  !isReadonly && track(rawTarget, "get", rawKey);
+  const { has: has2 } = getProto(rawTarget);
+  const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
+  if (has2.call(rawTarget, key)) {
+    return wrap(target.get(key));
+  } else if (has2.call(rawTarget, rawKey)) {
+    return wrap(target.get(rawKey));
+  } else if (target !== rawTarget) {
+    target.get(key);
+  }
+}
+function has$1(key, isReadonly = false) {
+  const target = this[
+    "__v_raw"
+    /* RAW */
+  ];
+  const rawTarget = toRaw(target);
+  const rawKey = toRaw(key);
+  if (key !== rawKey) {
+    !isReadonly && track(rawTarget, "has", key);
+  }
+  !isReadonly && track(rawTarget, "has", rawKey);
+  return key === rawKey ? target.has(key) : target.has(key) || target.has(rawKey);
+}
+function size(target, isReadonly = false) {
+  target = target[
+    "__v_raw"
+    /* RAW */
+  ];
+  !isReadonly && track(toRaw(target), "iterate", ITERATE_KEY);
+  return Reflect.get(target, "size", target);
+}
+function add(value) {
+  value = toRaw(value);
+  const target = toRaw(this);
+  const proto = getProto(target);
+  const hadKey = proto.has.call(target, value);
+  if (!hadKey) {
+    target.add(value);
+    trigger(target, "add", value, value);
+  }
+  return this;
+}
+function set$1(key, value) {
+  value = toRaw(value);
+  const target = toRaw(this);
+  const { has: has2, get: get3 } = getProto(target);
+  let hadKey = has2.call(target, key);
+  if (!hadKey) {
+    key = toRaw(key);
+    hadKey = has2.call(target, key);
+  } else if (true) {
+    checkIdentityKeys(target, has2, key);
+  }
+  const oldValue = get3.call(target, key);
+  target.set(key, value);
+  if (!hadKey) {
+    trigger(target, "add", key, value);
+  } else if (hasChanged(value, oldValue)) {
+    trigger(target, "set", key, value, oldValue);
+  }
+  return this;
+}
+function deleteEntry(key) {
+  const target = toRaw(this);
+  const { has: has2, get: get3 } = getProto(target);
+  let hadKey = has2.call(target, key);
+  if (!hadKey) {
+    key = toRaw(key);
+    hadKey = has2.call(target, key);
+  } else if (true) {
+    checkIdentityKeys(target, has2, key);
+  }
+  const oldValue = get3 ? get3.call(target, key) : void 0;
+  const result = target.delete(key);
+  if (hadKey) {
+    trigger(target, "delete", key, void 0, oldValue);
+  }
+  return result;
+}
+function clear() {
+  const target = toRaw(this);
+  const hadItems = target.size !== 0;
+  const oldTarget =  true ? isMap(target) ? new Map(target) : new Set(target) : 0;
+  const result = target.clear();
+  if (hadItems) {
+    trigger(target, "clear", void 0, void 0, oldTarget);
+  }
+  return result;
+}
+function createForEach(isReadonly, isShallow) {
+  return function forEach(callback, thisArg) {
+    const observed = this;
+    const target = observed[
+      "__v_raw"
+      /* RAW */
+    ];
+    const rawTarget = toRaw(target);
+    const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
+    !isReadonly && track(rawTarget, "iterate", ITERATE_KEY);
+    return target.forEach((value, key) => {
+      return callback.call(thisArg, wrap(value), wrap(key), observed);
+    });
+  };
+}
+function createIterableMethod(method, isReadonly, isShallow) {
+  return function(...args) {
+    const target = this[
+      "__v_raw"
+      /* RAW */
+    ];
+    const rawTarget = toRaw(target);
+    const targetIsMap = isMap(rawTarget);
+    const isPair = method === "entries" || method === Symbol.iterator && targetIsMap;
+    const isKeyOnly = method === "keys" && targetIsMap;
+    const innerIterator = target[method](...args);
+    const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
+    !isReadonly && track(rawTarget, "iterate", isKeyOnly ? MAP_KEY_ITERATE_KEY : ITERATE_KEY);
+    return {
+      // iterator protocol
+      next() {
+        const { value, done } = innerIterator.next();
+        return done ? { value, done } : {
+          value: isPair ? [wrap(value[0]), wrap(value[1])] : wrap(value),
+          done
+        };
+      },
+      // iterable protocol
+      [Symbol.iterator]() {
+        return this;
+      }
+    };
+  };
+}
+function createReadonlyMethod(type) {
+  return function(...args) {
+    if (true) {
+      const key = args[0] ? `on key "${args[0]}" ` : ``;
+      console.warn(`${capitalize(type)} operation ${key}failed: target is readonly.`, toRaw(this));
+    }
+    return type === "delete" ? false : this;
+  };
+}
+function createInstrumentations() {
+  const mutableInstrumentations2 = {
+    get(key) {
+      return get$1(this, key);
+    },
+    get size() {
+      return size(this);
+    },
+    has: has$1,
+    add,
+    set: set$1,
+    delete: deleteEntry,
+    clear,
+    forEach: createForEach(false, false)
+  };
+  const shallowInstrumentations2 = {
+    get(key) {
+      return get$1(this, key, false, true);
+    },
+    get size() {
+      return size(this);
+    },
+    has: has$1,
+    add,
+    set: set$1,
+    delete: deleteEntry,
+    clear,
+    forEach: createForEach(false, true)
+  };
+  const readonlyInstrumentations2 = {
+    get(key) {
+      return get$1(this, key, true);
+    },
+    get size() {
+      return size(this, true);
+    },
+    has(key) {
+      return has$1.call(this, key, true);
+    },
+    add: createReadonlyMethod(
+      "add"
+      /* ADD */
+    ),
+    set: createReadonlyMethod(
+      "set"
+      /* SET */
+    ),
+    delete: createReadonlyMethod(
+      "delete"
+      /* DELETE */
+    ),
+    clear: createReadonlyMethod(
+      "clear"
+      /* CLEAR */
+    ),
+    forEach: createForEach(true, false)
+  };
+  const shallowReadonlyInstrumentations2 = {
+    get(key) {
+      return get$1(this, key, true, true);
+    },
+    get size() {
+      return size(this, true);
+    },
+    has(key) {
+      return has$1.call(this, key, true);
+    },
+    add: createReadonlyMethod(
+      "add"
+      /* ADD */
+    ),
+    set: createReadonlyMethod(
+      "set"
+      /* SET */
+    ),
+    delete: createReadonlyMethod(
+      "delete"
+      /* DELETE */
+    ),
+    clear: createReadonlyMethod(
+      "clear"
+      /* CLEAR */
+    ),
+    forEach: createForEach(true, true)
+  };
+  const iteratorMethods = ["keys", "values", "entries", Symbol.iterator];
+  iteratorMethods.forEach((method) => {
+    mutableInstrumentations2[method] = createIterableMethod(method, false, false);
+    readonlyInstrumentations2[method] = createIterableMethod(method, true, false);
+    shallowInstrumentations2[method] = createIterableMethod(method, false, true);
+    shallowReadonlyInstrumentations2[method] = createIterableMethod(method, true, true);
+  });
+  return [
+    mutableInstrumentations2,
+    readonlyInstrumentations2,
+    shallowInstrumentations2,
+    shallowReadonlyInstrumentations2
+  ];
+}
+var [mutableInstrumentations, readonlyInstrumentations, shallowInstrumentations, shallowReadonlyInstrumentations] = /* @__PURE__ */ createInstrumentations();
+function createInstrumentationGetter(isReadonly, shallow) {
+  const instrumentations = shallow ? isReadonly ? shallowReadonlyInstrumentations : shallowInstrumentations : isReadonly ? readonlyInstrumentations : mutableInstrumentations;
+  return (target, key, receiver) => {
+    if (key === "__v_isReactive") {
+      return !isReadonly;
+    } else if (key === "__v_isReadonly") {
+      return isReadonly;
+    } else if (key === "__v_raw") {
+      return target;
+    }
+    return Reflect.get(hasOwn(instrumentations, key) && key in target ? instrumentations : target, key, receiver);
+  };
+}
+var mutableCollectionHandlers = {
+  get: /* @__PURE__ */ createInstrumentationGetter(false, false)
+};
+var readonlyCollectionHandlers = {
+  get: /* @__PURE__ */ createInstrumentationGetter(true, false)
+};
+function checkIdentityKeys(target, has2, key) {
+  const rawKey = toRaw(key);
+  if (rawKey !== key && has2.call(target, rawKey)) {
+    const type = toRawType(target);
+    console.warn(`Reactive ${type} contains both the raw and reactive versions of the same object${type === `Map` ? ` as keys` : ``}, which can lead to inconsistencies. Avoid differentiating between the raw and reactive versions of an object and only use the reactive version if possible.`);
+  }
+}
+var reactiveMap = /* @__PURE__ */ new WeakMap();
+var shallowReactiveMap = /* @__PURE__ */ new WeakMap();
+var readonlyMap = /* @__PURE__ */ new WeakMap();
+var shallowReadonlyMap = /* @__PURE__ */ new WeakMap();
+function targetTypeMap(rawType) {
+  switch (rawType) {
+    case "Object":
+    case "Array":
+      return 1;
+    case "Map":
+    case "Set":
+    case "WeakMap":
+    case "WeakSet":
+      return 2;
+    default:
+      return 0;
+  }
+}
+function getTargetType(value) {
+  return value[
+    "__v_skip"
+    /* SKIP */
+  ] || !Object.isExtensible(value) ? 0 : targetTypeMap(toRawType(value));
+}
+function reactive2(target) {
+  if (target && target[
+    "__v_isReadonly"
+    /* IS_READONLY */
+  ]) {
+    return target;
+  }
+  return createReactiveObject(target, false, mutableHandlers, mutableCollectionHandlers, reactiveMap);
+}
+function readonly(target) {
+  return createReactiveObject(target, true, readonlyHandlers, readonlyCollectionHandlers, readonlyMap);
+}
+function createReactiveObject(target, isReadonly, baseHandlers, collectionHandlers, proxyMap) {
+  if (!isObject(target)) {
+    if (true) {
+      console.warn(`value cannot be made reactive: ${String(target)}`);
+    }
+    return target;
+  }
+  if (target[
+    "__v_raw"
+    /* RAW */
+  ] && !(isReadonly && target[
+    "__v_isReactive"
+    /* IS_REACTIVE */
+  ])) {
+    return target;
+  }
+  const existingProxy = proxyMap.get(target);
+  if (existingProxy) {
+    return existingProxy;
+  }
+  const targetType = getTargetType(target);
+  if (targetType === 0) {
+    return target;
+  }
+  const proxy = new Proxy(target, targetType === 2 ? collectionHandlers : baseHandlers);
+  proxyMap.set(target, proxy);
+  return proxy;
+}
+function toRaw(observed) {
+  return observed && toRaw(observed[
+    "__v_raw"
+    /* RAW */
+  ]) || observed;
+}
+function isRef(r) {
+  return Boolean(r && r.__v_isRef === true);
+}
+
+// packages/alpinejs/src/magics/$nextTick.js
+magic("nextTick", () => nextTick);
+
+// packages/alpinejs/src/magics/$dispatch.js
+magic("dispatch", (el) => dispatch.bind(dispatch, el));
+
+// packages/alpinejs/src/magics/$watch.js
+magic("watch", (el, { evaluateLater: evaluateLater2, cleanup: cleanup2 }) => (key, callback) => {
+  let evaluate2 = evaluateLater2(key);
+  let getter = () => {
+    let value;
+    evaluate2((i) => value = i);
+    return value;
+  };
+  let unwatch = watch(getter, callback);
+  cleanup2(unwatch);
+});
+
+// packages/alpinejs/src/magics/$store.js
+magic("store", getStores);
+
+// packages/alpinejs/src/magics/$data.js
+magic("data", (el) => scope(el));
+
+// packages/alpinejs/src/magics/$root.js
+magic("root", (el) => closestRoot(el));
+
+// packages/alpinejs/src/magics/$refs.js
+magic("refs", (el) => {
+  if (el._x_refs_proxy)
+    return el._x_refs_proxy;
+  el._x_refs_proxy = mergeProxies(getArrayOfRefObject(el));
+  return el._x_refs_proxy;
+});
+function getArrayOfRefObject(el) {
+  let refObjects = [];
+  findClosest(el, (i) => {
+    if (i._x_refs)
+      refObjects.push(i._x_refs);
+  });
+  return refObjects;
+}
+
+// packages/alpinejs/src/ids.js
+var globalIdMemo = {};
+function findAndIncrementId(name) {
+  if (!globalIdMemo[name])
+    globalIdMemo[name] = 0;
+  return ++globalIdMemo[name];
+}
+function closestIdRoot(el, name) {
+  return findClosest(el, (element) => {
+    if (element._x_ids && element._x_ids[name])
+      return true;
+  });
+}
+function setIdRoot(el, name) {
+  if (!el._x_ids)
+    el._x_ids = {};
+  if (!el._x_ids[name])
+    el._x_ids[name] = findAndIncrementId(name);
+}
+
+// packages/alpinejs/src/magics/$id.js
+magic("id", (el, { cleanup: cleanup2 }) => (name, key = null) => {
+  let cacheKey = `${name}${key ? `-${key}` : ""}`;
+  return cacheIdByNameOnElement(el, cacheKey, cleanup2, () => {
+    let root = closestIdRoot(el, name);
+    let id = root ? root._x_ids[name] : findAndIncrementId(name);
+    return key ? `${name}-${id}-${key}` : `${name}-${id}`;
+  });
+});
+interceptClone((from, to) => {
+  if (from._x_id) {
+    to._x_id = from._x_id;
+  }
+});
+function cacheIdByNameOnElement(el, cacheKey, cleanup2, callback) {
+  if (!el._x_id)
+    el._x_id = {};
+  if (el._x_id[cacheKey])
+    return el._x_id[cacheKey];
+  let output = callback();
+  el._x_id[cacheKey] = output;
+  cleanup2(() => {
+    delete el._x_id[cacheKey];
+  });
+  return output;
+}
+
+// packages/alpinejs/src/magics/$el.js
+magic("el", (el) => el);
+
+// packages/alpinejs/src/magics/index.js
+warnMissingPluginMagic("Focus", "focus", "focus");
+warnMissingPluginMagic("Persist", "persist", "persist");
+function warnMissingPluginMagic(name, magicName, slug) {
+  magic(magicName, (el) => warn(`You can't use [$${magicName}] without first installing the "${name}" plugin here: https://alpinejs.dev/plugins/${slug}`, el));
+}
+
+// packages/alpinejs/src/directives/x-modelable.js
+directive("modelable", (el, { expression }, { effect: effect3, evaluateLater: evaluateLater2, cleanup: cleanup2 }) => {
+  let func = evaluateLater2(expression);
+  let innerGet = () => {
+    let result;
+    func((i) => result = i);
+    return result;
+  };
+  let evaluateInnerSet = evaluateLater2(`${expression} = __placeholder`);
+  let innerSet = (val) => evaluateInnerSet(() => {
+  }, { scope: { "__placeholder": val } });
+  let initialValue = innerGet();
+  innerSet(initialValue);
+  queueMicrotask(() => {
+    if (!el._x_model)
+      return;
+    el._x_removeModelListeners["default"]();
+    let outerGet = el._x_model.get;
+    let outerSet = el._x_model.set;
+    let releaseEntanglement = entangle(
+      {
+        get() {
+          return outerGet();
+        },
+        set(value) {
+          outerSet(value);
+        }
+      },
+      {
+        get() {
+          return innerGet();
+        },
+        set(value) {
+          innerSet(value);
+        }
+      }
+    );
+    cleanup2(releaseEntanglement);
+  });
+});
+
+// packages/alpinejs/src/directives/x-teleport.js
+directive("teleport", (el, { modifiers, expression }, { cleanup: cleanup2 }) => {
+  if (el.tagName.toLowerCase() !== "template")
+    warn("x-teleport can only be used on a <template> tag", el);
+  let target = getTarget(expression);
+  let clone2 = el.content.cloneNode(true).firstElementChild;
+  el._x_teleport = clone2;
+  clone2._x_teleportBack = el;
+  el.setAttribute("data-teleport-template", true);
+  clone2.setAttribute("data-teleport-target", true);
+  if (el._x_forwardEvents) {
+    el._x_forwardEvents.forEach((eventName) => {
+      clone2.addEventListener(eventName, (e) => {
+        e.stopPropagation();
+        el.dispatchEvent(new e.constructor(e.type, e));
+      });
+    });
+  }
+  addScopeToNode(clone2, {}, el);
+  let placeInDom = (clone3, target2, modifiers2) => {
+    if (modifiers2.includes("prepend")) {
+      target2.parentNode.insertBefore(clone3, target2);
+    } else if (modifiers2.includes("append")) {
+      target2.parentNode.insertBefore(clone3, target2.nextSibling);
+    } else {
+      target2.appendChild(clone3);
+    }
+  };
+  mutateDom(() => {
+    placeInDom(clone2, target, modifiers);
+    skipDuringClone(() => {
+      initTree(clone2);
+    })();
+  });
+  el._x_teleportPutBack = () => {
+    let target2 = getTarget(expression);
+    mutateDom(() => {
+      placeInDom(el._x_teleport, target2, modifiers);
+    });
+  };
+  cleanup2(
+    () => mutateDom(() => {
+      clone2.remove();
+      destroyTree(clone2);
+    })
+  );
+});
+var teleportContainerDuringClone = document.createElement("div");
+function getTarget(expression) {
+  let target = skipDuringClone(() => {
+    return document.querySelector(expression);
+  }, () => {
+    return teleportContainerDuringClone;
+  })();
+  if (!target)
+    warn(`Cannot find x-teleport element for selector: "${expression}"`);
+  return target;
+}
+
+// packages/alpinejs/src/directives/x-ignore.js
+var handler = () => {
+};
+handler.inline = (el, { modifiers }, { cleanup: cleanup2 }) => {
+  modifiers.includes("self") ? el._x_ignoreSelf = true : el._x_ignore = true;
+  cleanup2(() => {
+    modifiers.includes("self") ? delete el._x_ignoreSelf : delete el._x_ignore;
+  });
+};
+directive("ignore", handler);
+
+// packages/alpinejs/src/directives/x-effect.js
+directive("effect", skipDuringClone((el, { expression }, { effect: effect3 }) => {
+  effect3(evaluateLater(el, expression));
+}));
+
+// packages/alpinejs/src/utils/on.js
+function on(el, event, modifiers, callback) {
+  let listenerTarget = el;
+  let handler4 = (e) => callback(e);
+  let options = {};
+  let wrapHandler = (callback2, wrapper) => (e) => wrapper(callback2, e);
+  if (modifiers.includes("dot"))
+    event = dotSyntax(event);
+  if (modifiers.includes("camel"))
+    event = camelCase2(event);
+  if (modifiers.includes("passive"))
+    options.passive = true;
+  if (modifiers.includes("capture"))
+    options.capture = true;
+  if (modifiers.includes("window"))
+    listenerTarget = window;
+  if (modifiers.includes("document"))
+    listenerTarget = document;
+  if (modifiers.includes("debounce")) {
+    let nextModifier = modifiers[modifiers.indexOf("debounce") + 1] || "invalid-wait";
+    let wait = isNumeric(nextModifier.split("ms")[0]) ? Number(nextModifier.split("ms")[0]) : 250;
+    handler4 = debounce(handler4, wait);
+  }
+  if (modifiers.includes("throttle")) {
+    let nextModifier = modifiers[modifiers.indexOf("throttle") + 1] || "invalid-wait";
+    let wait = isNumeric(nextModifier.split("ms")[0]) ? Number(nextModifier.split("ms")[0]) : 250;
+    handler4 = throttle(handler4, wait);
+  }
+  if (modifiers.includes("prevent"))
+    handler4 = wrapHandler(handler4, (next, e) => {
+      e.preventDefault();
+      next(e);
+    });
+  if (modifiers.includes("stop"))
+    handler4 = wrapHandler(handler4, (next, e) => {
+      e.stopPropagation();
+      next(e);
+    });
+  if (modifiers.includes("once")) {
+    handler4 = wrapHandler(handler4, (next, e) => {
+      next(e);
+      listenerTarget.removeEventListener(event, handler4, options);
+    });
+  }
+  if (modifiers.includes("away") || modifiers.includes("outside")) {
+    listenerTarget = document;
+    handler4 = wrapHandler(handler4, (next, e) => {
+      if (el.contains(e.target))
+        return;
+      if (e.target.isConnected === false)
+        return;
+      if (el.offsetWidth < 1 && el.offsetHeight < 1)
+        return;
+      if (el._x_isShown === false)
+        return;
+      next(e);
+    });
+  }
+  if (modifiers.includes("self"))
+    handler4 = wrapHandler(handler4, (next, e) => {
+      e.target === el && next(e);
+    });
+  if (event === "submit") {
+    handler4 = wrapHandler(handler4, (next, e) => {
+      if (e.target._x_pendingModelUpdates) {
+        e.target._x_pendingModelUpdates.forEach((fn) => fn());
+      }
+      next(e);
+    });
+  }
+  if (isKeyEvent(event) || isClickEvent(event)) {
+    handler4 = wrapHandler(handler4, (next, e) => {
+      if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
+        return;
+      }
+      next(e);
+    });
+  }
+  listenerTarget.addEventListener(event, handler4, options);
+  return () => {
+    listenerTarget.removeEventListener(event, handler4, options);
+  };
+}
+function dotSyntax(subject) {
+  return subject.replace(/-/g, ".");
+}
+function camelCase2(subject) {
+  return subject.toLowerCase().replace(/-(\w)/g, (match, char) => char.toUpperCase());
+}
+function isNumeric(subject) {
+  return !Array.isArray(subject) && !isNaN(subject);
+}
+function kebabCase2(subject) {
+  if ([" ", "_"].includes(
+    subject
+  ))
+    return subject;
+  return subject.replace(/([a-z])([A-Z])/g, "$1-$2").replace(/[_\s]/, "-").toLowerCase();
+}
+function isKeyEvent(event) {
+  return ["keydown", "keyup"].includes(event);
+}
+function isClickEvent(event) {
+  return ["contextmenu", "click", "mouse"].some((i) => event.includes(i));
+}
+function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
+  let keyModifiers = modifiers.filter((i) => {
+    return !["window", "document", "prevent", "stop", "once", "capture", "self", "away", "outside", "passive", "preserve-scroll", "blur", "change", "lazy"].includes(i);
+  });
+  if (keyModifiers.includes("debounce")) {
+    let debounceIndex = keyModifiers.indexOf("debounce");
+    keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || "invalid-wait").split("ms")[0]) ? 2 : 1);
+  }
+  if (keyModifiers.includes("throttle")) {
+    let debounceIndex = keyModifiers.indexOf("throttle");
+    keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || "invalid-wait").split("ms")[0]) ? 2 : 1);
+  }
+  if (keyModifiers.length === 0)
+    return false;
+  if (keyModifiers.length === 1 && keyToModifiers(e.key).includes(keyModifiers[0]))
+    return false;
+  const systemKeyModifiers = ["ctrl", "shift", "alt", "meta", "cmd", "super"];
+  const selectedSystemKeyModifiers = systemKeyModifiers.filter((modifier) => keyModifiers.includes(modifier));
+  keyModifiers = keyModifiers.filter((i) => !selectedSystemKeyModifiers.includes(i));
+  if (selectedSystemKeyModifiers.length > 0) {
+    const activelyPressedKeyModifiers = selectedSystemKeyModifiers.filter((modifier) => {
+      if (modifier === "cmd" || modifier === "super")
+        modifier = "meta";
+      return e[`${modifier}Key`];
+    });
+    if (activelyPressedKeyModifiers.length === selectedSystemKeyModifiers.length) {
+      if (isClickEvent(e.type))
+        return false;
+      if (keyToModifiers(e.key).includes(keyModifiers[0]))
+        return false;
+    }
+  }
+  return true;
+}
+function keyToModifiers(key) {
+  if (!key)
+    return [];
+  key = kebabCase2(key);
+  let modifierToKeyMap = {
+    "ctrl": "control",
+    "slash": "/",
+    "space": " ",
+    "spacebar": " ",
+    "cmd": "meta",
+    "esc": "escape",
+    "up": "arrow-up",
+    "down": "arrow-down",
+    "left": "arrow-left",
+    "right": "arrow-right",
+    "period": ".",
+    "comma": ",",
+    "equal": "=",
+    "minus": "-",
+    "underscore": "_"
+  };
+  modifierToKeyMap[key] = key;
+  return Object.keys(modifierToKeyMap).map((modifier) => {
+    if (modifierToKeyMap[modifier] === key)
+      return modifier;
+  }).filter((modifier) => modifier);
+}
+
+// packages/alpinejs/src/directives/x-model.js
+directive("model", (el, { modifiers, expression }, { effect: effect3, cleanup: cleanup2 }) => {
+  let scopeTarget = el;
+  if (modifiers.includes("parent")) {
+    scopeTarget = el.parentNode;
+  }
+  let evaluateGet = evaluateLater(scopeTarget, expression);
+  let evaluateSet;
+  if (typeof expression === "string") {
+    evaluateSet = evaluateLater(scopeTarget, `${expression} = __placeholder`);
+  } else if (typeof expression === "function" && typeof expression() === "string") {
+    evaluateSet = evaluateLater(scopeTarget, `${expression()} = __placeholder`);
+  } else {
+    evaluateSet = () => {
+    };
+  }
+  let getValue = () => {
+    let result;
+    evaluateGet((value) => result = value);
+    return isGetterSetter(result) ? result.get() : result;
+  };
+  let setValue = (value) => {
+    let result;
+    evaluateGet((value2) => result = value2);
+    if (isGetterSetter(result)) {
+      result.set(value);
+    } else {
+      evaluateSet(() => {
+      }, {
+        scope: { "__placeholder": value }
+      });
+    }
+  };
+  if (typeof expression === "string" && el.type === "radio") {
+    mutateDom(() => {
+      if (!el.hasAttribute("name"))
+        el.setAttribute("name", expression);
+    });
+  }
+  let hasChangeModifier = modifiers.includes("change") || modifiers.includes("lazy");
+  let hasBlurModifier = modifiers.includes("blur");
+  let hasEnterModifier = modifiers.includes("enter");
+  let hasExplicitEventModifiers = hasChangeModifier || hasBlurModifier || hasEnterModifier;
+  let removeListener;
+  if (isCloning) {
+    removeListener = () => {
+    };
+  } else if (hasExplicitEventModifiers) {
+    let listeners = [];
+    let syncValue = (e) => setValue(getInputValue(el, modifiers, e, getValue()));
+    if (hasChangeModifier) {
+      listeners.push(on(el, "change", modifiers, syncValue));
+    }
+    if (hasBlurModifier) {
+      listeners.push(on(el, "blur", modifiers, syncValue));
+      if (el.form) {
+        let syncCallback = () => syncValue({ target: el });
+        if (!el.form._x_pendingModelUpdates)
+          el.form._x_pendingModelUpdates = [];
+        el.form._x_pendingModelUpdates.push(syncCallback);
+        cleanup2(() => el.form._x_pendingModelUpdates.splice(el.form._x_pendingModelUpdates.indexOf(syncCallback), 1));
+      }
+    }
+    if (hasEnterModifier) {
+      listeners.push(on(el, "keydown", modifiers, (e) => {
+        if (e.key === "Enter")
+          syncValue(e);
+      }));
+    }
+    removeListener = () => listeners.forEach((remove) => remove());
+  } else {
+    let event = el.tagName.toLowerCase() === "select" || ["checkbox", "radio"].includes(el.type) ? "change" : "input";
+    removeListener = on(el, event, modifiers, (e) => {
+      setValue(getInputValue(el, modifiers, e, getValue()));
+    });
+  }
+  if (modifiers.includes("fill")) {
+    if ([void 0, null, ""].includes(getValue()) || isCheckbox(el) && Array.isArray(getValue()) || el.tagName.toLowerCase() === "select" && el.multiple) {
+      setValue(
+        getInputValue(el, modifiers, { target: el }, getValue())
+      );
+    }
+  }
+  if (!el._x_removeModelListeners)
+    el._x_removeModelListeners = {};
+  el._x_removeModelListeners["default"] = removeListener;
+  cleanup2(() => el._x_removeModelListeners["default"]());
+  if (el.form) {
+    let removeResetListener = on(el.form, "reset", [], (e) => {
+      nextTick(() => el._x_model && el._x_model.set(getInputValue(el, modifiers, { target: el }, getValue())));
+    });
+    cleanup2(() => removeResetListener());
+  }
+  el._x_model = {
+    get() {
+      return getValue();
+    },
+    set(value) {
+      setValue(value);
+    }
+  };
+  el._x_forceModelUpdate = (value) => {
+    if (value === void 0 && typeof expression === "string" && expression.match(/\./))
+      value = "";
+    window.fromModel = true;
+    mutateDom(() => bind(el, "value", value));
+    delete window.fromModel;
+  };
+  effect3(() => {
+    let value = getValue();
+    if (modifiers.includes("unintrusive") && document.activeElement.isSameNode(el))
+      return;
+    el._x_forceModelUpdate(value);
+  });
+});
+function getInputValue(el, modifiers, event, currentValue) {
+  return mutateDom(() => {
+    if (event instanceof CustomEvent && event.detail !== void 0)
+      return event.detail !== null && event.detail !== void 0 ? event.detail : event.target.value;
+    else if (isCheckbox(el)) {
+      if (Array.isArray(currentValue)) {
+        let newValue = null;
+        if (modifiers.includes("number")) {
+          newValue = safeParseNumber(event.target.value);
+        } else if (modifiers.includes("boolean")) {
+          newValue = safeParseBoolean(event.target.value);
+        } else {
+          newValue = event.target.value;
+        }
+        return event.target.checked ? currentValue.includes(newValue) ? currentValue : currentValue.concat([newValue]) : currentValue.filter((el2) => !checkedAttrLooseCompare2(el2, newValue));
+      } else {
+        return event.target.checked;
+      }
+    } else if (el.tagName.toLowerCase() === "select" && el.multiple) {
+      if (modifiers.includes("number")) {
+        return Array.from(event.target.selectedOptions).map((option) => {
+          let rawValue = option.value || option.text;
+          return safeParseNumber(rawValue);
+        });
+      } else if (modifiers.includes("boolean")) {
+        return Array.from(event.target.selectedOptions).map((option) => {
+          let rawValue = option.value || option.text;
+          return safeParseBoolean(rawValue);
+        });
+      }
+      return Array.from(event.target.selectedOptions).map((option) => {
+        return option.value || option.text;
+      });
+    } else {
+      let newValue;
+      if (isRadio(el)) {
+        if (event.target.checked) {
+          newValue = event.target.value;
+        } else {
+          newValue = currentValue;
+        }
+      } else {
+        newValue = event.target.value;
+      }
+      if (modifiers.includes("number")) {
+        return safeParseNumber(newValue);
+      } else if (modifiers.includes("boolean")) {
+        return safeParseBoolean(newValue);
+      } else if (modifiers.includes("trim")) {
+        return newValue.trim();
+      } else {
+        return newValue;
+      }
+    }
+  });
+}
+function safeParseNumber(rawValue) {
+  let number = rawValue ? parseFloat(rawValue) : null;
+  return isNumeric2(number) ? number : rawValue;
+}
+function checkedAttrLooseCompare2(valueA, valueB) {
+  return valueA == valueB;
+}
+function isNumeric2(subject) {
+  return !Array.isArray(subject) && !isNaN(subject);
+}
+function isGetterSetter(value) {
+  return value !== null && typeof value === "object" && typeof value.get === "function" && typeof value.set === "function";
+}
+
+// packages/alpinejs/src/directives/x-cloak.js
+directive("cloak", (el) => queueMicrotask(() => mutateDom(() => el.removeAttribute(prefix("cloak")))));
+
+// packages/alpinejs/src/directives/x-init.js
+addInitSelector(() => `[${prefix("init")}]`);
+directive("init", skipDuringClone((el, { expression }, { evaluate: evaluate2 }) => {
+  if (typeof expression === "string") {
+    return !!expression.trim() && evaluate2(expression, {}, false);
+  }
+  return evaluate2(expression, {}, false);
+}));
+
+// packages/alpinejs/src/directives/x-text.js
+directive("text", (el, { expression }, { effect: effect3, evaluateLater: evaluateLater2 }) => {
+  let evaluate2 = evaluateLater2(expression);
+  effect3(() => {
+    evaluate2((value) => {
+      mutateDom(() => {
+        el.textContent = value;
+      });
+    });
+  });
+});
+
+// packages/alpinejs/src/directives/x-html.js
+directive("html", (el, { expression }, { effect: effect3, evaluateLater: evaluateLater2 }) => {
+  let evaluate2 = evaluateLater2(expression);
+  effect3(() => {
+    evaluate2((value) => {
+      mutateDom(() => {
+        el.innerHTML = value;
+        el._x_ignoreSelf = true;
+        initTree(el);
+        delete el._x_ignoreSelf;
+      });
+    });
+  });
+});
+
+// packages/alpinejs/src/directives/x-bind.js
+mapAttributes(startingWith(":", into(prefix("bind:"))));
+var handler2 = (el, { value, modifiers, expression, original }, { effect: effect3, cleanup: cleanup2 }) => {
+  if (!value) {
+    let bindingProviders = {};
+    injectBindingProviders(bindingProviders);
+    let getBindings = evaluateLater(el, expression);
+    getBindings((bindings) => {
+      applyBindingsObject(el, bindings, original);
+    }, { scope: bindingProviders });
+    return;
+  }
+  if (value === "key")
+    return storeKeyForXFor(el, expression);
+  if (el._x_inlineBindings && el._x_inlineBindings[value] && el._x_inlineBindings[value].extract) {
+    return;
+  }
+  let evaluate2 = evaluateLater(el, expression);
+  effect3(() => evaluate2((result) => {
+    if (result === void 0 && typeof expression === "string" && expression.match(/\./)) {
+      result = "";
+    }
+    mutateDom(() => bind(el, value, result, modifiers));
+  }));
+  cleanup2(() => {
+    el._x_undoAddedClasses && el._x_undoAddedClasses();
+    el._x_undoAddedStyles && el._x_undoAddedStyles();
+  });
+};
+handler2.inline = (el, { value, modifiers, expression }) => {
+  if (!value)
+    return;
+  if (!el._x_inlineBindings)
+    el._x_inlineBindings = {};
+  el._x_inlineBindings[value] = { expression, extract: false };
+};
+directive("bind", handler2);
+function storeKeyForXFor(el, expression) {
+  el._x_keyExpression = expression;
+}
+
+// packages/alpinejs/src/directives/x-data.js
+addRootSelector(() => `[${prefix("data")}]`);
+directive("data", (el, { expression }, { cleanup: cleanup2 }) => {
+  if (shouldSkipRegisteringDataDuringClone(el))
+    return;
+  expression = expression === "" ? "{}" : expression;
+  let magicContext = {};
+  injectMagics(magicContext, el);
+  let dataProviderContext = {};
+  injectDataProviders(dataProviderContext, magicContext);
+  let data2 = evaluate(el, expression, { scope: dataProviderContext });
+  if (data2 === void 0 || data2 === true)
+    data2 = {};
+  injectMagics(data2, el);
+  let reactiveData = reactive(data2);
+  initInterceptors(reactiveData);
+  let undo = addScopeToNode(el, reactiveData);
+  reactiveData["init"] && evaluate(el, reactiveData["init"]);
+  cleanup2(() => {
+    reactiveData["destroy"] && evaluate(el, reactiveData["destroy"]);
+    undo();
+  });
+});
+interceptClone((from, to) => {
+  if (from._x_dataStack) {
+    to._x_dataStack = from._x_dataStack;
+    to.setAttribute("data-has-alpine-state", true);
+  }
+});
+function shouldSkipRegisteringDataDuringClone(el) {
+  if (!isCloning)
+    return false;
+  if (isCloningLegacy)
+    return true;
+  return el.hasAttribute("data-has-alpine-state");
+}
+
+// packages/alpinejs/src/directives/x-show.js
+directive("show", (el, { modifiers, expression }, { effect: effect3 }) => {
+  let evaluate2 = evaluateLater(el, expression);
+  if (!el._x_doHide)
+    el._x_doHide = () => {
+      mutateDom(() => {
+        el.style.setProperty("display", "none", modifiers.includes("important") ? "important" : void 0);
+      });
+    };
+  if (!el._x_doShow)
+    el._x_doShow = () => {
+      mutateDom(() => {
+        if (el.style.length === 1 && el.style.display === "none") {
+          el.removeAttribute("style");
+        } else {
+          el.style.removeProperty("display");
+        }
+      });
+    };
+  let hide = () => {
+    el._x_doHide();
+    el._x_isShown = false;
+  };
+  let show = () => {
+    el._x_doShow();
+    el._x_isShown = true;
+  };
+  let clickAwayCompatibleShow = () => setTimeout(show);
+  let toggle = once(
+    (value) => value ? show() : hide(),
+    (value) => {
+      if (typeof el._x_toggleAndCascadeWithTransitions === "function") {
+        el._x_toggleAndCascadeWithTransitions(el, value, show, hide);
+      } else {
+        value ? clickAwayCompatibleShow() : hide();
+      }
+    }
+  );
+  let oldValue;
+  let firstTime = true;
+  effect3(() => evaluate2((value) => {
+    if (!firstTime && value === oldValue)
+      return;
+    if (modifiers.includes("immediate"))
+      value ? clickAwayCompatibleShow() : hide();
+    toggle(value);
+    oldValue = value;
+    firstTime = false;
+  }));
+});
+
+// packages/alpinejs/src/directives/x-for.js
+directive("for", (el, { expression }, { effect: effect3, cleanup: cleanup2 }) => {
+  let iteratorNames = parseForExpression(expression);
+  let evaluateItems = evaluateLater(el, iteratorNames.items);
+  let evaluateKey = evaluateLater(
+    el,
+    // the x-bind:key expression is stored for our use instead of evaluated.
+    el._x_keyExpression || "index"
+  );
+  el._x_prevKeys = [];
+  el._x_lookup = {};
+  effect3(() => loop(el, iteratorNames, evaluateItems, evaluateKey));
+  cleanup2(() => {
+    Object.values(el._x_lookup).forEach((el2) => mutateDom(
+      () => {
+        destroyTree(el2);
+        el2.remove();
+      }
+    ));
+    delete el._x_prevKeys;
+    delete el._x_lookup;
+  });
+});
+function loop(el, iteratorNames, evaluateItems, evaluateKey) {
+  let isObject2 = (i) => typeof i === "object" && !Array.isArray(i);
+  let templateEl = el;
+  evaluateItems((items) => {
+    if (isNumeric3(items) && items >= 0) {
+      items = Array.from(Array(items).keys(), (i) => i + 1);
+    }
+    if (items === void 0)
+      items = [];
+    let lookup = el._x_lookup;
+    let prevKeys = el._x_prevKeys;
+    let scopes = [];
+    let keys = [];
+    if (isObject2(items)) {
+      items = Object.entries(items).map(([key, value]) => {
+        let scope2 = getIterationScopeVariables(iteratorNames, value, key, items);
+        evaluateKey((value2) => {
+          if (keys.includes(value2))
+            warn("Duplicate key on x-for", el);
+          keys.push(value2);
+        }, { scope: { index: key, ...scope2 } });
+        scopes.push(scope2);
+      });
+    } else {
+      for (let i = 0; i < items.length; i++) {
+        let scope2 = getIterationScopeVariables(iteratorNames, items[i], i, items);
+        evaluateKey((value) => {
+          if (keys.includes(value))
+            warn("Duplicate key on x-for", el);
+          keys.push(value);
+        }, { scope: { index: i, ...scope2 } });
+        scopes.push(scope2);
+      }
+    }
+    let adds = [];
+    let moves = [];
+    let removes = [];
+    let sames = [];
+    for (let i = 0; i < prevKeys.length; i++) {
+      let key = prevKeys[i];
+      if (keys.indexOf(key) === -1)
+        removes.push(key);
+    }
+    prevKeys = prevKeys.filter((key) => !removes.includes(key));
+    let lastKey = "template";
+    for (let i = 0; i < keys.length; i++) {
+      let key = keys[i];
+      let prevIndex = prevKeys.indexOf(key);
+      if (prevIndex === -1) {
+        prevKeys.splice(i, 0, key);
+        adds.push([lastKey, i]);
+      } else if (prevIndex !== i) {
+        let keyInSpot = prevKeys.splice(i, 1)[0];
+        let keyForSpot = prevKeys.splice(prevIndex - 1, 1)[0];
+        prevKeys.splice(i, 0, keyForSpot);
+        prevKeys.splice(prevIndex, 0, keyInSpot);
+        moves.push([keyInSpot, keyForSpot]);
+      } else {
+        sames.push(key);
+      }
+      lastKey = key;
+    }
+    for (let i = 0; i < removes.length; i++) {
+      let key = removes[i];
+      if (!(key in lookup))
+        continue;
+      mutateDom(() => {
+        destroyTree(lookup[key]);
+        lookup[key].remove();
+      });
+      delete lookup[key];
+    }
+    for (let i = 0; i < moves.length; i++) {
+      let [keyInSpot, keyForSpot] = moves[i];
+      let elInSpot = lookup[keyInSpot];
+      let elForSpot = lookup[keyForSpot];
+      let marker = document.createElement("div");
+      mutateDom(() => {
+        if (!elForSpot)
+          warn(`x-for ":key" is undefined or invalid`, templateEl, keyForSpot, lookup);
+        elForSpot.after(marker);
+        elInSpot.after(elForSpot);
+        elForSpot._x_currentIfEl && elForSpot.after(elForSpot._x_currentIfEl);
+        marker.before(elInSpot);
+        elInSpot._x_currentIfEl && elInSpot.after(elInSpot._x_currentIfEl);
+        marker.remove();
+      });
+      elForSpot._x_refreshXForScope(scopes[keys.indexOf(keyForSpot)]);
+    }
+    for (let i = 0; i < adds.length; i++) {
+      let [lastKey2, index] = adds[i];
+      let lastEl = lastKey2 === "template" ? templateEl : lookup[lastKey2];
+      if (lastEl._x_currentIfEl)
+        lastEl = lastEl._x_currentIfEl;
+      let scope2 = scopes[index];
+      let key = keys[index];
+      let clone2 = document.importNode(templateEl.content, true).firstElementChild;
+      let reactiveScope = reactive(scope2);
+      addScopeToNode(clone2, reactiveScope, templateEl);
+      clone2._x_refreshXForScope = (newScope) => {
+        Object.entries(newScope).forEach(([key2, value]) => {
+          reactiveScope[key2] = value;
+        });
+      };
+      mutateDom(() => {
+        lastEl.after(clone2);
+        skipDuringClone(() => initTree(clone2))();
+      });
+      if (typeof key === "object") {
+        warn("x-for key cannot be an object, it must be a string or an integer", templateEl);
+      }
+      lookup[key] = clone2;
+    }
+    for (let i = 0; i < sames.length; i++) {
+      lookup[sames[i]]._x_refreshXForScope(scopes[keys.indexOf(sames[i])]);
+    }
+    templateEl._x_prevKeys = keys;
+  });
+}
+function parseForExpression(expression) {
+  let forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
+  let stripParensRE = /^\s*\(|\)\s*$/g;
+  let forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+  let inMatch = expression.match(forAliasRE);
+  if (!inMatch)
+    return;
+  let res = {};
+  res.items = inMatch[2].trim();
+  let item = inMatch[1].replace(stripParensRE, "").trim();
+  let iteratorMatch = item.match(forIteratorRE);
+  if (iteratorMatch) {
+    res.item = item.replace(forIteratorRE, "").trim();
+    res.index = iteratorMatch[1].trim();
+    if (iteratorMatch[2]) {
+      res.collection = iteratorMatch[2].trim();
+    }
+  } else {
+    res.item = item;
+  }
+  return res;
+}
+function getIterationScopeVariables(iteratorNames, item, index, items) {
+  let scopeVariables = {};
+  if (/^\[.*\]$/.test(iteratorNames.item) && Array.isArray(item)) {
+    let names = iteratorNames.item.replace("[", "").replace("]", "").split(",").map((i) => i.trim());
+    names.forEach((name, i) => {
+      scopeVariables[name] = item[i];
+    });
+  } else if (/^\{.*\}$/.test(iteratorNames.item) && !Array.isArray(item) && typeof item === "object") {
+    let names = iteratorNames.item.replace("{", "").replace("}", "").split(",").map((i) => i.trim());
+    names.forEach((name) => {
+      scopeVariables[name] = item[name];
+    });
+  } else {
+    scopeVariables[iteratorNames.item] = item;
+  }
+  if (iteratorNames.index)
+    scopeVariables[iteratorNames.index] = index;
+  if (iteratorNames.collection)
+    scopeVariables[iteratorNames.collection] = items;
+  return scopeVariables;
+}
+function isNumeric3(subject) {
+  return !Array.isArray(subject) && !isNaN(subject);
+}
+
+// packages/alpinejs/src/directives/x-ref.js
+function handler3() {
+}
+handler3.inline = (el, { expression }, { cleanup: cleanup2 }) => {
+  let root = closestRoot(el);
+  if (!root._x_refs)
+    root._x_refs = {};
+  root._x_refs[expression] = el;
+  cleanup2(() => delete root._x_refs[expression]);
+};
+directive("ref", handler3);
+
+// packages/alpinejs/src/directives/x-if.js
+directive("if", (el, { expression }, { effect: effect3, cleanup: cleanup2 }) => {
+  if (el.tagName.toLowerCase() !== "template")
+    warn("x-if can only be used on a <template> tag", el);
+  let evaluate2 = evaluateLater(el, expression);
+  let show = () => {
+    if (el._x_currentIfEl)
+      return el._x_currentIfEl;
+    let clone2 = el.content.cloneNode(true).firstElementChild;
+    addScopeToNode(clone2, {}, el);
+    mutateDom(() => {
+      el.after(clone2);
+      skipDuringClone(() => initTree(clone2))();
+    });
+    el._x_currentIfEl = clone2;
+    el._x_undoIf = () => {
+      mutateDom(() => {
+        destroyTree(clone2);
+        clone2.remove();
+      });
+      delete el._x_currentIfEl;
+    };
+    return clone2;
+  };
+  let hide = () => {
+    if (!el._x_undoIf)
+      return;
+    el._x_undoIf();
+    delete el._x_undoIf;
+  };
+  effect3(() => evaluate2((value) => {
+    value ? show() : hide();
+  }));
+  cleanup2(() => el._x_undoIf && el._x_undoIf());
+});
+
+// packages/alpinejs/src/directives/x-id.js
+directive("id", (el, { expression }, { evaluate: evaluate2 }) => {
+  let names = evaluate2(expression);
+  names.forEach((name) => setIdRoot(el, name));
+});
+interceptClone((from, to) => {
+  if (from._x_ids) {
+    to._x_ids = from._x_ids;
+  }
+});
+
+// packages/alpinejs/src/directives/x-on.js
+mapAttributes(startingWith("@", into(prefix("on:"))));
+directive("on", skipDuringClone((el, { value, modifiers, expression }, { cleanup: cleanup2 }) => {
+  let evaluate2 = expression ? evaluateLater(el, expression) : () => {
+  };
+  if (el.tagName.toLowerCase() === "template") {
+    if (!el._x_forwardEvents)
+      el._x_forwardEvents = [];
+    if (!el._x_forwardEvents.includes(value))
+      el._x_forwardEvents.push(value);
+  }
+  let removeListener = on(el, value, modifiers, (e) => {
+    evaluate2(() => {
+    }, { scope: { "$event": e }, params: [e] });
+  });
+  cleanup2(() => removeListener());
+}));
+
+// packages/alpinejs/src/directives/index.js
+warnMissingPluginDirective("Collapse", "collapse", "collapse");
+warnMissingPluginDirective("Intersect", "intersect", "intersect");
+warnMissingPluginDirective("Focus", "trap", "focus");
+warnMissingPluginDirective("Mask", "mask", "mask");
+function warnMissingPluginDirective(name, directiveName, slug) {
+  directive(directiveName, (el) => warn(`You can't use [x-${directiveName}] without first installing the "${name}" plugin here: https://alpinejs.dev/plugins/${slug}`, el));
+}
+
+// packages/alpinejs/src/index.js
+alpine_default.setEvaluator(normalEvaluator);
+alpine_default.setRawEvaluator(normalRawEvaluator);
+alpine_default.setReactivityEngine({ reactive: reactive2, effect: effect2, release: stop, raw: toRaw });
+var src_default = alpine_default;
+
+// packages/alpinejs/builds/module.js
+var module_default = src_default;
 
 
-/***/ }),
 
-/***/ "./node_modules/lodash/lodash.js":
+/***/ },
+
+/***/ "./resources/js/app.js"
+/*!*****************************!*\
+  !*** ./resources/js/app.js ***!
+  \*****************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+/* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_bootstrap__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var alpinejs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/module.esm.js");
+
+
+window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"];
+alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].start();
+
+/***/ },
+
+/***/ "./resources/js/bootstrap.js"
+/*!***********************************!*\
+  !*** ./resources/js/bootstrap.js ***!
+  \***********************************/
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+
+/**
+ * We'll load the axios HTTP library which allows us to easily issue requests
+ * to our Laravel back-end. This library automatically handles sending the
+ * CSRF token as a header based on the value of the "XSRF" token cookie.
+ */
+
+window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/dist/browser/axios.cjs");
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allows your team to easily build robust real-time web applications.
+ */
+
+// import Echo from 'laravel-echo';
+
+// window.Pusher = require('pusher-js');
+
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: process.env.MIX_PUSHER_APP_KEY,
+//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+//     forceTLS: true
+// });
+
+/***/ },
+
+/***/ "./node_modules/lodash/lodash.js"
 /*!***************************************!*\
   !*** ./node_modules/lodash/lodash.js ***!
   \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
+/* module decorator */ module = __webpack_require__.nmd(module);
+var __WEBPACK_AMD_DEFINE_RESULT__;/**
  * @license
  * Lodash <https://lodash.com/>
  * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
@@ -1920,7 +3617,7 @@ module.exports = {
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.23';
+  var VERSION = '4.18.1';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
@@ -1928,7 +3625,8 @@ module.exports = {
   /** Error message constants. */
   var CORE_ERROR_TEXT = 'Unsupported core-js use. Try https://npms.io/search?q=ponyfill.',
       FUNC_ERROR_TEXT = 'Expected a function',
-      INVALID_TEMPL_VAR_ERROR_TEXT = 'Invalid `variable` option passed into `_.template`';
+      INVALID_TEMPL_VAR_ERROR_TEXT = 'Invalid `variable` option passed into `_.template`',
+      INVALID_TEMPL_IMPORTS_ERROR_TEXT = 'Invalid `imports` option passed into `_.template`';
 
   /** Used to stand-in for `undefined` hash values. */
   var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -2335,7 +4033,7 @@ module.exports = {
       freeParseInt = parseInt;
 
   /** Detect free variable `global` from Node.js. */
-  var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+  var freeGlobal = typeof __webpack_require__.g == 'object' && __webpack_require__.g && __webpack_require__.g.Object === Object && __webpack_require__.g;
 
   /** Detect free variable `self`. */
   var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -2347,7 +4045,7 @@ module.exports = {
   var freeExports =  true && exports && !exports.nodeType && exports;
 
   /** Detect free variable `module`. */
-  var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+  var freeModule = freeExports && "object" == 'object' && module && !module.nodeType && module;
 
   /** Detect the popular CommonJS extension `module.exports`. */
   var moduleExports = freeModule && freeModule.exports === freeExports;
@@ -3660,6 +5358,10 @@ module.exports = {
      * embedded Ruby (ERB) as well as ES2015 template strings. Change the
      * following template settings to use alternative delimiters.
      *
+     * **Security:** See
+     * [threat model](https://github.com/lodash/lodash/blob/main/threat-model.md)
+     * — `_.template` is insecure and will be removed in v5.
+     *
      * @static
      * @memberOf _
      * @type {Object}
@@ -4208,7 +5910,7 @@ module.exports = {
      * @name has
      * @memberOf SetCache
      * @param {*} value The value to search for.
-     * @returns {number} Returns `true` if `value` is found, else `false`.
+     * @returns {boolean} Returns `true` if `value` is found, else `false`.
      */
     function setCacheHas(value) {
       return this.__data__.has(value);
@@ -6279,7 +7981,9 @@ module.exports = {
     function baseUnset(object, path) {
       path = castPath(path, object);
 
-      // Prevent prototype pollution, see: https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg
+      // Prevent prototype pollution:
+      // https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg
+      // https://github.com/lodash/lodash/security/advisories/GHSA-f23m-r3pf-42rh
       var index = -1,
           length = path.length;
 
@@ -6287,32 +7991,17 @@ module.exports = {
         return true;
       }
 
-      var isRootPrimitive = object == null || (typeof object !== 'object' && typeof object !== 'function');
-
       while (++index < length) {
-        var key = path[index];
-
-        // skip non-string keys (e.g., Symbols, numbers)
-        if (typeof key !== 'string') {
-          continue;
-        }
+        var key = toKey(path[index]);
 
         // Always block "__proto__" anywhere in the path if it's not expected
         if (key === '__proto__' && !hasOwnProperty.call(object, '__proto__')) {
           return false;
         }
 
-        // Block "constructor.prototype" chains
-        if (key === 'constructor' &&
-            (index + 1) < length &&
-            typeof path[index + 1] === 'string' &&
-            path[index + 1] === 'prototype') {
-
-          // Allow ONLY when the path starts at a primitive root, e.g., _.unset(0, 'constructor.prototype.a')
-          if (isRootPrimitive && index === 0) {
-            continue;
-          }
-
+        // Block constructor/prototype as non-terminal traversal keys to prevent
+        // escaping the object graph into built-in constructors and prototypes.
+        if ((key === 'constructor' || key === 'prototype') && index < length - 1) {
           return false;
         }
       }
@@ -8869,7 +10558,7 @@ module.exports = {
 
     /**
      * Creates an array with all falsey values removed. The values `false`, `null`,
-     * `0`, `""`, `undefined`, and `NaN` are falsey.
+     * `0`, `-0`, `0n`, `""`, `undefined`, and `NaN` are falsy.
      *
      * @static
      * @memberOf _
@@ -9408,7 +11097,7 @@ module.exports = {
 
       while (++index < length) {
         var pair = pairs[index];
-        result[pair[0]] = pair[1];
+        baseAssignValue(result, pair[0], pair[1]);
       }
       return result;
     }
@@ -16068,6 +17757,8 @@ module.exports = {
      * **Note:** JavaScript follows the IEEE-754 standard for resolving
      * floating-point values which can produce unexpected results.
      *
+     * **Note:** If `lower` is greater than `upper`, the values are swapped.
+     *
      * @static
      * @memberOf _
      * @since 0.7.0
@@ -16081,8 +17772,15 @@ module.exports = {
      * _.random(0, 5);
      * // => an integer between 0 and 5
      *
+     * // when lower is greater than upper the values are swapped
+     * _.random(5, 0);
+     * // => an integer between 0 and 5
+     *
      * _.random(5);
      * // => also an integer between 0 and 5
+     *
+     * _.random(-5);
+     * // => an integer between -5 and 0
      *
      * _.random(5, true);
      * // => a floating-point number between 0 and 5
@@ -16685,6 +18383,10 @@ module.exports = {
      * properties may be accessed as free variables in the template. If a setting
      * object is given, it takes precedence over `_.templateSettings` values.
      *
+     * **Security:** `_.template` is insecure and should not be used. It will be
+     * removed in Lodash v5. Avoid untrusted input. See
+     * [threat model](https://github.com/lodash/lodash/blob/main/threat-model.md).
+     *
      * **Note:** In the development build `_.template` utilizes
      * [sourceURLs](http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/#toc-sourceurl)
      * for easier debugging.
@@ -16792,11 +18494,17 @@ module.exports = {
         options = undefined;
       }
       string = toString(string);
-      options = assignInWith({}, options, settings, customDefaultsAssignIn);
+      options = assignWith({}, options, settings, customDefaultsAssignIn);
 
-      var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn),
+      var imports = assignWith({}, options.imports, settings.imports, customDefaultsAssignIn),
           importsKeys = keys(imports),
           importsValues = baseValues(imports, importsKeys);
+
+      arrayEach(importsKeys, function(key) {
+        if (reForbiddenIdentifierChars.test(key)) {
+          throw new Error(INVALID_TEMPL_IMPORTS_ERROR_TEXT);
+        }
+      });
 
       var isEscaping,
           isEvaluating,
@@ -19141,22 +20849,34 @@ module.exports = {
     !(__WEBPACK_AMD_DEFINE_RESULT__ = (function() {
       return _;
     }).call(exports, __webpack_require__, exports, module),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
   }
   // Check for `exports` after `define` in case a build optimizer adds it.
-  else {}
+  else // removed by dead control flow
+{}
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js"), __webpack_require__(/*! ./../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/process/browser.js":
+/***/ "./resources/css/app.css"
+/*!*******************************!*\
+  !*** ./resources/css/app.css ***!
+  \*******************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ },
+
+/***/ "./node_modules/process/browser.js"
 /*!*****************************************!*\
   !*** ./node_modules/process/browser.js ***!
   \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+(module) {
 
 // shim for using process in browser
 var process = module.exports = {};
@@ -19344,142 +21064,5683 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/webpack/buildin/global.js":
-/*!***********************************!*\
-  !*** (webpack)/buildin/global.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+/***/ "./node_modules/axios/dist/browser/axios.cjs"
+/*!***************************************************!*\
+  !*** ./node_modules/axios/dist/browser/axios.cjs ***!
+  \***************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
 
-var g;
+"use strict";
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
+/*! Axios v1.19.0 Copyright (c) 2026 Matt Zabriskie and contributors */
 
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
 
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || new Function("return this")();
-} catch (e) {
-	// This works if the window reference is available
-	if (typeof window === "object") g = window;
+/**
+ * Create a bound version of a function with a specified `this` context
+ *
+ * @param {Function} fn - The function to bind
+ * @param {*} thisArg - The value to be passed as the `this` parameter
+ * @returns {Function} A new function that will call the original function with the specified `this` context
+ */
+function bind(fn, thisArg) {
+  return function wrap() {
+    return fn.apply(thisArg, arguments);
+  };
 }
 
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
+// utils is a library of generic helper functions non-specific to axios
 
-module.exports = g;
+const { toString } = Object.prototype;
+const { getPrototypeOf } = Object;
+const { iterator, toStringTag } = Symbol;
 
+/* Creating a function that will check if an object has a property. */
+const hasOwnProperty = (
+  ({ hasOwnProperty }) =>
+  (obj, prop) =>
+    hasOwnProperty.call(obj, prop)
+)(Object.prototype);
 
-/***/ }),
+/**
+ * Walk the prototype chain (excluding the shared Object.prototype) looking for
+ * an own `prop`. This distinguishes genuine own/inherited members — including
+ * class accessors and template prototypes — from members injected via
+ * Object.prototype pollution (e.g. `Object.prototype.username = '...'`), which
+ * live on Object.prototype itself and are therefore never matched.
+ *
+ * @param {*} thing The value whose chain to inspect
+ * @param {string|symbol} prop The property key to look for
+ *
+ * @returns {boolean} True when `prop` is owned below Object.prototype
+ */
+const hasOwnInPrototypeChain = (thing, prop) => {
+  let obj = thing;
+  const seen = [];
 
-/***/ "./node_modules/webpack/buildin/module.js":
-/*!***********************************!*\
-  !*** (webpack)/buildin/module.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+  while (obj != null && obj !== Object.prototype) {
+    if (seen.indexOf(obj) !== -1) {
+      return false;
+    }
+    seen.push(obj);
 
-module.exports = function(module) {
-	if (!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if (!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
+    if (hasOwnProperty(obj, prop)) {
+      return true;
+    }
+    obj = getPrototypeOf(obj);
+  }
+  return false;
 };
 
+/**
+ * Read `obj[prop]` only when it is safe from Object.prototype pollution. Own
+ * properties and members inherited from a non-Object.prototype source (a class
+ * instance or template object) are honored; a value reachable only through a
+ * polluted Object.prototype is ignored and `undefined` is returned.
+ *
+ * @param {*} obj The source object
+ * @param {string|symbol} prop The property key to read
+ *
+ * @returns {*} The resolved value, or undefined when unsafe/absent
+ */
+const getSafeProp = (obj, prop) =>
+  obj != null && hasOwnInPrototypeChain(obj, prop) ? obj[prop] : undefined;
 
-/***/ }),
+const kindOf = ((cache) => (thing) => {
+  const str = toString.call(thing);
+  return cache[str] || (cache[str] = str.slice(8, -1).toLowerCase());
+})(Object.create(null));
 
-/***/ "./resources/css/app.css":
-/*!*******************************!*\
-  !*** ./resources/css/app.css ***!
-  \*******************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+const kindOfTest = (type) => {
+  type = type.toLowerCase();
+  return (thing) => kindOf(thing) === type;
+};
 
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ "./resources/js/app.js":
-/*!*****************************!*\
-  !*** ./resources/js/app.js ***!
-  \*****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
-
-/***/ }),
-
-/***/ "./resources/js/bootstrap.js":
-/*!***********************************!*\
-  !*** ./resources/js/bootstrap.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+const typeOfTest = (type) => (thing) => typeof thing === type;
 
 /**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
+ * Determine if a value is a non-null object
+ *
+ * @param {Object} val The value to test
+ *
+ * @returns {boolean} True if value is an Array, otherwise false
  */
-
-window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+const { isArray } = Array;
 
 /**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
+ * Determine if a value is undefined
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if the value is undefined, otherwise false
+ */
+const isUndefined = typeOfTest('undefined');
+
+/**
+ * Determine if a value is a Buffer
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a Buffer, otherwise false
+ */
+function isBuffer(val) {
+  return (
+    val !== null &&
+    !isUndefined(val) &&
+    val.constructor !== null &&
+    !isUndefined(val.constructor) &&
+    isFunction$1(val.constructor.isBuffer) &&
+    val.constructor.isBuffer(val)
+  );
+}
+
+/**
+ * Determine if a value is an ArrayBuffer
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is an ArrayBuffer, otherwise false
+ */
+const isArrayBuffer = kindOfTest('ArrayBuffer');
+
+/**
+ * Determine if a value is a view on an ArrayBuffer
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+ */
+function isArrayBufferView(val) {
+  let result;
+  if (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView) {
+    result = ArrayBuffer.isView(val);
+  } else {
+    result = val && val.buffer && isArrayBuffer(val.buffer);
+  }
+  return result;
+}
+
+/**
+ * Determine if a value is a String
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a String, otherwise false
+ */
+const isString = typeOfTest('string');
+
+/**
+ * Determine if a value is a Function
+ *
+ * @param {*} val The value to test
+ * @returns {boolean} True if value is a Function, otherwise false
+ */
+const isFunction$1 = typeOfTest('function');
+
+/**
+ * Determine if a value is a Number
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a Number, otherwise false
+ */
+const isNumber = typeOfTest('number');
+
+/**
+ * Determine if a value is an Object
+ *
+ * @param {*} thing The value to test
+ *
+ * @returns {boolean} True if value is an Object, otherwise false
+ */
+const isObject = (thing) => thing !== null && typeof thing === 'object';
+
+/**
+ * Determine if a value is a Boolean
+ *
+ * @param {*} thing The value to test
+ * @returns {boolean} True if value is a Boolean, otherwise false
+ */
+const isBoolean = (thing) => thing === true || thing === false;
+
+/**
+ * Determine if a value is a plain Object
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a plain Object, otherwise false
+ */
+const isPlainObject = (val) => {
+  if (!isObject(val)) {
+    return false;
+  }
+
+  const prototype = getPrototypeOf(val);
+  return (
+    (prototype === null ||
+      prototype === Object.prototype ||
+      getPrototypeOf(prototype) === null) &&
+    // Treat any genuine (non-Object.prototype-polluted) Symbol.toStringTag or
+    // Symbol.iterator as evidence the value is a tagged/iterable type rather
+    // than a plain object, while ignoring keys injected onto Object.prototype.
+    !hasOwnInPrototypeChain(val, toStringTag) &&
+    !hasOwnInPrototypeChain(val, iterator)
+  );
+};
+
+/**
+ * Determine if a value is an empty object (safely handles Buffers)
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is an empty object, otherwise false
+ */
+const isEmptyObject = (val) => {
+  // Early return for non-objects or Buffers to prevent RangeError
+  if (!isObject(val) || isBuffer(val)) {
+    return false;
+  }
+
+  try {
+    return Object.keys(val).length === 0 && Object.getPrototypeOf(val) === Object.prototype;
+  } catch (e) {
+    // Fallback for any other objects that might cause RangeError with Object.keys()
+    return false;
+  }
+};
+
+/**
+ * Determine if a value is a Date
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a Date, otherwise false
+ */
+const isDate = kindOfTest('Date');
+
+/**
+ * Determine if a value is a File
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a File, otherwise false
+ */
+const isFile = kindOfTest('File');
+
+/**
+ * Determine if a value is a React Native Blob
+ * React Native "blob": an object with a `uri` attribute. Optionally, it can
+ * also have a `name` and `type` attribute to specify filename and content type
+ *
+ * @see https://github.com/facebook/react-native/blob/26684cf3adf4094eb6c405d345a75bf8c7c0bf88/Libraries/Network/FormData.js#L68-L71
+ *
+ * @param {*} value The value to test
+ *
+ * @returns {boolean} True if value is a React Native Blob, otherwise false
+ */
+const isReactNativeBlob = (value) => {
+  return !!(value && typeof value.uri !== 'undefined');
+};
+
+/**
+ * Determine if environment is React Native
+ * ReactNative `FormData` has a non-standard `getParts()` method
+ *
+ * @param {*} formData The formData to test
+ *
+ * @returns {boolean} True if environment is React Native, otherwise false
+ */
+const isReactNative = (formData) => formData && typeof formData.getParts !== 'undefined';
+
+/**
+ * Determine if a value is a Blob
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a Blob, otherwise false
+ */
+const isBlob = kindOfTest('Blob');
+
+/**
+ * Determine if a value is a FileList
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a FileList, otherwise false
+ */
+const isFileList = kindOfTest('FileList');
+const isSet = kindOfTest('Set');
+
+/**
+ * Determine if a value is a Stream
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a Stream, otherwise false
+ */
+const isStream = (val) => isObject(val) && isFunction$1(val.pipe);
+
+/**
+ * Determine if a value is a FormData
+ *
+ * @param {*} thing The value to test
+ *
+ * @returns {boolean} True if value is an FormData, otherwise false
+ */
+function getGlobal() {
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof __webpack_require__.g !== 'undefined') return __webpack_require__.g;
+  return {};
+}
+
+const G = getGlobal();
+const FormDataCtor = typeof G.FormData !== 'undefined' ? G.FormData : undefined;
+
+const isFormData = (thing) => {
+  if (!thing) return false;
+  if (FormDataCtor && thing instanceof FormDataCtor) return true;
+  // Reject plain objects inheriting directly from Object.prototype so prototype-pollution gadgets can't spoof FormData.
+  const proto = getPrototypeOf(thing);
+  if (!proto || proto === Object.prototype) return false;
+  if (!isFunction$1(thing.append)) return false;
+  const kind = kindOf(thing);
+  return (
+    kind === 'formdata' ||
+    // detect form-data instance
+    (kind === 'object' && isFunction$1(thing.toString) && thing.toString() === '[object FormData]')
+  );
+};
+
+/**
+ * Determine if a value is a URLSearchParams object
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a URLSearchParams object, otherwise false
+ */
+const isURLSearchParams = kindOfTest('URLSearchParams');
+
+const [isReadableStream, isRequest, isResponse, isHeaders] = [
+  'ReadableStream',
+  'Request',
+  'Response',
+  'Headers',
+].map(kindOfTest);
+
+/**
+ * Trim excess whitespace off the beginning and end of a string
+ *
+ * @param {String} str The String to trim
+ *
+ * @returns {String} The String freed of excess whitespace
+ */
+const trim = (str) => {
+  return str.trim ? str.trim() : str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+};
+/**
+ * Iterate over an Array or an Object invoking a function for each item.
+ *
+ * If `obj` is an Array callback will be called passing
+ * the value, index, and complete array for each item.
+ *
+ * If 'obj' is an Object callback will be called passing
+ * the value, key, and complete object for each property.
+ *
+ * @param {Object|Array<unknown>} obj The object to iterate
+ * @param {Function} fn The callback to invoke for each item
+ *
+ * @param {Object} [options]
+ * @param {Boolean} [options.allOwnKeys = false]
+ * @returns {any}
+ */
+function forEach(obj, fn, { allOwnKeys = false } = {}) {
+  // Don't bother if no value provided
+  if (obj === null || typeof obj === 'undefined') {
+    return;
+  }
+
+  let i;
+  let l;
+
+  // Force an array if not already something iterable
+  if (typeof obj !== 'object') {
+    /*eslint no-param-reassign:0*/
+    obj = [obj];
+  }
+
+  if (isArray(obj)) {
+    // Iterate over array values
+    for (i = 0, l = obj.length; i < l; i++) {
+      fn.call(null, obj[i], i, obj);
+    }
+  } else {
+    // Buffer check
+    if (isBuffer(obj)) {
+      return;
+    }
+
+    // Iterate over object keys
+    const keys = allOwnKeys ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
+    const len = keys.length;
+    let key;
+
+    for (i = 0; i < len; i++) {
+      key = keys[i];
+      fn.call(null, obj[key], key, obj);
+    }
+  }
+}
+
+/**
+ * Finds a key in an object, case-insensitive, returning the actual key name.
+ * Returns null if the object is a Buffer or if no match is found.
+ *
+ * @param {Object} obj - The object to search.
+ * @param {string} key - The key to find (case-insensitive).
+ * @returns {?string} The actual key name if found, otherwise null.
+ */
+function findKey(obj, key) {
+  if (isBuffer(obj)) {
+    return null;
+  }
+
+  key = key.toLowerCase();
+  const keys = Object.keys(obj);
+  let i = keys.length;
+  let _key;
+  while (i-- > 0) {
+    _key = keys[i];
+    if (key === _key.toLowerCase()) {
+      return _key;
+    }
+  }
+  return null;
+}
+
+const _global = (() => {
+  /*eslint no-undef:0*/
+  if (typeof globalThis !== 'undefined') return globalThis;
+  return typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : __webpack_require__.g;
+})();
+
+const isContextDefined = (context) => !isUndefined(context) && context !== _global;
+
+/**
+ * Accepts varargs expecting each argument to be an object, then
+ * immutably merges the properties of each object and returns result.
+ *
+ * When multiple objects contain the same key the later object in
+ * the arguments list will take precedence.
+ *
+ * Example:
+ *
+ * ```js
+ * const result = merge({foo: 123}, {foo: 456});
+ * console.log(result.foo); // outputs 456
+ * ```
+ *
+ * @param {Object} obj1 Object to merge
+ *
+ * @returns {Object} Result of all merge properties
+ */
+function merge(...objs) {
+  const { caseless, skipUndefined } = (isContextDefined(this) && this) || {};
+  const result = {};
+  const assignValue = (val, key) => {
+    // Skip dangerous property names to prevent prototype pollution
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      return;
+    }
+
+    // findKey lowercases the key, so caseless lookup only applies to strings —
+    // symbol keys are identity-matched.
+    const targetKey = (caseless && typeof key === 'string' && findKey(result, key)) || key;
+    // Read via own-prop only — a bare `result[targetKey]` walks the prototype
+    // chain, so a polluted Object.prototype value could surface here and get
+    // copied into the merged result.
+    const existing = hasOwnProperty(result, targetKey) ? result[targetKey] : undefined;
+    if (isPlainObject(existing) && isPlainObject(val)) {
+      result[targetKey] = merge(existing, val);
+    } else if (isPlainObject(val)) {
+      result[targetKey] = merge({}, val);
+    } else if (isArray(val)) {
+      result[targetKey] = val.slice();
+    } else if (!skipUndefined || !isUndefined(val)) {
+      result[targetKey] = val;
+    }
+  };
+
+  for (let i = 0, l = objs.length; i < l; i++) {
+    const source = objs[i];
+    if (!source || isBuffer(source)) {
+      continue;
+    }
+
+    forEach(source, assignValue);
+
+    if (typeof source !== 'object' || isArray(source)) {
+      continue;
+    }
+
+    const symbols = Object.getOwnPropertySymbols(source);
+    for (let j = 0; j < symbols.length; j++) {
+      const symbol = symbols[j];
+      if (propertyIsEnumerable.call(source, symbol)) {
+        assignValue(source[symbol], symbol);
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Extends object a by mutably adding to it the properties of object b.
+ *
+ * @param {Object} a The object to be extended
+ * @param {Object} b The object to copy properties from
+ * @param {Object} thisArg The object to bind function to
+ *
+ * @param {Object} [options]
+ * @param {Boolean} [options.allOwnKeys]
+ * @returns {Object} The resulting value of object a
+ */
+const extend = (a, b, thisArg, { allOwnKeys } = {}) => {
+  forEach(
+    b,
+    (val, key) => {
+      if (thisArg && isFunction$1(val)) {
+        Object.defineProperty(a, key, {
+          // Null-proto descriptor so a polluted Object.prototype.get cannot
+          // hijack defineProperty's accessor-vs-data resolution.
+          __proto__: null,
+          value: bind(val, thisArg),
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      } else {
+        Object.defineProperty(a, key, {
+          __proto__: null,
+          value: val,
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    },
+    { allOwnKeys }
+  );
+  return a;
+};
+
+/**
+ * Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
+ *
+ * @param {string} content with BOM
+ *
+ * @returns {string} content value without BOM
+ */
+const stripBOM = (content) => {
+  if (content.charCodeAt(0) === 0xfeff) {
+    content = content.slice(1);
+  }
+  return content;
+};
+
+/**
+ * Inherit the prototype methods from one constructor into another
+ * @param {function} constructor
+ * @param {function} superConstructor
+ * @param {object} [props]
+ * @param {object} [descriptors]
+ *
+ * @returns {void}
+ */
+const inherits = (constructor, superConstructor, props, descriptors) => {
+  constructor.prototype = Object.create(superConstructor.prototype, descriptors);
+  Object.defineProperty(constructor.prototype, 'constructor', {
+    __proto__: null,
+    value: constructor,
+    writable: true,
+    enumerable: false,
+    configurable: true,
+  });
+  Object.defineProperty(constructor, 'super', {
+    __proto__: null,
+    value: superConstructor.prototype,
+  });
+  props && Object.assign(constructor.prototype, props);
+};
+
+/**
+ * Resolve object with deep prototype chain to a flat object
+ * @param {Object} sourceObj source object
+ * @param {Object} [destObj]
+ * @param {Function|Boolean} [filter]
+ * @param {Function} [propFilter]
+ *
+ * @returns {Object}
+ */
+const toFlatObject = (sourceObj, destObj, filter, propFilter) => {
+  let props;
+  let i;
+  let prop;
+  const merged = {};
+
+  destObj = destObj || {};
+  // eslint-disable-next-line no-eq-null,eqeqeq
+  if (sourceObj == null) return destObj;
+
+  do {
+    props = Object.getOwnPropertyNames(sourceObj);
+    i = props.length;
+    while (i-- > 0) {
+      prop = props[i];
+      if ((!propFilter || propFilter(prop, sourceObj, destObj)) && !merged[prop]) {
+        destObj[prop] = sourceObj[prop];
+        merged[prop] = true;
+      }
+    }
+    sourceObj = filter !== false && getPrototypeOf(sourceObj);
+  } while (sourceObj && (!filter || filter(sourceObj, destObj)) && sourceObj !== Object.prototype);
+
+  return destObj;
+};
+
+/**
+ * Determines whether a string ends with the characters of a specified string
+ *
+ * @param {String} str
+ * @param {String} searchString
+ * @param {Number} [position= 0]
+ *
+ * @returns {boolean}
+ */
+const endsWith = (str, searchString, position) => {
+  str = String(str);
+  if (position === undefined || position > str.length) {
+    position = str.length;
+  }
+  position -= searchString.length;
+  const lastIndex = str.indexOf(searchString, position);
+  return lastIndex !== -1 && lastIndex === position;
+};
+
+/**
+ * Returns new array from array like object or null if failed
+ *
+ * @param {*} [thing]
+ *
+ * @returns {?Array}
+ */
+const toArray = (thing) => {
+  if (!thing) return null;
+  if (isArray(thing)) return thing;
+  let i = thing.length;
+  if (!isNumber(i)) return null;
+  const arr = new Array(i);
+  while (i-- > 0) {
+    arr[i] = thing[i];
+  }
+  return arr;
+};
+
+/**
+ * Checking if the Uint8Array exists and if it does, it returns a function that checks if the
+ * thing passed in is an instance of Uint8Array
+ *
+ * @param {TypedArray}
+ *
+ * @returns {Array}
+ */
+// eslint-disable-next-line func-names
+const isTypedArray = ((TypedArray) => {
+  // eslint-disable-next-line func-names
+  return (thing) => {
+    return TypedArray && thing instanceof TypedArray;
+  };
+})(typeof Uint8Array !== 'undefined' && getPrototypeOf(Uint8Array));
+
+/**
+ * For each entry in the object, call the function with the key and value.
+ *
+ * @param {Object<any, any>} obj - The object to iterate over.
+ * @param {Function} fn - The function to call for each entry.
+ *
+ * @returns {void}
+ */
+const forEachEntry = (obj, fn) => {
+  const generator = obj && obj[iterator];
+
+  const _iterator = generator.call(obj);
+
+  let result;
+
+  while ((result = _iterator.next()) && !result.done) {
+    const pair = result.value;
+    fn.call(obj, pair[0], pair[1]);
+  }
+};
+
+/**
+ * It takes a regular expression and a string, and returns an array of all the matches
+ *
+ * @param {string} regExp - The regular expression to match against.
+ * @param {string} str - The string to search.
+ *
+ * @returns {Array<boolean>}
+ */
+const matchAll = (regExp, str) => {
+  let matches;
+  const arr = [];
+
+  while ((matches = regExp.exec(str)) !== null) {
+    arr.push(matches);
+  }
+
+  return arr;
+};
+
+/* Checking if the kindOfTest function returns true when passed an HTMLFormElement. */
+const isHTMLForm = kindOfTest('HTMLFormElement');
+
+const toCamelCase = (str) => {
+  return str.toLowerCase().replace(/[-_\s]([a-z\d])(\w*)/g, function replacer(m, p1, p2) {
+    return p1.toUpperCase() + p2;
+  });
+};
+
+const { propertyIsEnumerable } = Object.prototype;
+
+/**
+ * Determine if a value is a RegExp object
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is a RegExp object, otherwise false
+ */
+const isRegExp = kindOfTest('RegExp');
+
+const reduceDescriptors = (obj, reducer) => {
+  const descriptors = Object.getOwnPropertyDescriptors(obj);
+  const reducedDescriptors = {};
+
+  forEach(descriptors, (descriptor, name) => {
+    let ret;
+    if ((ret = reducer(descriptor, name, obj)) !== false) {
+      reducedDescriptors[name] = ret || descriptor;
+    }
+  });
+
+  Object.defineProperties(obj, reducedDescriptors);
+};
+
+/**
+ * Makes all methods read-only
+ * @param {Object} obj
  */
 
-// import Echo from 'laravel-echo';
+const freezeMethods = (obj) => {
+  reduceDescriptors(obj, (descriptor, name) => {
+    // skip restricted props in strict mode
+    if (isFunction$1(obj) && ['arguments', 'caller', 'callee'].includes(name)) {
+      return false;
+    }
 
-// window.Pusher = require('pusher-js');
+    const value = obj[name];
 
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
+    if (!isFunction$1(value)) return;
 
-/***/ }),
+    descriptor.enumerable = false;
 
-/***/ 0:
-/*!***********************************************************!*\
-  !*** multi ./resources/js/app.js ./resources/css/app.css ***!
-  \***********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+    if ('writable' in descriptor) {
+      descriptor.writable = false;
+      return;
+    }
 
-__webpack_require__(/*! /mnt/d/xampp/htdocs/dwhchai/resources/js/app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! /mnt/d/xampp/htdocs/dwhchai/resources/css/app.css */"./resources/css/app.css");
+    if (!descriptor.set) {
+      descriptor.set = () => {
+        throw Error("Can not rewrite read-only method '" + name + "'");
+      };
+    }
+  });
+};
+
+/**
+ * Converts an array or a delimited string into an object set with values as keys and true as values.
+ * Useful for fast membership checks.
+ *
+ * @param {Array|string} arrayOrString - The array or string to convert.
+ * @param {string} delimiter - The delimiter to use if input is a string.
+ * @returns {Object} An object with keys from the array or string, values set to true.
+ */
+const toObjectSet = (arrayOrString, delimiter) => {
+  const obj = {};
+
+  const define = (arr) => {
+    arr.forEach((value) => {
+      obj[value] = true;
+    });
+  };
+
+  isArray(arrayOrString) ? define(arrayOrString) : define(String(arrayOrString).split(delimiter));
+
+  return obj;
+};
+
+const noop = () => {};
+
+const toFiniteNumber = (value, defaultValue) => {
+  return value != null && Number.isFinite((value = +value)) ? value : defaultValue;
+};
+
+/**
+ * If the thing is a FormData object, return true, otherwise return false.
+ *
+ * @param {unknown} thing - The thing to check.
+ *
+ * @returns {boolean}
+ */
+function isSpecCompliantForm(thing) {
+  return !!(
+    thing &&
+    isFunction$1(thing.append) &&
+    thing[toStringTag] === 'FormData' &&
+    thing[iterator]
+  );
+}
+
+/**
+ * Recursively converts an object to a JSON-compatible object, handling circular references and Buffers.
+ *
+ * @param {Object} obj - The object to convert.
+ * @returns {Object} The JSON-compatible object.
+ */
+const toJSONObject = (obj) => {
+  const visited = new WeakSet();
+
+  const visit = (source) => {
+    if (isObject(source)) {
+      if (visited.has(source)) {
+        return;
+      }
+
+      //Buffer check
+      if (isBuffer(source)) {
+        return source;
+      }
+
+      if (!('toJSON' in source)) {
+        // add-on descent / delete-on-ascent: preserves path semantics, so DAG nodes serialise at every occurrence (see #7230).
+        visited.add(source);
+
+        let target;
+
+        if (isSet(source)) {
+          target = [];
+          for (const value of source) {
+            const reducedValue = visit(value);
+            !isUndefined(reducedValue) && target.push(reducedValue);
+          }
+        } else {
+          target = isArray(source) ? [] : {};
+
+          forEach(source, (value, key) => {
+            const reducedValue = visit(value);
+            !isUndefined(reducedValue) && (target[key] = reducedValue);
+          });
+        }
+
+        visited.delete(source);
+
+        return target;
+      }
+    }
+
+    return source;
+  };
+
+  return visit(obj);
+};
+
+/**
+ * Determines if a value is an async function.
+ *
+ * @param {*} thing - The value to test.
+ * @returns {boolean} True if value is an async function, otherwise false.
+ */
+const isAsyncFn = kindOfTest('AsyncFunction');
+
+/**
+ * Determines if a value is thenable (has then and catch methods).
+ *
+ * @param {*} thing - The value to test.
+ * @returns {boolean} True if value is thenable, otherwise false.
+ */
+const isThenable = (thing) =>
+  thing &&
+  (isObject(thing) || isFunction$1(thing)) &&
+  isFunction$1(thing.then) &&
+  isFunction$1(thing.catch);
+
+// original code
+// https://github.com/DigitalBrainJS/AxiosPromise/blob/16deab13710ec09779922131f3fa5954320f83ab/lib/utils.js#L11-L34
+
+/**
+ * Provides a cross-platform setImmediate implementation.
+ * Uses native setImmediate if available, otherwise falls back to postMessage or setTimeout.
+ *
+ * @param {boolean} setImmediateSupported - Whether setImmediate is supported.
+ * @param {boolean} postMessageSupported - Whether postMessage is supported.
+ * @returns {Function} A function to schedule a callback asynchronously.
+ */
+const _setImmediate = ((setImmediateSupported, postMessageSupported) => {
+  if (setImmediateSupported) {
+    return setImmediate;
+  }
+
+  return postMessageSupported
+    ? ((token, callbacks) => {
+        _global.addEventListener(
+          'message',
+          ({ source, data }) => {
+            if (source === _global && data === token) {
+              callbacks.length && callbacks.shift()();
+            }
+          },
+          false
+        );
+
+        return (cb) => {
+          callbacks.push(cb);
+          _global.postMessage(token, '*');
+        };
+      })(`axios@${Math.random()}`, [])
+    : (cb) => setTimeout(cb);
+})(typeof setImmediate === 'function', isFunction$1(_global.postMessage));
+
+/**
+ * Schedules a microtask or asynchronous callback as soon as possible.
+ * Uses queueMicrotask if available, otherwise falls back to process.nextTick or _setImmediate.
+ *
+ * @type {Function}
+ */
+const asap =
+  typeof queueMicrotask !== 'undefined'
+    ? queueMicrotask.bind(_global)
+    : (typeof process !== 'undefined' && process.nextTick) || _setImmediate;
+
+// *********************
+
+const isIterable = (thing) => thing != null && isFunction$1(thing[iterator]);
+
+/**
+ * Determine if a value is iterable via an iterator that is NOT sourced solely
+ * from a polluted Object.prototype. Use this instead of `isIterable` whenever
+ * the iterable comes from untrusted input (e.g. user-supplied header sources),
+ * so `Object.prototype[Symbol.iterator] = ...` cannot turn an ordinary object
+ * into an attacker-controlled entries iterator.
+ *
+ * @param {*} thing The value to test
+ *
+ * @returns {boolean} True if value has a non-polluted iterator
+ */
+const isSafeIterable = (thing) =>
+  thing != null && hasOwnInPrototypeChain(thing, iterator) && isIterable(thing);
+
+var utils$1 = {
+  isArray,
+  isArrayBuffer,
+  isBuffer,
+  isFormData,
+  isArrayBufferView,
+  isString,
+  isNumber,
+  isBoolean,
+  isObject,
+  isPlainObject,
+  isEmptyObject,
+  isReadableStream,
+  isRequest,
+  isResponse,
+  isHeaders,
+  isUndefined,
+  isDate,
+  isFile,
+  isReactNativeBlob,
+  isReactNative,
+  isBlob,
+  isRegExp,
+  isFunction: isFunction$1,
+  isStream,
+  isURLSearchParams,
+  isTypedArray,
+  isFileList,
+  forEach,
+  merge,
+  extend,
+  trim,
+  stripBOM,
+  inherits,
+  toFlatObject,
+  kindOf,
+  kindOfTest,
+  endsWith,
+  toArray,
+  forEachEntry,
+  matchAll,
+  isHTMLForm,
+  hasOwnProperty,
+  hasOwnProp: hasOwnProperty, // an alias to avoid ESLint no-prototype-builtins detection
+  hasOwnInPrototypeChain,
+  getSafeProp,
+  reduceDescriptors,
+  freezeMethods,
+  toObjectSet,
+  toCamelCase,
+  noop,
+  toFiniteNumber,
+  findKey,
+  global: _global,
+  isContextDefined,
+  isSpecCompliantForm,
+  toJSONObject,
+  isAsyncFn,
+  isThenable,
+  setImmediate: _setImmediate,
+  asap,
+  isIterable,
+  isSafeIterable,
+};
+
+// RawAxiosHeaders whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+const ignoreDuplicateOf = utils$1.toObjectSet([
+  'age',
+  'authorization',
+  'content-length',
+  'content-type',
+  'etag',
+  'expires',
+  'from',
+  'host',
+  'if-modified-since',
+  'if-unmodified-since',
+  'last-modified',
+  'location',
+  'max-forwards',
+  'proxy-authorization',
+  'referer',
+  'retry-after',
+  'user-agent',
+]);
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} rawHeaders Headers needing to be parsed
+ *
+ * @returns {Object} Headers parsed into an object
+ */
+var parseHeaders = (rawHeaders) => {
+  const parsed = {};
+  let key;
+  let val;
+  let i;
+
+  rawHeaders &&
+    rawHeaders.split('\n').forEach(function parser(line) {
+      i = line.indexOf(':');
+      key = line.substring(0, i).trim().toLowerCase();
+      val = line.substring(i + 1).trim();
+
+      const hasKey = utils$1.hasOwnProp(parsed, key);
+
+      if (!key || (hasKey && utils$1.hasOwnProp(ignoreDuplicateOf, key))) {
+        return;
+      }
+
+      if (key === 'set-cookie') {
+        if (hasKey) {
+          parsed[key].push(val);
+        } else {
+          parsed[key] = [val];
+        }
+      } else {
+        parsed[key] = hasKey ? parsed[key] + ', ' + val : val;
+      }
+    });
+
+  return parsed;
+};
+
+function trimSPorHTAB(str) {
+  let start = 0;
+  let end = str.length;
+
+  while (start < end) {
+    const code = str.charCodeAt(start);
+
+    if (code !== 0x09 && code !== 0x20) {
+      break;
+    }
+
+    start += 1;
+  }
+
+  while (end > start) {
+    const code = str.charCodeAt(end - 1);
+
+    if (code !== 0x09 && code !== 0x20) {
+      break;
+    }
+
+    end -= 1;
+  }
+
+  return start === 0 && end === str.length ? str : str.slice(start, end);
+}
+
+// The control-code ranges are intentional: header sanitization strips C0/DEL bytes.
+// eslint-disable-next-line no-control-regex
+const INVALID_UNICODE_HEADER_VALUE_CHARS = new RegExp('[\\u0000-\\u0008\\u000a-\\u001f\\u007f]+', 'g');
+// eslint-disable-next-line no-control-regex
+const INVALID_BYTE_STRING_HEADER_VALUE_CHARS = new RegExp('[^\\u0009\\u0020-\\u007e\\u0080-\\u00ff]+', 'g');
+
+function sanitizeValue(value, invalidChars) {
+  if (utils$1.isArray(value)) {
+    return value.map((item) => sanitizeValue(item, invalidChars));
+  }
+
+  return trimSPorHTAB(String(value).replace(invalidChars, ''));
+}
+
+const sanitizeHeaderValue = (value) =>
+  sanitizeValue(value, INVALID_UNICODE_HEADER_VALUE_CHARS);
+
+const sanitizeByteStringHeaderValue = (value) =>
+  sanitizeValue(value, INVALID_BYTE_STRING_HEADER_VALUE_CHARS);
+
+function toByteStringHeaderObject(headers) {
+  const byteStringHeaders = Object.create(null);
+
+  utils$1.forEach(headers.toJSON(), (value, header) => {
+    byteStringHeaders[header] = sanitizeByteStringHeaderValue(value);
+  });
+
+  return byteStringHeaders;
+}
+
+const $internals = Symbol('internals');
+
+function normalizeHeader(header) {
+  return header && String(header).trim().toLowerCase();
+}
+
+function normalizeValue(value) {
+  if (value === false || value == null) {
+    return value;
+  }
+
+  return utils$1.isArray(value) ? value.map(normalizeValue) : sanitizeHeaderValue(String(value));
+}
+
+function parseTokens(str) {
+  const tokens = Object.create(null);
+  const tokensRE = /([^\s,;=]+)\s*(?:=\s*([^,;]+))?/g;
+  let match;
+
+  while ((match = tokensRE.exec(str))) {
+    tokens[match[1]] = match[2];
+  }
+
+  return tokens;
+}
+
+const parameterNameRE = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+
+function trimOWS(value) {
+  let start = 0;
+  let end = value.length;
+
+  while (start < end) {
+    const code = value.charCodeAt(start);
+
+    if (code !== 0x09 && code !== 0x20) {
+      break;
+    }
+
+    start += 1;
+  }
+
+  while (end > start) {
+    const code = value.charCodeAt(end - 1);
+
+    if (code !== 0x09 && code !== 0x20) {
+      break;
+    }
+
+    end -= 1;
+  }
+
+  return start === 0 && end === value.length ? value : value.slice(start, end);
+}
+
+function decodeQuotedString(value) {
+  const last = value.length - 1;
+
+  if (last < 1 || value.charCodeAt(0) !== 0x22 || value.charCodeAt(last) !== 0x22) {
+    return value;
+  }
+
+  let decoded = '';
+
+  for (let i = 1; i < last; i++) {
+    const code = value.charCodeAt(i);
+
+    if (code === 0x22) {
+      return value;
+    }
+
+    if (code === 0x5c) {
+      i += 1;
+
+      if (i >= last) {
+        return value;
+      }
+    }
+
+    decoded += value[i];
+  }
+
+  return decoded;
+}
+
+function parseParameters(value) {
+  const parameters = Object.create(null);
+  const str = String(value);
+  let start = 0;
+  let quoted = false;
+  let escaped = false;
+
+  function parseParameter(end) {
+    const part = trimOWS(str.slice(start, end));
+    const equals = part.indexOf('=');
+
+    if (equals < 1) {
+      return;
+    }
+
+    const name = trimOWS(part.slice(0, equals));
+
+    if (!parameterNameRE.test(name)) {
+      return;
+    }
+
+    const normalizedName = name.toLowerCase();
+
+    if (
+      normalizedName === '__proto__' ||
+      normalizedName === 'constructor' ||
+      normalizedName === 'prototype'
+    ) {
+      return;
+    }
+
+    const parameterValue = trimOWS(part.slice(equals + 1));
+    parameters[normalizedName] = decodeQuotedString(parameterValue);
+  }
+
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i);
+
+    if (quoted) {
+      if (escaped) {
+        escaped = false;
+      } else if (code === 0x5c) {
+        escaped = true;
+      } else if (code === 0x22) {
+        quoted = false;
+      }
+    } else if (code === 0x22) {
+      quoted = true;
+    } else if (code === 0x2c || code === 0x3b) {
+      parseParameter(i);
+      start = i + 1;
+    }
+  }
+
+  parseParameter(str.length);
+
+  return parameters;
+}
+
+const isValidHeaderName = (str) => /^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(str.trim());
+
+function matchHeaderValue(context, value, header, filter, isHeaderNameFilter) {
+  if (utils$1.isFunction(filter)) {
+    return filter.call(this, value, header);
+  }
+
+  if (isHeaderNameFilter) {
+    value = header;
+  }
+
+  if (!utils$1.isString(value)) return;
+
+  if (utils$1.isString(filter)) {
+    return value.indexOf(filter) !== -1;
+  }
+
+  if (utils$1.isRegExp(filter)) {
+    return filter.test(value);
+  }
+}
+
+function formatHeader(header) {
+  return header
+    .trim()
+    .toLowerCase()
+    .replace(/([a-z\d])(\w*)/g, (w, char, str) => {
+      return char.toUpperCase() + str;
+    });
+}
+
+function buildAccessors(obj, header) {
+  const accessorName = utils$1.toCamelCase(' ' + header);
+
+  ['get', 'set', 'has'].forEach((methodName) => {
+    Object.defineProperty(obj, methodName + accessorName, {
+      // Null-proto descriptor so a polluted Object.prototype.get cannot turn
+      // this data descriptor into an accessor descriptor on the way in.
+      __proto__: null,
+      value: function (arg1, arg2, arg3) {
+        return this[methodName].call(this, header, arg1, arg2, arg3);
+      },
+      configurable: true,
+    });
+  });
+}
+
+class AxiosHeaders {
+  constructor(headers) {
+    headers && this.set(headers);
+  }
+
+  set(header, valueOrRewrite, rewrite) {
+    const self = this;
+
+    function setHeader(_value, _header, _rewrite) {
+      const lHeader = normalizeHeader(_header);
+
+      if (!lHeader) {
+        return;
+      }
+
+      const key = utils$1.findKey(self, lHeader);
+
+      if (
+        !key ||
+        self[key] === undefined ||
+        _rewrite === true ||
+        (_rewrite === undefined && self[key] !== false)
+      ) {
+        self[key || _header] = normalizeValue(_value);
+      }
+    }
+
+    const setHeaders = (headers, _rewrite) =>
+      utils$1.forEach(headers, (_value, _header) => setHeader(_value, _header, _rewrite));
+
+    if (utils$1.isPlainObject(header) || header instanceof this.constructor) {
+      setHeaders(header, valueOrRewrite);
+    } else if (utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
+      setHeaders(parseHeaders(header), valueOrRewrite);
+    } else if (utils$1.isObject(header) && utils$1.isSafeIterable(header)) {
+      let obj = Object.create(null),
+        dest,
+        key;
+      for (const entry of header) {
+        if (!utils$1.isArray(entry)) {
+          throw new TypeError('Object iterator must return a key-value pair');
+        }
+
+        key = entry[0];
+
+        if (utils$1.hasOwnProp(obj, key)) {
+          dest = obj[key];
+          obj[key] = utils$1.isArray(dest) ? [...dest, entry[1]] : [dest, entry[1]];
+        } else {
+          obj[key] = entry[1];
+        }
+      }
+
+      setHeaders(obj, valueOrRewrite);
+    } else {
+      header != null && setHeader(valueOrRewrite, header, rewrite);
+    }
+
+    return this;
+  }
+
+  get(header, parser) {
+    header = normalizeHeader(header);
+
+    if (header) {
+      const key = utils$1.findKey(this, header);
+
+      if (key) {
+        const value = this[key];
+
+        if (!parser) {
+          return value;
+        }
+
+        if (parser === true) {
+          return parseTokens(value);
+        }
+
+        if (utils$1.isFunction(parser)) {
+          return parser.call(this, value, key);
+        }
+
+        if (utils$1.isRegExp(parser)) {
+          return parser.exec(value);
+        }
+
+        throw new TypeError('parser must be boolean|regexp|function');
+      }
+    }
+  }
+
+  has(header, matcher) {
+    header = normalizeHeader(header);
+
+    if (header) {
+      const key = utils$1.findKey(this, header);
+
+      return !!(
+        key &&
+        this[key] !== undefined &&
+        (!matcher || matchHeaderValue(this, this[key], key, matcher))
+      );
+    }
+
+    return false;
+  }
+
+  delete(header, matcher) {
+    const self = this;
+    let deleted = false;
+
+    function deleteHeader(_header) {
+      _header = normalizeHeader(_header);
+
+      if (_header) {
+        const key = utils$1.findKey(self, _header);
+
+        if (key && (!matcher || matchHeaderValue(self, self[key], key, matcher))) {
+          delete self[key];
+
+          deleted = true;
+        }
+      }
+    }
+
+    if (utils$1.isArray(header)) {
+      header.forEach(deleteHeader);
+    } else {
+      deleteHeader(header);
+    }
+
+    return deleted;
+  }
+
+  clear(matcher) {
+    const keys = Object.keys(this);
+    let i = keys.length;
+    let deleted = false;
+
+    while (i--) {
+      const key = keys[i];
+      if (!matcher || matchHeaderValue(this, this[key], key, matcher, true)) {
+        delete this[key];
+        deleted = true;
+      }
+    }
+
+    return deleted;
+  }
+
+  normalize(format) {
+    const self = this;
+    const headers = {};
+
+    utils$1.forEach(this, (value, header) => {
+      const key = utils$1.findKey(headers, header);
+
+      if (key) {
+        self[key] = normalizeValue(value);
+        delete self[header];
+        return;
+      }
+
+      const normalized = format ? formatHeader(header) : String(header).trim();
+
+      if (normalized !== header) {
+        delete self[header];
+      }
+
+      self[normalized] = normalizeValue(value);
+
+      headers[normalized] = true;
+    });
+
+    return this;
+  }
+
+  concat(...targets) {
+    return this.constructor.concat(this, ...targets);
+  }
+
+  toJSON(asStrings) {
+    const obj = Object.create(null);
+
+    utils$1.forEach(this, (value, header) => {
+      value != null &&
+        value !== false &&
+        (obj[header] = asStrings && utils$1.isArray(value) ? value.join(', ') : value);
+    });
+
+    return obj;
+  }
+
+  [Symbol.iterator]() {
+    return Object.entries(this.toJSON())[Symbol.iterator]();
+  }
+
+  toString() {
+    return Object.entries(this.toJSON())
+      .map(([header, value]) => header + ': ' + value)
+      .join('\n');
+  }
+
+  getSetCookie() {
+    const value = this.get('set-cookie');
+    return utils$1.isArray(value) ? value : value == null || value === false ? [] : [value];
+  }
+
+  get [Symbol.toStringTag]() {
+    return 'AxiosHeaders';
+  }
+
+  static from(thing) {
+    return thing instanceof this ? thing : new this(thing);
+  }
+
+  static parseParameters(value) {
+    return parseParameters(value);
+  }
+
+  static concat(first, ...targets) {
+    const computed = new this(first);
+
+    targets.forEach((target) => computed.set(target));
+
+    return computed;
+  }
+
+  static accessor(header) {
+    const internals =
+      (this[$internals] =
+      this[$internals] =
+        {
+          accessors: {},
+        });
+
+    const accessors = internals.accessors;
+    const prototype = this.prototype;
+
+    function defineAccessor(_header) {
+      const lHeader = normalizeHeader(_header);
+
+      if (!accessors[lHeader]) {
+        buildAccessors(prototype, _header);
+        accessors[lHeader] = true;
+      }
+    }
+
+    utils$1.isArray(header) ? header.forEach(defineAccessor) : defineAccessor(header);
+
+    return this;
+  }
+}
+
+AxiosHeaders.accessor([
+  'Content-Type',
+  'Content-Length',
+  'Accept',
+  'Accept-Encoding',
+  'User-Agent',
+  'Authorization',
+]);
+
+// reserved names hotfix
+utils$1.reduceDescriptors(AxiosHeaders.prototype, ({ value }, key) => {
+  let mapped = key[0].toUpperCase() + key.slice(1); // map `set` => `Set`
+  return {
+    get: () => value,
+    set(headerValue) {
+      this[mapped] = headerValue;
+    },
+  };
+});
+
+utils$1.freezeMethods(AxiosHeaders);
+
+const REDACTED = '[REDACTED ****]';
+
+function hasOwnOrPrototypeToJSON(source) {
+  if (utils$1.hasOwnProp(source, 'toJSON')) {
+    return true;
+  }
+
+  let prototype = Object.getPrototypeOf(source);
+
+  while (prototype && prototype !== Object.prototype) {
+    if (utils$1.hasOwnProp(prototype, 'toJSON')) {
+      return true;
+    }
+
+    prototype = Object.getPrototypeOf(prototype);
+  }
+
+  return false;
+}
+
+// Build a plain-object snapshot of `config` and replace the value of any key
+// (case-insensitive) listed in `redactKeys` with REDACTED. Walks through arrays
+// and AxiosHeaders, and short-circuits on circular references.
+function redactConfig(config, redactKeys) {
+  const lowerKeys = new Set(redactKeys.map((k) => String(k).toLowerCase()));
+  const seen = [];
+
+  const visit = (source) => {
+    if (source === null || typeof source !== 'object') return source;
+    if (utils$1.isBuffer(source)) return source;
+    if (seen.indexOf(source) !== -1) return undefined;
+
+    if (source instanceof AxiosHeaders) {
+      source = source.toJSON();
+    }
+
+    seen.push(source);
+
+    let result;
+    if (utils$1.isArray(source)) {
+      result = [];
+      source.forEach((v, i) => {
+        const reducedValue = visit(v);
+        if (!utils$1.isUndefined(reducedValue)) {
+          result[i] = reducedValue;
+        }
+      });
+    } else {
+      if (!utils$1.isPlainObject(source) && hasOwnOrPrototypeToJSON(source)) {
+        seen.pop();
+        return source;
+      }
+
+      result = Object.create(null);
+      for (const [key, value] of Object.entries(source)) {
+        const reducedValue = lowerKeys.has(key.toLowerCase()) ? REDACTED : visit(value);
+        if (!utils$1.isUndefined(reducedValue)) {
+          result[key] = reducedValue;
+        }
+      }
+    }
+
+    seen.pop();
+    return result;
+  };
+
+  return visit(config);
+}
+
+function stringifySafely$1(value) {
+  try {
+    return String(value);
+  } catch (err) {
+    return '';
+  }
+}
+
+function aggregateErrorMessage(error) {
+  const message = error.errors
+    .map((entry) => {
+      try {
+        return entry && entry.message ? stringifySafely$1(entry.message) : stringifySafely$1(entry);
+      } catch (err) {
+        return '';
+      }
+    })
+    .filter(Boolean)
+    .join('; ');
+
+  return message || error.name || 'AggregateError';
+}
+
+class AxiosError extends Error {
+  static from(error, code, config, request, response, customProps) {
+    // `AggregateError` (thrown by Node on dual-stack/Happy-Eyeballs connection
+    // failures) has an empty `message`; its detail lives in `errors[]`. Without
+    // this, the wrapped error surfaces with a blank message (see #6721).
+    let message = error.message;
+    if (!message && utils$1.isArray(error.errors) && error.errors.length) {
+      message = aggregateErrorMessage(error);
+    }
+
+    const axiosError = new AxiosError(message, code || error.code, config, request, response);
+    // Match native `Error` `cause` semantics: non-enumerable. The wrapped
+    // error often carries circular internals (sockets, requests, agents), so
+    // an enumerable `cause` makes structured loggers (pino/winston) and any
+    // own-property walk throw "Converting circular structure to JSON".
+    // Regression from #6982; see #7205. `__proto__: null` mirrors the
+    // `message` descriptor below (prototype-pollution-safe descriptor).
+    Object.defineProperty(axiosError, 'cause', {
+      __proto__: null,
+      value: error,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+    axiosError.name = error.name;
+
+    // Preserve status from the original error if not already set from response
+    if (error.status != null && axiosError.status == null) {
+      axiosError.status = error.status;
+    }
+
+    customProps && Object.assign(axiosError, customProps);
+    return axiosError;
+  }
+
+  /**
+   * Create an Error with the specified message, config, error code, request and response.
+   *
+   * @param {string} message The error message.
+   * @param {string} [code] The error code (for example, 'ECONNABORTED').
+   * @param {Object} [config] The config.
+   * @param {Object} [request] The request.
+   * @param {Object} [response] The response.
+   *
+   * @returns {Error} The created error.
+   */
+  constructor(message, code, config, request, response) {
+    super(message);
+
+    // Make message enumerable to maintain backward compatibility
+    // The native Error constructor sets message as non-enumerable,
+    // but axios < v1.13.3 had it as enumerable
+    Object.defineProperty(this, 'message', {
+      // Null-proto descriptor so a polluted Object.prototype.get cannot turn
+      // this data descriptor into an accessor descriptor on the way in.
+      __proto__: null,
+      value: message,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
+
+    this.name = 'AxiosError';
+    this.isAxiosError = true;
+    code && (this.code = code);
+    config && (this.config = config);
+    request && (this.request = request);
+    if (response) {
+      this.response = response;
+      this.status = response.status;
+    }
+  }
+
+  toJSON() {
+    // Opt-in redaction: when the request config carries a `redact` array, the
+    // value of any matching key (case-insensitive, at any depth) is replaced
+    // with REDACTED in the serialized snapshot. Undefined or empty leaves the
+    // existing serialization behavior unchanged.
+    const config = this.config;
+    const redactKeys = config && utils$1.hasOwnProp(config, 'redact') ? config.redact : undefined;
+    const serializedConfig =
+      utils$1.isArray(redactKeys) && redactKeys.length > 0
+        ? redactConfig(config, redactKeys)
+        : utils$1.toJSONObject(config);
+
+    return {
+      // Standard
+      message: this.message,
+      name: this.name,
+      // Microsoft
+      description: this.description,
+      number: this.number,
+      // Mozilla
+      fileName: this.fileName,
+      lineNumber: this.lineNumber,
+      columnNumber: this.columnNumber,
+      stack: this.stack,
+      // Axios
+      config: serializedConfig,
+      code: this.code,
+      status: this.status,
+    };
+  }
+}
+
+// This can be changed to static properties as soon as the parser options in .eslint.cjs are updated.
+AxiosError.ERR_BAD_OPTION_VALUE = 'ERR_BAD_OPTION_VALUE';
+AxiosError.ERR_BAD_OPTION = 'ERR_BAD_OPTION';
+AxiosError.ECONNABORTED = 'ECONNABORTED';
+AxiosError.ETIMEDOUT = 'ETIMEDOUT';
+AxiosError.ECONNREFUSED = 'ECONNREFUSED';
+AxiosError.ERR_NETWORK = 'ERR_NETWORK';
+AxiosError.ERR_FR_TOO_MANY_REDIRECTS = 'ERR_FR_TOO_MANY_REDIRECTS';
+AxiosError.ERR_DEPRECATED = 'ERR_DEPRECATED';
+AxiosError.ERR_BAD_RESPONSE = 'ERR_BAD_RESPONSE';
+AxiosError.ERR_BAD_REQUEST = 'ERR_BAD_REQUEST';
+AxiosError.ERR_CANCELED = 'ERR_CANCELED';
+AxiosError.ERR_NOT_SUPPORT = 'ERR_NOT_SUPPORT';
+AxiosError.ERR_INVALID_URL = 'ERR_INVALID_URL';
+AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED = 'ERR_FORM_DATA_DEPTH_EXCEEDED';
+
+// eslint-disable-next-line strict
+var httpAdapter = null;
+
+// Default nesting limit shared with the inverse transform (formDataToJSON) so
+// the FormData <-> JSON round-trip stays symmetric.
+const DEFAULT_FORM_DATA_MAX_DEPTH = 100;
+
+/**
+ * Determines if the given thing is a array or js object.
+ *
+ * @param {string} thing - The object or array to be visited.
+ *
+ * @returns {boolean}
+ */
+function isVisitable(thing) {
+  return utils$1.isPlainObject(thing) || utils$1.isArray(thing);
+}
+
+/**
+ * It removes the brackets from the end of a string
+ *
+ * @param {string} key - The key of the parameter.
+ *
+ * @returns {string} the key without the brackets.
+ */
+function removeBrackets(key) {
+  return utils$1.endsWith(key, '[]') ? key.slice(0, -2) : key;
+}
+
+/**
+ * It takes a path, a key, and a boolean, and returns a string
+ *
+ * @param {string} path - The path to the current key.
+ * @param {string} key - The key of the current object being iterated over.
+ * @param {string} dots - If true, the key will be rendered with dots instead of brackets.
+ *
+ * @returns {string} The path to the current key.
+ */
+function renderKey(path, key, dots) {
+  if (!path) return key;
+  return path
+    .concat(key)
+    .map(function each(token, i) {
+      // eslint-disable-next-line no-param-reassign
+      token = removeBrackets(token);
+      return !dots && i ? '[' + token + ']' : token;
+    })
+    .join(dots ? '.' : '');
+}
+
+/**
+ * If the array is an array and none of its elements are visitable, then it's a flat array.
+ *
+ * @param {Array<any>} arr - The array to check
+ *
+ * @returns {boolean}
+ */
+function isFlatArray(arr) {
+  return utils$1.isArray(arr) && !arr.some(isVisitable);
+}
+
+const predicates = utils$1.toFlatObject(utils$1, {}, null, function filter(prop) {
+  return /^is[A-Z]/.test(prop);
+});
+
+/**
+ * Convert a data object to FormData
+ *
+ * @param {Object} obj
+ * @param {?Object} [formData]
+ * @param {?Object} [options]
+ * @param {Function} [options.visitor]
+ * @param {Boolean} [options.metaTokens = true]
+ * @param {Boolean} [options.dots = false]
+ * @param {?Boolean} [options.indexes = false]
+ *
+ * @returns {Object}
+ **/
+
+/**
+ * It converts an object into a FormData object
+ *
+ * @param {Object<any, any>} obj - The object to convert to form data.
+ * @param {string} formData - The FormData object to append to.
+ * @param {Object<string, any>} options
+ *
+ * @returns
+ */
+function toFormData(obj, formData, options) {
+  if (!utils$1.isObject(obj)) {
+    throw new TypeError('target must be an object');
+  }
+
+  // eslint-disable-next-line no-param-reassign
+  formData = formData || new (FormData)();
+
+  // eslint-disable-next-line no-param-reassign
+  options = utils$1.toFlatObject(
+    options,
+    {
+      metaTokens: true,
+      dots: false,
+      indexes: false,
+    },
+    false,
+    function defined(option, source) {
+      // eslint-disable-next-line no-eq-null,eqeqeq
+      return !utils$1.isUndefined(source[option]);
+    }
+  );
+
+  const metaTokens = options.metaTokens;
+  // eslint-disable-next-line no-use-before-define
+  const visitor = options.visitor || defaultVisitor;
+  const dots = options.dots;
+  const indexes = options.indexes;
+  const _Blob = options.Blob || (typeof Blob !== 'undefined' && Blob);
+  const maxDepth = options.maxDepth === undefined ? DEFAULT_FORM_DATA_MAX_DEPTH : options.maxDepth;
+  const useBlob = _Blob && utils$1.isSpecCompliantForm(formData);
+  const stack = [];
+
+  if (!utils$1.isFunction(visitor)) {
+    throw new TypeError('visitor must be a function');
+  }
+
+  function convertValue(value) {
+    if (value === null) return '';
+
+    if (utils$1.isDate(value)) {
+      return value.toISOString();
+    }
+
+    if (utils$1.isBoolean(value)) {
+      return value.toString();
+    }
+
+    if (!useBlob && utils$1.isBlob(value)) {
+      throw new AxiosError('Blob is not supported. Use a Buffer instead.');
+    }
+
+    if (utils$1.isArrayBuffer(value) || utils$1.isTypedArray(value)) {
+      if (useBlob && typeof _Blob === 'function') {
+        return new _Blob([value]);
+      }
+      throw new AxiosError('Blob is not supported. Use a Buffer instead.', AxiosError.ERR_NOT_SUPPORT);
+    }
+
+    return value;
+  }
+
+  function throwIfMaxDepthExceeded(depth) {
+    if (depth > maxDepth) {
+      throw new AxiosError(
+        'Object is too deeply nested (' + depth + ' levels). Max depth: ' + maxDepth,
+        AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED
+      );
+    }
+  }
+
+  function stringifyWithDepthLimit(value, depth) {
+    if (maxDepth === Infinity) {
+      return JSON.stringify(value);
+    }
+
+    const ancestors = [];
+
+    return JSON.stringify(value, function limitDepth(_key, currentValue) {
+      if (!utils$1.isObject(currentValue)) {
+        return currentValue;
+      }
+
+      while (ancestors.length && ancestors[ancestors.length - 1] !== this) {
+        ancestors.pop();
+      }
+
+      ancestors.push(currentValue);
+      throwIfMaxDepthExceeded(depth + ancestors.length - 1);
+
+      return currentValue;
+    });
+  }
+
+  /**
+   * Default visitor.
+   *
+   * @param {*} value
+   * @param {String|Number} key
+   * @param {Array<String|Number>} path
+   * @this {FormData}
+   *
+   * @returns {boolean} return true to visit the each prop of the value recursively
+   */
+  function defaultVisitor(value, key, path) {
+    let arr = value;
+
+    if (utils$1.isReactNative(formData) && utils$1.isReactNativeBlob(value)) {
+      formData.append(renderKey(path, key, dots), convertValue(value));
+      return false;
+    }
+
+    if (value && !path && typeof value === 'object') {
+      if (utils$1.endsWith(key, '{}')) {
+        // eslint-disable-next-line no-param-reassign
+        key = metaTokens ? key : key.slice(0, -2);
+        // eslint-disable-next-line no-param-reassign
+        value = stringifyWithDepthLimit(value, 1);
+      } else if (
+        (utils$1.isArray(value) && isFlatArray(value)) ||
+        ((utils$1.isFileList(value) || utils$1.endsWith(key, '[]')) && (arr = utils$1.toArray(value)))
+      ) {
+        // eslint-disable-next-line no-param-reassign
+        key = removeBrackets(key);
+
+        arr.forEach(function each(el, index) {
+          !(utils$1.isUndefined(el) || el === null) &&
+            formData.append(
+              // eslint-disable-next-line no-nested-ternary
+              indexes === true
+                ? renderKey([key], index, dots)
+                : indexes === null
+                  ? key
+                  : key + '[]',
+              convertValue(el)
+            );
+        });
+        return false;
+      }
+    }
+
+    if (isVisitable(value)) {
+      return true;
+    }
+
+    formData.append(renderKey(path, key, dots), convertValue(value));
+
+    return false;
+  }
+
+  const exposedHelpers = Object.assign(predicates, {
+    defaultVisitor,
+    convertValue,
+    isVisitable,
+  });
+
+  function build(value, path, depth = 0) {
+    if (utils$1.isUndefined(value)) return;
+
+    throwIfMaxDepthExceeded(depth);
+
+    if (stack.indexOf(value) !== -1) {
+      throw new Error('Circular reference detected in ' + path.join('.'));
+    }
+
+    stack.push(value);
+
+    utils$1.forEach(value, function each(el, key) {
+      const result =
+        !(utils$1.isUndefined(el) || el === null) &&
+        visitor.call(formData, el, utils$1.isString(key) ? key.trim() : key, path, exposedHelpers);
+
+      if (result === true) {
+        build(el, path ? path.concat(key) : [key], depth + 1);
+      }
+    });
+
+    stack.pop();
+  }
+
+  if (!utils$1.isObject(obj)) {
+    throw new TypeError('data must be an object');
+  }
+
+  build(obj);
+
+  return formData;
+}
+
+/**
+ * It encodes a string by replacing all characters that are not in the unreserved set with
+ * their percent-encoded equivalents
+ *
+ * @param {string} str - The string to encode.
+ *
+ * @returns {string} The encoded string.
+ */
+function encode$1(str) {
+  const charMap = {
+    '!': '%21',
+    "'": '%27',
+    '(': '%28',
+    ')': '%29',
+    '~': '%7E',
+    '%20': '+',
+  };
+  return encodeURIComponent(str).replace(/[!'()~]|%20/g, function replacer(match) {
+    return charMap[match];
+  });
+}
+
+/**
+ * It takes a params object and converts it to a FormData object
+ *
+ * @param {Object<string, any>} params - The parameters to be converted to a FormData object.
+ * @param {Object<string, any>} options - The options object passed to the Axios constructor.
+ *
+ * @returns {void}
+ */
+function AxiosURLSearchParams(params, options) {
+  this._pairs = [];
+
+  params && toFormData(params, this, options);
+}
+
+const prototype = AxiosURLSearchParams.prototype;
+
+prototype.append = function append(name, value) {
+  this._pairs.push([name, value]);
+};
+
+prototype.toString = function toString(encoder) {
+  const _encode = encoder
+    ? (value) => encoder.call(this, value, encode$1)
+    : encode$1;
+
+  return this._pairs
+    .map(function each(pair) {
+      return _encode(pair[0]) + '=' + _encode(pair[1]);
+    }, '')
+    .join('&');
+};
+
+/**
+ * It replaces URL-encoded forms of `:`, `$`, `,`, and spaces with
+ * their plain counterparts (`:`, `$`, `,`, `+`).
+ *
+ * @param {string} val The value to be encoded.
+ *
+ * @returns {string} The encoded value.
+ */
+function encode(val) {
+  return encodeURIComponent(val)
+    .replace(/%3A/gi, ':')
+    .replace(/%24/g, '$')
+    .replace(/%2C/gi, ',')
+    .replace(/%20/g, '+');
+}
+
+/**
+ * Build a URL by appending params to the end
+ *
+ * @param {string} url The base of the url (e.g., http://www.google.com)
+ * @param {object} [params] The params to be appended
+ * @param {?(object|Function)} options
+ *
+ * @returns {string} The formatted url
+ */
+function buildURL(url, params, options) {
+  if (!params) {
+    return url;
+  }
+  url = url || '';
+
+  const _options = utils$1.isFunction(options)
+    ? {
+        serialize: options,
+      }
+    : options;
+
+  // Read serializer options pollution-safely: own properties and methods on a
+  // class/template prototype are honored, but values injected onto a polluted
+  // Object.prototype are ignored.
+  const _encode = utils$1.getSafeProp(_options, 'encode') || encode;
+  const serializeFn = utils$1.getSafeProp(_options, 'serialize');
+
+  let serializedParams;
+
+  if (serializeFn) {
+    serializedParams = serializeFn(params, _options);
+  } else {
+    serializedParams = utils$1.isURLSearchParams(params)
+      ? params.toString()
+      : new AxiosURLSearchParams(params, _options).toString(_encode);
+  }
+
+  if (serializedParams) {
+    const hashmarkIndex = url.indexOf('#');
+
+    if (hashmarkIndex !== -1) {
+      url = url.slice(0, hashmarkIndex);
+    }
+    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+  }
+
+  return url;
+}
+
+class InterceptorManager {
+  constructor() {
+    this.handlers = [];
+  }
+
+  /**
+   * Add a new interceptor to the stack
+   *
+   * @param {Function} fulfilled The function to handle `then` for a `Promise`
+   * @param {Function} rejected The function to handle `reject` for a `Promise`
+   * @param {Object} options The options for the interceptor, synchronous and runWhen
+   *
+   * @return {Number} An ID used to remove interceptor later
+   */
+  use(fulfilled, rejected, options) {
+    this.handlers.push({
+      fulfilled,
+      rejected,
+      synchronous: options ? options.synchronous : false,
+      runWhen: options ? options.runWhen : null,
+    });
+    return this.handlers.length - 1;
+  }
+
+  /**
+   * Remove an interceptor from the stack
+   *
+   * @param {Number} id The ID that was returned by `use`
+   *
+   * @returns {void}
+   */
+  eject(id) {
+    if (this.handlers[id]) {
+      this.handlers[id] = null;
+    }
+  }
+
+  /**
+   * Clear all interceptors from the stack
+   *
+   * @returns {void}
+   */
+  clear() {
+    if (this.handlers) {
+      this.handlers = [];
+    }
+  }
+
+  /**
+   * Iterate over all the registered interceptors
+   *
+   * This method is particularly useful for skipping over any
+   * interceptors that may have become `null` calling `eject`.
+   *
+   * @param {Function} fn The function to call for each interceptor
+   *
+   * @returns {void}
+   */
+  forEach(fn) {
+    utils$1.forEach(this.handlers, function forEachHandler(h) {
+      if (h !== null) {
+        fn(h);
+      }
+    });
+  }
+}
+
+var transitionalDefaults = {
+  silentJSONParsing: true,
+  forcedJSONParsing: true,
+  clarifyTimeoutError: false,
+  legacyInterceptorReqResOrdering: true,
+  advertiseZstdAcceptEncoding: false,
+  validateStatusUndefinedResolves: true,
+};
+
+var URLSearchParams$1 = typeof URLSearchParams !== 'undefined' ? URLSearchParams : AxiosURLSearchParams;
+
+var FormData$1 = typeof FormData !== 'undefined' ? FormData : null;
+
+var Blob$1 = typeof Blob !== 'undefined' ? Blob : null;
+
+var platform$1 = {
+  isBrowser: true,
+  classes: {
+    URLSearchParams: URLSearchParams$1,
+    FormData: FormData$1,
+    Blob: Blob$1,
+  },
+  protocols: ['http', 'https', 'file', 'blob', 'url', 'data'],
+};
+
+const hasBrowserEnv = typeof window !== 'undefined' && typeof document !== 'undefined';
+
+const _navigator = (typeof navigator === 'object' && navigator) || undefined;
+
+/**
+ * Determine if we're running in a standard browser environment
+ *
+ * This allows axios to run in a web worker, and react-native.
+ * Both environments support XMLHttpRequest, but not fully standard globals.
+ *
+ * web workers:
+ *  typeof window -> undefined
+ *  typeof document -> undefined
+ *
+ * react-native:
+ *  navigator.product -> 'ReactNative'
+ * nativescript
+ *  navigator.product -> 'NativeScript' or 'NS'
+ *
+ * @returns {boolean}
+ */
+const hasStandardBrowserEnv =
+  hasBrowserEnv &&
+  (!_navigator || ['ReactNative', 'NativeScript', 'NS'].indexOf(_navigator.product) < 0);
+
+/**
+ * Determine if we're running in a standard browser webWorker environment
+ *
+ * Although the `isStandardBrowserEnv` method indicates that
+ * `allows axios to run in a web worker`, the WebWorker will still be
+ * filtered out due to its judgment standard
+ * `typeof window !== 'undefined' && typeof document !== 'undefined'`.
+ * This leads to a problem when axios post `FormData` in webWorker
+ */
+const hasStandardBrowserWebWorkerEnv = (() => {
+  return (
+    typeof WorkerGlobalScope !== 'undefined' &&
+    // eslint-disable-next-line no-undef
+    self instanceof WorkerGlobalScope &&
+    typeof self.importScripts === 'function'
+  );
+})();
+
+const origin = (hasBrowserEnv && window.location.href) || 'http://localhost';
+
+var utils = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  hasBrowserEnv: hasBrowserEnv,
+  hasStandardBrowserEnv: hasStandardBrowserEnv,
+  hasStandardBrowserWebWorkerEnv: hasStandardBrowserWebWorkerEnv,
+  navigator: _navigator,
+  origin: origin
+});
+
+var platform = {
+  ...utils,
+  ...platform$1,
+};
+
+function toURLEncodedForm(data, options) {
+  return toFormData(data, new platform.classes.URLSearchParams(), {
+    visitor: function (value, key, path, helpers) {
+      if (platform.isNode && utils$1.isBuffer(value)) {
+        this.append(key, value.toString('base64'));
+        return false;
+      }
+
+      return helpers.defaultVisitor.apply(this, arguments);
+    },
+    ...options,
+  });
+}
+
+const MAX_DEPTH = DEFAULT_FORM_DATA_MAX_DEPTH;
+
+function throwIfDepthExceeded(index) {
+  if (index > MAX_DEPTH) {
+    throw new AxiosError(
+      'FormData field is too deeply nested (' + index + ' levels). Max depth: ' + MAX_DEPTH,
+      AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED
+    );
+  }
+}
+
+/**
+ * It takes a string like `foo[x][y][z]` and returns an array like `['foo', 'x', 'y', 'z']
+ *
+ * @param {string} name - The name of the property to get.
+ *
+ * @returns An array of strings.
+ */
+function parsePropPath(name) {
+  // foo[x][y][z] -> ['foo', 'x', 'y', 'z']
+  // foo.x.y.z    -> ['foo', 'x', 'y', 'z']
+  // A path is split on `.` and on `[...]` groups. A segment — whether written
+  // in dot notation or captured inside brackets — may contain any character
+  // except `.`, `[` and `]`, so a key like `user-name` or `user name` is kept
+  // literal instead of being split (#5402). `.`, `[` and `]` keep their existing
+  // meaning, e.g. `foo[bar.baz]` -> ['foo', 'bar', 'baz'] and `[]` is an array push.
+  // Excluding `[` from the bracket group also makes the match fail fast at the
+  // next `[`, so a malformed name cannot rescan to the end of the string from
+  // every unmatched `[` — parsing stays linear in the length of the name.
+  const path = [];
+  const pattern = /[^.[\]]+|\[([^.[\]]*)]/g;
+  let match;
+
+  while ((match = pattern.exec(name)) !== null) {
+    throwIfDepthExceeded(path.length);
+    path.push(match[0] === '[]' ? '' : match[1] || match[0]);
+  }
+
+  return path;
+}
+
+/**
+ * Convert an array to an object.
+ *
+ * @param {Array<any>} arr - The array to convert to an object.
+ *
+ * @returns An object with the same keys and values as the array.
+ */
+function arrayToObject(arr) {
+  const obj = {};
+  const keys = Object.keys(arr);
+  let i;
+  const len = keys.length;
+  let key;
+  for (i = 0; i < len; i++) {
+    key = keys[i];
+    obj[key] = arr[key];
+  }
+  return obj;
+}
+
+/**
+ * It takes a FormData object and returns a JavaScript object
+ *
+ * @param {string} formData The FormData object to convert to JSON.
+ *
+ * @returns {Object<string, any> | null} The converted object.
+ */
+function formDataToJSON(formData) {
+  function buildPath(path, value, target, index) {
+    throwIfDepthExceeded(index);
+
+    let name = path[index++];
+
+    if (name === '__proto__') return true;
+
+    const isNumericKey = Number.isFinite(+name);
+    const isLast = index >= path.length;
+    name = !name && utils$1.isArray(target) ? target.length : name;
+
+    if (isLast) {
+      if (utils$1.hasOwnProp(target, name)) {
+        target[name] = utils$1.isArray(target[name])
+          ? target[name].concat(value)
+          : [target[name], value];
+      } else {
+        target[name] = value;
+      }
+
+      return !isNumericKey;
+    }
+
+    if (!utils$1.hasOwnProp(target, name) || !utils$1.isObject(target[name])) {
+      target[name] = [];
+    }
+
+    const result = buildPath(path, value, target[name], index);
+
+    if (result && utils$1.isArray(target[name])) {
+      target[name] = arrayToObject(target[name]);
+    }
+
+    return !isNumericKey;
+  }
+
+  if (utils$1.isFormData(formData) && utils$1.isFunction(formData.entries)) {
+    const obj = {};
+
+    utils$1.forEachEntry(formData, (name, value) => {
+      buildPath(parsePropPath(name), value, obj, 0);
+    });
+
+    return obj;
+  }
+
+  return null;
+}
+
+const own = (obj, key) => (obj != null && utils$1.hasOwnProp(obj, key) ? obj[key] : undefined);
+
+/**
+ * It takes a string, tries to parse it, and if it fails, it returns the stringified version
+ * of the input
+ *
+ * @param {any} rawValue - The value to be stringified.
+ * @param {Function} parser - A function that parses a string into a JavaScript object.
+ * @param {Function} encoder - A function that takes a value and returns a string.
+ *
+ * @returns {string} A stringified version of the rawValue.
+ */
+function stringifySafely(rawValue, parser, encoder) {
+  if (utils$1.isString(rawValue)) {
+    try {
+      (parser || JSON.parse)(rawValue);
+      return utils$1.trim(rawValue);
+    } catch (e) {
+      if (e.name !== 'SyntaxError') {
+        throw e;
+      }
+    }
+  }
+
+  return (encoder || JSON.stringify)(rawValue);
+}
+
+const defaults = {
+  transitional: transitionalDefaults,
+
+  adapter: ['xhr', 'http', 'fetch'],
+
+  transformRequest: [
+    function transformRequest(data, headers) {
+      const contentType = headers.getContentType() || '';
+      const hasJSONContentType = contentType.indexOf('application/json') > -1;
+      const isObjectPayload = utils$1.isObject(data);
+
+      if (isObjectPayload && utils$1.isHTMLForm(data)) {
+        data = new FormData(data);
+      }
+
+      const isFormData = utils$1.isFormData(data);
+
+      if (isFormData) {
+        return hasJSONContentType ? JSON.stringify(formDataToJSON(data)) : data;
+      }
+
+      if (
+        utils$1.isArrayBuffer(data) ||
+        utils$1.isBuffer(data) ||
+        utils$1.isStream(data) ||
+        utils$1.isFile(data) ||
+        utils$1.isBlob(data) ||
+        utils$1.isReadableStream(data)
+      ) {
+        return data;
+      }
+      if (utils$1.isArrayBufferView(data)) {
+        return data.buffer;
+      }
+      if (utils$1.isURLSearchParams(data)) {
+        headers.setContentType('application/x-www-form-urlencoded;charset=utf-8', false);
+        return data.toString();
+      }
+
+      let isFileList;
+
+      if (isObjectPayload) {
+        const formSerializer = own(this, 'formSerializer');
+        if (contentType.indexOf('application/x-www-form-urlencoded') > -1) {
+          return toURLEncodedForm(data, formSerializer).toString();
+        }
+
+        if (
+          (isFileList = utils$1.isFileList(data)) ||
+          contentType.indexOf('multipart/form-data') > -1
+        ) {
+          const env = own(this, 'env');
+          const _FormData = env && env.FormData;
+
+          return toFormData(
+            isFileList ? { 'files[]': data } : data,
+            _FormData && new _FormData(),
+            formSerializer
+          );
+        }
+      }
+
+      if (isObjectPayload || hasJSONContentType) {
+        headers.setContentType('application/json', false);
+        return stringifySafely(data);
+      }
+
+      return data;
+    },
+  ],
+
+  transformResponse: [
+    function transformResponse(data) {
+      const transitional = own(this, 'transitional') || defaults.transitional;
+      const forcedJSONParsing = transitional && transitional.forcedJSONParsing;
+      const responseType = own(this, 'responseType');
+      const JSONRequested = responseType === 'json';
+
+      if (utils$1.isResponse(data) || utils$1.isReadableStream(data)) {
+        return data;
+      }
+
+      if (
+        data &&
+        utils$1.isString(data) &&
+        ((forcedJSONParsing && !responseType) || JSONRequested)
+      ) {
+        const silentJSONParsing = transitional && transitional.silentJSONParsing;
+        const strictJSONParsing = !silentJSONParsing && JSONRequested;
+
+        try {
+          return JSON.parse(data, own(this, 'parseReviver'));
+        } catch (e) {
+          if (strictJSONParsing) {
+            if (e.name === 'SyntaxError') {
+              throw AxiosError.from(e, AxiosError.ERR_BAD_RESPONSE, this, null, own(this, 'response'));
+            }
+            throw e;
+          }
+        }
+      }
+
+      return data;
+    },
+  ],
+
+  /**
+   * A timeout in milliseconds to abort a request. If set to 0 (default) a
+   * timeout is not created.
+   */
+  timeout: 0,
+
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+  maxContentLength: -1,
+  maxBodyLength: -1,
+
+  env: {
+    FormData: platform.classes.FormData,
+    Blob: platform.classes.Blob,
+  },
+
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  },
+
+  headers: {
+    common: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': undefined,
+    },
+  },
+};
+
+utils$1.forEach(['delete', 'get', 'head', 'post', 'put', 'patch', 'query'], (method) => {
+  defaults.headers[method] = {};
+});
+
+/**
+ * Transform the data for a request or a response
+ *
+ * @param {Array|Function} fns A single function or Array of functions
+ * @param {?Object} response The response object
+ *
+ * @returns {*} The resulting transformed data
+ */
+function transformData(fns, response) {
+  const config = this || defaults;
+  const context = response || config;
+  const headers = AxiosHeaders.from(context.headers);
+  let data = context.data;
+
+  utils$1.forEach(fns, function transform(fn) {
+    data = fn.call(config, data, headers.normalize(), response ? response.status : undefined);
+  });
+
+  headers.normalize();
+
+  return data;
+}
+
+function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+}
+
+class CanceledError extends AxiosError {
+  /**
+   * A `CanceledError` is an object that is thrown when an operation is canceled.
+   *
+   * @param {string=} message The message.
+   * @param {Object=} config The config.
+   * @param {Object=} request The request.
+   *
+   * @returns {CanceledError} The created error.
+   */
+  constructor(message, config, request) {
+    super(message == null ? 'canceled' : message, AxiosError.ERR_CANCELED, config, request);
+    this.name = 'CanceledError';
+    this.__CANCEL__ = true;
+  }
+}
+
+/**
+ * Resolve or reject a Promise based on response status.
+ *
+ * @param {Function} resolve A function that resolves the promise.
+ * @param {Function} reject A function that rejects the promise.
+ * @param {object} response The response.
+ *
+ * @returns {object} The response.
+ */
+function settle(resolve, reject, response) {
+  const validateStatus = response.config.validateStatus;
+  if (!response.status || !validateStatus || validateStatus(response.status)) {
+    resolve(response);
+  } else {
+    reject(new AxiosError(
+      'Request failed with status code ' + response.status,
+      response.status >= 400 && response.status < 500 ? AxiosError.ERR_BAD_REQUEST : AxiosError.ERR_BAD_RESPONSE,
+      response.config,
+      response.request,
+      response
+    ));
+  }
+}
+
+function parseProtocol(url) {
+  const match = /^([-+\w]{1,25}):(?:\/\/)?/.exec(url);
+  return (match && match[1]) || '';
+}
+
+/**
+ * Calculate data maxRate
+ * @param {Number} [samplesCount= 10]
+ * @param {Number} [min= 1000]
+ * @returns {Function}
+ */
+function speedometer(samplesCount, min) {
+  samplesCount = samplesCount || 10;
+  const bytes = new Array(samplesCount);
+  const timestamps = new Array(samplesCount);
+  let head = 0;
+  let tail = 0;
+  let firstSampleTS;
+
+  min = min !== undefined ? min : 1000;
+
+  return function push(chunkLength) {
+    const now = Date.now();
+
+    const startedAt = timestamps[tail];
+
+    if (!firstSampleTS) {
+      firstSampleTS = now;
+    }
+
+    bytes[head] = chunkLength;
+    timestamps[head] = now;
+
+    let i = tail;
+    let bytesCount = 0;
+
+    while (i !== head) {
+      bytesCount += bytes[i++];
+      i = i % samplesCount;
+    }
+
+    head = (head + 1) % samplesCount;
+
+    if (head === tail) {
+      tail = (tail + 1) % samplesCount;
+    }
+
+    if (now - firstSampleTS < min) {
+      return;
+    }
+
+    const passed = startedAt && now - startedAt;
+
+    return passed ? Math.round((bytesCount * 1000) / passed) : undefined;
+  };
+}
+
+/**
+ * Throttle decorator
+ * @param {Function} fn
+ * @param {Number} freq
+ * @return {Function}
+ */
+function throttle(fn, freq) {
+  let timestamp = 0;
+  let threshold = 1000 / freq;
+  let lastArgs;
+  let timer;
+
+  const invoke = (args, now = Date.now()) => {
+    timestamp = now;
+    lastArgs = null;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    fn(...args);
+  };
+
+  const throttled = (...args) => {
+    const now = Date.now();
+    const passed = now - timestamp;
+    if (passed >= threshold) {
+      invoke(args, now);
+    } else {
+      lastArgs = args;
+      if (!timer) {
+        timer = setTimeout(() => {
+          timer = null;
+          invoke(lastArgs);
+        }, threshold - passed);
+      }
+    }
+  };
+
+  const flush = () => lastArgs && invoke(lastArgs);
+
+  return [throttled, flush];
+}
+
+const progressEventReducer = (listener, isDownloadStream, freq = 3) => {
+  let bytesNotified = 0;
+  const _speedometer = speedometer(50, 250);
+
+  return throttle((e) => {
+    if (!e || typeof e.loaded !== 'number') {
+      return;
+    }
+    const rawLoaded = e.loaded;
+    const total = e.lengthComputable ? e.total : undefined;
+    const loaded = Math.max(0, total != null ? Math.min(rawLoaded, total) : rawLoaded);
+    const progressBytes = Math.max(0, loaded - bytesNotified);
+    const rate = _speedometer(progressBytes);
+
+    bytesNotified = Math.max(bytesNotified, loaded);
+
+    const data = {
+      loaded,
+      total,
+      progress: total ? loaded / total : undefined,
+      bytes: progressBytes,
+      rate: rate ? rate : undefined,
+      estimated: rate && total ? (total - loaded) / rate : undefined,
+      event: e,
+      lengthComputable: total != null,
+      [isDownloadStream ? 'download' : 'upload']: true,
+    };
+
+    listener(data);
+  }, freq);
+};
+
+const progressEventDecorator = (total, throttled) => {
+  const lengthComputable = total != null;
+
+  return [
+    (loaded) =>
+      throttled[0]({
+        lengthComputable,
+        total,
+        loaded,
+      }),
+    throttled[1],
+  ];
+};
+
+const asyncDecorator =
+  (fn, scheduler = utils$1.asap) =>
+  (...args) =>
+    scheduler(() => fn(...args));
+
+var isURLSameOrigin = platform.hasStandardBrowserEnv
+  ? ((origin, isMSIE) => (url) => {
+      url = new URL(url, platform.origin);
+
+      return (
+        origin.protocol === url.protocol &&
+        origin.host === url.host &&
+        (isMSIE || origin.port === url.port)
+      );
+    })(
+      new URL(platform.origin),
+      platform.navigator && /(msie|trident)/i.test(platform.navigator.userAgent)
+    )
+  : () => true;
+
+var cookies = platform.hasStandardBrowserEnv
+  ? // Standard browser envs support document.cookie
+    {
+      write(name, value, expires, path, domain, secure, sameSite) {
+        if (typeof document === 'undefined') return;
+
+        const cookie = [`${name}=${encodeURIComponent(value)}`];
+
+        if (utils$1.isNumber(expires)) {
+          cookie.push(`expires=${new Date(expires).toUTCString()}`);
+        }
+        if (utils$1.isString(path)) {
+          cookie.push(`path=${path}`);
+        }
+        if (utils$1.isString(domain)) {
+          cookie.push(`domain=${domain}`);
+        }
+        if (secure === true) {
+          cookie.push('secure');
+        }
+        if (utils$1.isString(sameSite)) {
+          cookie.push(`SameSite=${sameSite}`);
+        }
+
+        document.cookie = cookie.join('; ');
+      },
+
+      read(name) {
+        if (typeof document === 'undefined') return null;
+        // Match name=value by splitting on the semicolon separator instead of building a
+        // RegExp from `name` — interpolating an unescaped string into a RegExp would let
+        // metacharacters (e.g. `.+?` in an attacker-influenced cookie name) cause ReDoS or
+        // match the wrong cookie. Browsers may serialize cookie pairs as either ";" or
+        // "; ", so ignore optional whitespace before each cookie name.
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].replace(/^\s+/, '');
+          const eq = cookie.indexOf('=');
+          if (eq !== -1 && cookie.slice(0, eq) === name) {
+            try {
+              return decodeURIComponent(cookie.slice(eq + 1));
+            } catch (e) {
+              return cookie.slice(eq + 1);
+            }
+          }
+        }
+        return null;
+      },
+
+      remove(name) {
+        this.write(name, '', Date.now() - 86400000, '/');
+      },
+    }
+  : // Non-standard browser env (web workers, react-native) lack needed support.
+    {
+      write() {},
+      read() {
+        return null;
+      },
+      remove() {},
+    };
+
+/**
+ * Determines whether the specified URL is absolute
+ *
+ * @param {string} url The URL to test
+ *
+ * @returns {boolean} True if the specified URL is absolute, otherwise false
+ */
+function isAbsoluteURL(url) {
+  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
+  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
+  // by any combination of letters, digits, plus, period, or hyphen.
+  if (typeof url !== 'string') {
+    return false;
+  }
+
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
+}
+
+/**
+ * Creates a new URL by combining the specified URLs
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} relativeURL The relative URL
+ *
+ * @returns {string} The combined URL
+ */
+function combineURLs(baseURL, relativeURL) {
+  if (!relativeURL) {
+    return baseURL;
+  }
+
+  let end = baseURL.length;
+
+  while (end > 0 && baseURL.charCodeAt(end - 1) === 47) {
+    end--;
+  }
+
+  return baseURL.slice(0, end) + '/' + relativeURL.replace(/^\/+/, '');
+}
+
+const malformedHttpProtocol = /^https?:(?!\/\/)/i;
+const httpProtocolControlCharacters = /[\t\n\r]/g;
+
+function stripLeadingC0ControlOrSpace(url) {
+  let i = 0;
+  while (i < url.length && url.charCodeAt(i) <= 0x20) {
+    i++;
+  }
+  return url.slice(i);
+}
+
+function normalizeURLForProtocolCheck(url) {
+  return stripLeadingC0ControlOrSpace(url).replace(httpProtocolControlCharacters, '');
+}
+
+// Redact the parts of a URL that can carry secrets before it is embedded in an
+// error message. AxiosError.toJSON() serializes `message` verbatim and errors
+// are commonly logged, while the opt-in `config.redact` model only cleans
+// config keys — it cannot reach the message. Redact only the genuinely
+// sensitive substrings — userinfo (credentials), query parameter values and
+// fragment contents — with the same REDACTED marker the config redaction uses,
+// while keeping the scheme, host, path and parameter names so the offending
+// request stays accurately identifiable.
+function redactFragment(fragment) {
+  if (!fragment) {
+    return fragment;
+  }
+
+  return fragment.replace(/(^|&)([^=&]*=)?[^&]+/g, (match, separator, parameterName = '') => {
+    return `${separator}${parameterName}${REDACTED}`;
+  });
+}
+
+function redactSensitiveURLParts(url) {
+  const redactedURL = url.replace(/^(https?:\/{0,2})[^/?#]*@/i, `$1${REDACTED}@`);
+  const fragmentIndex = redactedURL.indexOf('#');
+  const urlWithoutFragment =
+    fragmentIndex === -1 ? redactedURL : redactedURL.slice(0, fragmentIndex);
+  const redactedURLWithoutFragment = urlWithoutFragment.replace(
+    /([?&][^=&#]*=)[^&#]*/g,
+    `$1${REDACTED}`
+  );
+
+  if (fragmentIndex === -1) {
+    return redactedURLWithoutFragment;
+  }
+
+  return `${redactedURLWithoutFragment}#${redactFragment(redactedURL.slice(fragmentIndex + 1))}`;
+}
+
+function assertValidHttpProtocolURL(url, config) {
+  if (typeof url === 'string') {
+    const normalizedURL = normalizeURLForProtocolCheck(url);
+    if (malformedHttpProtocol.test(normalizedURL)) {
+      throw new AxiosError(
+        `Invalid URL ${JSON.stringify(redactSensitiveURLParts(normalizedURL))}: missing "//" after protocol`,
+        AxiosError.ERR_INVALID_URL,
+        config
+      );
+    }
+  }
+}
+
+/**
+ * Creates a new URL by combining the baseURL with the requestedURL,
+ * only when the requestedURL is not already an absolute URL.
+ * If the requestURL is absolute, this function returns the requestedURL untouched.
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} requestedURL Absolute or relative URL to combine
+ *
+ * @returns {string} The combined full path
+ */
+function buildFullPath(baseURL, requestedURL, allowAbsoluteUrls, config) {
+  assertValidHttpProtocolURL(requestedURL, config);
+  let isRelativeUrl = !isAbsoluteURL(requestedURL);
+  if (baseURL && (isRelativeUrl || allowAbsoluteUrls === false)) {
+    assertValidHttpProtocolURL(baseURL, config);
+    return combineURLs(baseURL, requestedURL);
+  }
+  return requestedURL;
+}
+
+const headersToObject = (thing) => (thing instanceof AxiosHeaders ? { ...thing } : thing);
+
+const ownEnumerableKeys = (thing) => {
+  if (Object.getOwnPropertySymbols && Object.getOwnPropertyDescriptor) {
+    return Object.keys(thing).concat(
+      Object.getOwnPropertySymbols(thing).filter(
+        (symbol) => Object.getOwnPropertyDescriptor(thing, symbol).enumerable
+      )
+    );
+  }
+  return Object.keys(thing);
+};
+
+/**
+ * Config-specific merge-function which creates a new config-object
+ * by merging two configuration objects together.
+ *
+ * @param {Object} config1
+ * @param {Object} config2
+ *
+ * @returns {Object} New object resulting from merging config2 to config1
+ */
+function mergeConfig(config1, config2) {
+  // eslint-disable-next-line no-param-reassign
+  config1 = config1 || {};
+  config2 = config2 || {};
+
+  // Use a null-prototype object so that downstream reads such as `config.auth`
+  // or `config.baseURL` cannot inherit polluted values from Object.prototype.
+  // `hasOwnProperty` is restored as a non-enumerable own slot to preserve
+  // ergonomics for user code that relies on it.
+  const config = Object.create(null);
+  Object.defineProperty(config, 'hasOwnProperty', {
+    // Null-proto descriptor so a polluted Object.prototype.get cannot turn
+    // this data descriptor into an accessor descriptor on the way in.
+    __proto__: null,
+    value: Object.prototype.hasOwnProperty,
+    enumerable: false,
+    writable: true,
+    configurable: true,
+  });
+
+  function getMergedValue(target, source, prop, caseless) {
+    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
+      return utils$1.merge.call({ caseless }, target, source);
+    } else if (utils$1.isPlainObject(source)) {
+      return utils$1.merge({}, source);
+    } else if (utils$1.isArray(source)) {
+      return source.slice();
+    }
+    return source;
+  }
+
+  function mergeDeepProperties(a, b, prop, caseless) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(a, b, prop, caseless);
+    } else if (!utils$1.isUndefined(a)) {
+      return getMergedValue(undefined, a, prop, caseless);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function valueFromConfig2(a, b) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(undefined, b);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function defaultToConfig2(a, b) {
+    if (!utils$1.isUndefined(b)) {
+      return getMergedValue(undefined, b);
+    } else if (!utils$1.isUndefined(a)) {
+      return getMergedValue(undefined, a);
+    }
+  }
+
+  function getMergedTransitionalOption(prop) {
+    const transitional2 = utils$1.hasOwnProp(config2, 'transitional')
+      ? config2.transitional
+      : undefined;
+
+    if (!utils$1.isUndefined(transitional2)) {
+      if (utils$1.isPlainObject(transitional2)) {
+        if (utils$1.hasOwnProp(transitional2, prop)) {
+          return transitional2[prop];
+        }
+      } else {
+        return undefined;
+      }
+    }
+
+    const transitional1 = utils$1.hasOwnProp(config1, 'transitional')
+      ? config1.transitional
+      : undefined;
+
+    if (utils$1.isPlainObject(transitional1) && utils$1.hasOwnProp(transitional1, prop)) {
+      return transitional1[prop];
+    }
+
+    return undefined;
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDirectKeys(a, b, prop) {
+    if (utils$1.hasOwnProp(config2, prop)) {
+      return getMergedValue(a, b);
+    } else if (utils$1.hasOwnProp(config1, prop)) {
+      return getMergedValue(undefined, a);
+    }
+  }
+
+  const mergeMap = {
+    url: valueFromConfig2,
+    method: valueFromConfig2,
+    data: valueFromConfig2,
+    baseURL: defaultToConfig2,
+    transformRequest: defaultToConfig2,
+    transformResponse: defaultToConfig2,
+    paramsSerializer: defaultToConfig2,
+    timeout: defaultToConfig2,
+    timeoutMessage: defaultToConfig2,
+    withCredentials: defaultToConfig2,
+    withXSRFToken: defaultToConfig2,
+    adapter: defaultToConfig2,
+    responseType: defaultToConfig2,
+    xsrfCookieName: defaultToConfig2,
+    xsrfHeaderName: defaultToConfig2,
+    onUploadProgress: defaultToConfig2,
+    onDownloadProgress: defaultToConfig2,
+    decompress: defaultToConfig2,
+    maxContentLength: defaultToConfig2,
+    maxBodyLength: defaultToConfig2,
+    beforeRedirect: defaultToConfig2,
+    transport: defaultToConfig2,
+    httpAgent: defaultToConfig2,
+    httpsAgent: defaultToConfig2,
+    cancelToken: defaultToConfig2,
+    socketPath: defaultToConfig2,
+    allowedSocketPaths: defaultToConfig2,
+    responseEncoding: defaultToConfig2,
+    validateStatus: mergeDirectKeys,
+    headers: (a, b, prop) =>
+      mergeDeepProperties(headersToObject(a), headersToObject(b), prop, true),
+  };
+
+  utils$1.forEach(ownEnumerableKeys({ ...config1, ...config2 }), function computeConfigValue(prop) {
+    if (prop === '__proto__' || prop === 'constructor' || prop === 'prototype') return;
+    const merge = utils$1.hasOwnProp(mergeMap, prop) ? mergeMap[prop] : mergeDeepProperties;
+    const a = utils$1.hasOwnProp(config1, prop) ? config1[prop] : undefined;
+    const b = utils$1.hasOwnProp(config2, prop) ? config2[prop] : undefined;
+    const configValue = merge(a, b, prop);
+    (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
+  });
+
+  if (
+    utils$1.hasOwnProp(config2, 'validateStatus') &&
+    utils$1.isUndefined(config2.validateStatus) &&
+    getMergedTransitionalOption('validateStatusUndefinedResolves') === false
+  ) {
+    if (utils$1.hasOwnProp(config1, 'validateStatus')) {
+      config.validateStatus = getMergedValue(undefined, config1.validateStatus);
+    } else {
+      delete config.validateStatus;
+    }
+  }
+
+  return config;
+}
+
+const FORM_DATA_CONTENT_HEADERS = ['content-type', 'content-length'];
+
+/**
+ * Apply the headers generated by a FormData implementation to the request headers,
+ * honoring the `formDataHeaderPolicy` option: with 'content-only', copy only the
+ * content-* headers; otherwise merge all of them.
+ *
+ * @param {AxiosHeaders} headers - the request headers to mutate
+ * @param {Object | null | undefined} formHeaders - headers produced by the FormData implementation
+ * @param {String} [policy] - the resolved `formDataHeaderPolicy` config value
+ *
+ * @returns {void}
+ */
+function setFormDataHeaders(headers, formHeaders, policy) {
+  if (policy !== 'content-only') {
+    headers.set(formHeaders);
+    return;
+  }
+
+  Object.entries(formHeaders || {}).forEach(([key, val]) => {
+    if (FORM_DATA_CONTENT_HEADERS.includes(key.toLowerCase())) {
+      headers.set(key, val);
+    }
+  });
+}
+
+/**
+ * Encode a UTF-8 string to a Latin-1 byte string for use with btoa().
+ * This is a modern replacement for the deprecated unescape(encodeURIComponent(str)) pattern.
+ *
+ * @param {string} str The string to encode
+ *
+ * @returns {string} UTF-8 bytes as a Latin-1 string
+ */
+const encodeUTF8$1 = (str) =>
+  encodeURIComponent(str).replace(/%([0-9A-F]{2})/gi, (_, hex) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
+
+function resolveConfig(config) {
+  const newConfig = mergeConfig({}, config);
+
+  // Read only own properties to prevent prototype pollution gadgets
+  // (e.g. Object.prototype.baseURL = 'https://evil.com').
+  const own = (key) => (utils$1.hasOwnProp(newConfig, key) ? newConfig[key] : undefined);
+
+  const data = own('data');
+  let withXSRFToken = own('withXSRFToken');
+  const xsrfHeaderName = own('xsrfHeaderName');
+  const xsrfCookieName = own('xsrfCookieName');
+  let headers = own('headers');
+  const auth = own('auth');
+  const baseURL = own('baseURL');
+  const allowAbsoluteUrls = own('allowAbsoluteUrls');
+  const url = own('url');
+
+  newConfig.headers = headers = AxiosHeaders.from(headers);
+
+  newConfig.url = buildURL(
+    buildFullPath(baseURL, url, allowAbsoluteUrls, newConfig),
+    own('params'),
+    own('paramsSerializer')
+  );
+
+  // HTTP basic authentication
+  if (auth) {
+    const username = utils$1.getSafeProp(auth, 'username') || '';
+    const password = utils$1.getSafeProp(auth, 'password') || '';
+
+    try {
+      headers.set(
+        'Authorization',
+        'Basic ' + btoa(username + ':' + (password ? encodeUTF8$1(password) : ''))
+      );
+    } catch (e) {
+      throw AxiosError.from(e, AxiosError.ERR_BAD_OPTION_VALUE, config);
+    }
+  }
+
+  if (utils$1.isFormData(data)) {
+    if (
+      platform.hasStandardBrowserEnv ||
+      platform.hasStandardBrowserWebWorkerEnv ||
+      utils$1.isReactNative(data)
+    ) {
+      headers.setContentType(undefined); // browser/web worker/RN handles it
+    } else if (utils$1.isFunction(data.getHeaders)) {
+      // Node.js FormData (like form-data package)
+      setFormDataHeaders(headers, data.getHeaders(), own('formDataHeaderPolicy'));
+    }
+  }
+
+  // Add xsrf header
+  // This is only done if running in a standard browser environment.
+  // Specifically not if we're in a web worker, or react-native.
+
+  if (platform.hasStandardBrowserEnv) {
+    if (utils$1.isFunction(withXSRFToken)) {
+      withXSRFToken = withXSRFToken(newConfig);
+    }
+
+    // Strict boolean check — prevents proto-pollution gadgets (e.g. Object.prototype.withXSRFToken = 1)
+    // and misconfigurations (e.g. "false") from short-circuiting the same-origin check and leaking
+    // the XSRF token cross-origin.
+    const shouldSendXSRF =
+      withXSRFToken === true || (withXSRFToken == null && isURLSameOrigin(newConfig.url));
+
+    if (shouldSendXSRF) {
+      const xsrfValue = xsrfHeaderName && xsrfCookieName && cookies.read(xsrfCookieName);
+
+      if (xsrfValue) {
+        headers.set(xsrfHeaderName, xsrfValue);
+      }
+    }
+  }
+
+  return newConfig;
+}
+
+const isXHRAdapterSupported = typeof XMLHttpRequest !== 'undefined';
+
+var xhrAdapter = isXHRAdapterSupported &&
+  function (config) {
+    return new Promise(function dispatchXhrRequest(resolve, reject) {
+      const _config = resolveConfig(config);
+      let requestData = _config.data;
+      const requestHeaders = AxiosHeaders.from(_config.headers).normalize();
+      let { responseType, onUploadProgress, onDownloadProgress } = _config;
+      let onCanceled;
+      let uploadThrottled, downloadThrottled;
+      let flushUpload, flushDownload;
+
+      function done() {
+        flushUpload && flushUpload(); // flush events
+        flushDownload && flushDownload(); // flush events
+
+        _config.cancelToken && _config.cancelToken.unsubscribe(onCanceled);
+
+        _config.signal && _config.signal.removeEventListener('abort', onCanceled);
+      }
+
+      let request = new XMLHttpRequest();
+
+      request.open(_config.method.toUpperCase(), _config.url, true);
+
+      // Set the request timeout in MS
+      request.timeout = _config.timeout;
+
+      function onloadend() {
+        if (!request) {
+          return;
+        }
+        // Prepare the response
+        const responseHeaders = AxiosHeaders.from(
+          'getAllResponseHeaders' in request && request.getAllResponseHeaders()
+        );
+        const responseData =
+          !responseType || responseType === 'text' || responseType === 'json'
+            ? request.responseText
+            : request.response;
+        const response = {
+          data: responseData,
+          status: request.status,
+          statusText: request.statusText,
+          headers: responseHeaders,
+          config,
+          request,
+        };
+
+        settle(
+          function _resolve(value) {
+            resolve(value);
+            done();
+          },
+          function _reject(err) {
+            reject(err);
+            done();
+          },
+          response
+        );
+
+        // Clean up request
+        request = null;
+      }
+
+      if ('onloadend' in request) {
+        // Use onloadend if available
+        request.onloadend = onloadend;
+      } else {
+        // Listen for ready state to emulate onloadend
+        request.onreadystatechange = function handleLoad() {
+          if (!request || request.readyState !== 4) {
+            return;
+          }
+
+          // The request errored out and we didn't get a response, this will be
+          // handled by onerror instead
+          // With one exception: request that using file: protocol, most browsers
+          // will return status as 0 even though it's a successful request
+          if (
+            request.status === 0 &&
+            !(request.responseURL && request.responseURL.startsWith('file:'))
+          ) {
+            return;
+          }
+          // readystate handler is calling before onerror or ontimeout handlers,
+          // so we should call onloadend on the next 'tick'
+          setTimeout(onloadend);
+        };
+      }
+
+      // Handle browser request cancellation (as opposed to a manual cancellation)
+      request.onabort = function handleAbort() {
+        if (!request) {
+          return;
+        }
+
+        reject(new AxiosError('Request aborted', AxiosError.ECONNABORTED, config, request));
+        done();
+
+        // Clean up request
+        request = null;
+      };
+
+      // Handle low level network errors
+      request.onerror = function handleError(event) {
+        // Browsers deliver a ProgressEvent in XHR onerror
+        // (message may be empty; when present, surface it)
+        // See https://developer.mozilla.org/docs/Web/API/XMLHttpRequest/error_event
+        const msg = event && event.message ? event.message : 'Network Error';
+        const err = new AxiosError(msg, AxiosError.ERR_NETWORK, config, request);
+        // attach the underlying event for consumers who want details
+        err.event = event || null;
+        reject(err);
+        done();
+        request = null;
+      };
+
+      // Handle timeout
+      request.ontimeout = function handleTimeout() {
+        let timeoutErrorMessage = _config.timeout
+          ? 'timeout of ' + _config.timeout + 'ms exceeded'
+          : 'timeout exceeded';
+        const transitional = _config.transitional || transitionalDefaults;
+        if (_config.timeoutErrorMessage) {
+          timeoutErrorMessage = _config.timeoutErrorMessage;
+        }
+        reject(
+          new AxiosError(
+            timeoutErrorMessage,
+            transitional.clarifyTimeoutError ? AxiosError.ETIMEDOUT : AxiosError.ECONNABORTED,
+            config,
+            request
+          )
+        );
+        done();
+
+        // Clean up request
+        request = null;
+      };
+
+      // Remove Content-Type if data is undefined
+      requestData === undefined && requestHeaders.setContentType(null);
+
+      // Add headers to the request
+      if ('setRequestHeader' in request) {
+        utils$1.forEach(toByteStringHeaderObject(requestHeaders), function setRequestHeader(val, key) {
+          request.setRequestHeader(key, val);
+        });
+      }
+
+      // Add withCredentials to request if needed
+      if (!utils$1.isUndefined(_config.withCredentials)) {
+        request.withCredentials = !!_config.withCredentials;
+      }
+
+      // Add responseType to request if needed
+      if (responseType && responseType !== 'json') {
+        request.responseType = _config.responseType;
+      }
+
+      // Handle progress if needed
+      if (onDownloadProgress) {
+        [downloadThrottled, flushDownload] = progressEventReducer(onDownloadProgress, true);
+        request.addEventListener('progress', downloadThrottled);
+      }
+
+      // Not all browsers support upload events
+      if (onUploadProgress && request.upload) {
+        [uploadThrottled, flushUpload] = progressEventReducer(onUploadProgress);
+
+        request.upload.addEventListener('progress', uploadThrottled);
+
+        request.upload.addEventListener('loadend', flushUpload);
+      }
+
+      if (_config.cancelToken || _config.signal) {
+        // Handle cancellation
+        // eslint-disable-next-line func-names
+        onCanceled = (cancel) => {
+          if (!request) {
+            return;
+          }
+          reject(!cancel || cancel.type ? new CanceledError(null, config, request) : cancel);
+          request.abort();
+          done();
+          request = null;
+        };
+
+        _config.cancelToken && _config.cancelToken.subscribe(onCanceled);
+        if (_config.signal) {
+          _config.signal.aborted
+            ? onCanceled()
+            : _config.signal.addEventListener('abort', onCanceled);
+        }
+      }
+
+      const protocol = parseProtocol(_config.url);
+
+      if (protocol && !platform.protocols.includes(protocol)) {
+        reject(
+          new AxiosError(
+            'Unsupported protocol ' + protocol + ':',
+            AxiosError.ERR_BAD_REQUEST,
+            config
+          )
+        );
+        done();
+        return;
+      }
+
+      // Send the request
+      request.send(requestData || null);
+    });
+  };
+
+const composeSignals = (signals, timeout) => {
+  signals = signals ? signals.filter(Boolean) : [];
+
+  if (!timeout && !signals.length) {
+    return;
+  }
+
+  const controller = new AbortController();
+
+  let aborted = false;
+
+  const onabort = function (reason) {
+    if (!aborted) {
+      aborted = true;
+      unsubscribe();
+      const err = reason instanceof Error ? reason : this.reason;
+      controller.abort(
+        err instanceof AxiosError
+          ? err
+          : new CanceledError(err instanceof Error ? err.message : err)
+      );
+    }
+  };
+
+  let timer =
+    timeout &&
+    setTimeout(() => {
+      timer = null;
+      onabort(new AxiosError(`timeout of ${timeout}ms exceeded`, AxiosError.ETIMEDOUT));
+    }, timeout);
+
+  const unsubscribe = () => {
+    if (!signals) { return; }
+    timer && clearTimeout(timer);
+    timer = null;
+    signals.forEach((signal) => {
+      signal.unsubscribe
+        ? signal.unsubscribe(onabort)
+        : signal.removeEventListener('abort', onabort);
+    });
+    signals = null;
+  };
+
+  signals.forEach((signal) => {
+    if (aborted) {
+      return;
+    }
+
+    if (signal.aborted) {
+      onabort.call(signal);
+      return;
+    }
+
+    signal.addEventListener('abort', onabort, { once: true });
+  });
+
+  const { signal } = controller;
+
+  signal.unsubscribe = () => utils$1.asap(unsubscribe);
+
+  return signal;
+};
+
+const streamChunk = function* (chunk, chunkSize) {
+  let len = chunk.byteLength;
+
+  if (len < chunkSize) {
+    yield chunk;
+    return;
+  }
+
+  let pos = 0;
+  let end;
+
+  while (pos < len) {
+    end = pos + chunkSize;
+    yield chunk.slice(pos, end);
+    pos = end;
+  }
+};
+
+const readBytes = async function* (iterable, chunkSize) {
+  for await (const chunk of readStream(iterable)) {
+    yield* streamChunk(chunk, chunkSize);
+  }
+};
+
+const readStream = async function* (stream) {
+  if (stream[Symbol.asyncIterator]) {
+    yield* stream;
+    return;
+  }
+
+  const reader = stream.getReader();
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      yield value;
+    }
+  } finally {
+    await reader.cancel();
+  }
+};
+
+const trackStream = (stream, chunkSize, onProgress, onFinish) => {
+  const iterator = readBytes(stream, chunkSize);
+
+  let bytes = 0;
+  let done;
+  let _onFinish = (e) => {
+    if (!done) {
+      done = true;
+      onFinish && onFinish(e);
+    }
+  };
+
+  return new ReadableStream(
+    {
+      async pull(controller) {
+        try {
+          const { done, value } = await iterator.next();
+
+          if (done) {
+            _onFinish();
+            controller.close();
+            return;
+          }
+
+          let len = value.byteLength;
+          if (onProgress) {
+            let loadedBytes = (bytes += len);
+            onProgress(loadedBytes);
+          }
+          controller.enqueue(new Uint8Array(value));
+        } catch (err) {
+          _onFinish(err);
+          throw err;
+        }
+      },
+      cancel(reason) {
+        _onFinish(reason);
+        return iterator.return();
+      },
+    },
+    {
+      highWaterMark: 2,
+    }
+  );
+};
+
+/**
+ * Estimate data: URL byte lengths *without* allocating large buffers.
+ * - Fetch percent-decodes a base64 body before decoding it.
+ * - Node's Buffer.from(body, 'base64') sizes its backing allocation from the
+ *   raw body, including ignored characters and content after padding.
+ * - Non-base64 data is percent-decoded and then encoded as UTF-8.
+ */
+const isHexDigit = (charCode) =>
+  (charCode >= 48 && charCode <= 57) ||
+  (charCode >= 65 && charCode <= 70) ||
+  (charCode >= 97 && charCode <= 102);
+
+const isPercentEncodedByte = (str, i, len) =>
+  i + 2 < len && isHexDigit(str.charCodeAt(i + 1)) && isHexDigit(str.charCodeAt(i + 2));
+
+const hexValue = (charCode) => (charCode <= 57 ? charCode - 48 : (charCode & 0xdf) - 55);
+
+const isBase64Char = (charCode) =>
+  (charCode >= 65 && charCode <= 90) || // A-Z
+  (charCode >= 97 && charCode <= 122) || // a-z
+  (charCode >= 48 && charCode <= 57) || // 0-9
+  charCode === 43 || // +
+  charCode === 47 || // /
+  charCode === 45 || // - (base64url)
+  charCode === 95; // _ (base64url)
+
+const isBase64Whitespace = (charCode) =>
+  charCode === 9 || charCode === 10 || charCode === 12 || charCode === 13 || charCode === 32;
+
+const base64Bytes = (significant) => {
+  const groups = Math.floor(significant / 4);
+  const remainder = significant % 4;
+  return groups * 3 + (remainder === 2 ? 1 : remainder === 3 ? 2 : 0);
+};
+
+// Buffer.byteLength(body, 'base64') uses the raw string length as an allocation
+// upper bound even when Buffer.from later ignores characters or stops at '='.
+const estimateBase64BufferAllocation = (body) => {
+  const len = body.length;
+  let padding = 0;
+
+  if (len > 0 && body.charCodeAt(len - 1) === 61 /* '=' */) {
+    padding++;
+
+    if (len > 1 && body.charCodeAt(len - 2) === 61 /* '=' */) {
+      padding++;
+    }
+  }
+
+  return Math.floor(((len - padding) * 3) / 4);
+};
+
+const estimatePercentDecodedBase64Bytes = (body) => {
+  const len = body.length;
+  let significant = 0;
+  let padding = 0;
+  let invalid = false;
+
+  for (let i = 0; i < len; i++) {
+    let code = body.charCodeAt(i);
+
+    if (code === 37 /* '%' */ && isPercentEncodedByte(body, i, len)) {
+      code = hexValue(body.charCodeAt(i + 1)) * 16 + hexValue(body.charCodeAt(i + 2));
+      i += 2;
+    }
+
+    if (isBase64Whitespace(code)) {
+      continue;
+    }
+
+    if (code === 61 /* '=' */) {
+      padding++;
+      continue;
+    }
+
+    if (!isBase64Char(code) || padding > 0) {
+      invalid = true;
+      continue;
+    }
+
+    significant++;
+  }
+
+  // Fetch rejects malformed forgiving-base64 input. Returning the raw-size
+  // allocation bound keeps that invalid input from becoming a pre-check bypass.
+  if (
+    invalid ||
+    padding > 2 ||
+    (padding > 0 && (significant + padding) % 4 !== 0) ||
+    significant % 4 === 1
+  ) {
+    return estimateBase64BufferAllocation(body);
+  }
+
+  return base64Bytes(significant);
+};
+
+const estimateDataURLBytes = (url, estimateBase64) => {
+  if (!url || typeof url !== 'string') return 0;
+  if (!url.startsWith('data:')) return 0;
+
+  const comma = url.indexOf(',');
+  if (comma < 0) return 0;
+
+  const meta = url.slice(5, comma);
+  const body = url.slice(comma + 1);
+  const isBase64 = /;base64/i.test(meta);
+
+  if (isBase64) {
+    return estimateBase64(body);
+  }
+
+  // Compute UTF-8 byte length directly from UTF-16 code units without allocating
+  // a byte buffer (TextEncoder.encode would defeat the DoS guard on large bodies).
+  // Valid %XX triplets count as one decoded byte; this matches the bytes that
+  // decodeURIComponent(body) would produce before Buffer re-encodes the string.
+  let bytes = 0;
+  for (let i = 0, len = body.length; i < len; i++) {
+    const c = body.charCodeAt(i);
+    if (c === 37 /* '%' */ && isPercentEncodedByte(body, i, len)) {
+      bytes += 1;
+      i += 2;
+    } else if (c < 0x80) {
+      bytes += 1;
+    } else if (c < 0x800) {
+      bytes += 2;
+    } else if (c >= 0xd800 && c <= 0xdbff && i + 1 < len) {
+      const next = body.charCodeAt(i + 1);
+      if (next >= 0xdc00 && next <= 0xdfff) {
+        bytes += 4;
+        i++;
+      } else {
+        bytes += 3;
+      }
+    } else {
+      bytes += 3;
+    }
+  }
+  return bytes;
+};
+
+/**
+ * Estimate the percent-decoded payload size used by Fetch data: URLs.
+ *
+ * @param {string} url
+ * @returns {number}
+ */
+function estimateDataURLDecodedBytes(url) {
+  // Fetch removes URL fragments before processing a data: URL.
+  const fragmentIndex = typeof url === 'string' ? url.indexOf('#') : -1;
+
+  return estimateDataURLBytes(
+    fragmentIndex === -1 ? url : url.slice(0, fragmentIndex),
+    estimatePercentDecodedBase64Bytes
+  );
+}
+
+const VERSION = "1.19.0";
+
+const DEFAULT_CHUNK_SIZE = 64 * 1024;
+
+const { isFunction } = utils$1;
+
+/**
+ * Encode a UTF-8 string to a Latin-1 byte string for use with btoa().
+ * This is a modern replacement for the deprecated unescape(encodeURIComponent(str)) pattern.
+ *
+ * @param {string} str The string to encode
+ *
+ * @returns {string} UTF-8 bytes as a Latin-1 string
+ */
+const encodeUTF8 = (str) =>
+  encodeURIComponent(str).replace(/%([0-9A-F]{2})/gi, (_, hex) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
+
+// Node's WHATWG URL parser returns `username` and `password` percent-encoded.
+// Decode before composing the `auth` option so credentials such as
+// `my%40email.com:pass` are sent as `my@email.com:pass`. Falls back to the
+// original value for malformed input so a bad encoding never throws.
+const decodeURIComponentSafe = (value) => {
+  if (!utils$1.isString(value)) {
+    return value;
+  }
+
+  try {
+    return decodeURIComponent(value);
+  } catch (error) {
+    return value;
+  }
+};
+
+const test = (fn, ...args) => {
+  try {
+    return !!fn(...args);
+  } catch (e) {
+    return false;
+  }
+};
+
+const maybeWithAuthCredentials = (url) => {
+  const protocolIndex = url.indexOf('://');
+  let urlToCheck = url;
+  if (protocolIndex !== -1) {
+    urlToCheck = urlToCheck.slice(protocolIndex + 3);
+  }
+  return urlToCheck.includes('@') || urlToCheck.includes(':');
+};
+
+const factory = (env) => {
+  const globalObject =
+    utils$1.global !== undefined && utils$1.global !== null
+      ? utils$1.global
+      : globalThis;
+  const { ReadableStream, TextEncoder } = globalObject;
+
+  env = utils$1.merge.call(
+    {
+      skipUndefined: true,
+    },
+    {
+      Request: globalObject.Request,
+      Response: globalObject.Response,
+    },
+    env
+  );
+
+  const { fetch: envFetch, Request, Response } = env;
+  const isFetchSupported = envFetch ? isFunction(envFetch) : typeof fetch === 'function';
+  const isRequestSupported = isFunction(Request);
+  const isResponseSupported = isFunction(Response);
+
+  if (!isFetchSupported) {
+    return false;
+  }
+
+  const isReadableStreamSupported = isFetchSupported && isFunction(ReadableStream);
+
+  const encodeText =
+    isFetchSupported &&
+    (typeof TextEncoder === 'function'
+      ? (
+          (encoder) => (str) =>
+            encoder.encode(str)
+        )(new TextEncoder())
+      : async (str) => new Uint8Array(await new Request(str).arrayBuffer()));
+
+  const supportsRequestStream =
+    isRequestSupported &&
+    isReadableStreamSupported &&
+    test(() => {
+      let duplexAccessed = false;
+
+      const request = new Request(platform.origin, {
+        body: new ReadableStream(),
+        method: 'POST',
+        get duplex() {
+          duplexAccessed = true;
+          return 'half';
+        },
+      });
+
+      const hasContentType = request.headers.has('Content-Type');
+
+      if (request.body != null) {
+        request.body.cancel();
+      }
+
+      return duplexAccessed && !hasContentType;
+    });
+
+  const supportsResponseStream =
+    isResponseSupported &&
+    isReadableStreamSupported &&
+    test(() => utils$1.isReadableStream(new Response('').body));
+
+  const resolvers = {
+    stream: supportsResponseStream && ((res) => res.body),
+  };
+
+  isFetchSupported &&
+    (() => {
+      ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach((type) => {
+        !resolvers[type] &&
+          (resolvers[type] = (res, config) => {
+            let method = res && res[type];
+
+            if (method) {
+              return method.call(res);
+            }
+
+            throw new AxiosError(
+              `Response type '${type}' is not supported`,
+              AxiosError.ERR_NOT_SUPPORT,
+              config
+            );
+          });
+      });
+    })();
+
+  const getBodyLength = async (body) => {
+    if (body == null) {
+      return 0;
+    }
+
+    if (utils$1.isBlob(body)) {
+      return body.size;
+    }
+
+    if (utils$1.isSpecCompliantForm(body)) {
+      const _request = new Request(platform.origin, {
+        method: 'POST',
+        body,
+      });
+      return (await _request.arrayBuffer()).byteLength;
+    }
+
+    if (utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body)) {
+      return body.byteLength;
+    }
+
+    if (utils$1.isURLSearchParams(body)) {
+      body = body + '';
+    }
+
+    if (utils$1.isString(body)) {
+      return (await encodeText(body)).byteLength;
+    }
+  };
+
+  const resolveBodyLength = async (headers, body) => {
+    const length = utils$1.toFiniteNumber(headers.getContentLength());
+
+    return length == null ? getBodyLength(body) : length;
+  };
+
+  return async (config) => {
+    let {
+      url,
+      method,
+      data,
+      signal,
+      cancelToken,
+      timeout,
+      onDownloadProgress,
+      onUploadProgress,
+      responseType,
+      headers,
+      withCredentials = 'same-origin',
+      fetchOptions,
+      maxContentLength,
+      maxBodyLength,
+    } = resolveConfig(config);
+
+    const hasMaxContentLength = utils$1.isNumber(maxContentLength) && maxContentLength > -1;
+    const hasMaxBodyLength = utils$1.isNumber(maxBodyLength) && maxBodyLength > -1;
+    const own = (key) => (utils$1.hasOwnProp(config, key) ? config[key] : undefined);
+
+    let _fetch = envFetch || fetch;
+
+    responseType = responseType ? (responseType + '').toLowerCase() : 'text';
+
+    let composedSignal = composeSignals(
+      [signal, cancelToken && cancelToken.toAbortSignal()],
+      timeout
+    );
+
+    let request = null;
+
+    const unsubscribe =
+      composedSignal &&
+      composedSignal.unsubscribe &&
+      (() => {
+        composedSignal.unsubscribe();
+      });
+
+    let requestContentLength;
+
+    // AxiosError we raise while the request body is being streamed. Captured
+    // by identity so the catch block can surface it directly, regardless of
+    // how the runtime wraps the resulting fetch rejection (undici exposes it
+    // as `err.cause`; some browsers drop the original error entirely).
+    let pendingBodyError = null;
+
+    const maxBodyLengthError = () =>
+      new AxiosError(
+        'Request body larger than maxBodyLength limit',
+        AxiosError.ERR_BAD_REQUEST,
+        config,
+        request
+      );
+
+    try {
+      // HTTP basic authentication
+      let auth = undefined;
+      const configAuth = own('auth');
+
+      if (configAuth) {
+        const username = utils$1.getSafeProp(configAuth, 'username') || '';
+        const password = utils$1.getSafeProp(configAuth, 'password') || '';
+        auth = {
+          username,
+          password
+        };
+      }
+
+      if (maybeWithAuthCredentials(url)) {
+        const parsedURL = new URL(url, platform.origin);
+
+        if (!auth && (parsedURL.username || parsedURL.password)) {
+          const urlUsername = decodeURIComponentSafe(parsedURL.username);
+          const urlPassword = decodeURIComponentSafe(parsedURL.password);
+          auth = {
+            username: urlUsername,
+            password: urlPassword
+          };
+        }
+
+        if (parsedURL.username || parsedURL.password) {
+          parsedURL.username = '';
+          parsedURL.password = '';
+          url = parsedURL.href;
+        }
+      }
+
+      if (auth) {
+        headers.delete('authorization');
+        headers.set(
+          'Authorization',
+          'Basic ' + btoa(encodeUTF8((auth.username || '') + ':' + (auth.password || '')))
+        );
+      }
+
+      // Enforce maxContentLength for data: URLs up-front so we never materialize
+      // an oversized payload. The HTTP adapter applies the same check (see http.js
+      // "if (protocol === 'data:')" branch).
+      if (hasMaxContentLength && typeof url === 'string' && url.startsWith('data:')) {
+        const estimated = estimateDataURLDecodedBytes(url);
+        if (estimated > maxContentLength) {
+          throw new AxiosError(
+            'maxContentLength size of ' + maxContentLength + ' exceeded',
+            AxiosError.ERR_BAD_RESPONSE,
+            config,
+            request
+          );
+        }
+      }
+
+      // Enforce maxBodyLength against known-size bodies before dispatch using
+      // the body's *actual* size — never a caller-declared Content-Length,
+      // which could under-report to slip an oversized body past the check.
+      // Unknown-size streams return undefined here and are counted per-chunk
+      // below as fetch consumes them.
+      if (hasMaxBodyLength && method !== 'get' && method !== 'head') {
+        const outboundLength = await getBodyLength(data);
+        if (typeof outboundLength === 'number' && isFinite(outboundLength)) {
+          requestContentLength = outboundLength;
+          if (outboundLength > maxBodyLength) {
+            throw maxBodyLengthError();
+          }
+        }
+      }
+
+      // A streamed body under maxBodyLength must be counted as fetch consumes
+      // it; its size is never trusted from a caller-declared Content-Length.
+      const mustEnforceStreamBody =
+        hasMaxBodyLength && (utils$1.isReadableStream(data) || utils$1.isStream(data));
+
+      const trackRequestStream = (stream, onProgress, flush) =>
+        trackStream(
+          stream,
+          DEFAULT_CHUNK_SIZE,
+          (loadedBytes) => {
+            if (hasMaxBodyLength && loadedBytes > maxBodyLength) {
+              throw (pendingBodyError = maxBodyLengthError());
+            }
+            onProgress && onProgress(loadedBytes);
+          },
+          flush
+        );
+
+      if (
+        supportsRequestStream &&
+        method !== 'get' &&
+        method !== 'head' &&
+        (onUploadProgress || mustEnforceStreamBody)
+      ) {
+        requestContentLength =
+          requestContentLength == null ? await resolveBodyLength(headers, data) : requestContentLength;
+
+        // A declared length of 0 is only trusted to skip the wrap when we are
+        // not enforcing a stream limit (which must not rely on that header).
+        if (requestContentLength !== 0 || mustEnforceStreamBody) {
+          let _request = new Request(url, {
+            method: 'POST',
+            body: data,
+            duplex: 'half',
+          });
+
+          let contentTypeHeader;
+
+          if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get('content-type'))) {
+            headers.setContentType(contentTypeHeader);
+          }
+
+          if (_request.body) {
+            const [onProgress, flush] =
+              (onUploadProgress &&
+                progressEventDecorator(
+                  requestContentLength,
+                  progressEventReducer(asyncDecorator(onUploadProgress))
+                )) ||
+              [];
+
+            data = trackRequestStream(_request.body, onProgress, flush);
+          }
+        }
+      } else if (
+        mustEnforceStreamBody &&
+        !isRequestSupported &&
+        isReadableStreamSupported &&
+        method !== 'get' &&
+        method !== 'head'
+      ) {
+        data = trackRequestStream(data);
+      } else if (
+        mustEnforceStreamBody &&
+        isRequestSupported &&
+        !supportsRequestStream &&
+        method !== 'get' &&
+        method !== 'head'
+      ) {
+        throw new AxiosError(
+          'Stream request bodies are not supported by the current fetch implementation',
+          AxiosError.ERR_NOT_SUPPORT,
+          config,
+          request
+        );
+      }
+
+      if (!utils$1.isString(withCredentials)) {
+        withCredentials = withCredentials ? 'include' : 'omit';
+      }
+
+      // Cloudflare Workers throws when credentials are defined
+      // see https://github.com/cloudflare/workerd/issues/902
+      const isCredentialsSupported = isRequestSupported && 'credentials' in Request.prototype;
+
+      // If data is FormData and Content-Type is multipart/form-data without boundary,
+      // delete it so fetch can set it correctly with the boundary
+      if (utils$1.isFormData(data)) {
+        const contentType = headers.getContentType();
+        if (
+          contentType &&
+          /^multipart\/form-data/i.test(contentType) &&
+          !/boundary=/i.test(contentType)
+        ) {
+          headers.delete('content-type');
+        }
+      }
+
+      // Set User-Agent header if not already set (fetch defaults to 'node' in Node.js)
+      headers.set('User-Agent', 'axios/' + VERSION, false);
+
+      const resolvedOptions = {
+        ...fetchOptions,
+        signal: composedSignal,
+        method: method.toUpperCase(),
+        headers: toByteStringHeaderObject(headers.normalize()),
+        body: data,
+        duplex: 'half',
+        credentials: isCredentialsSupported ? withCredentials : undefined,
+      };
+
+      request = isRequestSupported && new Request(url, resolvedOptions);
+
+      let response = await (isRequestSupported
+        ? _fetch(request, fetchOptions)
+        : _fetch(url, resolvedOptions));
+
+      const responseHeaders = AxiosHeaders.from(response.headers);
+
+      // Cheap pre-check: if the server honestly declares a content-length that
+      // already exceeds the cap, reject before we start streaming.
+      if (hasMaxContentLength) {
+        const declaredLength = utils$1.toFiniteNumber(responseHeaders.getContentLength());
+        if (declaredLength != null && declaredLength > maxContentLength) {
+          throw new AxiosError(
+            'maxContentLength size of ' + maxContentLength + ' exceeded',
+            AxiosError.ERR_BAD_RESPONSE,
+            config,
+            request
+          );
+        }
+      }
+
+      const isStreamResponse =
+        supportsResponseStream && (responseType === 'stream' || responseType === 'response');
+
+      if (
+        supportsResponseStream &&
+        response.body &&
+        (onDownloadProgress || hasMaxContentLength || (isStreamResponse && unsubscribe))
+      ) {
+        const options = {};
+
+        ['status', 'statusText', 'headers'].forEach((prop) => {
+          options[prop] = response[prop];
+        });
+
+        const responseContentLength = utils$1.toFiniteNumber(responseHeaders.getContentLength());
+
+        const [onProgress, flush] =
+          (onDownloadProgress &&
+            progressEventDecorator(
+              responseContentLength,
+              progressEventReducer(asyncDecorator(onDownloadProgress), true)
+            )) ||
+          [];
+
+        let bytesRead = 0;
+        const onChunkProgress = (loadedBytes) => {
+          if (hasMaxContentLength) {
+            bytesRead = loadedBytes;
+            if (bytesRead > maxContentLength) {
+              throw new AxiosError(
+                'maxContentLength size of ' + maxContentLength + ' exceeded',
+                AxiosError.ERR_BAD_RESPONSE,
+                config,
+                request
+              );
+            }
+          }
+          onProgress && onProgress(loadedBytes);
+        };
+
+        response = new Response(
+          trackStream(response.body, DEFAULT_CHUNK_SIZE, onChunkProgress, () => {
+            flush && flush();
+            unsubscribe && unsubscribe();
+          }),
+          options
+        );
+      }
+
+      responseType = responseType || 'text';
+
+      let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || 'text'](
+        response,
+        config
+      );
+
+      // Fallback enforcement for environments without ReadableStream support
+      // (legacy runtimes). Detect materialized size from typed output; skip
+      // streams/Response passthrough since the user will read those themselves.
+      if (hasMaxContentLength && !supportsResponseStream && !isStreamResponse) {
+        let materializedSize;
+        if (responseData != null) {
+          if (typeof responseData.byteLength === 'number') {
+            materializedSize = responseData.byteLength;
+          } else if (typeof responseData.size === 'number') {
+            materializedSize = responseData.size;
+          } else if (typeof responseData === 'string') {
+            materializedSize =
+              typeof TextEncoder === 'function'
+                ? new TextEncoder().encode(responseData).byteLength
+                : responseData.length;
+          }
+        }
+        if (typeof materializedSize === 'number' && materializedSize > maxContentLength) {
+          throw new AxiosError(
+            'maxContentLength size of ' + maxContentLength + ' exceeded',
+            AxiosError.ERR_BAD_RESPONSE,
+            config,
+            request
+          );
+        }
+      }
+
+      !isStreamResponse && unsubscribe && unsubscribe();
+
+      return await new Promise((resolve, reject) => {
+        settle(resolve, reject, {
+          data: responseData,
+          headers: AxiosHeaders.from(response.headers),
+          status: response.status,
+          statusText: response.statusText,
+          config,
+          request,
+        });
+      });
+    } catch (err) {
+      unsubscribe && unsubscribe();
+
+      // Safari can surface fetch aborts as a DOMException-like object whose
+      // branded getters throw. Prefer our composed signal reason before reading
+      // the caught error, preserving timeout vs cancellation semantics.
+      if (composedSignal && composedSignal.aborted && composedSignal.reason instanceof AxiosError) {
+        const canceledError = composedSignal.reason;
+        canceledError.config = config;
+        request && (canceledError.request = request);
+        if (err !== canceledError) {
+          // Non-enumerable to match native Error `cause` semantics so loggers
+          // don't recurse into circular fetch internals (see #7205).
+          Object.defineProperty(canceledError, 'cause', {
+            __proto__: null,
+            value: err,
+            writable: true,
+            enumerable: false,
+            configurable: true,
+          });
+        }
+        throw canceledError;
+      }
+
+      // Surface a maxBodyLength violation we raised while the request body was
+      // being streamed. Matching by identity (rather than reading
+      // `err.cause.isAxiosError`) keeps the error deterministic across runtimes
+      // and avoids both prototype-pollution reads and mis-attributing a foreign
+      // AxiosError that merely happened to land in `err.cause`.
+      if (pendingBodyError) {
+        request && !pendingBodyError.request && (pendingBodyError.request = request);
+        throw pendingBodyError;
+      }
+
+      // Re-throw AxiosErrors we raised synchronously (data: URL / content-length
+      // pre-checks, response size enforcement) without re-wrapping them.
+      if (err instanceof AxiosError) {
+        request && !err.request && (err.request = request);
+        throw err;
+      }
+
+      if (err && err.name === 'TypeError' && /Load failed|fetch/i.test(err.message)) {
+        const networkError = new AxiosError(
+          'Network Error',
+          AxiosError.ERR_NETWORK,
+          config,
+          request,
+          err && err.response
+        );
+        // Non-enumerable to match native Error `cause` semantics so loggers
+        // don't recurse into circular fetch internals (see #7205).
+        Object.defineProperty(networkError, 'cause', {
+          __proto__: null,
+          value: err.cause || err,
+          writable: true,
+          enumerable: false,
+          configurable: true,
+        });
+        throw networkError;
+      }
+
+      throw AxiosError.from(err, err && err.code, config, request, err && err.response);
+    }
+  };
+};
+
+const seedCache = new Map();
+
+const getFetch = (config) => {
+  let env = (config && config.env) || {};
+  const { fetch, Request, Response } = env;
+  const seeds = [Request, Response, fetch];
+
+  let len = seeds.length,
+    i = len,
+    seed,
+    target,
+    map = seedCache;
+
+  while (i--) {
+    seed = seeds[i];
+    target = map.get(seed);
+
+    target === undefined && map.set(seed, (target = i ? new Map() : factory(env)));
+
+    map = target;
+  }
+
+  return target;
+};
+
+getFetch();
+
+/**
+ * Known adapters mapping.
+ * Provides environment-specific adapters for Axios:
+ * - `http` for Node.js
+ * - `xhr` for browsers
+ * - `fetch` for fetch API-based requests
+ *
+ * @type {Object<string, Function|Object>}
+ */
+const knownAdapters = {
+  http: httpAdapter,
+  xhr: xhrAdapter,
+  fetch: {
+    get: getFetch,
+  },
+};
+
+// Assign adapter names for easier debugging and identification
+utils$1.forEach(knownAdapters, (fn, value) => {
+  if (fn) {
+    try {
+      // Null-proto descriptors so a polluted Object.prototype.get cannot turn
+      // these data descriptors into accessor descriptors on the way in.
+      Object.defineProperty(fn, 'name', { __proto__: null, value });
+    } catch (e) {
+      // eslint-disable-next-line no-empty
+    }
+    Object.defineProperty(fn, 'adapterName', { __proto__: null, value });
+  }
+});
+
+/**
+ * Render a rejection reason string for unknown or unsupported adapters
+ *
+ * @param {string} reason
+ * @returns {string}
+ */
+const renderReason = (reason) => `- ${reason}`;
+
+/**
+ * Check if the adapter is resolved (function, null, or false)
+ *
+ * @param {Function|null|false} adapter
+ * @returns {boolean}
+ */
+const isResolvedHandle = (adapter) =>
+  utils$1.isFunction(adapter) || adapter === null || adapter === false;
+
+/**
+ * Get the first suitable adapter from the provided list.
+ * Tries each adapter in order until a supported one is found.
+ * Throws an AxiosError if no adapter is suitable.
+ *
+ * @param {Array<string|Function>|string|Function} adapters - Adapter(s) by name or function.
+ * @param {Object} config - Axios request configuration
+ * @throws {AxiosError} If no suitable adapter is available
+ * @returns {Function} The resolved adapter function
+ */
+function getAdapter(adapters, config) {
+  adapters = utils$1.isArray(adapters) ? adapters : [adapters];
+
+  const { length } = adapters;
+  let nameOrAdapter;
+  let adapter;
+
+  const rejectedReasons = {};
+
+  for (let i = 0; i < length; i++) {
+    nameOrAdapter = adapters[i];
+    let id;
+
+    adapter = nameOrAdapter;
+
+    if (!isResolvedHandle(nameOrAdapter)) {
+      adapter = knownAdapters[(id = String(nameOrAdapter)).toLowerCase()];
+
+      if (adapter === undefined) {
+        throw new AxiosError(`Unknown adapter '${id}'`);
+      }
+    }
+
+    if (adapter && (utils$1.isFunction(adapter) || (adapter = adapter.get(config)))) {
+      break;
+    }
+
+    rejectedReasons[id || '#' + i] = adapter;
+  }
+
+  if (!adapter) {
+    const reasons = Object.entries(rejectedReasons).map(
+      ([id, state]) =>
+        `adapter ${id} ` +
+        (state === false ? 'is not supported by the environment' : 'is not available in the build')
+    );
+
+    let s = length
+      ? reasons.length > 1
+        ? 'since :\n' + reasons.map(renderReason).join('\n')
+        : ' ' + renderReason(reasons[0])
+      : 'as no adapter specified';
+
+    throw new AxiosError(
+      `There is no suitable adapter to dispatch the request ` + s,
+      AxiosError.ERR_NOT_SUPPORT
+    );
+  }
+
+  return adapter;
+}
+
+/**
+ * Exports Axios adapters and utility to resolve an adapter
+ */
+var adapters = {
+  /**
+   * Resolve an adapter from a list of adapter names or functions.
+   * @type {Function}
+   */
+  getAdapter,
+
+  /**
+   * Exposes all known adapters
+   * @type {Object<string, Function|Object>}
+   */
+  adapters: knownAdapters,
+};
+
+/**
+ * Throws a `CanceledError` if cancellation has been requested.
+ *
+ * @param {Object} config The config that is to be used for the request
+ *
+ * @returns {void}
+ */
+function throwIfCancellationRequested(config) {
+  if (config.cancelToken) {
+    config.cancelToken.throwIfRequested();
+  }
+
+  if (config.signal && config.signal.aborted) {
+    throw new CanceledError(null, config);
+  }
+}
+
+/**
+ * Dispatch a request to the server using the configured adapter.
+ *
+ * @param {object} config The config that is to be used for the request
+ *
+ * @returns {Promise} The Promise to be fulfilled
+ */
+function dispatchRequest(config) {
+  throwIfCancellationRequested(config);
+
+  config.headers = AxiosHeaders.from(config.headers);
+
+  // Transform request data
+  config.data = transformData.call(config, config.transformRequest);
+
+  if (['post', 'put', 'patch'].indexOf(config.method) !== -1) {
+    config.headers.setContentType('application/x-www-form-urlencoded', false);
+  }
+
+  const adapter = adapters.getAdapter(config.adapter || defaults.adapter, config);
+
+  return adapter(config).then(
+    function onAdapterResolution(response) {
+      throwIfCancellationRequested(config);
+
+      // Expose the current response on config so that transformResponse can
+      // attach it to any AxiosError it throws (e.g. on JSON parse failure).
+      // We clean it up afterwards to avoid polluting the config object.
+      config.response = response;
+      try {
+        response.data = transformData.call(config, config.transformResponse, response);
+      } finally {
+        delete config.response;
+      }
+
+      response.headers = AxiosHeaders.from(response.headers);
+
+      return response;
+    },
+    function onAdapterRejection(reason) {
+      if (!isCancel(reason)) {
+        throwIfCancellationRequested(config);
+
+        // Transform response data
+        if (reason && reason.response) {
+          config.response = reason.response;
+          try {
+            reason.response.data = transformData.call(
+              config,
+              config.transformResponse,
+              reason.response
+            );
+          } finally {
+            delete config.response;
+          }
+          reason.response.headers = AxiosHeaders.from(reason.response.headers);
+        }
+      }
+
+      return Promise.reject(reason);
+    }
+  );
+}
+
+const validators$1 = {};
+
+// eslint-disable-next-line func-names
+['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach((type, i) => {
+  validators$1[type] = function validator(thing) {
+    return typeof thing === type || 'a' + (i < 1 ? 'n ' : ' ') + type;
+  };
+});
+
+const deprecatedWarnings = {};
+
+/**
+ * Transitional option validator
+ *
+ * @param {function|boolean?} validator - set to false if the transitional option has been removed
+ * @param {string?} version - deprecated version / removed since version
+ * @param {string?} message - some message with additional info
+ *
+ * @returns {function}
+ */
+validators$1.transitional = function transitional(validator, version, message) {
+  function formatMessage(opt, desc) {
+    return (
+      '[Axios v' +
+      VERSION +
+      "] Transitional option '" +
+      opt +
+      "'" +
+      desc +
+      (message ? '. ' + message : '')
+    );
+  }
+
+  // eslint-disable-next-line func-names
+  return (value, opt, opts) => {
+    if (validator === false) {
+      throw new AxiosError(
+        formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')),
+        AxiosError.ERR_DEPRECATED
+      );
+    }
+
+    if (version && !deprecatedWarnings[opt]) {
+      deprecatedWarnings[opt] = true;
+      // eslint-disable-next-line no-console
+      console.warn(
+        formatMessage(
+          opt,
+          ' has been deprecated since v' + version + ' and will be removed in the near future'
+        )
+      );
+    }
+
+    return validator ? validator(value, opt, opts) : true;
+  };
+};
+
+validators$1.spelling = function spelling(correctSpelling) {
+  return (value, opt) => {
+    // eslint-disable-next-line no-console
+    console.warn(`${opt} is likely a misspelling of ${correctSpelling}`);
+    return true;
+  };
+};
+
+/**
+ * Assert object's properties type
+ *
+ * @param {object} options
+ * @param {object} schema
+ * @param {boolean?} allowUnknown
+ *
+ * @returns {object}
+ */
+
+function assertOptions(options, schema, allowUnknown) {
+  if (typeof options !== 'object' || options === null) {
+    throw new AxiosError('options must be an object', AxiosError.ERR_BAD_OPTION_VALUE);
+  }
+  const keys = Object.keys(options);
+  let i = keys.length;
+  while (i-- > 0) {
+    const opt = keys[i];
+    // Use hasOwnProperty so a polluted Object.prototype.<opt> cannot supply
+    // a non-function validator and cause a TypeError.
+    const validator = Object.prototype.hasOwnProperty.call(schema, opt) ? schema[opt] : undefined;
+    if (validator) {
+      const value = options[opt];
+      const result = value === undefined || validator(value, opt, options);
+      if (result !== true) {
+        throw new AxiosError(
+          'option ' + opt + ' must be ' + result,
+          AxiosError.ERR_BAD_OPTION_VALUE
+        );
+      }
+      continue;
+    }
+    if (allowUnknown !== true) {
+      throw new AxiosError('Unknown option ' + opt, AxiosError.ERR_BAD_OPTION);
+    }
+  }
+}
+
+var validator = {
+  assertOptions,
+  validators: validators$1,
+};
+
+const validators = validator.validators;
+
+/**
+ * Create a new instance of Axios
+ *
+ * @param {Object} instanceConfig The default config for the instance
+ *
+ * @return {Axios} A new instance of Axios
+ */
+class Axios {
+  constructor(instanceConfig) {
+    this.defaults = instanceConfig || {};
+    this.interceptors = {
+      request: new InterceptorManager(),
+      response: new InterceptorManager(),
+    };
+  }
+
+  /**
+   * Dispatch a request
+   *
+   * @param {String|Object} configOrUrl The config specific for this request (merged with this.defaults)
+   * @param {?Object} config
+   *
+   * @returns {Promise} The Promise to be fulfilled
+   */
+  async request(configOrUrl, config) {
+    try {
+      return await this._request(configOrUrl, config);
+    } catch (err) {
+      if (err instanceof Error) {
+        let dummy = {};
+
+        Error.captureStackTrace ? Error.captureStackTrace(dummy) : (dummy = new Error());
+
+        // slice off the Error: ... line
+        const stack = (() => {
+          if (!dummy.stack) {
+            return '';
+          }
+
+          const firstNewlineIndex = dummy.stack.indexOf('\n');
+
+          return firstNewlineIndex === -1 ? '' : dummy.stack.slice(firstNewlineIndex + 1);
+        })();
+        try {
+          if (!err.stack) {
+            err.stack = stack;
+            // match without the 2 top stack lines
+          } else if (stack) {
+            const firstNewlineIndex = stack.indexOf('\n');
+            const secondNewlineIndex =
+              firstNewlineIndex === -1 ? -1 : stack.indexOf('\n', firstNewlineIndex + 1);
+            const stackWithoutTwoTopLines =
+              secondNewlineIndex === -1 ? '' : stack.slice(secondNewlineIndex + 1);
+
+            if (!String(err.stack).endsWith(stackWithoutTwoTopLines)) {
+              err.stack += '\n' + stack;
+            }
+          }
+        } catch (e) {
+          // ignore the case where "stack" is an un-writable property
+        }
+      }
+
+      throw err;
+    }
+  }
+
+  _request(configOrUrl, config) {
+    /*eslint no-param-reassign:0*/
+    // Allow for axios('example/url'[, config]) a la fetch API
+    if (typeof configOrUrl === 'string') {
+      config = config || {};
+      config.url = configOrUrl;
+    } else {
+      config = configOrUrl || {};
+    }
+
+    config = mergeConfig(this.defaults, config);
+
+    const { transitional, paramsSerializer, headers } = config;
+
+    if (transitional !== undefined) {
+      validator.assertOptions(
+        transitional,
+        {
+          silentJSONParsing: validators.transitional(validators.boolean),
+          forcedJSONParsing: validators.transitional(validators.boolean),
+          clarifyTimeoutError: validators.transitional(validators.boolean),
+          legacyInterceptorReqResOrdering: validators.transitional(validators.boolean),
+          advertiseZstdAcceptEncoding: validators.transitional(validators.boolean),
+          validateStatusUndefinedResolves: validators.transitional(validators.boolean),
+        },
+        false
+      );
+    }
+
+    if (paramsSerializer != null) {
+      if (utils$1.isFunction(paramsSerializer)) {
+        config.paramsSerializer = {
+          serialize: paramsSerializer,
+        };
+      } else {
+        validator.assertOptions(
+          paramsSerializer,
+          {
+            encode: validators.function,
+            serialize: validators.function,
+          },
+          true
+        );
+      }
+    }
+
+    // Set config.allowAbsoluteUrls
+    if (config.allowAbsoluteUrls !== undefined) ; else if (this.defaults.allowAbsoluteUrls !== undefined) {
+      config.allowAbsoluteUrls = this.defaults.allowAbsoluteUrls;
+    } else {
+      config.allowAbsoluteUrls = true;
+    }
+
+    validator.assertOptions(
+      config,
+      {
+        baseUrl: validators.spelling('baseURL'),
+        withXsrfToken: validators.spelling('withXSRFToken'),
+      },
+      true
+    );
+
+    // Set config.method
+    config.method = (config.method || this.defaults.method || 'get').toLowerCase();
+
+    // Flatten headers
+    let contextHeaders = headers && utils$1.merge(headers.common, headers[config.method]);
+
+    headers &&
+      utils$1.forEach(['delete', 'get', 'head', 'post', 'put', 'patch', 'query', 'common'], (method) => {
+        delete headers[method];
+      });
+
+    config.headers = AxiosHeaders.concat(contextHeaders, headers);
+
+    // filter out skipped interceptors
+    const requestInterceptorChain = [];
+    let synchronousRequestInterceptors = true;
+    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+      if (typeof interceptor.runWhen === 'function' && interceptor.runWhen(config) === false) {
+        return;
+      }
+
+      synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
+
+      const transitional = config.transitional || transitionalDefaults;
+      const legacyInterceptorReqResOrdering =
+        transitional && transitional.legacyInterceptorReqResOrdering;
+
+      if (legacyInterceptorReqResOrdering) {
+        requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
+      } else {
+        requestInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+      }
+    });
+
+    const responseInterceptorChain = [];
+    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+      responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+    });
+
+    let promise;
+    let i = 0;
+    let len;
+
+    if (!synchronousRequestInterceptors) {
+      const chain = [dispatchRequest.bind(this), undefined];
+      chain.unshift(...requestInterceptorChain);
+      chain.push(...responseInterceptorChain);
+      len = chain.length;
+
+      promise = Promise.resolve(config);
+
+      while (i < len) {
+        promise = promise.then(chain[i++], chain[i++]);
+      }
+
+      return promise;
+    }
+
+    len = requestInterceptorChain.length;
+
+    let newConfig = config;
+
+    while (i < len) {
+      const onFulfilled = requestInterceptorChain[i++];
+      const onRejected = requestInterceptorChain[i++];
+      try {
+        newConfig = onFulfilled ? onFulfilled(newConfig) : newConfig;
+      } catch (error) {
+        if (!onRejected) {
+          promise = Promise.reject(error);
+          break;
+        }
+
+        try {
+          const rejectedResult = onRejected.call(this, error);
+
+          if (utils$1.isThenable(rejectedResult)) {
+            promise = Promise.resolve(rejectedResult).then(() =>
+              dispatchRequest.call(this, newConfig)
+            );
+          }
+        } catch (rejectedError) {
+          promise = Promise.reject(rejectedError);
+        }
+
+        break;
+      }
+    }
+
+    if (!promise) {
+      try {
+        promise = dispatchRequest.call(this, newConfig);
+      } catch (error) {
+        promise = Promise.reject(error);
+      }
+    }
+
+    i = 0;
+    len = responseInterceptorChain.length;
+
+    while (i < len) {
+      promise = promise.then(responseInterceptorChain[i++], responseInterceptorChain[i++]);
+    }
+
+    return promise;
+  }
+
+  getUri(config) {
+    config = mergeConfig(this.defaults, config);
+    const fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls, config);
+    return buildURL(fullPath, config.params, config.paramsSerializer);
+  }
+}
+
+// Provide aliases for supported request methods
+utils$1.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
+  /*eslint func-names:0*/
+  Axios.prototype[method] = function (url, config) {
+    return this.request(
+      mergeConfig(config || {}, {
+        method,
+        url,
+        data: config && utils$1.hasOwnProp(config, 'data') ? config.data : undefined,
+      })
+    );
+  };
+});
+
+utils$1.forEach(['post', 'put', 'patch', 'query'], function forEachMethodWithData(method) {
+  function generateHTTPMethod(isForm) {
+    return function httpMethod(url, data, config) {
+      return this.request(
+        mergeConfig(config || {}, {
+          method,
+          headers: isForm
+            ? {
+                'Content-Type': 'multipart/form-data',
+              }
+            : {},
+          url,
+          data,
+        })
+      );
+    };
+  }
+
+  Axios.prototype[method] = generateHTTPMethod();
+
+  // QUERY is a safe/idempotent read method; multipart form bodies don't fit
+  // its semantics, so no queryForm shorthand is generated.
+  if (method !== 'query') {
+    Axios.prototype[method + 'Form'] = generateHTTPMethod(true);
+  }
+});
+
+/**
+ * A `CancelToken` is an object that can be used to request cancellation of an operation.
+ *
+ * @param {Function} executor The executor function.
+ *
+ * @returns {CancelToken}
+ */
+class CancelToken {
+  constructor(executor) {
+    if (typeof executor !== 'function') {
+      throw new TypeError('executor must be a function.');
+    }
+
+    let resolvePromise;
+
+    this.promise = new Promise(function promiseExecutor(resolve) {
+      resolvePromise = resolve;
+    });
+
+    const token = this;
+
+    // eslint-disable-next-line func-names
+    this.promise.then((cancel) => {
+      if (!token._listeners) return;
+
+      let i = token._listeners.length;
+
+      while (i-- > 0) {
+        token._listeners[i](cancel);
+      }
+      token._listeners = null;
+    });
+
+    // eslint-disable-next-line func-names
+    this.promise.then = (onfulfilled) => {
+      let _resolve;
+      // eslint-disable-next-line func-names
+      const promise = new Promise((resolve) => {
+        token.subscribe(resolve);
+        _resolve = resolve;
+      }).then(onfulfilled);
+
+      promise.cancel = function reject() {
+        token.unsubscribe(_resolve);
+      };
+
+      return promise;
+    };
+
+    executor(function cancel(message, config, request) {
+      if (token.reason) {
+        // Cancellation has already been requested
+        return;
+      }
+
+      token.reason = new CanceledError(message, config, request);
+      resolvePromise(token.reason);
+    });
+  }
+
+  /**
+   * Throws a `CanceledError` if cancellation has been requested.
+   */
+  throwIfRequested() {
+    if (this.reason) {
+      throw this.reason;
+    }
+  }
+
+  /**
+   * Subscribe to the cancel signal
+   */
+
+  subscribe(listener) {
+    if (this.reason) {
+      listener(this.reason);
+      return;
+    }
+
+    if (this._listeners) {
+      this._listeners.push(listener);
+    } else {
+      this._listeners = [listener];
+    }
+  }
+
+  /**
+   * Unsubscribe from the cancel signal
+   */
+
+  unsubscribe(listener) {
+    if (!this._listeners) {
+      return;
+    }
+    const index = this._listeners.indexOf(listener);
+    if (index !== -1) {
+      this._listeners.splice(index, 1);
+    }
+  }
+
+  toAbortSignal() {
+    const controller = new AbortController();
+
+    const abort = (err) => {
+      controller.abort(err);
+    };
+
+    this.subscribe(abort);
+
+    controller.signal.unsubscribe = () => this.unsubscribe(abort);
+
+    return controller.signal;
+  }
+
+  /**
+   * Returns an object that contains a new `CancelToken` and a function that, when called,
+   * cancels the `CancelToken`.
+   */
+  static source() {
+    let cancel;
+    const token = new CancelToken(function executor(c) {
+      cancel = c;
+    });
+    return {
+      token,
+      cancel,
+    };
+  }
+}
+
+/**
+ * Syntactic sugar for invoking a function and expanding an array for arguments.
+ *
+ * Common use case would be to use `Function.prototype.apply`.
+ *
+ *  ```js
+ *  function f(x, y, z) {}
+ *  const args = [1, 2, 3];
+ *  f.apply(null, args);
+ *  ```
+ *
+ * With `spread` this example can be re-written.
+ *
+ *  ```js
+ *  spread(function(x, y, z) {})([1, 2, 3]);
+ *  ```
+ *
+ * @param {Function} callback
+ *
+ * @returns {Function}
+ */
+function spread(callback) {
+  return function wrap(arr) {
+    return callback.apply(null, arr);
+  };
+}
+
+/**
+ * Determines whether the payload is an error thrown by Axios
+ *
+ * @param {*} payload The value to test
+ *
+ * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+ */
+function isAxiosError(payload) {
+  return utils$1.isObject(payload) && payload.isAxiosError === true;
+}
+
+const HttpStatusCode = {
+  Continue: 100,
+  SwitchingProtocols: 101,
+  Processing: 102,
+  EarlyHints: 103,
+  Ok: 200,
+  Created: 201,
+  Accepted: 202,
+  NonAuthoritativeInformation: 203,
+  NoContent: 204,
+  ResetContent: 205,
+  PartialContent: 206,
+  MultiStatus: 207,
+  AlreadyReported: 208,
+  ImUsed: 226,
+  MultipleChoices: 300,
+  MovedPermanently: 301,
+  Found: 302,
+  SeeOther: 303,
+  NotModified: 304,
+  UseProxy: 305,
+  Unused: 306,
+  TemporaryRedirect: 307,
+  PermanentRedirect: 308,
+  BadRequest: 400,
+  Unauthorized: 401,
+  PaymentRequired: 402,
+  Forbidden: 403,
+  NotFound: 404,
+  MethodNotAllowed: 405,
+  NotAcceptable: 406,
+  ProxyAuthenticationRequired: 407,
+  RequestTimeout: 408,
+  Conflict: 409,
+  Gone: 410,
+  LengthRequired: 411,
+  PreconditionFailed: 412,
+  PayloadTooLarge: 413,
+  UriTooLong: 414,
+  UnsupportedMediaType: 415,
+  RangeNotSatisfiable: 416,
+  ExpectationFailed: 417,
+  ImATeapot: 418,
+  MisdirectedRequest: 421,
+  UnprocessableEntity: 422,
+  Locked: 423,
+  FailedDependency: 424,
+  TooEarly: 425,
+  UpgradeRequired: 426,
+  PreconditionRequired: 428,
+  TooManyRequests: 429,
+  RequestHeaderFieldsTooLarge: 431,
+  UnavailableForLegalReasons: 451,
+  InternalServerError: 500,
+  NotImplemented: 501,
+  BadGateway: 502,
+  ServiceUnavailable: 503,
+  GatewayTimeout: 504,
+  HttpVersionNotSupported: 505,
+  VariantAlsoNegotiates: 506,
+  InsufficientStorage: 507,
+  LoopDetected: 508,
+  NotExtended: 510,
+  NetworkAuthenticationRequired: 511,
+  WebServerReturnsAnUnknownError: 520,
+  WebServerIsDown: 521,
+  ConnectionTimedOut: 522,
+  OriginIsUnreachable: 523,
+  TimeoutOccurred: 524,
+  SslHandshakeFailed: 525,
+  InvalidSslCertificate: 526,
+};
+
+Object.entries(HttpStatusCode).forEach(([key, value]) => {
+  HttpStatusCode[value] = key;
+});
+
+/**
+ * Create an instance of Axios
+ *
+ * @param {Object} defaultConfig The default config for the instance
+ *
+ * @returns {Axios} A new instance of Axios
+ */
+function createInstance(defaultConfig) {
+  const context = new Axios(defaultConfig);
+  const instance = bind(Axios.prototype.request, context);
+
+  // Copy axios.prototype to instance
+  utils$1.extend(instance, Axios.prototype, context, { allOwnKeys: true });
+
+  // Copy context to instance
+  utils$1.extend(instance, context, null, { allOwnKeys: true });
+
+  // Factory for creating new instances
+  instance.create = function create(instanceConfig) {
+    return createInstance(mergeConfig(defaultConfig, instanceConfig));
+  };
+
+  return instance;
+}
+
+// Create the default instance to be exported
+const axios = createInstance(defaults);
+
+// Expose Axios class to allow class inheritance
+axios.Axios = Axios;
+
+// Expose Cancel & CancelToken
+axios.CanceledError = CanceledError;
+axios.CancelToken = CancelToken;
+axios.isCancel = isCancel;
+axios.VERSION = VERSION;
+axios.toFormData = toFormData;
+
+// Expose AxiosError class
+axios.AxiosError = AxiosError;
+
+// alias for CanceledError for backward compatibility
+axios.Cancel = axios.CanceledError;
+
+// Expose all/spread
+axios.all = function all(promises) {
+  return Promise.all(promises);
+};
+
+axios.spread = spread;
+
+// Expose isAxiosError
+axios.isAxiosError = isAxiosError;
+
+// Expose mergeConfig
+axios.mergeConfig = mergeConfig;
+
+axios.AxiosHeaders = AxiosHeaders;
+
+axios.formToJSON = (thing) => formDataToJSON(utils$1.isHTMLForm(thing) ? new FormData(thing) : thing);
+
+axios.getAdapter = adapters.getAdapter;
+
+axios.HttpStatusCode = HttpStatusCode;
+
+axios.default = axios;
+
+module.exports = axios;
 
 
-/***/ })
+/***/ }
 
-/******/ });
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Check if module exists (development only)
+/******/ 		if (__webpack_modules__[moduleId] === undefined) {
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			id: moduleId,
+/******/ 			loaded: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/chunk loaded */
+/******/ 	(() => {
+/******/ 		var deferred = [];
+/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
+/******/ 			if(chunkIds) {
+/******/ 				priority = priority || 0;
+/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
+/******/ 				deferred[i] = [chunkIds, fn, priority];
+/******/ 				return;
+/******/ 			}
+/******/ 			var notFulfilled = Infinity;
+/******/ 			for (var i = 0; i < deferred.length; i++) {
+/******/ 				var [chunkIds, fn, priority] = deferred[i];
+/******/ 				var fulfilled = true;
+/******/ 				for (var j = 0; j < chunkIds.length; j++) {
+/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
+/******/ 						chunkIds.splice(j--, 1);
+/******/ 					} else {
+/******/ 						fulfilled = false;
+/******/ 						if(priority < notFulfilled) notFulfilled = priority;
+/******/ 					}
+/******/ 				}
+/******/ 				if(fulfilled) {
+/******/ 					deferred.splice(i--, 1)
+/******/ 					var r = fn();
+/******/ 					if (r !== undefined) result = r;
+/******/ 				}
+/******/ 			}
+/******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/global */
+/******/ 	(() => {
+/******/ 		__webpack_require__.g = (function() {
+/******/ 			if (typeof globalThis === 'object') return globalThis;
+/******/ 			try {
+/******/ 				return this || new Function('return this')();
+/******/ 			} catch (e) {
+/******/ 				if (typeof window === 'object') return window;
+/******/ 			}
+/******/ 		})();
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/node module decorator */
+/******/ 	(() => {
+/******/ 		__webpack_require__.nmd = (module) => {
+/******/ 			module.paths = [];
+/******/ 			if (!module.children) module.children = [];
+/******/ 			return module;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"/js/app": 0,
+/******/ 			"css/app": 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			if(chunkIds.some((id) => (installedChunks[id] !== 0))) {
+/******/ 				for(moduleId in moreModules) {
+/******/ 					if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 						__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 					}
+/******/ 				}
+/******/ 				if(runtime) var result = runtime(__webpack_require__);
+/******/ 			}
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkId] = 0;
+/******/ 			}
+/******/ 			return __webpack_require__.O(result);
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunk"] = self["webpackChunk"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
+/******/ })()
+;

@@ -8,47 +8,170 @@ use App\Services\NewLplpo\ItemService;
 
 class LplpoItemController extends Controller
 {
-
     protected ItemService $service;
 
     public function __construct(ItemService $service)
     {
-        $this->service=$service;
+        $this->service = $service;
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | DEFAULT VALUE
+    |--------------------------------------------------------------------------
+    */
+
     public function defaultValue(Request $request)
-{
-    return response()->json(
-        $this->service->defaultValue(
-            $request->report_id,
-            $request->kode_obat,
-            $request->program_id
-        )
-    );
-}
-
-
-    /**
-     * datatable
-     */
-    public function list($reportId)
     {
+        $request->validate([
+
+            'report_id' =>
+                'required|integer',
+
+            'kode_obat' =>
+                'required|string',
+
+            'program_id' =>
+                'required|integer',
+
+        ]);
 
         return response()->json(
 
-            $this->service->datatable($reportId)
+            $this->service->defaultValue(
+
+                $request->report_id,
+
+                $request->kode_obat,
+
+                $request->program_id
+
+            )
 
         );
-
     }
 
-    /**
-     * simpan
+
+    /*
+    |--------------------------------------------------------------------------
+    | LIST
+    |--------------------------------------------------------------------------
+    */
+
+    public function list($reportId)
+    {
+        return response()->json(
+
+            $this->service->datatable(
+                $reportId
+            )
+
+        );
+    }
+
+
+      /**
+     * DATA ITEM UNTUK EDIT
      */
+    /**
+ * =========================================================
+ * DATA ITEM UNTUK EDIT
+ * =========================================================
+ */
+public function edit($id)
+{
+    try {
+
+        $item = $this->service->find($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $item
+        ]);
+
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Data item tidak ditemukan.',
+            'error' => $e->getMessage()
+        ], 404);
+    }
+}
+
+
+/**
+ * =========================================================
+ * UPDATE ITEM
+ * =========================================================
+ */
+public function update(Request $request, $id)
+{
+    $request->validate([
+
+        'program_id' => 'required|integer',
+
+        'kode_obat' => 'required|string',
+
+        'nama_obat' => 'required|string',
+
+        'satuan' => 'required|string',
+
+    ]);
+
+
+    $item = $this->service->update(
+        $id,
+        $request->all()
+    );
+
+
+    return response()->json([
+
+        'success' => true,
+
+        'message' =>
+            'Item berhasil diupdate.',
+
+        'data' =>
+            $item
+
+    ]);
+}
+
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORE
+    |--------------------------------------------------------------------------
+    */
+
     public function store(Request $request)
     {
+        $request->validate([
 
-        $item=$this->service->create(
+            'report_id' =>
+                'required|integer',
+
+            'program_id' =>
+                'required|integer',
+
+            'kode_obat' =>
+                'required|string',
+
+            'nama_obat' =>
+                'required|string',
+
+            'satuan' =>
+                'required|string',
+
+        ]);
+
+        $item = $this->service->create(
 
             $request->all()
 
@@ -56,23 +179,34 @@ class LplpoItemController extends Controller
 
         return response()->json([
 
-            'success'=>true,
+            'success' => true,
 
-            'data'=>$item
+            'message' =>
+                'Item berhasil disimpan.',
+
+            'data' =>
+                $item
 
         ]);
-
     }
 
-    /**
-     * update
-     */
-    public function update(Request $request,$id)
-    {
 
-        $item=$this->service->update(
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
 
-            $id,
+  /*  public function update(
+        Request $request,
+        $id
+    ) {
+
+        $item = \App\Models\NewLplpo\Item::findOrFail($id);
+
+        $item = $this->service->update(
+
+            $item,
 
             $request->all()
 
@@ -80,28 +214,65 @@ class LplpoItemController extends Controller
 
         return response()->json([
 
-            'success'=>true,
+            'success' => true,
 
-            'data'=>$item
+            'message' =>
+                'Item berhasil diupdate.',
+
+            'data' =>
+                $item
 
         ]);
+    }*/
 
-    }
 
-    /**
-     * delete
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
+
     public function destroy($id)
     {
+        $item =
+            \App\Models\NewLplpo\Item::findOrFail($id);
 
-        $this->service->delete($id);
+        $this->service->delete($item);
 
         return response()->json([
 
-            'success'=>true
+            'success' => true,
+
+            'message' =>
+                'Item berhasil dihapus.'
 
         ]);
-
     }
+
+
+    public function copyPreviousMonth(Request $request)
+{
+    $request->validate([
+        'report_id' => 'required|integer'
+    ]);
+
+    $items = $this->service->copyPreviousMonthItems(
+        $request->report_id
+    );
+
+    return response()->json([
+
+        'success' => true,
+
+        'message' =>
+            $items->count() > 0
+                ? $items->count() . ' item bulan sebelumnya berhasil dimasukkan.'
+                : 'Tidak ada data bulan sebelumnya yang perlu dimasukkan.',
+
+        'count' =>
+            $items->count()
+
+    ]);
+}
 
 }

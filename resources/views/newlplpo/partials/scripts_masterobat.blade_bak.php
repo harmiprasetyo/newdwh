@@ -51,69 +51,189 @@ $(function () {
 
     let btn = $(this);
 
-    btn.prop('disabled', true).text('Menyimpan...');
+    let form = $('#frmItem');
+
+    let editId = form.data('edit-id');
+
+    let isEdit = editId !== undefined &&
+                 editId !== null &&
+                 editId !== '';
+
+    btn.prop('disabled', true);
+
+    btn.html(
+        '<span class="spinner-border spinner-border-sm"></span> Menyimpan...'
+    );
+
+
+    let url;
+
+    let method;
+
+
+    if (isEdit) {
+
+        url =
+            "{{ url('newlplpo/item') }}/" +
+            editId;
+
+        method = "PUT";
+
+    } else {
+
+        url =
+            "{{ route('newlplpo.item.store') }}";
+
+        method = "POST";
+
+    }
+
 
     $.ajax({
 
-        url: "{{ route('newlplpo.item.store') }}",
+        url: url,
 
-        type: "POST",
+        type: method,
 
-        data: $('#frmItem').serialize(),
+        data: form.serialize(),
 
         headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+
+            'X-CSRF-TOKEN':
+                $('meta[name="csrf-token"]').attr('content')
+
         },
 
-       success: function (res) {
+        success: function (res) {
 
-    // Tutup offcanvas dulu
-    const el = document.getElementById('offcanvasObat');
+            const el =
+                document.getElementById('offcanvasObat');
 
-    const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(el);
+            const offcanvas =
+                bootstrap.Offcanvas.getOrCreateInstance(el);
 
-    offcanvas.hide();
+            offcanvas.hide();
 
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: res.message,
-        timer: 1200,
-        showConfirmButton: false
-    });
 
-    // Tunggu animasi offcanvas selesai
-    el.addEventListener('hidden.bs.offcanvas', function () {
+            Swal.fire({
 
-        location.reload();
+                icon: 'success',
 
-    }, { once: true });
+                title: 'Berhasil',
 
-},
+                text:
+                    res.message ??
+                    (isEdit
+                        ? 'Item berhasil diupdate'
+                        : 'Item berhasil disimpan'),
+
+                timer: 1200,
+
+                showConfirmButton: false
+
+            });
+
+
+            el.addEventListener(
+                'hidden.bs.offcanvas',
+                function () {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | RESET MODE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    form.removeData('edit-id');
+
+                    btn
+                        .html('💾 Simpan Item')
+                        .data('mode', 'create');
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | REFRESH
+                    |--------------------------------------------------------------------------
+                    */
+
+                    location.reload();
+
+                },
+                {
+                    once: true
+                }
+            );
+
+        },
 
         error: function (xhr) {
 
-            Swal.fire(
-                'Error',
-                xhr.responseJSON?.message ?? 'Gagal menyimpan',
-                'error'
-            );
-        bootstrap.Offcanvas
-        .getInstance(document.getElementById('offcanvasObat'))
-        .hide();
+            console.error(xhr);
+
+            let message =
+                xhr.responseJSON?.message ??
+                'Gagal menyimpan data.';
+
+
+            if (xhr.responseJSON?.errors) {
+
+                message =
+                    Object.values(
+                        xhr.responseJSON.errors
+                    )
+                    .flat()
+                    .join('<br>');
+
+            }
+
+
+            Swal.fire({
+
+                icon: 'error',
+
+                title: 'Gagal',
+
+                html: message
+
+            });
 
         },
 
-        complete: function(){
+        complete: function () {
 
-            btn.prop('disabled', false)
-               .text('💾 Simpan Item');
+            btn.prop('disabled', false);
+
+            btn.html(
+                isEdit
+                    ? '<i class="bi bi-save"></i> Update Item'
+                    : '💾 Simpan Item'
+            );
 
         }
 
     });
 
 });
+
+
+/**
+ * =========================================================
+ * EDIT ITEM
+ * =========================================================
+ */
+
+$(document).on('click', '.btnEditItem', function (e) {
+
+    e.preventDefault();
+
+    console.log('================================');
+    console.log('BUTTON EDIT DIKLIK');
+    console.log('ID:', $(this).data('id'));
+    console.log('================================');
+
+});
+
 
 });
 

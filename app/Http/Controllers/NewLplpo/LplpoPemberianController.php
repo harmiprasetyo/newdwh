@@ -10,6 +10,8 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\Master\MasterFaskes;
 use App\Models\NewLplpo\Item;
 use Illuminate\Support\Facades\DB;
+use App\Models\NewLplpo\MasterDataObat as MasterObat;
+use App\Models\NewLplpo\Program;
 
 
 
@@ -90,7 +92,8 @@ class LplpoPemberianController extends Controller
     /**
      * Detail laporan
      */
- public function detail($id)
+
+ /* public function detail($id)
 {
     $report = Report::findOrFail($id);
 
@@ -117,7 +120,61 @@ class LplpoPemberianController extends Controller
             'faskes'
         )
     );
+}*/
+public function detail($id)
+{
+    $report = Report::findOrFail($id);
+
+    $items = Item::with('program')
+        ->where('report_id', $report->id)
+        ->orderBy('program_id')
+        ->orderBy('nama_obat')
+        ->get();
+
+    $faskes = MasterFaskes::with([
+        'type',
+        'provinsi',
+        'kota',
+        'kecamatan'
+    ])
+    ->where('kodeFaskes', $report->kode_faskes)
+    ->first();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Master Obat
+    |--------------------------------------------------------------------------
+    */
+
+    $masterObats = MasterObat::orderBy('nama_obat')
+        ->get([
+            'id',
+            'kode_obat',
+            'nama_obat',
+            'satuan'
+        ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Master Program
+    |--------------------------------------------------------------------------
+    */
+
+    $programs = Program::orderBy('program_name')
+        ->get([
+            'id',
+            'program_name'
+        ]);
+
+    return view('newlplpo.pemberian_detail', compact(
+        'report',
+        'faskes',
+        'items',
+        'masterObats',
+        'programs'
+    ));
 }
+
 
     /**
      * Update jumlah pemberian
@@ -137,11 +194,11 @@ public function updatePemberian(Request $request, $id)
     // Validasi tidak boleh melebihi permintaan
     $totalPemberian = $request->pemberian_program_pkd + $request->pemberian_jkn;
 
-    if ($totalPemberian > $item->permintaan) {
+ /*   if ($totalPemberian > $item->permintaan) {
         return response()->json([
             'message' => 'Total pemberian tidak boleh melebihi jumlah permintaan.'
         ], 422);
-    }
+    }*/
 
     $item->update([
         'pemberian_program_pkd' => $request->pemberian_program_pkd,
@@ -205,5 +262,158 @@ public function finish($id)
         ], 500);
 
     }
+}
+
+
+public function tambahObat(Request $request, $reportId)
+{
+    $request->validate([
+        'kode_obat' => 'required',
+        'program_id' => 'required|integer',
+        'jumlah_pemberian' => 'required|integer|min:1',
+    ]);
+
+    $report = Report::findOrFail($reportId);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pastikan laporan belum FINAL
+    |--------------------------------------------------------------------------
+    */
+
+    if ($report->report_status === 'FINAL') {
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Laporan sudah FINAL dan tidak dapat ditambahkan obat.'
+        ], 422);
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Ambil master obat
+    |--------------------------------------------------------------------------
+    */
+
+    $obat = MasterObat::where(
+        'kode_obat',
+        $request->kode_obat
+    )->first();
+
+    if (!$obat) {
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Obat tidak ditemukan di master obat.'
+        ], 422);
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cek apakah obat + program sudah ada
+    |--------------------------------------------------------------------------
+    */
+
+    $existing = Item::where('report_id', $report->id)
+        ->where('kode_obat', $request->kode_obat)
+        ->where('program_id', $request->program_id)
+        ->exists();
+
+    if ($existing) {
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Obat tersebut sudah ada pada program yang dipilih.'
+        ], 422);
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Simpan
+    |--------------------------------------------------------------------------
+    */
+
+    $item = DB::transaction(function () use (
+        $request,
+        $report,
+        $obat
+    ) {
+
+        return Item::create([
+
+            'report_id' => $report->id,
+
+            'program_id' => $request->program_id,
+
+            'kode_obat' => $obat->kode_obat,
+
+            'nama_obat' => $obat->nama_obat,
+
+            'satuan' => $obat->satuan,
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Semua nilai awal = 0
+            |--------------------------------------------------------------------------
+            */
+
+            'stok_awal_progam_pkd' => 0,
+
+            'stok_awal_jkn' => 0,
+
+            'penerimaan_program_pkd' => 0,
+
+            'penerimaan_jkn' => 0,
+
+            'persediaan_program_pkd' => 0,
+
+            'persediaan_jkn' => 0,
+
+            'pemakaian_program_pkd' => 0,
+
+            'pemakaian_jkn' => 0,
+
+            'item_expired_pkd' => 0,
+
+            'item_expired_jkn' => 0,
+
+            'stok_akhir_program_pkd' => 0,
+
+            'stok_akhir_jkn' => 0,
+
+            'stok_minimum' => 0,
+
+            'stok_optimum' => 0,
+
+            'permintaan' => 0,
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Hasil input user
+            |--------------------------------------------------------------------------
+            */
+
+            'pemberian_program_pkd' => $request->jumlah_pemberian,
+
+            'pemberian_jkn' => 0,
+
+        ]);
+
+    });
+
+    return response()->json([
+
+        'success' => true,
+
+        'message' => 'Obat berhasil ditambahkan ke laporan.',
+
+        'data' => $item
+
+    ]);
 }
 }

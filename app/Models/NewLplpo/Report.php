@@ -47,6 +47,15 @@ public function faskes()
     );
 }
 
+public function kunjungan()
+{
+    return $this->hasOne(
+        Kunjungan::class,
+        'report_id',
+        'id'
+    );
+}
+
 
 
 }

@@ -84,156 +84,303 @@
 @endsection
 @push('scripts')
 <script>
-    $(function(){
+$(function () {
 
-   $.get('/propinsi', function(res){
+    // =====================================================
+    // INITIAL STATE
+    // =====================================================
 
-    $('#provinsi').html(
-        '<option value="">-- pilih provinsi --</option>'
-    );
+    $('#kota').prop('disabled', true);
+    $('#kecamatan').prop('disabled', true);
+    $('#desa').prop('disabled', true);
+    $('#faskes').prop('disabled', true);
 
-    res.forEach(function(item){
 
-        $('#provinsi').append(
-            `<option value="${item.code}">
-                ${item.name}
-            </option>`
+    // =====================================================
+    // LOAD PROVINSI
+    // =====================================================
+
+    $.get('/propinsi', function (res) {
+
+        $('#provinsi').html(
+            '<option value="">-- Pilih Provinsi --</option>'
+        );
+
+        res.forEach(function (item) {
+
+            $('#provinsi').append(`
+                <option value="${item.code}">
+                    ${item.name}
+                </option>
+            `);
+
+        });
+
+    });
+
+
+    // =====================================================
+    // PROVINSI → KOTA
+    // =====================================================
+
+    $('#provinsi').on('change', function () {
+
+        let code = $(this).val();
+
+        // Reset semua level di bawahnya
+        $('#kota')
+            .html('<option value="">-- Pilih Kota --</option>')
+            .prop('disabled', true);
+
+        $('#kecamatan')
+            .html('<option value="">-- Pilih Kecamatan --</option>')
+            .prop('disabled', true);
+
+        $('#desa')
+            .html('<option value="">-- Pilih Desa --</option>')
+            .prop('disabled', true);
+
+        $('#faskes')
+            .html('<option value="">-- Pilih Fasyankes --</option>')
+            .prop('disabled', true);
+
+
+        if (!code) {
+            return;
+        }
+
+
+        $.get(
+            '/adminpanel/wilayah/listkota?province_code=' + code,
+            function (res) {
+
+                let html =
+                    '<option value="">-- Pilih Kota --</option>';
+
+                res.data.forEach(function (item) {
+
+                    html += `
+                        <option value="${item.code}">
+                            ${item.name}
+                        </option>
+                    `;
+
+                });
+
+                $('#kota')
+                    .html(html)
+                    .prop('disabled', false);
+
+            }
         );
 
     });
 
-});
 
-});
+    // =====================================================
+    // KOTA → KECAMATAN
+    // =====================================================
+
+    $('#kota').on('change', function () {
+
+        let code = $(this).val();
+
+        // Reset level bawah
+        $('#kecamatan')
+            .html('<option value="">-- Pilih Kecamatan --</option>')
+            .prop('disabled', true);
+
+        $('#desa')
+            .html('<option value="">-- Pilih Desa --</option>')
+            .prop('disabled', true);
+
+        $('#faskes')
+            .html('<option value="">-- Pilih Fasyankes --</option>')
+            .prop('disabled', true);
 
 
-$('#provinsi').change(function(){
-
-    let code = $(this).val();
-
-    $('#kota').prop('disabled',false);
-
-    $.get(
-        '/adminpanel/wilayah/listkota?province_code='+code,
-        function(res){
-
-            $('#kota').html('');
-
-            res.data.forEach(function(item){
-
-                $('#kota').append(
-                    `<option value="${item.code}">
-                        ${item.name}
-                    </option>`
-                );
-
-            });
-
+        if (!code) {
+            return;
         }
-    );
-
-});
 
 
-$('#kota').change(function(){
+        $.get(
+            '/adminpanel/wilayah/listkecamatan?city_code=' + code,
+            function (res) {
 
-    let code = $(this).val();
+                let html =
+                    '<option value="">-- Pilih Kecamatan --</option>';
 
-    $('#kecamatan').prop('disabled',false);
+                res.data.forEach(function (item) {
 
-    $.get(
-        '/adminpanel/wilayah/listkecamatan?city_code='+code,
-        function(res){
+                    html += `
+                        <option value="${item.code}">
+                            ${item.name}
+                        </option>
+                    `;
 
-            $('#kecamatan').html('');
+                });
 
-            res.data.forEach(function(item){
+                $('#kecamatan')
+                    .html(html)
+                    .prop('disabled', false);
 
-                $('#kecamatan').append(
-                    `<option value="${item.code}">
-                        ${item.name}
-                    </option>`
-                );
+            }
+        );
 
-            });
+    });
 
+
+    // =====================================================
+    // KECAMATAN → DESA + FASKES
+    // =====================================================
+
+    $('#kecamatan').on('change', function () {
+
+        let code = $(this).val();
+
+
+        // Reset Desa
+        $('#desa')
+            .html('<option value="">-- Pilih Desa --</option>')
+            .prop('disabled', true);
+
+
+        // Reset Faskes
+        $('#faskes')
+            .html('<option value="">-- Pilih Fasyankes --</option>')
+            .prop('disabled', true);
+
+
+        if (!code) {
+            return;
         }
-    );
-
-});
 
 
-$('#kecamatan').change(function(){
+        // =================================================
+        // LOAD DESA
+        // =================================================
 
-    let code = $(this).val();
+        $.get(
+            '/adminpanel/wilayah/listdesa?district_code=' + code,
+            function (res) {
 
-    $('#desa').prop('disabled',false);
-    $('#faskes').prop('disabled',false);
+                let html =
+                    '<option value="">-- Pilih Desa --</option>';
 
-    $.get(
-        '/adminpanel/wilayah/listdesa?district_code='+code,
-        function(res){
+                res.data.forEach(function (item) {
 
-            $('#desa').html('');
+                    html += `
+                        <option value="${item.code}">
+                            ${item.name}
+                        </option>
+                    `;
 
-            res.data.forEach(function(item){
+                });
 
-                $('#desa').append(
-                    `<option value="${item.code}">
-                        ${item.name}
-                    </option>`
-                );
+                $('#desa')
+                    .html(html)
+                    .prop('disabled', false);
 
-            });
-
-        }
-    );
-
-    $.get(
-        '/adminpanel/faskes/list?district_code='+code,
-        function(res){
-
-            $('#faskes').html('');
-
-            res.data.forEach(function(item){
-
-                $('#faskes').append(
-                    `<option value="${item.kodeFaskes}">
-                        ${item.namaFaskes}
-                    </option>`
-                );
-
-            });
-
-        }
-    );
-
-});
+            }
+        );
 
 
-$('#frmPosyandu').submit(function(e){
+        // =================================================
+        // LOAD FASKES
+        // =================================================
 
-    e.preventDefault();
+        $.get(
+            '/adminpanel/faskes/list?district_code=' + code,
+            function (res) {
 
-    $.ajax({
+                let html =
+                    '<option value="">-- Pilih Fasyankes --</option>';
 
-        url:'/adminpanel/posyandu/store',
-        method:'POST',
+                res.data.forEach(function (item) {
 
-        data:$(this).serialize(),
+                    html += `
+                        <option value="${item.kodeFaskes}">
+                            ${item.namaFaskes}
+                        </option>
+                    `;
 
-        success:function(res){
+                });
 
-            alert(res.message);
-            window.location.href="/adminpanel/posyandu";
+                $('#faskes')
+                    .html(html)
+                    .prop('disabled', false);
 
-            $('#frmPosyandu')[0].reset();
-        }
+            }
+        );
+
+    });
+
+
+    // =====================================================
+    // SUBMIT
+    // =====================================================
+
+    $('#frmPosyandu').on('submit', function (e) {
+
+        e.preventDefault();
+
+        $.ajax({
+
+            url: '/adminpanel/posyandu/store',
+
+            method: 'POST',
+
+            data: $(this).serialize(),
+
+            success: function (res) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: res.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+                setTimeout(function () {
+                    window.location.href =
+                        '/adminpanel/posyandu';
+                }, 1500);
+
+            },
+
+            error: function (xhr) {
+
+                console.error(xhr);
+
+                let message =
+                    xhr.responseJSON?.message ??
+                    'Terjadi kesalahan saat menyimpan data.';
+
+                if (xhr.responseJSON?.errors) {
+
+                    message = Object.values(
+                        xhr.responseJSON.errors
+                    )
+                    .flat()
+                    .join('<br>');
+
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    html: message
+                });
+
+            }
+
+        });
 
     });
 
 });
-    </script>
-
+</script>
 @endpush
 

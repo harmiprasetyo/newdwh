@@ -6,6 +6,10 @@
 
 @include('newlplpo.partials.header_detail')
 
+<!--- Munculkan Laporan Input Kunjungan disini -->
+@include('newlplpo.partials.kunjungan_verifikasi')
+<!-- End Munculkan Laporan Input Kunjungan disini -->
+
 <div class="card shadow-sm mt-3">
 
     <div class="card-header bg-success text-white">

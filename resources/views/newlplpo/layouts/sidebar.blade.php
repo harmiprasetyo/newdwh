@@ -155,6 +155,21 @@
 
     </div>
 
+    <a href="#">
+    🗂️ Master Data
+</a>
+
+<div class="submenu">
+
+   <a href="{{ route('newlplpo.stok-esensial.index') }}">
+
+    ➜ Stok Min dan Esensial
+
+</a>
+
+</div>
+
+
 @endif
 
 

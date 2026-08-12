@@ -114,10 +114,12 @@
                         @csrf
 
                         <input
-                            type="hidden",
+                            type="hidden"
                             id="report_id"
                             name="report_id"
                             value="{{ $report->id ?? '' }}">
+
+                            <input type="hidden" id="tahunCanvas" value="{{ $report->tahun ?? '' }}">
 
                         <div class="p-3">
 
@@ -203,7 +205,7 @@
                                             </label>
 
                                             <select
-                                                name="program_id"
+                                                name="program_id" id="program_id"
                                                 class="form-select" required>
                                                 <option value="">-- Pilih Program --</option>
 
@@ -224,20 +226,54 @@
 
                                         <div class="col-md-6">
 
-                                            <label class="form-label">
+    <label class="form-label">
 
-                                                Obat Expired
+        Obat Expired
 
-                                            </label>
+    </label>
 
-                                            <input
-                                                type="number"
-                                                name="item_expired"
-                                                class="form-control"
-                                                value="0"
-                                                >
+    <div class="row">
 
-                                        </div>
+        {{-- PKD --}}
+        <div class="col-md-6">
+
+            <label class="form-label small text-muted">
+                Program PKD
+            </label>
+
+            <input
+                type="number"
+                min="0"
+                name="item_expired_pkd"
+                id="item_expired_pkd"
+                class="form-control"
+                value="0"
+            >
+
+        </div>
+
+
+        {{-- JKN --}}
+        <div class="col-md-6">
+
+            <label class="form-label small text-muted">
+                JKN
+            </label>
+
+            <input
+                type="number"
+                min="0"
+                name="item_expired_jkn"
+                id="item_expired_jkn"
+                class="form-control"
+                value="0"
+            >
+
+        </div>
+
+    </div>
+
+</div>
 
                                     </div>
 
@@ -309,6 +345,7 @@
                                                         min="0"
                                                           value="0"
                                                         name="stok_awal_progam_pkd"
+                                                        id="stok_awal_progam_pkd"
                                                         class="form-control hitung">
 
                                                 </td>
@@ -320,6 +357,7 @@
                                                         min="0"
                                                           value="0"
                                                         name="stok_awal_jkn"
+                                                        id="stok_awal_jkn"
                                                         class="form-control hitung">
 
                                                 </td>
@@ -345,6 +383,7 @@
                                                         min="0"
                                                           value="0"
                                                         name="penerimaan_program_pkd"
+                                                        id="penerimaan_program_pkd"
                                                         class="form-control hitung">
 
                                                 </td>
@@ -356,6 +395,7 @@
                                                         min="0"
                                                           value="0"
                                                         name="penerimaan_jkn"
+                                                        id="penerimaan_jkn"
                                                         class="form-control hitung">
 
                                                 </td>
@@ -381,6 +421,7 @@
                                                          value="0"
 
                                                         name="persediaan_program_pkd"
+                                                        id="persediaan_program_pkd"
                                                         class="form-control bg-light">
 
                                                 </td>
@@ -392,6 +433,7 @@
                                                          value="0"
 
                                                         name="persediaan_jkn"
+                                                        id="persediaan_jkn"
                                                         class="form-control bg-light">
 
                                                 </td>
@@ -417,6 +459,7 @@
                                                         min="0"
                                                           value="0"
                                                         name="pemakaian_program_pkd"
+                                                        id="pemakaian_program_pkd"
                                                         class="form-control hitung">
 
                                                 </td>
@@ -428,6 +471,7 @@
                                                         min="0"
                                                           value="0"
                                                         name="pemakaian_jkn"
+                                                        id="pemakaian_jkn"
                                                         class="form-control hitung">
 
                                                 </td>
@@ -452,6 +496,7 @@
                                                         type="number"
                                                          value="0"
                                                         name="stok_akhir_program_pkd"
+                                                        id="stok_akhir_program_pkd"
                                                         class="form-control bg-light">
 
                                                 </td>
@@ -462,6 +507,7 @@
                                                         type="number"
                                                          value="0"
                                                         name="stok_akhir_jkn"
+                                                        id="stok_akhir_jkn"
                                                         class="form-control bg-light">
 
                                                 </td>
@@ -511,6 +557,7 @@
                                                 type="number"
                                                 id="stok_minimum"
                                                 name="stok_minimum"
+                                                id="stok_minimum"
                                                 readonly
                                                 class="form-control bg-light">
 
@@ -528,6 +575,7 @@
                                                 type="number"
                                                 id="stok_optimum"
                                                 name="stok_optimum"
+                                                id="stok_optimum"
                                                   value="0"
                                                 class="form-control bg-light">
 
@@ -544,6 +592,7 @@
                                             <input
                                                 type="number"
                                                 name="permintaan"
+                                                id="permintaan"
                                                  value="0"
                                                 class="form-control bg-warning fw-bold">
 

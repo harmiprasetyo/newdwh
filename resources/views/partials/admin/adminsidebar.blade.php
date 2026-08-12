@@ -66,7 +66,7 @@
        Master Faskes
     </a>
       <a href="/adminpanel/posyandu" class="{{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">Master Posyandu</a>
-        <a href="/adminpanel/posyandu/wilayahkerja" class="{{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">Wilayah Kerja</a>
+
 
 
 </div>

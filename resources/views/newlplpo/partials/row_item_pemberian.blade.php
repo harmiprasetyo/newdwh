@@ -1,6 +1,8 @@
 <tr>
 
-    <td class="text-center">{{ $no++ }}</td>
+     <td class="text-center">
+        {{ $no + 1 }}
+    </td>
 
     <td>{{ optional($item->program)->program_name }}</td>
 
@@ -22,7 +24,8 @@
     <td class="text-end">{{ number_format($item->pemakaian_program_pkd) }}</td>
     <td class="text-end">{{ number_format($item->pemakaian_jkn) }}</td>
 
-    <td class="text-end">{{ number_format($item->item_expired) }}</td>
+    <td class="text-end">{{ number_format($item->item_expired_pkd) }}</td>
+     <td class="text-end">{{ number_format($item->item_expired_jkn) }}</td>
 
     <td class="text-end">{{ number_format($item->stok_akhir_program_pkd) }}</td>
     <td class="text-end">{{ number_format($item->stok_akhir_jkn) }}</td>

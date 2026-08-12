@@ -30,9 +30,11 @@ use App\Http\Controllers\NewLplpo\LplpoArsipController;
  use App\Http\Controllers\AdminPanel\PosyanduController;
  use App\Http\Controllers\AdminPanel\Master\TargetSasaranController;
  use App\Http\Controllers\AdminPanel\WilayahKerja\WilayahKerjaPosyanduController;
+ use App\Http\Controllers\NewLplpo\StokEsensialController;
  use App\Http\Controllers\NewLplpo\ProgramController;
  use App\Http\Controllers\NewLplpo\MasterDataObatController;
  use App\Http\Controllers\NewLplpo\LplpoRekapController;
+ use App\Http\Controllers\NewLplpo\KunjunganController;
 /*
 | Web Routes
 |--------------------------------------------------------------------------
@@ -265,6 +267,77 @@ Route::get(
 
 Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
 
+
+
+        Route::get(
+            '/{report}/kunjungan/create',
+            [KunjunganController::class, 'create']
+        )->name('kunjungan.create');
+
+        Route::post(
+            '/{report}/kunjungan',
+            [KunjunganController::class, 'store']
+        )->name('kunjungan.store');
+
+        Route::get(
+            '/{report}/kunjungan/edit',
+            [KunjunganController::class, 'edit']
+        )->name('kunjungan.edit');
+
+        Route::put(
+            '/{report}/kunjungan',
+            [KunjunganController::class, 'update']
+        )->name('kunjungan.update');
+
+        Route::delete(
+            '/{report}/kunjungan',
+            [KunjunganController::class, 'destroy']
+        )->name('kunjungan.destroy');
+
+
+
+
+Route::prefix('stok-esensial')
+    ->name('stok-esensial.')
+    ->controller(StokEsensialController::class)
+    ->group(function () {
+         Route::post('/duplikasi',[StokEsensialController::class, 'duplicate'])->name('duplicate');
+         Route::get('/setting',[StokEsensialController::class, 'setting'])->name('setting');
+
+
+        Route::get(
+            '/',
+            'index'
+        )->name('index');
+
+        Route::get(
+            '/datatable',
+            'datatable'
+        )->name('datatable');
+
+        Route::post(
+            '/',
+            'store'
+        )->name('store');
+
+        Route::get(
+            '/{id}',
+            'show'
+        )->name('show');
+
+        Route::put(
+            '/{id}',
+            'update'
+        )->name('update');
+
+        Route::delete(
+            '/{id}',
+            'destroy'
+        )->name('destroy');
+
+    });
+
+
  Route::get(
             '/rekap',
             [LplpoRekapController::class, 'index']
@@ -280,6 +353,10 @@ Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
 Route::prefix('masterdataobat')
     ->name('masterdataobat.')
     ->group(function () {
+        Route::get(
+    '/datatableforcanvas',
+    [MasterDataObatController::class, 'datatableforcanvas']
+)->name('datatableforcanvas');
 
         Route::get(
             '/',
@@ -290,6 +367,27 @@ Route::prefix('masterdataobat')
             '/datatable',
             [MasterDataObatController::class, 'datatable']
         )->name('datatable');
+
+        Route::post(
+            '/',
+            [MasterDataObatController::class, 'store']
+        )->name('store');
+
+        Route::get(
+            '/{id}',
+            [MasterDataObatController::class, 'show']
+        )->name('show');
+
+        Route::put(
+            '/{id}',
+            [MasterDataObatController::class, 'update']
+        )->name('update');
+
+        Route::delete(
+            '/{id}',
+            [MasterDataObatController::class, 'destroy']
+        )->name('destroy');
+
 
     });
 
@@ -356,6 +454,13 @@ Route::prefix('program')
                     Route::post('/{id}/reject',[LplpoVerificationController::class,'reject'])->name('reject');
                     });
     Route::prefix('pemberian')->name('pemberian.')->group(function(){
+
+
+    Route::post(
+    '/{report}/tambah-obat',
+    [LplpoPemberianController::class, 'tambahObat']
+)->name('tambah-obat');
+
         Route::get('/',[LplpoPemberianController::class,'index'])->name('index');
         Route::get('/datatable',[LplpoPemberianController::class,'datatable'])->name('datatable');
         Route::get('/{id}',[LplpoPemberianController::class,'detail'])->name('detail');
@@ -365,9 +470,12 @@ Route::prefix('program')
 
 
      Route::prefix('item')->name('item.')->group(function () {
+        Route::post('/copy-previous-month',[LplpoItemController::class, 'copyPreviousMonth'])->name('copy-previous-month');
         Route::get('/default',[LplpoItemController::class,'defaultValue'])->name('default');
         Route::get('/{report}', [LplpoItemController::class,'list'])->name('list');
+         Route::get('/{id}/edit',[LplpoItemController::class, 'edit'])->name('edit');
         Route::post('/', [LplpoItemController::class,'store'])->name('store');
+
         Route::put('/{id}', [LplpoItemController::class,'update'])->name('update');
         Route::delete('/{id}', [LplpoItemController::class,'destroy'])->name('destroy');
         });
@@ -395,5 +503,7 @@ Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getK
 Route::prefix('dashboard')->group(function () {
   Route::get('/', [DashboardPageController::class, 'index']);
 Route::get('/realtime', [DashboardPageController::class, 'realtime']);
+
+Route::put('/{id}',[LplpoController::class, 'update'])->name('update');
 });
 Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));

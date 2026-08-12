@@ -161,7 +161,7 @@
 
             <button
                 type="button"
-                class="btn btn-outline-warning"
+                class="btn btn-warning"
                 id="btnEditHeader">
 
                 <i class="bi bi-pencil-square"></i>

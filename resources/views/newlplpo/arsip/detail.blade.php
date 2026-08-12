@@ -265,7 +265,7 @@
 
                         <th colspan="2">Pemakaian</th>
 
-                        <th rowspan="2">Expired</th>
+                        <th colspan="2">Expired</th>
 
                         <th colspan="2">Stok Akhir</th>
 
@@ -276,6 +276,9 @@
                     </tr>
 
                     <tr class="table-success text-center">
+
+                        <th>PKD</th>
+                        <th>JKN</th>
 
                         <th>PKD</th>
                         <th>JKN</th>
@@ -355,7 +358,8 @@
                         <td class="text-end">{{ number_format($item->pemakaian_program_pkd) }}</td>
                         <td class="text-end">{{ number_format($item->pemakaian_jkn) }}</td>
 
-                        <td class="text-end">{{ number_format($item->item_expired) }}</td>
+                        <td class="text-end">{{ number_format($item->item_expired_pkd) }}</td>
+                        <td class="text-end">{{ number_format($item->item_expired_jkn) }}</td>
 
                         <td class="text-end">{{ number_format($item->stok_akhir_program_pkd) }}</td>
                         <td class="text-end">{{ number_format($item->stok_akhir_jkn) }}</td>

@@ -167,9 +167,10 @@ window.API_KEY = '{{ config("app.api_key") }}';
 
 $(document).ready(function () {
 
- $.ajaxSetup({
+$.ajaxSetup({
     headers: {
-        'X-API-KEY': window.API_KEY
+        'X-API-KEY': window.API_KEY,
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
 

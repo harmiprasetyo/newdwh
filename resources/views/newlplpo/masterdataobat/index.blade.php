@@ -4,7 +4,10 @@
 
 <div class="container-fluid">
 
-    {{-- HEADER --}}
+    {{-- ==========================================================
+         HEADER
+    =========================================================== --}}
+
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
@@ -25,6 +28,7 @@
 
         </div>
 
+
         <button
             type="button"
             class="btn btn-primary"
@@ -39,7 +43,9 @@
     </div>
 
 
-    {{-- TABLE --}}
+    {{-- ==========================================================
+         TABLE
+    =========================================================== --}}
 
     <div class="card border-0 shadow-sm">
 
@@ -71,12 +77,8 @@
                                 Satuan
                             </th>
 
-                            <th>
-                                Stok Minimum
-                            </th>
-
-                            <th>
-                                Stok Optimum
+                            <th class="text-center">
+                                Obat-obatan Napza
                             </th>
 
                             <th width="120"
@@ -100,246 +102,35 @@
 
 </div>
 
+@include('newlplpo.masterdataobat.partials.modal')
+
 @endsection
 
 
 @push('script')
-
 <script>
 
-$(document).ready(function () {
+    window.masterDataObatConfig = {
 
-    const table = $('#datatableObat').DataTable({
+        dataUrl: @json(
+            route('newlplpo.masterdataobat.datatable')
+        ),
 
-        processing: true,
+        storeUrl: @json(
+            route('newlplpo.masterdataobat.store')
+        ),
 
-        serverSide: true,
+        baseUrl: @json(
+            url('/newlplpo/masterdataobat')
+        ),
 
-        responsive: true,
+        csrfToken: @json(
+            csrf_token()
+        )
 
-        pageLength: 10,
-
-        ajax: {
-
-            url:
-                "{{ route('newlplpo.masterdataobat.datatable') }}",
-
-            type: 'GET'
-
-        },
-
-        columns: [
-
-            {
-                data: 'DT_RowIndex',
-
-                name: 'DT_RowIndex',
-
-                orderable: false,
-
-                searchable: false,
-
-                className: 'text-center'
-            },
-
-            {
-                data: 'kode_obat',
-
-                name: 'kode_obat'
-            },
-
-            {
-                data: 'nama_obat',
-
-                name: 'nama_obat',
-
-                render: function (data) {
-
-                    return `
-
-                        <div class="fw-semibold">
-
-                            <i class="bi bi-capsule me-2 text-primary"></i>
-
-                            ${escapeHtml(data)}
-
-                        </div>
-
-                    `;
-
-                }
-            },
-
-            {
-                data: 'satuan',
-
-                name: 'satuan'
-            },
-
-            {
-                data: 'stok_minimum',
-
-                name: 'stok_minimum',
-
-                className: 'text-center'
-            },
-
-            {
-                data: 'stok_optimum',
-
-                name: 'stok_optimum',
-
-                className: 'text-center'
-            },
-
-            {
-                data: 'aksi',
-
-                name: 'aksi',
-
-                orderable: false,
-
-                searchable: false,
-
-                className: 'text-center'
-            }
-
-        ],
-
-        order: [
-
-            [2, 'asc']
-
-        ],
-
-        language: {
-
-            processing:
-                'Memuat data...',
-
-            search:
-                'Cari:',
-
-            searchPlaceholder:
-                'Cari obat...',
-
-            lengthMenu:
-                '_MENU_ data',
-
-            info:
-                'Menampilkan _START_ - _END_ dari _TOTAL_ obat',
-
-            infoEmpty:
-                'Tidak ada obat',
-
-            zeroRecords:
-                'Obat tidak ditemukan',
-
-            emptyTable:
-                'Belum ada data obat',
-
-            paginate: {
-
-                previous:
-                    '<i class="bi bi-chevron-left"></i>',
-
-                next:
-                    '<i class="bi bi-chevron-right"></i>'
-
-            }
-
-        }
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | TAMBAH
-    |--------------------------------------------------------------------------
-    */
-
-    $('#btnTambahObat').on(
-        'click',
-        function () {
-
-            console.log(
-                'Tambah obat'
-            );
-
-            // Modal CRUD akan kita masukkan berikutnya
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT
-    |--------------------------------------------------------------------------
-    */
-
-    $('#datatableObat').on(
-        'click',
-        '.btn-edit-obat',
-        function () {
-
-            const id =
-                $(this).data('id');
-
-            console.log(
-                'Edit obat:',
-                id
-            );
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE
-    |--------------------------------------------------------------------------
-    */
-
-    $('#datatableObat').on(
-        'click',
-        '.btn-delete-obat',
-        function () {
-
-            const id =
-                $(this).data('id');
-
-            const nama =
-                $(this).data('nama');
-
-            console.log(
-                'Delete obat:',
-                id,
-                nama
-            );
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ESCAPE HTML
-    |--------------------------------------------------------------------------
-    */
-
-    function escapeHtml(value)
-    {
-
-        return $('<div>')
-            .text(value ?? '')
-            .html();
-
-    }
-
-});
+    };
 
 </script>
+<script src="{{ mix('js/newlplpo/masterdataobat.js') }}"></script>
 
 @endpush

@@ -27,7 +27,6 @@ class WilayahKerjaPosyanduController extends Controller
    public function datatable()
 {
     $query = WilayahKerjaPosyandu::with([
-        'posyandu',
         'posyandu.desa.district.city.province'
     ]);
 
@@ -36,60 +35,117 @@ class WilayahKerjaPosyanduController extends Controller
         ->addIndexColumn()
 
         ->addColumn('nama_posyandu', function ($row) {
-            return optional($row->posyandu)->namaPosyandu;
+
+            return data_get(
+                $row,
+                'posyandu.namaPosyandu',
+                '-'
+            );
+
         })
 
         ->addColumn('desa', function ($row) {
-            return optional($row->posyandu->desa)->name ?? '-';
+
+            return data_get(
+                $row,
+                'posyandu.desa.name',
+                '-'
+            );
+
         })
 
         ->addColumn('kecamatan', function ($row) {
-            return optional($row->posyandu->desa->district)->name ?? '-';
+
+            return data_get(
+                $row,
+                'posyandu.desa.district.name',
+                '-'
+            );
+
         })
 
         ->addColumn('kabupaten', function ($row) {
-            return optional($row->posyandu->desa->district->city)->name ?? '-';
+
+            return data_get(
+                $row,
+                'posyandu.desa.district.city.name',
+                '-'
+            );
+
         })
 
         ->addColumn('provinsi', function ($row) {
-            return optional($row->posyandu->desa->district->city->province)->name ?? '-';
-        })
-        ->editColumn('rw',function($row){
 
-    return collect(explode(',',$row->rw))
-
-        ->map(function($rw){
-
-            return '<span class="badge bg-primary me-1">'.$rw.'</span>';
+            return data_get(
+                $row,
+                'posyandu.desa.district.city.province.name',
+                '-'
+            );
 
         })
 
-        ->implode(' ');
+        ->editColumn('rw', function ($row) {
 
-})
+            if (!$row->rw) {
+                return '-';
+            }
 
-       ->addColumn('aksi', function ($row) {
+            return collect(explode(',', $row->rw))
+                ->filter()
+                ->map(function ($rw) {
+
+                    return '<span class="badge bg-primary me-1">'
+                        . e(trim($rw))
+                        . '</span>';
+
+                })
+                ->implode(' ');
+
+        })
+
+     ->addColumn('aksi', function ($row) {
 
     return '
-        <button
-            class="btn btn-warning btn-sm btnEdit"
-            data-id="'.$row->id.'"
-            data-url="'.route('wilayahkerja.edit', $row->id).'">
-            <i class="bi bi-pencil"></i>
-        </button>
+        <div class="action-wrapper">
 
-        <button
-            class="btn btn-danger btn-sm btnDelete"
-            data-id="'.$row->id.'"
-            data-url="'.route('wilayahkerja.destroy', $row->id).'">
-            <i class="bi bi-trash"></i>
-        </button>
+            <button
+                type="button"
+                class="btn btn-warning btn-action btnEdit"
+                data-id="' . $row->id . '"
+                data-url="' . route(
+                    'wilayahkerja.edit',
+                    $row->id
+                ) . '"
+                title="Edit Data"
+                data-bs-toggle="tooltip">
+
+                <i class="fas fa-edit"></i>
+
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-danger btn-action btnDelete"
+                data-id="' . $row->id . '"
+                data-url="' . route(
+                    'wilayahkerja.destroy',
+                    $row->id
+                ) . '"
+                title="Hapus Data"
+                data-bs-toggle="tooltip">
+
+                <i class="fas fa-trash-alt"></i>
+
+            </button>
+
+        </div>
     ';
 })
 
-
-
-        ->rawColumns(['aksi'])
+        ->rawColumns([
+            'rw',
+            'aksi'
+        ])
 
         ->make(true);
 }
