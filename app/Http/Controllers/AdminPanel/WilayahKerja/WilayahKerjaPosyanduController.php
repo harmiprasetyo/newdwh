@@ -175,7 +175,7 @@ class WilayahKerjaPosyanduController extends Controller
 
         'kodePosyandu'=>$request->kodePosyandu,
 
-        'kodeDesa'=>$posyandu->kodeDesa,
+        'village_code'=>$posyandu->village_code,
 
         'rw'=>$rw
 
@@ -223,7 +223,7 @@ class WilayahKerjaPosyanduController extends Controller
 
         'kodePosyandu'=>$request->kodePosyandu,
 
-        'kodeDesa'=>$posyandu->kodeDesa,
+        'village_code'=>$posyandu->village_code,
 
         'rw'=>$rw
 

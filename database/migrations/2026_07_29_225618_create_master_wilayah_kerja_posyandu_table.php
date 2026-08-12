@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('rw');
             $table->timestamps();
             $table->index('kodePosyandu');
-$table->index('kodeDesa');
+$table->index('village_code');
 
 
                  $table->foreign('kodePosyandu')
