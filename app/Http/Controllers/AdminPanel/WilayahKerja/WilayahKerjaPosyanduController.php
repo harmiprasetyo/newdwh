@@ -24,10 +24,11 @@ class WilayahKerjaPosyanduController extends Controller
     );
 }
 
-   public function datatable()
+ public function datatable()
 {
     $query = WilayahKerjaPosyandu::with([
-        'posyandu.desa.district.city.province'
+        'posyandu',
+        'desa.district.city.province'
     ]);
 
     return DataTables::of($query)
@@ -48,7 +49,7 @@ class WilayahKerjaPosyanduController extends Controller
 
             return data_get(
                 $row,
-                'posyandu.desa.name',
+                'desa.name',
                 '-'
             );
 
@@ -58,7 +59,7 @@ class WilayahKerjaPosyanduController extends Controller
 
             return data_get(
                 $row,
-                'posyandu.desa.district.name',
+                'desa.district.name',
                 '-'
             );
 
@@ -68,7 +69,7 @@ class WilayahKerjaPosyanduController extends Controller
 
             return data_get(
                 $row,
-                'posyandu.desa.district.city.name',
+                'desa.district.city.name',
                 '-'
             );
 
@@ -78,7 +79,7 @@ class WilayahKerjaPosyanduController extends Controller
 
             return data_get(
                 $row,
-                'posyandu.desa.district.city.province.name',
+                'desa.district.city.province.name',
                 '-'
             );
 
@@ -103,44 +104,44 @@ class WilayahKerjaPosyanduController extends Controller
 
         })
 
-     ->addColumn('aksi', function ($row) {
+        ->addColumn('aksi', function ($row) {
 
-    return '
-        <div class="action-wrapper">
+            return '
+                <div class="action-wrapper">
 
-            <button
-                type="button"
-                class="btn btn-warning btn-action btnEdit"
-                data-id="' . $row->id . '"
-                data-url="' . route(
-                    'wilayahkerja.edit',
-                    $row->id
-                ) . '"
-                title="Edit Data"
-                data-bs-toggle="tooltip">
+                    <button
+                        type="button"
+                        class="btn btn-warning btn-action btnEdit"
+                        data-id="' . $row->id . '"
+                        data-url="' . route(
+                            'wilayahkerja.edit',
+                            $row->id
+                        ) . '"
+                        title="Edit Data"
+                        data-bs-toggle="tooltip">
 
-                <i class="fas fa-edit"></i>
+                        <i class="fas fa-edit"></i>
 
-            </button>
+                    </button>
 
-            <button
-                type="button"
-                class="btn btn-danger btn-action btnDelete"
-                data-id="' . $row->id . '"
-                data-url="' . route(
-                    'wilayahkerja.destroy',
-                    $row->id
-                ) . '"
-                title="Hapus Data"
-                data-bs-toggle="tooltip">
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-action btnDelete"
+                        data-id="' . $row->id . '"
+                        data-url="' . route(
+                            'wilayahkerja.destroy',
+                            $row->id
+                        ) . '"
+                        title="Hapus Data"
+                        data-bs-toggle="tooltip">
 
-                <i class="fas fa-trash-alt"></i>
+                        <i class="fas fa-trash-alt"></i>
 
-            </button>
+                    </button>
 
-        </div>
-    ';
-})
+                </div>
+            ';
+        })
 
         ->rawColumns([
             'rw',
