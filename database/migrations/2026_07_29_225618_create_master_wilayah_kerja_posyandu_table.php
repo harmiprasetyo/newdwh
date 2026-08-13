@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('master_wilayah_kerja_posyandu', function (Blueprint $table) {
             $table->id();
             $table->string('kodePosyandu',50);
+            $table->string('village_code',50);
             $table->string('rw');
             $table->timestamps();
             $table->index('kodePosyandu');
