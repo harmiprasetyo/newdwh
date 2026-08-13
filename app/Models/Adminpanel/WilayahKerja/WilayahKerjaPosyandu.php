@@ -12,6 +12,7 @@ class WilayahKerjaPosyandu extends Model
 
     protected $fillable = [
         'kodePosyandu',
+        'village_code',
         'rw',
     ];
 
@@ -34,7 +35,7 @@ class WilayahKerjaPosyandu extends Model
     {
         return $this->belongsTo(
             Village::class,
-            'kodeDesa',
+            'village_code',
             'code'
         );
     }
