@@ -1,5 +1,13 @@
 {
     "/js/app.js": "/js/app.js",
     "/js/newlplpo/masterdataobat.js": "/js/newlplpo/masterdataobat.js",
+    "/js/newlplpo/bekasi/lplpo.js": "/js/newlplpo/bekasi/lplpo.js",
+    "/js/adminpanel/activitylog.js": "/js/adminpanel/activitylog.js",
+    "/js/newlplpo/bekasi/rekap.js": "/js/newlplpo/bekasi/rekap.js",
+    "/js/adminpanel/userpanel/groups.js": "/js/adminpanel/userpanel/groups.js",
+    "/js/adminpanel/userpanel/roles.js": "/js/adminpanel/userpanel/roles.js",
+    "/js/adminpanel/userpanel/users.js": "/js/adminpanel/userpanel/users.js",
+    "/js/adminpanel/wilayahkerja/puskesmas.js": "/js/adminpanel/wilayahkerja/puskesmas.js",
+    "/js/adminpanel/master/masterfaskes.js": "/js/adminpanel/master/masterfaskes.js",
     "/css/app.css": "/css/app.css"
 }

@@ -11,8 +11,57 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
- .js('resources/js/newlplpo/masterdataobat.js', 'public/js/newlplpo')
-    .postCss('resources/css/app.css', 'public/css', [
+
+
+mix.js(
+    'resources/js/app.js',
+    'public/js'
+)
+
+.js(
+    'resources/js/newlplpo/masterdataobat.js',
+    'public/js/newlplpo'
+)
+
+.js(
+    'resources/js/newlplpo/bekasi/lplpo.js',
+    'public/js/newlplpo/bekasi'
+)
+
+.js(
+    'resources/js/adminpanel/activitylog.js',
+    'public/js/adminpanel'
+)
+
+.js('resources/js/newlplpo/bekasi/rekap.js', 'public/js/newlplpo/bekasi')
+ .js(
+        'resources/js/adminpanel/userpanel/groups.js',
+        'public/js/adminpanel/userpanel'
+    )
+
+    .js(
+    'resources/js/adminpanel/userpanel/roles.js',
+    'public/js/adminpanel/userpanel'
+)
+
+.js(
+    'resources/js/adminpanel/userpanel/users.js',
+    'public/js/adminpanel/userpanel'
+)
+.js(
+    'resources/js/adminpanel/wilayahkerja/puskesmas.js',
+    'public/js/adminpanel/wilayahkerja'
+)
+.js(
+    'resources/js/adminpanel/master/masterfaskes.js',
+    'public/js/adminpanel/master'
+)
+
+.postCss(
+    'resources/css/app.css',
+    'public/css',
+    [
         //
-    ]);
+    ]
+);
+

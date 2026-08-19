@@ -30,4 +30,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    //specific service for lplpo bekasi
+    'lplpo' => [
+    'url' => env('LPLPO_API_URL'),
+    'api_key' => env('LPLPO_API_KEY'),
+    'cookie' => env('LPLPO_API_COOKIE'),
+],
+
 ];

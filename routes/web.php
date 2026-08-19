@@ -20,7 +20,7 @@ use App\Http\Controllers\Lplpo\LplpoFinalController;
 use App\Http\Controllers\Dashboard\FhirImportController;
 use App\Http\Controllers\Dashboard\DashboardPageController;
 use App\Http\Controllers\Lplpo\BaselineFormController;
-use App\Http\Controllers\Lplpo\LplpoBekasiController;
+//use App\Http\Controllers\Lplpo\LplpoBekasiController;
 use App\Http\Controllers\NewLplpo\LplpoItemController;
 use App\Http\Controllers\NewLplpo\DashboardController;
   use App\Http\Controllers\NewLplpo\MasterObatController;
@@ -35,6 +35,17 @@ use App\Http\Controllers\NewLplpo\LplpoArsipController;
  use App\Http\Controllers\NewLplpo\MasterDataObatController;
  use App\Http\Controllers\NewLplpo\LplpoRekapController;
  use App\Http\Controllers\NewLplpo\KunjunganController;
+ use App\Http\Controllers\BekasiLplpo\LplpoReportController;
+use App\Http\Controllers\NewLplpo\LplpoBekasiController;
+use App\Http\Controllers\AdminPanel\ActivityLogController;
+use App\Http\Controllers\AdminPanel\UserPanel\UserGroupController;
+use App\Http\Controllers\AdminPanel\UserPanel\UserRoleController;
+use App\Http\Controllers\AdminPanel\UserPanel\UserAppController;
+use App\Http\Controllers\AdminPanel\WilayahKerja\WilayahKerjaPuskesmasController;
+use App\Http\Controllers\AdminPanel\Master\MasterFaskesController;
+
+
+
 /*
 | Web Routes
 |--------------------------------------------------------------------------
@@ -46,8 +57,8 @@ use App\Http\Controllers\NewLplpo\LplpoArsipController;
 */
 
 
-Route::get('/bekasi/lplpo', [LplpoBekasiController::class, 'index']);
-Route::get('/bekasi/lplpo/api/data', [LplpoBekasiController::class, 'data']);
+//Route::get('/bekasi/lplpo', [LplpoBekasiController::class, 'index']);
+//Route::get('/bekasi/lplpo/api/data', [LplpoBekasiController::class, 'data']);
 
 
 Route::get('/', [AuthController::class, 'index']); // default ke login
@@ -112,6 +123,28 @@ Route::middleware('auth')->group(function () {
 
     });
     Route::prefix('adminpanel')->group(function () {// Dashboard
+
+
+
+
+    Route::prefix('activity-log')
+    ->name('activity-log.')
+    ->group(function () {
+
+        Route::get(
+            '/',
+            [ActivityLogController::class, 'index']
+        )->name('index');
+
+
+        Route::get(
+            '/datatable',
+            [ActivityLogController::class, 'datatable']
+        )->name('datatable');
+
+    });
+
+
     Route::get('/', fn() => view('admin.adminhome'));
     Route::get('/usergroups', fn() => view('admin.groups'));
     Route::get('/faskes', fn() => view('admin.masterfaskes'));
@@ -155,6 +188,169 @@ Route::middleware('auth')->group(function () {
 
 
 
+
+
+Route::prefix('adminpanel')
+    ->group(function () {
+
+        Route::prefix('master/faskes')
+            ->name('adminpanel.master.faskes.')
+            ->group(function () {
+
+                /*
+                |--------------------------------------------------------------------------
+                | HALAMAN
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get(
+                    '/',
+                    [MasterFaskesController::class, 'index']
+                )->name('index');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | DATATABLE
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get(
+                    '/datatable',
+                    [MasterFaskesController::class, 'datatable']
+                )->name('datatable');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | COMBO MASTER
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get(
+                    '/master/types',
+                    [MasterFaskesController::class, 'types']
+                )->name('types');
+
+                Route::get(
+                    '/master/provinces',
+                    [MasterFaskesController::class, 'provinces']
+                )->name('provinces');
+
+                Route::get(
+                    '/master/cities',
+                    [MasterFaskesController::class, 'cities']
+                )->name('cities');
+
+                Route::get(
+                    '/master/districts',
+                    [MasterFaskesController::class, 'districts']
+                )->name('districts');
+
+                Route::get(
+                    '/master/facilities',
+                    [MasterFaskesController::class, 'facilities']
+                )->name('facilities');
+
+                Route::get(
+                    '/master/hierarchy',
+                    [MasterFaskesController::class, 'hierarchy']
+                )->name('hierarchy');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CREATE
+                |--------------------------------------------------------------------------
+                */
+
+                Route::post(
+                    '/',
+                    [MasterFaskesController::class, 'store']
+                )->name('store');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | DETAIL
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get(
+                    '/{id}',
+                    [MasterFaskesController::class, 'show']
+                )->name('show');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | UPDATE
+                |--------------------------------------------------------------------------
+                */
+
+                Route::put(
+                    '/{id}',
+                    [MasterFaskesController::class, 'update']
+                )->name('update');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | DELETE
+                |--------------------------------------------------------------------------
+                */
+
+                Route::delete(
+                    '/{id}',
+                    [MasterFaskesController::class, 'destroy']
+                )->name('destroy');
+
+            });
+
+    });
+
+Route::prefix('adminpanel')
+    ->name('adminpanel.')
+    ->group(function () {
+
+        Route::prefix('wilayahkerja/puskesmas')
+            ->name('wilayahkerja.puskesmas.')
+            ->middleware(['web', 'auth'])
+            ->group(function () {
+
+                Route::get(
+                    '/',
+                    [WilayahKerjaPuskesmasController::class, 'index']
+                )->name('index');
+
+                Route::get(
+                    '/datatable',
+                    [WilayahKerjaPuskesmasController::class, 'datatable']
+                )->name('datatable');
+
+                Route::get(
+                    '/{id}',
+                    [WilayahKerjaPuskesmasController::class, 'show']
+                )->name('show');
+
+                Route::post(
+                    '/',
+                    [WilayahKerjaPuskesmasController::class, 'store']
+                )->name('store');
+
+                Route::put(
+                    '/{id}',
+                    [WilayahKerjaPuskesmasController::class, 'update']
+                )->name('update');
+
+                Route::delete(
+                    '/{id}',
+                    [WilayahKerjaPuskesmasController::class, 'destroy']
+                )->name('destroy');
+
+            });
+    });
+
 Route::prefix('adminpanel')->group(function(){
 
     Route::get(
@@ -192,6 +388,202 @@ Route::prefix('adminpanel')->group(function(){
 });
 
 });
+
+
+
+Route::prefix('adminpanel')
+    ->name('adminpanel.')
+    ->middleware('auth')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | USER PANEL
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('userpanel')
+            ->name('userpanel.')
+            ->group(function () {
+
+
+
+
+            /*
+            |----------------------------------------------------------------------
+            |  USERS APP
+            |---------------------------------------------------------------------- */
+
+           Route::prefix('users')
+                    ->name('users.')
+                    ->group(function () {
+
+                    Route::get('/faskes', [UserAppController::class, 'faskes'])->name('faskes');
+
+                        Route::get(
+                            '/',
+                            [UserAppController::class, 'index']
+                        )->name('index');
+
+                        Route::get(
+                            '/datatable',
+                            [UserAppController::class, 'datatable']
+                        )->name('datatable');
+
+                        Route::get(
+                            '/{id}',
+                            [UserAppController::class, 'show']
+                        )->name('show');
+
+                        Route::post(
+                            '/',
+                            [UserAppController::class, 'store']
+                        )->name('store');
+
+                        Route::put(
+                            '/{id}',
+                            [UserAppController::class, 'update']
+                        )->name('update');
+
+                        Route::delete(
+                            '/{id}',
+                            [UserAppController::class, 'destroy']
+                        )->name('destroy');
+
+                    });
+
+
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ROLES
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('roles')
+                ->name('roles.')
+                ->group(function () {
+
+                Route::get('bygroup',[UserRoleController::class, 'rolesByGroup'])->name('bygroup');
+
+                    Route::get(
+                        '/',
+                        [UserRoleController::class, 'index']
+                    )->name('index');
+
+
+                    Route::get(
+                        '/datatable',
+                        [UserRoleController::class, 'datatable']
+                    )->name('datatable');
+
+
+                    Route::get(
+                        '/groups',
+                        [UserRoleController::class, 'groups']
+                    )->name('groups');
+
+
+                    Route::get(
+                        '/{id}',
+                        [UserRoleController::class, 'show']
+                    )->name('show');
+
+
+                    Route::post(
+                        '/',
+                        [UserRoleController::class, 'store']
+                    )->name('store');
+
+
+                    Route::put(
+                        '/{id}',
+                        [UserRoleController::class, 'update']
+                    )->name('update');
+
+
+                    Route::delete(
+                        '/{id}',
+                        [UserRoleController::class, 'destroy']
+                    )->name('destroy');
+
+                });
+
+
+
+
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | USER GROUP
+                |--------------------------------------------------------------------------
+                */
+
+                Route::prefix('groups')
+                    ->name('groups.')
+                    ->group(function () {
+
+                        Route::get(
+                            '/',
+                            [
+                                UserGroupController::class,
+                                'index'
+                            ]
+                        )->name('index');
+
+
+                        Route::get(
+                            '/datatable',
+                            [
+                                UserGroupController::class,
+                                'datatable'
+                            ]
+                        )->name('datatable');
+
+
+                        Route::post(
+                            '/',
+                            [
+                                UserGroupController::class,
+                                'store'
+                            ]
+                        )->name('store');
+
+
+                        Route::get(
+                            '/{id}',
+                            [
+                                UserGroupController::class,
+                                'show'
+                            ]
+                        )->name('show');
+
+
+                        Route::put(
+                            '/{id}',
+                            [
+                                UserGroupController::class,
+                                'update'
+                            ]
+                        )->name('update');
+
+
+                        Route::delete(
+                            '/{id}',
+                            [
+                                UserGroupController::class,
+                                'destroy'
+                            ]
+                        )->name('destroy');
+
+                    });
+
+            });
+
+    });
+    // END USER PANEL
 
 
 Route::prefix('adminpanel/posyandu')->group(function(){
@@ -265,7 +657,49 @@ Route::get(
 );
 
 
+
+
+
+
 Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
+
+
+
+Route::prefix('bekasi')
+    ->name('bekasi.')
+    ->group(function () {
+
+        Route::get(
+            '/',
+            [LplpoBekasiController::class, 'index']
+        )->name('index');
+
+        Route::get(
+            '/data',
+            [LplpoBekasiController::class, 'data']
+        )->name('data');
+
+        Route::prefix('rekap')
+    ->name('rekap.')
+    ->group(function () {
+
+    Route::get(
+    '/',
+    [LplpoBekasiController::class, 'rekap']
+)->name('index');
+Route::get(
+    '/data',
+    [LplpoBekasiController::class, 'rekapData']
+)->name('data');
+
+
+
+    });
+
+
+
+    });
+
 
 
 

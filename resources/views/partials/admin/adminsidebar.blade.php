@@ -9,22 +9,28 @@
 </a>
 
 <a href="#" class="menu-toggle
-{{ request()->is('adminpanel/user*') ? 'active' : '' }}">
+{{ request()->is('adminpanel/userpanel/*') ? 'active' : '' }}">
     <i class="fa fa-users"></i> User Management
 </a>
 
 <div class="submenu
-{{ request()->is('adminpanel/users*') ? 'd-block' : '' }}">
+{{ request()->is('adminpanel/userpanel/users*') ? 'd-block' : '' }}">
 
-    <a href="/adminpanel/users"
-       class="{{ request()->is('adminpanel/users') ? 'active' : '' }}">
+    <a href="/adminpanel/userpanel/users"
+       class="{{ request()->is('adminpanel/userpanel/users') ? 'active' : '' }}">
        Daftar User
     </a>
 
-    <a href="/adminpanel/usergroups"
-       class="{{ request()->is('adminpanel/usergroups') ? 'active' : '' }}">
+    <a href="/adminpanel/userpanel/groups"
+       class="{{ request()->is('adminpanel/userpanel/groups') ? 'active' : '' }}">
        Group User
     </a>
+
+     <a href="/adminpanel/userpanel/roles"
+       class="{{ request()->is('adminpanel/userpanel/roles') ? 'active' : '' }}">
+       User Role
+    </a>
+
 
 
 
@@ -49,20 +55,20 @@
 
 
 <a href="#" class="menu-toggle
-{{ request()->is('adminpanel/typefaskes*','adminpanel/faskes*') ? 'active' : '' }}">
+{{ request()->is('adminpanel/typefaskes*','adminpanel/master/*','adminpanel/posyandu*') ? 'active' : '' }}">
     <i class="fa fa-hospital"></i> Data Faskes
 </a>
 
 <div class="submenu
-{{ request()->is('adminpanel/typefaskes*','adminpanel/faskes*') ? 'd-block' : '' }}">
+{{ request()->is('adminpanel/typefaskes*','adminpanel/master/faskes*','adminpanel/posyandu*') ? 'd-block' : '' }}">
 
     <a href="/adminpanel/typefaskes"
        class="{{ request()->is('adminpanel/typefaskes*') ? 'active' : '' }}">
        Type Faskes
     </a>
 
-    <a href="/adminpanel/faskes"
-       class="{{ request()->is('adminpanel/faskes*') ? 'active' : '' }}">
+    <a href="/adminpanel/master/faskes"
+       class="{{ request()->is('adminpanel/master/faskes*') ? 'active' : '' }}">
        Master Faskes
     </a>
       <a href="/adminpanel/posyandu" class="{{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">Master Posyandu</a>
@@ -71,17 +77,25 @@
 
 </div>
 <a href="#" class="menu-toggle
-{{ request()->is('adminpanel/posyandu/wilayah-kerja') ? 'active' : '' }}">
+{{ request()->is('adminpanel/posyandu/wilayah-kerja','adminpanel/wilayahkerja/puskesmas') ? 'active' : '' }}">
     <i class="fa fa-map"></i> Wilayah Kerja
 </a>
 <div class="submenu
-{{ request()->is('adminpanel/posyandu/wilayah-*') ? 'd-block' : '' }}">
+{{ request()->is('adminpanel/posyandu/wilayah-*','adminpanel/wilayahkerja/puskesmas*') ? 'd-block' : '' }}">
 
  <a href="/adminpanel/posyandu/wilayah-kerja" class="{{ request()->is('adminpanel/posyandu/wilayah-*') ? 'active' : '' }}">Wilayah Kerja Posyandu</a>
 
 
 </div>
 
+
+<div class="submenu
+{{ request()->is('adminpanel/wilayahkerja/puskesmas*') ? 'd-block' : '' }}">
+
+ <a href="/adminpanel/wilayahkerja/puskesmas" class="{{ request()->is('adminpanel/wilayahkerja/puskesmas*') ? 'active' : '' }}">Wilayah Kerja Puskesmas</a>
+
+
+</div>
 
 
 <a href="#" class="menu-toggle
@@ -117,6 +131,15 @@
     </a>
 
 </div>
+
+<a href="{{ route('activity-log.index') }}">
+
+    <i class="fas fa-history me-2"></i>
+
+    Activity Log
+
+</a>
+
 
   <a href="/logout">
       <i class="fa fa-lock"></i> Logout

@@ -14,7 +14,18 @@ $(document).ready(function () {
   var storeUrl = config.storeUrl;
   var editMode = false;
 
+  /*
+  |--------------------------------------------------------------------------
+  | SELECT2 OBAT
+  |--------------------------------------------------------------------------
+  */
 
+  $('#kode_obat').select2({
+    dropdownParent: $('#modalObat'),
+    width: '100%',
+    placeholder: '-- Pilih Obat --',
+    allowClear: true
+  });
 
   /*
   |--------------------------------------------------------------------------
@@ -99,7 +110,7 @@ $(document).ready(function () {
       type: 'GET',
       success: function success(response) {
         var data = response.data;
-        $('#obat_id').val(data.id);
+        $('#data_id').val(data.id);
         $('#kode_obat').val(data.kode_obat);
         $('#nama_obat').val(data.nama_obat);
         $('#satuan').val(data.satuan);
@@ -166,7 +177,7 @@ $(document).ready(function () {
   $('#formObat').on('submit', function (e) {
     e.preventDefault();
     clearValidation();
-    var id = $('#obat_id').val();
+    var id = $('#data_id').val();
     var url = storeUrl;
     var method = 'POST';
     if (editMode) {

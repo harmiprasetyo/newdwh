@@ -269,7 +269,15 @@ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.m
 <body>
 
 <div class="sidebar">
+    @if(auth()->user()->kodeKota == '3275')
+
+    @include('newlplpo.layouts.sidebar-bekasi')
+
+@else
+
     @include('newlplpo.layouts.sidebar')
+
+@endif
 </div>
 
 <div class="content">

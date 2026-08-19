@@ -96,6 +96,17 @@
 
 @push('scripts')
 
+
+<script>
+window.WilayahKerjaPosyanduConfig = {
+
+    storeUrl: "{{ route('wilayahkerja.store') }}",
+
+    updateUrl: "{{ route('wilayahkerja.update', ['id' => '__ID__']) }}",
+
+};
+</script>
+
 <script>
 
 $(function(){
@@ -161,17 +172,21 @@ $('#formData').submit(function(e){
     let url;
     let method = 'POST';
 
-    if(id){
+   if (id) {
 
-        url = "{{ url('wilayah-kerja') }}/" + id;
+    url =
+        window.WilayahKerjaPosyanduConfig
+            .updateUrl
+            .replace('__ID__', id);
 
-        formData.append('_method','PUT');
+    formData.append('_method', 'PUT');
 
-    }else{
+} else {
 
-        url = "{{ route('wilayahkerja.store') }}";
-    }
-
+    url =
+        window.WilayahKerjaPosyanduConfig
+            .storeUrl;
+}
     $.ajax({
 
         url:url,

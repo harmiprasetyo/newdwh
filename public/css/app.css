@@ -812,9 +812,17 @@ input:where([type='file']):focus {
 .col-span-6 {
   grid-column: span 6 / span 6;
 }
+.mx-2 {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
+}
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 .-ml-px {
   margin-left: -1px;
@@ -881,6 +889,9 @@ input:where([type='file']):focus {
 }
 .mr-3 {
   margin-right: 0.75rem;
+}
+.ms-1 {
+  margin-inline-start: 0.25rem;
 }
 .mt-1 {
   margin-top: 0.25rem;
@@ -1072,6 +1083,9 @@ input:where([type='file']):focus {
 .gap-2 {
   gap: 0.5rem;
 }
+.gap-3 {
+  gap: 0.75rem;
+}
 .gap-4 {
   gap: 1rem;
 }
@@ -1176,6 +1190,9 @@ input:where([type='file']):focus {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
+.bg-opacity-10 {
+  --tw-bg-opacity: 0.1;
+}
 .bg-cover {
   background-size: cover;
 }
@@ -1264,6 +1281,9 @@ input:where([type='file']):focus {
 }
 .pb-3 {
   padding-bottom: 0.75rem;
+}
+.pb-4 {
+  padding-bottom: 1rem;
 }
 .pl-3 {
   padding-left: 0.75rem;
@@ -1429,6 +1449,9 @@ input:where([type='file']):focus {
 }
 .opacity-100 {
   opacity: 1;
+}
+.opacity-75 {
+  opacity: 0.75;
 }
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);

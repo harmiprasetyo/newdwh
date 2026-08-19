@@ -10,6 +10,7 @@ use App\Models\MasterPosyandu;
 use App\Models\AdminPanel\WilayahKerja\WilayahKerjaPosyandu;
 
 use App\Http\Requests\AdminPanel\WilayahKerja\WilayahKerjaPosyanduRequest;
+use App\Services\ActivityLogService;
 
 
 
@@ -173,7 +174,7 @@ class WilayahKerjaPosyanduController extends Controller
         ->sort()
         ->implode(',');
 
-    WilayahKerjaPosyandu::create([
+    $data = WilayahKerjaPosyandu::create([
 
         'kodePosyandu'=>$request->kodePosyandu,
 
@@ -182,6 +183,14 @@ class WilayahKerjaPosyanduController extends Controller
         'rw'=>$rw
 
     ]);
+
+    ActivityLogService::log(
+    action: 'create',
+    module: 'Wilayah Kerja Posyandu',
+    description: 'Menambahkan wilayah kerja Posyandu',
+    subject: $data,
+    newValues: $data->toArray()
+);
 
     return response()->json([
 
@@ -220,6 +229,7 @@ class WilayahKerjaPosyanduController extends Controller
         ->unique()
         ->sort()
         ->implode(',');
+        $oldValues = $data->getOriginal();
 
     $data->update([
 
@@ -230,6 +240,15 @@ class WilayahKerjaPosyanduController extends Controller
         'rw'=>$rw
 
     ]);
+
+    ActivityLogService::log(
+    action: 'update',
+    module: 'Wilayah Kerja Posyandu',
+    description: 'Mengubah wilayah kerja Posyandu',
+    subject: $data,
+    oldValues: $oldValues,
+    newValues: $data->fresh()->toArray()
+);
 
     return response()->json([
 
@@ -243,17 +262,30 @@ class WilayahKerjaPosyanduController extends Controller
 
     public function destroy($id)
 {
+    $data = WilayahKerjaPosyandu::findOrFail($id);
 
-    WilayahKerjaPosyandu::findOrFail($id)->delete();
+    $oldValues = $data->toArray();
+
+
+    $data->delete();
+
+
+    ActivityLogService::log(
+        action: 'delete',
+        module: 'Wilayah Kerja Posyandu',
+        description: 'Menghapus wilayah kerja Posyandu',
+        subject: $data,
+        oldValues: $oldValues
+    );
+
 
     return response()->json([
 
-        'status'=>true,
+        'status' => true,
 
-        'message'=>'Data berhasil dihapus.'
+        'message' => 'Data berhasil dihapus.'
 
     ]);
-
 }
 
 
