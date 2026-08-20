@@ -81,6 +81,13 @@
                 </a>
             </div>
 
+             <div class="col-md-3">
+                <a href="/adminpanel" class="menu-box">
+                    <i class="bi bi-gear-fill menu-icon"></i>
+                    <div>Admin Panel</div>
+                </a>
+            </div>
+
         </div>
     </div>
 
