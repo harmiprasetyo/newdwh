@@ -10,19 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout GitHub repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Push to GitLab
+      # ============================
+      # GitLab.com
+      # ============================
+
+      - name: Push to GitLab.com
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
           GITLAB_REPO: ${{ secrets.GITLAB_REPO }}
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git remote add gitlab-com \
+            https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GITLAB_REPO}
 
-          git remote add gitlab https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GITLAB_REPO}
+          git push gitlab-com main:main --force
 
-          git push gitlab main:main --force
+      # ============================
+      # GitLab Pemkot Bekasi
+      # ============================
+
+      - name: Push to GitLab Bekasi
+        env:
+          BEKASI_GITLAB_TOKEN: ${{ secrets.BEKASI_GITLAB_TOKEN }}
+          BEKASI_GITLAB_REPO: ${{ secrets.BEKASI_GITLAB_REPO }}
+        run: |
+          git remote add gitlab-bekasi \
+            https://oauth2:${BEKASI_GITLAB_TOKEN}@repo.bekasikota.go.id/${BEKASI_GITLAB_REPO}
+
+          git push gitlab-bekasi main:main --force
