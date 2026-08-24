@@ -76,9 +76,13 @@ class DatabaseSeeder extends Seeder
             "group_name"=>"Dinas Kesehatan"],
             [
             "group_id"=>"3",
-            "group_name"=>"Puskesmas/Rumah Sakit"],
-            ["group_is"=>"4",
-                "group_name"=>"Dokter/Tenaga Kesehatan"]
+            "group_name"=>"Admin Faskes"],
+            ["group_id"=>"4",
+                "group_name"=>"Program Puskesmas"],
+                ["group_id"=>"5",
+                "group_name"=>"Farmasi Puskesmas"],
+                ["group_id"=>"99",
+                "group_name"=>"TPMB"],
         ], ['group_id'], ['group_name']);
 
 
@@ -178,44 +182,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        /**
-         * =========================
-         * USERS
-         * =========================
-         */
-       UsersApp::upsert([
-    [
-        "userid"=>Str::uuid(),
-        "email"=>"admin@dwh.org",
-        "username"=>"admin",
-        "groupid"=>"1",
-        "namalengkap"=>"Administrator",
-        "kodeFaskes"=>null,
-        "namaFaskes"=>null,
-        "password"=>Hash::make("123456")
-    ],
-    [
-        "userid"=>Str::uuid(),
-        "email"=>"dokter@dwh.org",
-        "username"=>"dokter",
-        "groupid"=>"4",
-        "namalengkap"=>"dr. Ahmad Yani",
-        "kodeFaskes"=>"P3201090203",
-        "namaFaskes"=>null,
-        "password"=>Hash::make("123456")
-    ],
-    [
-        "userid"=>Str::uuid(),
-        "email"=>"ciderum@dwh.org",
-        "username"=>"ciderum",
-        "groupid"=>"3",
-        "namalengkap"=>"Puskesmas Ciderum",
-        "kodeFaskes"=>"P3201090203",
-        "namaFaskes"=>"Puskesmas Ciderum",
-        "password"=>Hash::make("123456")
-    ],
-], ['email'], [
-    'username','groupid','namalengkap','kodeFaskes','namaFaskes','password'
-]);
+
+
     }
 }

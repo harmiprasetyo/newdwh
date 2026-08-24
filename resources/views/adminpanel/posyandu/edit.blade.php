@@ -4,11 +4,14 @@
 
 <div class="container">
 
-    <h4>Master Posyandu</h4>
+    <h4>Edit Master Posyandu</h4>
 
-    <form id="frmPosyandu">
+    <form id="frmPosyanduEdit">
 
         @csrf
+
+        @method('PUT')
+
 
         {{-- =====================================================
              GROUP 3
@@ -20,7 +23,7 @@
 
                 <i class="fas fa-info-circle me-2"></i>
 
-                Penempatan Posyandu mengikuti wilayah
+                Wilayah dan Fasyankes mengikuti
                 Fasyankes user login.
 
             </div>
@@ -34,68 +37,68 @@
                     Provinsi
                 </label>
 
-             <input
-    type="text"
-    class="form-control"
-    value="{{ $location['province']->name ?? '' }}"
-    disabled
->
+                <input
+                    type="text"
+                    class="form-control"
+                    value="{{ $location['province']->name ?? '' }}"
+                    disabled
+                >
 
-<input
-    type="hidden"
-    name="province_code"
-    value="{{ $faskes->kodePropinsi ?? '' }}"
->
+                <input
+                    type="hidden"
+                    name="province_code"
+                    value="{{ $faskes->kodePropinsi ?? '' }}"
+                >
 
             </div>
 
 
-            {{-- KOTA --}}
+            {{-- KABUPATEN --}}
 
-           <div class="mb-3">
+            <div class="mb-3">
 
-    <label class="form-label">
-        Kabupaten/Kota
-    </label>
+                <label class="form-label">
+                    Kabupaten/Kota
+                </label>
 
-    <input
-        type="text"
-        class="form-control"
-        value="{{ $location['city']->name ?? '' }}"
-        disabled
-    >
+                <input
+                    type="text"
+                    class="form-control"
+                    value="{{ $location['city']->name ?? '' }}"
+                    disabled
+                >
 
-    <input
-        type="hidden"
-        name="city_code"
-        value="{{ $faskes->kodeKota ?? '' }}"
-    >
+                <input
+                    type="hidden"
+                    name="city_code"
+                    value="{{ $faskes->kodeKabupaten ?? '' }}"
+                >
 
-</div>
+            </div>
 
 
             {{-- KECAMATAN --}}
 
-           <div class="mb-3">
+            <div class="mb-3">
 
-    <label class="form-label">
-        Kecamatan
-    </label>
+                <label class="form-label">
+                    Kecamatan
+                </label>
 
-    <input
-        type="text"
-        class="form-control"
-        value="{{ $location['district']->name ?? '' }}"
-        disabled
-    >
+                <input
+                    type="text"
+                    class="form-control"
+                    value="{{ $location['district']->name ?? '' }}"
+                    disabled
+                >
 
-    <input
-        type="hidden"
-        name="district_code"
-        value="{{ $faskes->kodeKecamatan ?? '' }}"
-    >
+                <input
+                    type="hidden"
+                    name="district_code"
+                    value="{{ $faskes->kodeKecamatan ?? '' }}"
+                >
 
-</div>
+            </div>
 
 
             {{-- FASKES --}}
@@ -122,9 +125,7 @@
             </div>
 
 
-            {{-- =================================================
-                 DESA
-            ================================================== --}}
+            {{-- DESA --}}
 
             <div class="mb-3">
 
@@ -136,17 +137,18 @@
                     id="desa"
                     name="village_code"
                     class="form-control"
+                    required
                 >
 
                     <option value="">
-                        -- Pilih Desa --
+                        Memuat Desa...
                     </option>
 
                 </select>
 
                 <small class="text-muted">
-                    Desa yang ditampilkan hanya desa
-                    dalam wilayah kecamatan fasyankes.
+                    Desa hanya berasal dari wilayah
+                    kecamatan Fasyankes.
                 </small>
 
             </div>
@@ -182,9 +184,6 @@
                     class="form-control"
                     disabled
                 >
-                    <option value="">
-                        Pilih Kota
-                    </option>
                 </select>
 
             </div>
@@ -200,9 +199,6 @@
                     class="form-control"
                     disabled
                 >
-                    <option value="">
-                        Pilih Kecamatan
-                    </option>
                 </select>
 
             </div>
@@ -218,9 +214,6 @@
                     class="form-control"
                     disabled
                 >
-                    <option value="">
-                        Pilih Desa
-                    </option>
                 </select>
 
             </div>
@@ -236,9 +229,6 @@
                     class="form-control"
                     disabled
                 >
-                    <option value="">
-                        Pilih Fasyankes
-                    </option>
                 </select>
 
             </div>
@@ -260,6 +250,7 @@
                 type="text"
                 name="kodePosyandu"
                 class="form-control"
+                value="{{ $posyandu->kodePosyandu }}"
                 required
             >
 
@@ -280,6 +271,7 @@
                 type="text"
                 name="namaPosyandu"
                 class="form-control"
+                value="{{ $posyandu->namaPosyandu }}"
                 required
             >
 
@@ -290,38 +282,41 @@
             type="submit"
             class="btn btn-primary"
         >
+
             <i class="fas fa-save me-2"></i>
-            Simpan
+
+            Simpan Perubahan
+
         </button>
+
+
+        <a
+            href="{{ route('adminpanel.posyandu.index') }}"
+            class="btn btn-secondary"
+        >
+
+            Batal
+
+        </a>
 
     </form>
 
 </div>
 
-@endsection
 <script>
 window.PosyanduConfig = {
 
     indexUrl:
         @json(route('adminpanel.posyandu.index')),
 
-    storeUrl:
-        @json(route('adminpanel.posyandu.store')),
-
-    provincesUrl:
-        @json(route('adminpanel.posyandu.provinces')),
-
-    citiesUrl:
-        @json(route('adminpanel.posyandu.cities')),
-
-    districtsUrl:
-        @json(route('adminpanel.posyandu.districts')),
+    updateUrl:
+        @json(route(
+            'adminpanel.posyandu.update',
+            $posyandu->id
+        )),
 
     villagesUrl:
         @json(route('adminpanel.posyandu.villages')),
-
-    faskesUrl:
-        @json(route('adminpanel.posyandu.faskes')),
 
     isGroup3:
         @json($isGroup3),
@@ -329,27 +324,16 @@ window.PosyanduConfig = {
     faskes:
         @json($faskes),
 
-    currentUser: {
-
-        groupid:
-            @json(auth()->user()->groupid ?? null),
-
-        kodeFaskes:
-            @json(auth()->user()->kodeFaskes ?? null),
-
-        namaFaskes:
-            @json(auth()->user()->namaFaskes ?? null)
-
-    }
+    posyandu:
+        @json($posyandu)
 
 };
 </script>
+
+@endsection
+
 @push('scripts')
 
-
-
-
-<script src="{{ mix('js/adminpanel/posyandu/create.js') }}"></script>
-
+<script src="{{ mix('js/adminpanel/posyandu/edit.js') }}"></script>
 
 @endpush

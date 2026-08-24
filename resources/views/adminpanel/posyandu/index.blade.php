@@ -65,100 +65,24 @@
 @push('scripts')
 
 <script>
+window.PosyanduConfig = {
 
-$(function(){
+    dataUrl:
+        @json(route('adminpanel.posyandu.data')),
 
-    let table = $('#tablePosyandu').DataTable({
+    createUrl:
+        @json(route('adminpanel.posyandu.create')),
 
-        processing:true,
-        serverSide:true,
+    deleteUrl:
+        @json(url('/adminpanel/posyandu/delete')),
 
-        ajax:{
-            url:'/adminpanel/posyandu/data'
-        },
+    isGroup3:
+        @json($isGroup3)
 
-        columns:[
-
-            {
-                data:'kodePosyandu'
-            },
-
-            {
-                data:'namaPosyandu'
-            },
-
-            {
-                data:'province_name'
-            },
-
-            {
-                data:'city_name'
-            },
-
-            {
-                data:'district_name'
-            },
-
-            {
-                data:'village_name'
-            },
-
-            {
-                data:'namaFaskes'
-            },
-
-            {
-                data:'status',
-                orderable:false,
-                searchable:false
-            },
-
-            {
-                data:'action',
-                orderable:false,
-                searchable:false
-            }
-
-        ]
-
-    });
-
-
-
-    $(document).on(
-        'click',
-        '.btn-delete',
-        function(){
-
-            let id = $(this).data('id');
-
-            if(!confirm('Hapus data?')){
-                return;
-            }
-
-            $.ajax({
-
-                url:'/adminpanel/posyandu/delete/'+id,
-
-                method:'DELETE',
-
-                data:{
-                    _token:'{{ csrf_token() }}'
-                },
-
-                success:function(res){
-
-                    table.ajax.reload();
-
-                }
-
-            });
-
-        }
-    );
-
-});
-
+};
 </script>
+
+<script src="{{ mix('js/adminpanel/posyandu/index.js') }}"></script>
+
 
 @endpush

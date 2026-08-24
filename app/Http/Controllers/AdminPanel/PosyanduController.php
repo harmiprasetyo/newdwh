@@ -3,225 +3,374 @@
 namespace App\Http\Controllers\AdminPanel;
 
 use App\Http\Controllers\Controller;
-use App\Models\MasterPosyandu;
-use App\Models\Master\MasterFaskes as MasterFasyankes;
+use App\Services\AdminPanel\PosyanduService;
 
 use Illuminate\Http\Request;
-
-use Laravolt\Indonesia\Models\Province;
-use Laravolt\Indonesia\Models\City;
-use Laravolt\Indonesia\Models\District;
-use Laravolt\Indonesia\Models\Village;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class PosyanduController extends Controller
 {
-    public function index()
-    {
-        return view('adminpanel.posyandu.index');
+    protected PosyanduService $service;
+
+
+    public function __construct(
+        PosyanduService $service
+    ) {
+        $this->service = $service;
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX
+    |--------------------------------------------------------------------------
+    */
+
+    public function index()
+    {
+        return view(
+            'adminpanel.posyandu.index',
+            [
+                'isGroup3' =>
+                    $this->service->isGroup3(auth()->user()),
+            ]
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATATABLE
+    |--------------------------------------------------------------------------
+    */
+
     public function data(Request $request)
-{
-    $query = MasterPosyandu::query()
-        ->leftJoin(
-            'indonesia_provinces',
-            'master_posyandu.province_code',
-            '=',
-            'indonesia_provinces.code'
-        )
-        ->leftJoin(
-            'indonesia_cities',
-            'master_posyandu.city_code',
-            '=',
-            'indonesia_cities.code'
-        )
-        ->leftJoin(
-            'indonesia_districts',
-            'master_posyandu.district_code',
-            '=',
-            'indonesia_districts.code'
-        )
-        ->leftJoin(
-            'indonesia_villages',
-            'master_posyandu.village_code',
-            '=',
-            'indonesia_villages.code'
-        )
-        ->leftJoin(
-            'master_faskes',
-            'master_posyandu.kodeFaskes',
-            '=',
-            'master_faskes.kodeFaskes'
-        )
-        ->select([
-            'master_posyandu.*',
+    {
+        $query = $this->service
+            ->getDatatableQuery(auth()->user());
 
-            'indonesia_provinces.name as province_name',
-            'indonesia_cities.name as city_name',
-            'indonesia_districts.name as district_name',
-            'indonesia_villages.name as village_name',
+        return datatables()
+            ->of($query)
 
-            'master_faskes.namaFaskes'
-        ]);
+            ->addColumn('status', function ($row) {
 
-    return datatables()
-        ->of($query)
+                return $row->isActive
+                    ? '<span class="badge bg-success">Aktif</span>'
+                    : '<span class="badge bg-danger">Non Aktif</span>';
+            })
 
-        ->addColumn('status', function($row){
+            ->addColumn('action', function ($row) {
 
-            return $row->isActive
-                ? '<span class="badge bg-success">Aktif</span>'
-                : '<span class="badge bg-danger">Non Aktif</span>';
+                return '
+                    <a
+                        href="/adminpanel/posyandu/edit/' . $row->id . '"
+                        class="btn btn-warning btn-sm"
+                    >
+                        Edit
+                    </a>
 
-        })
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm btn-delete"
+                        data-id="' . $row->id . '"
+                    >
+                        Hapus
+                    </button>
+                ';
+            })
 
-        ->addColumn('action', function($row){
+            ->rawColumns([
+                'status',
+                'action',
+            ])
 
-            return '
-                <a href="/adminpanel/posyandu/edit/'.$row->id.'"
-                   class="btn btn-warning btn-sm">
-                    Edit
-                </a>
+            ->make(true);
+    }
 
-                <button
-                    class="btn btn-danger btn-sm btn-delete"
-                    data-id="'.$row->id.'">
-                    Hapus
-                </button>
-            ';
-        })
 
-        ->rawColumns([
-            'status',
-            'action'
-        ])
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE
+    |--------------------------------------------------------------------------
+    */
 
-        ->make(true);
-}
+    public function create()
+    {
+        $data = $this->service
+            ->getCreateData(auth()->user());
 
-public function destroy($id)
-{
-    MasterPosyandu::findOrFail($id)->delete();
+        return view(
+            'adminpanel.posyandu.create',
+            $data
+        );
+    }
 
-    return response()->json([
-        'success'=>true
-    ]);
-}
 
-public function create()
-{
-    return view(
-        'adminpanel.posyandu.create'
-    );
-}
-
+    /*
+    |--------------------------------------------------------------------------
+    | PROVINCES
+    |--------------------------------------------------------------------------
+    */
 
     public function provinces()
     {
-        return Province::orderBy('name')
-            ->get(['code','name']);
+        return response()->json([
+            'data' => $this->service->getProvinces(),
+        ]);
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CITIES
+    |--------------------------------------------------------------------------
+    */
 
     public function cities(Request $request)
     {
-        $data = City::where(
-                'province_code',
-                $request->province_code
-            )
-            ->orderBy('name')
-            ->get([
-                'code',
-                'name'
-            ]);
+        $request->validate([
+            'province_code' => 'required',
+        ]);
 
         return response()->json([
-            'data'=>$data
+            'data' => $this->service->getCities(
+                $request->province_code
+            ),
         ]);
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DISTRICTS
+    |--------------------------------------------------------------------------
+    */
 
     public function districts(Request $request)
     {
-        $data = District::where(
-                'city_code',
-                $request->city_code
-            )
-            ->orderBy('name')
-            ->get([
-                'code',
-                'name'
-            ]);
+        $request->validate([
+            'city_code' => 'required',
+        ]);
 
         return response()->json([
-            'data'=>$data
+            'data' => $this->service->getDistricts(
+                $request->city_code
+            ),
         ]);
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VILLAGES
+    |--------------------------------------------------------------------------
+    */
 
     public function villages(Request $request)
     {
-        $data = Village::where(
-                'district_code',
-                $request->district_code
-            )
-            ->orderBy('name')
-            ->get([
-                'code',
-                'name'
-            ]);
+        $request->validate([
+            'district_code' => 'required',
+        ]);
 
         return response()->json([
-            'data'=>$data
+            'data' => $this->service->getVillages(
+                $request->district_code,
+                auth()->user()
+            ),
         ]);
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FASKES
+    |--------------------------------------------------------------------------
+    */
 
     public function faskes(Request $request)
     {
-        $data = MasterFasyankes::where(
-                'kodeKecamatan',
-                $request->district_code
-            )
-            ->orderBy('namaFaskes')
-            ->get([
-                'kodeFaskes',
-                'namaFaskes'
-            ]);
-
         return response()->json([
-            'data'=>$data
+            'data' => $this->service->getFaskes(
+                $request->district_code,
+                auth()->user()
+            ),
         ]);
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORE
+    |--------------------------------------------------------------------------
+    */
 
     public function store(Request $request)
     {
         $request->validate([
+            'kodePosyandu' => [
+                'required',
+                'string',
+                'unique:master_posyandu,kodePosyandu',
+            ],
 
-            'province_code'=>'required',
-            'city_code'=>'required',
-            'district_code'=>'required',
-            'village_code'=>'required',
+            'namaPosyandu' => [
+                'required',
+                'string',
+            ],
 
-            'kodeFaskes'=>'required',
-
-            'kodePosyandu'=>'required|unique:master_posyandu,kodePosyandu',
-
-            'namaPosyandu'=>'required'
+            'village_code' => [
+                'required',
+            ],
         ]);
 
-        MasterPosyandu::create([
+        try {
 
-            'province_code'=>$request->province_code,
-            'city_code'=>$request->city_code,
-            'district_code'=>$request->district_code,
-            'village_code'=>$request->village_code,
+            $this->service->store(
+                $request->all(),
+                auth()->user()
+            );
 
-            'kodeFaskes'=>$request->kodeFaskes,
+            return response()->json([
+                'success' => true,
+                'message' => 'Posyandu berhasil disimpan.',
+            ]);
 
-            'kodePosyandu'=>$request->kodePosyandu,
-            'namaPosyandu'=>$request->namaPosyandu
-        ]);
+        } catch (\InvalidArgumentException $e) {
+
+            throw ValidationException::withMessages([
+                'village_code' => $e->getMessage(),
+            ]);
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Posyandu gagal disimpan.',
+            ], 500);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
+
+    public function destroy($id)
+    {
+        $this->service->delete(
+            $id,
+            auth()->user()
+        );
 
         return response()->json([
-            'success'=>true,
-            'message'=>'Posyandu berhasil disimpan'
+            'success' => true,
+            'message' => 'Posyandu berhasil dihapus.',
         ]);
     }
+
+
+
+    /*
+|--------------------------------------------------------------------------
+| EDIT
+|--------------------------------------------------------------------------
+*/
+
+public function edit($id)
+{
+    $data = $this->service->getEditData(
+        $id,
+        auth()->user()
+    );
+
+    return view(
+        'adminpanel.posyandu.edit',
+        $data
+    );
+}
+
+/*
+|--------------------------------------------------------------------------
+| UPDATE
+|--------------------------------------------------------------------------
+*/
+
+public function update(
+    Request $request,
+    $id
+) {
+
+    $request->validate([
+
+        'kodePosyandu' => [
+            'required',
+            'string',
+            Rule::unique(
+                'master_posyandu',
+                'kodePosyandu'
+            )->ignore($id),
+        ],
+
+        'namaPosyandu' => [
+            'required',
+            'string',
+        ],
+
+        'village_code' => [
+            'required',
+        ],
+
+    ]);
+
+
+    try {
+
+        $this->service->update(
+            $id,
+            $request->all(),
+            auth()->user()
+        );
+
+
+        return response()->json([
+
+            'success' => true,
+
+            'message' =>
+                'Posyandu berhasil diperbarui.',
+
+        ]);
+
+
+    } catch (\InvalidArgumentException $e) {
+
+        throw ValidationException::withMessages([
+
+            'village_code' =>
+                $e->getMessage(),
+
+        ]);
+
+
+    } catch (\Throwable $e) {
+
+        report($e);
+
+
+        return response()->json([
+
+            'success' => false,
+
+            'message' =>
+                'Posyandu gagal diperbarui.',
+
+        ], 500);
+    }
+}
+
 }

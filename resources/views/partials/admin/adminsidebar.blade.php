@@ -335,7 +335,7 @@
 
         <a href="#"
            class="menu-toggle
-           {{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">
+           {{ request()->is('adminpanel/posyandu') ? 'active' : '' }}">
 
             <i class="fa fa-hospital"></i>
             Data Faskes
@@ -343,10 +343,10 @@
         </a>
 
         <div class="submenu
-             {{ request()->is('adminpanel/posyandu*') ? 'd-block' : '' }}">
+             {{ request()->is('adminpanel/posyandu') ? 'd-block' : '' }}">
 
             <a href="/adminpanel/posyandu"
-               class="{{ request()->is('adminpanel/posyandu*') ? 'active' : '' }}">
+               class="{{ request()->is('adminpanel/posyandu') ? 'active' : '' }}">
 
                 Master Posyandu
 

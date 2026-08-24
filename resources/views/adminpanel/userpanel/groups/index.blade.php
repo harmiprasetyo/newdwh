@@ -390,21 +390,17 @@
 </div>
 
 
-
 <script>
+window.UserPanelConfig = {
 
-    window.UserPanelConfig = {
+    baseUrl:
+        @json(route('adminpanel.userpanel.groups.index')),
 
-        baseUrl:
-            @json(route('adminpanel.userpanel.groups.index')),
+    datatableUrl:
+        @json(route('adminpanel.userpanel.groups.datatable'))
 
-        datatableUrl:
-            @json(route('adminpanel.userpanel.groups.datatable'))
-
-    };
-
+};
 </script>
 
 <script src="{{ mix('js/adminpanel/userpanel/groups.js') }}"></script>
-
 @endsection

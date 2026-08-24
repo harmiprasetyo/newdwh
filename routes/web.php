@@ -44,6 +44,9 @@ use App\Http\Controllers\AdminPanel\UserPanel\UserAppController;
 use App\Http\Controllers\AdminPanel\WilayahKerja\WilayahKerjaPuskesmasController;
 use App\Http\Controllers\AdminPanel\Master\MasterFaskesController;
 
+use App\Http\Controllers\TestMailController;
+
+
 
 
 /*
@@ -59,7 +62,10 @@ use App\Http\Controllers\AdminPanel\Master\MasterFaskesController;
 
 //Route::get('/bekasi/lplpo', [LplpoBekasiController::class, 'index']);
 //Route::get('/bekasi/lplpo/api/data', [LplpoBekasiController::class, 'data']);
-
+Route::get(
+    '/test-mail',
+    [TestMailController::class, 'send']
+);
 
 Route::get('/', [AuthController::class, 'index']); // default ke login
 Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -328,6 +334,17 @@ Route::prefix('adminpanel')
                     [WilayahKerjaPuskesmasController::class, 'datatable']
                 )->name('datatable');
 
+                 Route::get(
+            '/faskes',
+            [WilayahKerjaPuskesmasController::class, 'faskes']
+        )->name('faskes');
+
+        Route::get(
+            '/desa-by-faskes',
+            [WilayahKerjaPuskesmasController::class, 'desaByFaskes']
+        )->name('desaByFaskes');
+
+
                 Route::get(
                     '/{id}',
                     [WilayahKerjaPuskesmasController::class, 'show']
@@ -402,23 +419,19 @@ Route::prefix('adminpanel')
         |--------------------------------------------------------------------------
         */
 
-        Route::prefix('userpanel')
+         Route::prefix('userpanel')
             ->name('userpanel.')
             ->group(function () {
 
+                /*
+                |--------------------------------------------------------------------------
+                | USERS
+                |--------------------------------------------------------------------------
+                */
 
-
-
-            /*
-            |----------------------------------------------------------------------
-            |  USERS APP
-            |---------------------------------------------------------------------- */
-
-           Route::prefix('users')
+                Route::prefix('users')
                     ->name('users.')
                     ->group(function () {
-
-                    Route::get('/faskes', [UserAppController::class, 'faskes'])->name('faskes');
 
                         Route::get(
                             '/',
@@ -429,6 +442,16 @@ Route::prefix('adminpanel')
                             '/datatable',
                             [UserAppController::class, 'datatable']
                         )->name('datatable');
+
+                        Route::get(
+                            '/faskes',
+                            [UserAppController::class, 'faskes']
+                        )->name('faskes');
+
+                        Route::get(
+                            '/groups',
+                            [UserAppController::class, 'groups']
+                        )->name('groups');
 
                         Route::get(
                             '/{id}',
@@ -453,71 +476,62 @@ Route::prefix('adminpanel')
                     });
 
 
+                /*
+                |--------------------------------------------------------------------------
+                | ROLES
+                |--------------------------------------------------------------------------
+                */
 
+                Route::prefix('roles')
+                    ->name('roles.')
+                    ->group(function () {
 
-            /*
-            |--------------------------------------------------------------------------
-            | ROLES
-            |--------------------------------------------------------------------------
-            */
+                        Route::get(
+                            '/',
+                            [UserRoleController::class, 'index']
+                        )->name('index');
 
-            Route::prefix('roles')
-                ->name('roles.')
-                ->group(function () {
+                        Route::get(
+                            '/datatable',
+                            [UserRoleController::class, 'datatable']
+                        )->name('datatable');
 
-                Route::get('bygroup',[UserRoleController::class, 'rolesByGroup'])->name('bygroup');
+                        Route::get(
+                            '/groups',
+                            [UserRoleController::class, 'groups']
+                        )->name('groups');
 
-                    Route::get(
-                        '/',
-                        [UserRoleController::class, 'index']
-                    )->name('index');
+                        Route::get(
+                            '/bygroup',
+                            [UserRoleController::class, 'rolesByGroup']
+                        )->name('bygroup');
 
+                        Route::get(
+                            '/{id}',
+                            [UserRoleController::class, 'show']
+                        )->name('show');
 
-                    Route::get(
-                        '/datatable',
-                        [UserRoleController::class, 'datatable']
-                    )->name('datatable');
+                        Route::post(
+                            '/',
+                            [UserRoleController::class, 'store']
+                        )->name('store');
 
+                        Route::put(
+                            '/{id}',
+                            [UserRoleController::class, 'update']
+                        )->name('update');
 
-                    Route::get(
-                        '/groups',
-                        [UserRoleController::class, 'groups']
-                    )->name('groups');
+                        Route::delete(
+                            '/{id}',
+                            [UserRoleController::class, 'destroy']
+                        )->name('destroy');
 
-
-                    Route::get(
-                        '/{id}',
-                        [UserRoleController::class, 'show']
-                    )->name('show');
-
-
-                    Route::post(
-                        '/',
-                        [UserRoleController::class, 'store']
-                    )->name('store');
-
-
-                    Route::put(
-                        '/{id}',
-                        [UserRoleController::class, 'update']
-                    )->name('update');
-
-
-                    Route::delete(
-                        '/{id}',
-                        [UserRoleController::class, 'destroy']
-                    )->name('destroy');
-
-                });
-
-
-
-
+                    });
 
 
                 /*
                 |--------------------------------------------------------------------------
-                | USER GROUP
+                | GROUPS
                 |--------------------------------------------------------------------------
                 */
 
@@ -527,55 +541,32 @@ Route::prefix('adminpanel')
 
                         Route::get(
                             '/',
-                            [
-                                UserGroupController::class,
-                                'index'
-                            ]
+                            [UserGroupController::class, 'index']
                         )->name('index');
-
 
                         Route::get(
                             '/datatable',
-                            [
-                                UserGroupController::class,
-                                'datatable'
-                            ]
+                            [UserGroupController::class, 'datatable']
                         )->name('datatable');
-
 
                         Route::post(
                             '/',
-                            [
-                                UserGroupController::class,
-                                'store'
-                            ]
+                            [UserGroupController::class, 'store']
                         )->name('store');
-
 
                         Route::get(
                             '/{id}',
-                            [
-                                UserGroupController::class,
-                                'show'
-                            ]
+                            [UserGroupController::class, 'show']
                         )->name('show');
-
 
                         Route::put(
                             '/{id}',
-                            [
-                                UserGroupController::class,
-                                'update'
-                            ]
+                            [UserGroupController::class, 'update']
                         )->name('update');
-
 
                         Route::delete(
                             '/{id}',
-                            [
-                                UserGroupController::class,
-                                'destroy'
-                            ]
+                            [UserGroupController::class, 'destroy']
                         )->name('destroy');
 
                     });
@@ -585,71 +576,153 @@ Route::prefix('adminpanel')
     });
     // END USER PANEL
 
+Route::prefix('adminpanel/posyandu')
+    ->name('adminpanel.posyandu.')
+    ->group(function () {
 
-Route::prefix('adminpanel/posyandu')->group(function(){
-
-Route::get(
-    '/select-posyandu',
-    [WilayahKerjaPosyanduController::class,'selectPosyandu']
-)->name('selectPosyandu');
-
-Route::prefix('wilayah-kerja')
-    ->name('wilayahkerja.')
-    ->group(function(){
-
-    Route::get(
-        '/',
-        [WilayahKerjaPosyanduController::class,'index']
-    )->name('index');
-
-    Route::get(
-        '/datatable',
-        [WilayahKerjaPosyanduController::class,'datatable']
-    )->name('datatable');
-
-    Route::get(
-        '/create',
-        [WilayahKerjaPosyanduController::class,'create']
-    )->name('create');
-
-    Route::post(
-        '/',
-        [WilayahKerjaPosyanduController::class,'store']
-    )->name('store');
-
-    Route::get(
-        '/{id}/edit',
-        [WilayahKerjaPosyanduController::class,'edit']
-    )->name('edit');
-
-    Route::put(
-        '/{id}',
-        [WilayahKerjaPosyanduController::class,'update']
-    )->name('update');
-
-    Route::delete(
-        '/{id}',
-        [WilayahKerjaPosyanduController::class,'destroy']
-    )->name('destroy');
-
-});
+        Route::get(
+            '/select-posyandu',
+            [WilayahKerjaPosyanduController::class, 'selectPosyandu']
+        )->name('selectPosyandu');
 
 
-       Route::get('/',
-            [PosyanduController::class,'index']
+        /*
+        |--------------------------------------------------------------------------
+        | WILAYAH KERJA POSYANDU
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('wilayah-kerja')
+            ->name('wilayahkerja.')
+            ->group(function () {
+
+                Route::get(
+                    '/',
+                    [WilayahKerjaPosyanduController::class, 'index']
+                )->name('index');
+
+                Route::get(
+                    '/datatable',
+                    [WilayahKerjaPosyanduController::class, 'datatable']
+                )->name('datatable');
+
+                Route::get(
+                    '/create',
+                    [WilayahKerjaPosyanduController::class, 'create']
+                )->name('create');
+
+                Route::post(
+                    '/',
+                    [WilayahKerjaPosyanduController::class, 'store']
+                )->name('store');
+
+                Route::get(
+                    '/{id}/edit',
+                    [WilayahKerjaPosyanduController::class, 'edit']
+                )->name('edit');
+
+                Route::put(
+                    '/{id}',
+                    [WilayahKerjaPosyanduController::class, 'update']
+                )->name('update');
+
+                Route::delete(
+                    '/{id}',
+                    [WilayahKerjaPosyanduController::class, 'destroy']
+                )->name('destroy');
+
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MASTER POSYANDU
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/',
+            [PosyanduController::class, 'index']
         )->name('index');
 
-    Route::get('/data', [PosyanduController::class,'data']);
+        Route::get(
+            '/data',
+            [PosyanduController::class, 'data']
+        )->name('data');
 
-    Route::get('/create', [PosyanduController::class,'create']);
+        Route::get(
+            '/create',
+            [PosyanduController::class, 'create']
+        )->name('create');
 
-    Route::get('/edit/{id}', [PosyanduController::class,'edit']);
+        Route::post(
+            '/store',
+            [PosyanduController::class, 'store']
+        )->name('store');
 
-    Route::delete('/delete/{id}', [PosyanduController::class,'destroy']);
+        Route::delete(
+            '/delete/{id}',
+            [PosyanduController::class, 'destroy']
+        )->name('destroy');
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | WILAYAH
+        |--------------------------------------------------------------------------
+        */
 
-});
+        Route::get(
+            '/provinces',
+            [PosyanduController::class, 'provinces']
+        )->name('provinces');
+
+        Route::get(
+            '/cities',
+            [PosyanduController::class, 'cities']
+        )->name('cities');
+
+        Route::get(
+            '/districts',
+            [PosyanduController::class, 'districts']
+        )->name('districts');
+
+        Route::get(
+            '/villages',
+            [PosyanduController::class, 'villages']
+        )->name('villages');
+
+        Route::get(
+    '/edit/{id}',
+    [PosyanduController::class, 'edit']
+)->name('edit');
+
+Route::put(
+    '/update/{id}',
+    [PosyanduController::class, 'update']
+)->name('update');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FASKES
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/faskes',
+            [PosyanduController::class, 'faskes']
+        )->name('faskes');
+
+        Route::get(
+    '/location',
+    [PosyanduController::class, 'location']
+)->name('location');
+
+
+    });
+
+
 
 Route::get(
     '/propinsi',

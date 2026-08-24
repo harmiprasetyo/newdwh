@@ -1,303 +1,422 @@
 <?php
-//edit 13/08/2026
 
 namespace App\Http\Controllers\AdminPanel\WilayahKerja;
 
 use App\Http\Controllers\Controller;
+use App\Services\AdminPanel\WilayahKerjaPosyanduService;
+
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
-use App\Models\MasterPosyandu;
-use App\Models\AdminPanel\WilayahKerja\WilayahKerjaPosyandu;
-
-use App\Http\Requests\AdminPanel\WilayahKerja\WilayahKerjaPosyanduRequest;
-use App\Services\ActivityLogService;
-
-
 
 class WilayahKerjaPosyanduController extends Controller
 {
+    protected WilayahKerjaPosyanduService $service;
+
+
+    public function __construct(
+        WilayahKerjaPosyanduService $service
+    ) {
+        $this->service = $service;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX
+    |--------------------------------------------------------------------------
+    */
+
     public function index()
-{
-    $posyandu = MasterPosyandu::orderBy('namaPosyandu')->get();
+    {
+        $user = auth()->user();
 
-    return view(
-        'adminpanel.wilayahkerja.index',
-        compact('posyandu')
-    );
-}
+        return view(
+            'adminpanel.wilayahkerja.index',
+            [
+                'isGroup3' =>
+                    $this->service->isGroup3($user),
 
- public function datatable()
-{
-    $query = WilayahKerjaPosyandu::with([
-        'posyandu',
-        'desa.district.city.province'
-    ]);
-
-    return DataTables::of($query)
-
-        ->addIndexColumn()
-
-        ->addColumn('nama_posyandu', function ($row) {
-
-            return data_get(
-                $row,
-                'posyandu.namaPosyandu',
-                '-'
-            );
-
-        })
-
-        ->addColumn('desa', function ($row) {
-
-            return data_get(
-                $row,
-                'desa.name',
-                '-'
-            );
-
-        })
-
-        ->addColumn('kecamatan', function ($row) {
-
-            return data_get(
-                $row,
-                'desa.district.name',
-                '-'
-            );
-
-        })
-
-        ->addColumn('kabupaten', function ($row) {
-
-            return data_get(
-                $row,
-                'desa.district.city.name',
-                '-'
-            );
-
-        })
-
-        ->addColumn('provinsi', function ($row) {
-
-            return data_get(
-                $row,
-                'desa.district.city.province.name',
-                '-'
-            );
-
-        })
-
-        ->editColumn('rw', function ($row) {
-
-            if (!$row->rw) {
-                return '-';
-            }
-
-            return collect(explode(',', $row->rw))
-                ->filter()
-                ->map(function ($rw) {
-
-                    return '<span class="badge bg-primary me-1">'
-                        . e(trim($rw))
-                        . '</span>';
-
-                })
-                ->implode(' ');
-
-        })
-
-        ->addColumn('aksi', function ($row) {
-
-            return '
-                <div class="action-wrapper">
-
-                    <button
-                        type="button"
-                        class="btn btn-warning btn-action btnEdit"
-                        data-id="' . $row->id . '"
-                        data-url="' . route(
-                            'wilayahkerja.edit',
-                            $row->id
-                        ) . '"
-                        title="Edit Data"
-                        data-bs-toggle="tooltip">
-
-                        <i class="fas fa-edit"></i>
-
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-action btnDelete"
-                        data-id="' . $row->id . '"
-                        data-url="' . route(
-                            'wilayahkerja.destroy',
-                            $row->id
-                        ) . '"
-                        title="Hapus Data"
-                        data-bs-toggle="tooltip">
-
-                        <i class="fas fa-trash-alt"></i>
-
-                    </button>
-
-                </div>
-            ';
-        })
-
-        ->rawColumns([
-            'rw',
-            'aksi'
-        ])
-
-        ->make(true);
-}
+                'posyandu' =>
+                    $this->service->getPosyandu($user),
+            ]
+        );
+    }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | DATATABLE
+    |--------------------------------------------------------------------------
+    */
+
+    public function datatable()
+    {
+        $query = $this->service
+            ->getDatatableQuery(auth()->user());
+
+
+        return DataTables::of($query)
+
+            ->addIndexColumn()
+
+
+            ->addColumn(
+                'nama_posyandu',
+                function ($row) {
+
+                    return $row->namaPosyandu ?? '-';
+                }
+            )
+
+
+            ->addColumn(
+                'desa',
+                function ($row) {
+
+                    return $row->village_name ?? '-';
+                }
+            )
+
+
+            ->addColumn(
+                'kecamatan',
+                function ($row) {
+
+                    return $row->district_name ?? '-';
+                }
+            )
+
+
+            ->addColumn(
+                'kabupaten',
+                function ($row) {
+
+                    return $row->city_name ?? '-';
+                }
+            )
+
+
+            ->addColumn(
+                'provinsi',
+                function ($row) {
+
+                    return $row->province_name ?? '-';
+                }
+            )
+
+
+            ->editColumn(
+                'rw',
+                function ($row) {
+
+                    if (!$row->rw) {
+                        return '-';
+                    }
+
+
+                    return collect(
+                        explode(',', $row->rw)
+                    )
+                        ->filter()
+                        ->map(function ($rw) {
+
+                            return
+                                '<span class="badge bg-primary me-1">'
+                                . e(trim($rw))
+                                . '</span>';
+
+                        })
+                        ->implode(' ');
+                }
+            )
+
+
+            ->addColumn(
+                'aksi',
+                function ($row) {
+
+                    return '
+                        <div class="action-wrapper">
+
+                            <button
+                                type="button"
+                                class="btn btn-warning btn-action btnEdit"
+                                data-id="' . $row->id . '"
+                                data-url="' .
+                                    route(
+                                        'adminpanel.posyandu.wilayahkerja.edit',
+                                        $row->id
+                                    ) . '"
+                                title="Edit Data">
+
+                                <i class="fas fa-edit"></i>
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-action btnDelete"
+                                data-id="' . $row->id . '"
+                                data-url="' .
+                                    route(
+                                        'adminpanel.posyandu.wilayahkerja.destroy',
+                                        $row->id
+                                    ) . '"
+                                title="Hapus Data">
+
+                                <i class="fas fa-trash-alt"></i>
+
+                            </button>
+
+                        </div>
+                    ';
+                }
+            )
+
+
+            ->rawColumns([
+                'rw',
+                'aksi',
+            ])
+
+            ->make(true);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE
+    |--------------------------------------------------------------------------
+    */
 
     public function create()
     {
-
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
-    public function store(WilayahKerjaPosyanduRequest $request)
-{
 
-    $posyandu = MasterPosyandu::where(
-        'kodePosyandu',
-        $request->kodePosyandu
-    )->firstOrFail();
+    /*
+    |--------------------------------------------------------------------------
+    | STORE
+    |--------------------------------------------------------------------------
+    */
 
-    $rw = collect(explode(',', $request->rw))
-        ->map(fn($item)=>str_pad(trim($item),2,'0',STR_PAD_LEFT))
-        ->unique()
-        ->sort()
-        ->implode(',');
+    public function store(Request $request)
+    {
+        $request->validate([
 
-    $data = WilayahKerjaPosyandu::create([
+            'kodePosyandu' => [
+                'required',
+                'string',
+            ],
 
-        'kodePosyandu'=>$request->kodePosyandu,
+            'rw' => [
+                'nullable',
+                'string',
+            ],
 
-        'village_code'=>$posyandu->village_code,
+        ]);
 
-        'rw'=>$rw
 
-    ]);
+        try {
 
-    ActivityLogService::log(
-    action: 'create',
-    module: 'Wilayah Kerja Posyandu',
-    description: 'Menambahkan wilayah kerja Posyandu',
-    subject: $data,
-    newValues: $data->toArray()
-);
+            $this->service->store(
+                $request->only([
+                    'kodePosyandu',
+                    'rw',
+                ]),
+                auth()->user()
+            );
 
-    return response()->json([
 
-        'status'=>true,
+            return response()->json([
 
-        'message'=>'Data berhasil disimpan.'
+                'success' => true,
 
-    ]);
+                'message' =>
+                    'Data berhasil disimpan.',
 
-}
+            ]);
 
-   public function edit($id)
-{
 
-    $data = WilayahKerjaPosyandu::with('posyandu')
-                ->findOrFail($id);
+        } catch (\Throwable $e) {
 
-    return response()->json($data);
+            report($e);
 
-}
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' =>
+                    'Data gagal disimpan.',
+
+            ], 500);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT
+    |--------------------------------------------------------------------------
+    */
+
+    public function edit($id)
+    {
+        $data = $this->service->find(
+            $id,
+            auth()->user()
+        );
+
+
+        return response()->json($data);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
     public function update(
-    WilayahKerjaPosyanduRequest $request,
-    $id
-)
-{
+        Request $request,
+        $id
+    ) {
 
-    $data = WilayahKerjaPosyandu::findOrFail($id);
+        $request->validate([
 
-    $posyandu = MasterPosyandu::where(
-        'kodePosyandu',
-        $request->kodePosyandu
-    )->firstOrFail();
+            'kodePosyandu' => [
+                'required',
+                'string',
+            ],
 
-    $rw = collect(explode(',', $request->rw))
-        ->map(fn($item)=>str_pad(trim($item),2,'0',STR_PAD_LEFT))
-        ->unique()
-        ->sort()
-        ->implode(',');
-        $oldValues = $data->getOriginal();
+            'rw' => [
+                'nullable',
+                'string',
+            ],
 
-    $data->update([
+        ]);
 
-        'kodePosyandu'=>$request->kodePosyandu,
 
-        'village_code'=>$posyandu->village_code,
+        try {
 
-        'rw'=>$rw
+            $this->service->update(
 
-    ]);
+                $id,
 
-    ActivityLogService::log(
-    action: 'update',
-    module: 'Wilayah Kerja Posyandu',
-    description: 'Mengubah wilayah kerja Posyandu',
-    subject: $data,
-    oldValues: $oldValues,
-    newValues: $data->fresh()->toArray()
-);
+                $request->only([
+                    'kodePosyandu',
+                    'rw',
+                ]),
 
-    return response()->json([
+                auth()->user()
 
-        'status'=>true,
+            );
 
-        'message'=>'Data berhasil diperbarui.'
 
-    ]);
+            return response()->json([
 
-}
+                'success' => true,
+
+                'message' =>
+                    'Data berhasil diperbarui.',
+
+            ]);
+
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' =>
+                    'Data gagal diperbarui.',
+
+            ], 500);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DESTROY
+    |--------------------------------------------------------------------------
+    */
 
     public function destroy($id)
-{
-    $data = WilayahKerjaPosyandu::findOrFail($id);
+    {
+        try {
 
-    $oldValues = $data->toArray();
-
-
-    $data->delete();
-
-
-    ActivityLogService::log(
-        action: 'delete',
-        module: 'Wilayah Kerja Posyandu',
-        description: 'Menghapus wilayah kerja Posyandu',
-        subject: $data,
-        oldValues: $oldValues
-    );
+            $this->service->delete(
+                $id,
+                auth()->user()
+            );
 
 
-    return response()->json([
+            return response()->json([
 
-        'status' => true,
+                'success' => true,
 
-        'message' => 'Data berhasil dihapus.'
+                'message' =>
+                    'Data berhasil dihapus.',
 
-    ]);
-}
+            ]);
 
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' =>
+                    'Data gagal dihapus.',
+
+            ], 500);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SELECT POSYANDU
+    |--------------------------------------------------------------------------
+    */
 
     public function selectPosyandu(Request $request)
-{
-    $search = $request->q;
+    {
+        $data = $this->service->getPosyandu(
+            auth()->user(),
+            $request->q
+        );
 
-    return MasterPosyandu::where('namaPosyandu','like',"%{$search}%")
-        ->limit(20)
-        ->get([
-            'kodePosyandu as id',
-            'namaPosyandu as text'
-        ]);
-}
+
+        return response()->json(
+            $data->map(function ($item) {
+
+                return [
+
+                    'id' =>
+                        $item->kodePosyandu,
+
+                    'text' =>
+                        $item->namaPosyandu,
+
+                ];
+
+            })
+        );
+    }
 }

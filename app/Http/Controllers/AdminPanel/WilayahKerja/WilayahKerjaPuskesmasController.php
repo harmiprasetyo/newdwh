@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AdminPanel\WilayahKerja;
 
 use App\Http\Controllers\Controller;
+use App\Services\AdminPanel\WilayahKerjaPuskesmasService;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -11,8 +12,6 @@ use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 use App\Models\WilayahKerja\WilayahKerjaPuskesmas;
-
-use App\Services\AdminPanel\WilayahKerjaPuskesmasService;
 
 class WilayahKerjaPuskesmasController extends Controller
 {
@@ -24,6 +23,7 @@ class WilayahKerjaPuskesmasController extends Controller
         $this->service = $service;
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | INDEX
@@ -32,10 +32,17 @@ class WilayahKerjaPuskesmasController extends Controller
 
     public function index()
     {
+        $user = auth()->user();
+
         return view(
-            'adminpanel.wilayahkerja.puskesmas.index'
+            'adminpanel.wilayahkerja.puskesmas.index',
+            [
+                'isGroup3' =>
+                    $this->service->isGroup3($user),
+            ]
         );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -45,12 +52,17 @@ class WilayahKerjaPuskesmasController extends Controller
 
     public function datatable(Request $request)
     {
-        $query = $this->service->getData(
-            $request->only([
-                'kodeFaskes',
-                'kodeDesa',
-            ])
-        );
+        $user = auth()->user();
+
+        $query =
+            $this->service->getData(
+                $request->only([
+                    'kodeFaskes',
+                    'kodeDesa',
+                ]),
+                $user
+            );
+
 
         return DataTables::of($query)
 
@@ -58,46 +70,41 @@ class WilayahKerjaPuskesmasController extends Controller
 
             ->addColumn(
                 'namaFaskes',
-                function ($row) {
-
-                    return $row->faskes?->namaFaskes ?? '-';
-                }
+                fn ($row) =>
+                    $row->faskes?->namaFaskes ?? '-'
             )
 
             ->addColumn(
                 'namaDesa',
-                function ($row) {
-
-                    return $row->desa?->name ?? '-';
-                }
+                fn ($row) =>
+                    $row->desa?->name ?? '-'
             )
 
             ->addColumn(
                 'kecamatan',
-                function ($row) {
-
-                    return $row->desa?->district?->name ?? '-';
-                }
+                fn ($row) =>
+                    $row->desa
+                        ?->district
+                        ?->name ?? '-'
             )
 
             ->addColumn(
                 'kota',
-                function ($row) {
-
-                    return $row->desa?->district?->city?->name ?? '-';
-                }
+                fn ($row) =>
+                    $row->desa
+                        ?->district
+                        ?->city
+                        ?->name ?? '-'
             )
 
             ->addColumn(
                 'provinsi',
-                function ($row) {
-
-                    return $row->desa
+                fn ($row) =>
+                    $row->desa
                         ?->district
                         ?->city
                         ?->province
-                        ?->name ?? '-';
-                }
+                        ?->name ?? '-'
             )
 
             ->addColumn(
@@ -137,6 +144,87 @@ class WilayahKerjaPuskesmasController extends Controller
             ->make(true);
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | FASKES
+    |--------------------------------------------------------------------------
+    */
+
+    public function faskes(Request $request)
+    {
+        $data =
+            $this->service->getFaskes(
+                auth()->user(),
+                $request->q
+            );
+
+        return response()->json(
+            $data->map(function ($item) {
+
+                return [
+                    'id' =>
+                        $item->kodeFaskes,
+
+                    'text' =>
+                        $item->namaFaskes,
+
+                    'kodePropinsi' =>
+                        $item->kodePropinsi,
+
+                    'kodeKabupaten' =>
+                        $item->kodeKabupaten,
+
+                    'kodeKecamatan' =>
+                        $item->kodeKecamatan,
+                ];
+
+            })
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DESA BERDASARKAN FASKES
+    |--------------------------------------------------------------------------
+    */
+
+    public function desaByFaskes(
+        Request $request
+    ) {
+
+        $request->validate([
+            'kodeFaskes' => [
+                'required',
+                'string',
+            ],
+        ]);
+
+
+        $data =
+            $this->service->getDesaByFaskes(
+                $request->kodeFaskes,
+                auth()->user()
+            );
+
+
+        return response()->json(
+            $data->map(function ($item) {
+
+                return [
+                    'id' =>
+                        $item->code,
+
+                    'text' =>
+                        $item->name,
+                ];
+
+            })
+        );
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | SHOW
@@ -145,16 +233,18 @@ class WilayahKerjaPuskesmasController extends Controller
 
     public function show($id)
     {
-        $data = WilayahKerjaPuskesmas::with([
-            'faskes',
-            'desa.district.city.province',
-        ])->findOrFail($id);
+        $data =
+            $this->service->find(
+                $id,
+                auth()->user()
+            );
 
         return response()->json([
             'success' => true,
             'data' => $data,
         ]);
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -164,53 +254,63 @@ class WilayahKerjaPuskesmasController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'kodeFaskes' => [
-                'required',
-                'string',
-                'max:20',
-                'exists:master_faskes,kodeFaskes',
-            ],
+        $user = auth()->user();
 
-            'kodeDesa' => [
-                'required',
-                'string',
-                'max:10',
-                'exists:indonesia_villages,code',
 
-                Rule::unique(
-                    'master_wilayah_kerja_puskesmas',
-                    'kodeDesa'
-                ),
-            ],
-        ], [
-            'kodeFaskes.required' =>
-                'Puskesmas wajib dipilih.',
+        $validated =
+            $request->validate([
 
-            'kodeFaskes.exists' =>
-                'Puskesmas tidak ditemukan.',
+                'kodeFaskes' => [
+                    'nullable',
+                    'string',
+                    'max:20',
+                ],
 
-            'kodeDesa.required' =>
-                'Desa wajib dipilih.',
+                'kodeDesa' => [
+                    'required',
+                    'string',
+                    'max:20',
+                    'exists:indonesia_villages,code',
 
-            'kodeDesa.exists' =>
-                'Desa tidak ditemukan.',
+                    Rule::unique(
+                        'master_wilayah_kerja_puskesmas',
+                        'kodeDesa'
+                    ),
+                ],
 
-            'kodeDesa.unique' =>
-                'Desa tersebut sudah memiliki wilayah kerja Puskesmas.',
-        ]);
+            ], [
+
+                'kodeDesa.required' =>
+                    'Desa wajib dipilih.',
+
+                'kodeDesa.exists' =>
+                    'Desa tidak ditemukan.',
+
+                'kodeDesa.unique' =>
+                    'Desa tersebut sudah memiliki wilayah kerja Puskesmas.',
+            ]);
+
 
         try {
 
-            $data = $this->service->create(
-                $validated
-            );
+            $data =
+                $this->service->create(
+                    $validated,
+                    $user
+                );
+
 
             return response()->json([
-                'success' => true,
+
+                'success' =>
+                    true,
+
                 'message' =>
                     'Wilayah kerja Puskesmas berhasil ditambahkan.',
-                'data' => $data,
+
+                'data' =>
+                    $data,
+
             ]);
 
         } catch (\Throwable $e) {
@@ -218,21 +318,36 @@ class WilayahKerjaPuskesmasController extends Controller
             Log::error(
                 'Gagal CREATE Wilayah Kerja Puskesmas.',
                 [
-                    'payload' => $validated,
-                    'user_id' => auth()->id(),
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
+                    'payload' =>
+                        $validated,
+
+                    'user_id' =>
+                        auth()->id(),
+
+                    'error' =>
+                        $e->getMessage(),
+
+                    'file' =>
+                        $e->getFile(),
+
+                    'line' =>
+                        $e->getLine(),
                 ]
             );
 
+
             return response()->json([
-                'success' => false,
+
+                'success' =>
+                    false,
+
                 'message' =>
-                    'Gagal menambahkan wilayah kerja Puskesmas.',
+                    $e->getMessage(),
+
             ], 500);
         }
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -245,57 +360,71 @@ class WilayahKerjaPuskesmasController extends Controller
         $id
     ) {
 
+        $user = auth()->user();
+
+
         $wilayah =
-            WilayahKerjaPuskesmas::findOrFail($id);
+            $this->service->find(
+                $id,
+                $user
+            );
 
-        $validated = $request->validate([
-            'kodeFaskes' => [
-                'required',
-                'string',
-                'max:20',
-                'exists:master_faskes,kodeFaskes',
-            ],
 
-            'kodeDesa' => [
-                'required',
-                'string',
-                'max:10',
-                'exists:indonesia_villages,code',
+        $validated =
+            $request->validate([
 
-                Rule::unique(
-                    'master_wilayah_kerja_puskesmas',
-                    'kodeDesa'
-                )->ignore($wilayah->id),
-            ],
-        ], [
-            'kodeFaskes.required' =>
-                'Puskesmas wajib dipilih.',
+                'kodeFaskes' => [
+                    'nullable',
+                    'string',
+                    'max:20',
+                ],
 
-            'kodeFaskes.exists' =>
-                'Puskesmas tidak ditemukan.',
+                'kodeDesa' => [
+                    'required',
+                    'string',
+                    'max:20',
+                    'exists:indonesia_villages,code',
 
-            'kodeDesa.required' =>
-                'Desa wajib dipilih.',
+                    Rule::unique(
+                        'master_wilayah_kerja_puskesmas',
+                        'kodeDesa'
+                    )->ignore($wilayah->id),
+                ],
 
-            'kodeDesa.exists' =>
-                'Desa tidak ditemukan.',
+            ], [
 
-            'kodeDesa.unique' =>
-                'Desa tersebut sudah memiliki wilayah kerja Puskesmas lain.',
-        ]);
+                'kodeDesa.required' =>
+                    'Desa wajib dipilih.',
+
+                'kodeDesa.exists' =>
+                    'Desa tidak ditemukan.',
+
+                'kodeDesa.unique' =>
+                    'Desa tersebut sudah memiliki wilayah kerja Puskesmas lain.',
+            ]);
+
 
         try {
 
-            $data = $this->service->update(
-                $wilayah,
-                $validated
-            );
+            $data =
+                $this->service->update(
+                    $wilayah,
+                    $validated,
+                    $user
+                );
+
 
             return response()->json([
-                'success' => true,
+
+                'success' =>
+                    true,
+
                 'message' =>
                     'Wilayah kerja Puskesmas berhasil diperbarui.',
-                'data' => $data,
+
+                'data' =>
+                    $data,
+
             ]);
 
         } catch (\Throwable $e) {
@@ -303,22 +432,33 @@ class WilayahKerjaPuskesmasController extends Controller
             Log::error(
                 'Gagal UPDATE Wilayah Kerja Puskesmas.',
                 [
-                    'id' => $id,
-                    'payload' => $validated,
-                    'user_id' => auth()->id(),
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
+                    'id' =>
+                        $id,
+
+                    'payload' =>
+                        $validated,
+
+                    'user_id' =>
+                        auth()->id(),
+
+                    'error' =>
+                        $e->getMessage(),
                 ]
             );
 
+
             return response()->json([
-                'success' => false,
+
+                'success' =>
+                    false,
+
                 'message' =>
-                    'Gagal memperbarui wilayah kerja Puskesmas.',
+                    $e->getMessage(),
+
             ], 500);
         }
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -326,22 +466,34 @@ class WilayahKerjaPuskesmasController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function destroy(
-        Request $request,
-        $id
-    ) {
+    public function destroy($id)
+    {
+        $user = auth()->user();
 
-        $wilayah =
-            WilayahKerjaPuskesmas::findOrFail($id);
 
         try {
 
-            $this->service->delete($wilayah);
+            $wilayah =
+                $this->service->find(
+                    $id,
+                    $user
+                );
+
+
+            $this->service->delete(
+                $wilayah,
+                $user
+            );
+
 
             return response()->json([
-                'success' => true,
+
+                'success' =>
+                    true,
+
                 'message' =>
                     'Wilayah kerja Puskesmas berhasil dihapus.',
+
             ]);
 
         } catch (\Illuminate\Database\QueryException $e) {
@@ -349,16 +501,26 @@ class WilayahKerjaPuskesmasController extends Controller
             Log::error(
                 'FK constraint DELETE Wilayah Kerja Puskesmas.',
                 [
-                    'id' => $id,
-                    'user_id' => auth()->id(),
-                    'error' => $e->getMessage(),
+                    'id' =>
+                        $id,
+
+                    'user_id' =>
+                        auth()->id(),
+
+                    'error' =>
+                        $e->getMessage(),
                 ]
             );
 
+
             return response()->json([
-                'success' => false,
+
+                'success' =>
+                    false,
+
                 'message' =>
                     'Data wilayah kerja Puskesmas tidak dapat dihapus karena masih digunakan oleh data lain.',
+
             ], 409);
 
         } catch (\Throwable $e) {
@@ -366,16 +528,26 @@ class WilayahKerjaPuskesmasController extends Controller
             Log::error(
                 'Gagal DELETE Wilayah Kerja Puskesmas.',
                 [
-                    'id' => $id,
-                    'user_id' => auth()->id(),
-                    'error' => $e->getMessage(),
+                    'id' =>
+                        $id,
+
+                    'user_id' =>
+                        auth()->id(),
+
+                    'error' =>
+                        $e->getMessage(),
                 ]
             );
 
+
             return response()->json([
-                'success' => false,
+
+                'success' =>
+                    false,
+
                 'message' =>
                     'Wilayah kerja Puskesmas tidak dapat dihapus.',
+
             ], 500);
         }
     }

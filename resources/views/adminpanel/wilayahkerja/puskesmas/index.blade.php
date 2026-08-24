@@ -189,146 +189,138 @@
                          FASKES
                     ====================================================== --}}
 
-                    <div
-                        class="mb-3"
-                        id="faskesContainer"
-                    >
+                 <div
+    class="mb-3"
+    id="faskesContainer"
+>
 
-                        <label
-                            for="kodeFaskes"
-                            class="form-label"
-                        >
-                            Puskesmas
-                            <span class="text-danger">*</span>
-                        </label>
+    <label
+        for="kodeFaskes"
+        class="form-label"
+    >
+        Puskesmas
+        <span class="text-danger">*</span>
+    </label>
 
-                        <select
-                            id="kodeFaskes"
-                            name="kodeFaskes"
-                            class="form-select"
-                        >
-                            <option value="">
-                                Pilih Puskesmas
-                            </option>
-                        </select>
+    <select
+        id="kodeFaskes"
+        name="kodeFaskes"
+        class="form-select"
+    >
+        <option value="">
+            Pilih Puskesmas
+        </option>
+    </select>
 
-                        <div
-                            id="kodeFaskesError"
-                            class="invalid-feedback"
-                        ></div>
+</div>
 
-                    </div>
+              <div
+    id="wilayahFaskesContainer"
+>
 
+    {{-- PROVINSI --}}
 
-                    {{-- =====================================================
-                         PROVINSI
-                    ====================================================== --}}
+    <div class="mb-3">
 
-                    <div class="mb-3">
+        <label
+            for="kodePropinsi"
+            class="form-label"
+        >
+            Provinsi
+        </label>
 
-                        <label
-                            for="kodePropinsi"
-                            class="form-label"
-                        >
-                            Provinsi
-                        </label>
+        <select
+            id="kodePropinsi"
+            class="form-select"
+            disabled
+        >
+            <option value="">
+                Pilih Provinsi
+            </option>
+        </select>
 
-                        <select
-                            id="kodePropinsi"
-                            class="form-select"
-                            disabled
-                        >
-                            <option value="">
-                                Pilih Provinsi
-                            </option>
-                        </select>
-
-                    </div>
+    </div>
 
 
-                    {{-- =====================================================
-                         KOTA / KABUPATEN
-                    ====================================================== --}}
+    {{-- KABUPATEN --}}
 
-                    <div class="mb-3">
+    <div class="mb-3">
 
-                        <label
-                            for="kodeKota"
-                            class="form-label"
-                        >
-                            Kota / Kabupaten
-                        </label>
+        <label
+            for="kodeKota"
+            class="form-label"
+        >
+            Kota / Kabupaten
+        </label>
 
-                        <select
-                            id="kodeKota"
-                            class="form-select"
-                            disabled
-                        >
-                            <option value="">
-                                Pilih Kota / Kabupaten
-                            </option>
-                        </select>
+        <select
+            id="kodeKota"
+            class="form-select"
+            disabled
+        >
+            <option value="">
+                Pilih Kota / Kabupaten
+            </option>
+        </select>
 
-                    </div>
+    </div>
 
 
-                    {{-- =====================================================
-                         KECAMATAN
-                    ====================================================== --}}
+    {{-- KECAMATAN --}}
 
-                    <div class="mb-3">
+    <div class="mb-3">
 
-                        <label
-                            for="kodeKecamatan"
-                            class="form-label"
-                        >
-                            Kecamatan
-                        </label>
+        <label
+            for="kodeKecamatan"
+            class="form-label"
+        >
+            Kecamatan
+        </label>
 
-                        <select
-                            id="kodeKecamatan"
-                            class="form-select"
-                            disabled
-                        >
-                            <option value="">
-                                Pilih Kecamatan
-                            </option>
-                        </select>
+        <select
+            id="kodeKecamatan"
+            class="form-select"
+            disabled
+        >
+            <option value="">
+                Pilih Kecamatan
+            </option>
+        </select>
 
-                    </div>
+    </div>
 
+</div>
 
                     {{-- =====================================================
                          DESA
                     ====================================================== --}}
 
-                    <div class="mb-3">
+                   <div class="mb-3">
 
-                        <label
-                            for="kodeDesa"
-                            class="form-label"
-                        >
-                            Desa / Kelurahan
-                            <span class="text-danger">*</span>
-                        </label>
+    <label
+        for="kodeDesa"
+        class="form-label"
+    >
+        Desa / Kelurahan
+        <span class="text-danger">*</span>
+    </label>
 
-                        <select
-                            id="kodeDesa"
-                            name="kodeDesa"
-                            class="form-select"
-                            disabled
-                        >
-                            <option value="">
-                                Pilih Desa / Kelurahan
-                            </option>
-                        </select>
+    <select
+        id="kodeDesa"
+        name="kodeDesa"
+        class="form-select"
+    >
+        <option value="">
+            Pilih Desa / Kelurahan
+        </option>
+    </select>
 
-                        <div
-                            id="kodeDesaError"
-                            class="invalid-feedback"
-                        ></div>
+    <div
+        id="kodeDesaError"
+        class="invalid-feedback"
+    ></div>
 
-                    </div>
+</div>
 
                 </div>
 
@@ -371,75 +363,53 @@
 
 window.WilayahKerjaPuskesmasConfig = {
 
-    /*
-    |--------------------------------------------------------------------------
-    | DATATABLE
-    |--------------------------------------------------------------------------
-    */
-
     datatableUrl:
-        @json(route('adminpanel.wilayahkerja.puskesmas.datatable')),
+        @json(route(
+            'adminpanel.wilayahkerja.puskesmas.datatable'
+        )),
 
-    /*
-    |--------------------------------------------------------------------------
-    | CRUD
-    |--------------------------------------------------------------------------
-    */
+    storeUrl:
+        @json(route(
+            'adminpanel.wilayahkerja.puskesmas.store'
+        )),
 
-    baseUrl:
-        @json(url('/adminpanel/wilayahkerja/puskesmas')),
+    showUrl:
+        @json(route(
+            'adminpanel.wilayahkerja.puskesmas.show',
+            ['id' => '__ID__']
+        )),
 
-    /*
-    |--------------------------------------------------------------------------
-    | USER
-    |--------------------------------------------------------------------------
-    */
+    updateUrl:
+        @json(route(
+            'adminpanel.wilayahkerja.puskesmas.update',
+            ['id' => '__ID__']
+        )),
 
-    groupId:
-        @json(auth()->user()->groupid),
-
-    userKodeFaskes:
-        @json(auth()->user()->kodeFaskes),
-
-    /*
-    |--------------------------------------------------------------------------
-    | MASTER FASKES
-    |--------------------------------------------------------------------------
-    |
-    | WAJIB menggunakan endpoint Master Faskes.
-    |
-    */
+    deleteUrl:
+        @json(route(
+            'adminpanel.wilayahkerja.puskesmas.destroy',
+            ['id' => '__ID__']
+        )),
 
     faskesUrl:
-        @json(route('adminpanel.master.faskes.facilities')),
+        @json(route(
+            'adminpanel.wilayahkerja.puskesmas.faskes'
+        )),
 
-    /*
-    |--------------------------------------------------------------------------
-    | MASTER WILAYAH
-    |--------------------------------------------------------------------------
-    */
+    desaByFaskesUrl:
+        @json(route(
+            'adminpanel.wilayahkerja.puskesmas.desaByFaskes'
+        )),
 
-    provinceUrl:
-        @json(url('/adminpanel/wilayah/listpropinsi')),
+    groupId:
+        @json(auth()->user()->groupid ?? null),
 
-    cityUrl:
-        @json(url('/adminpanel/wilayah/listkota')),
-
-    districtUrl:
-        @json(url('/adminpanel/wilayah/listkecamatan')),
-
-    villageUrl:
-        @json(url('/adminpanel/wilayah/listdesa'))
+    userKodeFaskes:
+        @json(auth()->user()->kodeFaskes ?? null),
 
 };
-
-console.log(
-    'WilayahKerjaPuskesmasConfig:',
-    window.WilayahKerjaPuskesmasConfig
-);
 
 </script>
 
 <script src="{{ mix('js/adminpanel/wilayahkerja/puskesmas.js') }}"></script>
-
 @endpush

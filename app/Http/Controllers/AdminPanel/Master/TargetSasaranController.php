@@ -4,210 +4,417 @@ namespace App\Http\Controllers\AdminPanel\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\TargetSasaran;
-use App\Models\MasterPosyandu;
 use App\Services\TargetSasaranService;
+
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 class TargetSasaranController extends Controller
 {
+    protected TargetSasaranService $service;
 
-    protected $service;
 
-    public function __construct(TargetSasaranService $service)
-    {
-        $this->service=$service;
+    public function __construct(
+        TargetSasaranService $service
+    ) {
+        $this->service = $service;
     }
 
-   public function index()
-{
-    return view(
-        'adminpanel.master.target-sasaran.index',
-        [
-            'posyandu' => $this->service->getPosyandu()
-        ]
-    );
-}
+
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX
+    |--------------------------------------------------------------------------
+    */
+
+    public function index()
+    {
+        $user = auth()->user();
+
+        return view(
+            'adminpanel.master.target-sasaran.index',
+            [
+                'posyandu' =>
+                    $this->service->getPosyandu($user),
+
+                'isGroup3' =>
+                    $this->service->isGroup3($user),
+            ]
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATATABLE
+    |--------------------------------------------------------------------------
+    */
 
     public function datatable(Request $request)
-{
-    $query = TargetSasaran::query();
+    {
+        $user = auth()->user();
 
-    // Filter Posyandu
-    if ($request->filled('posyandu')) {
-        $query->where('posyandu_id', $request->posyandu);
+
+        $query = $this->service->getData(
+            $user,
+            $request->only([
+                'posyandu',
+                'bulan',
+                'tahun',
+            ])
+        );
+
+
+        return DataTables::of($query)
+
+            ->addIndexColumn()
+
+            ->editColumn(
+                'bulan',
+                function ($row) {
+
+                    return $row->nama_bulan;
+                }
+            )
+
+            ->addColumn(
+                'posyandu',
+                function ($row) {
+
+                    return $row->namaPosyandu ?? '-';
+                }
+            )
+
+            ->addColumn(
+                'action',
+                function ($row) {
+
+                    return view(
+                        'adminpanel.master.target-sasaran.action',
+                        compact('row')
+                    );
+                }
+            )
+
+            ->rawColumns([
+                'action',
+            ])
+
+            ->make(true);
     }
 
-    // Filter Bulan
-    if ($request->filled('bulan')) {
-        $query->where('bulan', $request->bulan);
-    }
 
-    // Filter Tahun
-    if ($request->filled('tahun')) {
-        $query->where('tahun', $request->tahun);
-    }
-
-    return DataTables::of($query)
-
-        ->addIndexColumn()
-
-        ->editColumn('bulan', function ($row) {
-            return $row->nama_bulan;
-        })
-
-        ->addColumn('posyandu', function ($row) {
-            return $row->namaPosyandu;
-            // atau $row->posyandu->namaPosyandu jika tidak menyimpan snapshot
-        })
-
-        ->addColumn('action', function ($row) {
-            return view(
-                'adminpanel.master.target-sasaran.action',
-                compact('row')
-            );
-        })
-
-        ->rawColumns(['action'])
-
-        ->make(true);
-}
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE
+    |--------------------------------------------------------------------------
+    */
 
     public function create()
     {
-
-        $posyandu=MasterPosyandu::where('isActive',1)
-                    ->orderBy('namaPosyandu')
-                    ->get();
+        $user = auth()->user();
 
         return view(
             'adminpanel.master.target-sasaran.create',
-            compact('posyandu')
-        );
+            [
+                'posyandu' =>
+                    $this->service->getPosyandu($user),
 
+                'isGroup3' =>
+                    $this->service->isGroup3($user),
+            ]
+        );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORE
+    |--------------------------------------------------------------------------
+    */
 
     public function store(Request $request)
     {
+        $validated = $request->validate([
 
+            'posyandu_id' => [
+                'required',
+                'exists:master_posyandu,id',
+            ],
 
-        $request->validate([
+            'bulan' => [
+                'required',
+            ],
 
-            'posyandu_id'=>'required|exists:master_posyandu,id',
+            'tahun' => [
+                'required',
+            ],
 
-            'bulan'=>'required',
+            'rw' => [
+                'required',
+            ],
 
-            'tahun'=>'required',
+            'rt' => [
+                'required',
+            ],
 
-            'rw'=>'required',
+            'sasaran_ibu_hamil' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
 
-            'rt'=>'required',
+            'sasaran_ibu_melahirkan' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
 
-            'sasaran_ibu_hamil'=>'required|numeric|min:0',
-
-            'sasaran_ibu_melahirkan'=>'required|numeric|min:0',
-
-            'sasaran_bayi_baru_lahir'=>'required|numeric|min:0'
-
-        ]);
-
-        $result=$this->service->store(
-            $request->all()
-        );
-
-
-        if($result['success']){
-
-            return redirect()
-
-                ->route('master.target-sasaran.index')
-
-                ->with('success',$result['message']);
-
-        }
-
-        return back()
-
-            ->withInput()
-
-            ->with('error',$result['message']);
-
-    }
-
-    public function edit(TargetSasaran $target_sasaran)
-    {
-
-        $posyandu=MasterPosyandu::where('isActive',1)
-                    ->orderBy('namaPosyandu')
-                    ->get();
-
-        return view(
-
-            'adminpanel.master.target-sasaran.edit',
-
-            compact(
-                'target_sasaran',
-                'posyandu'
-            )
-
-        );
-
-    }
-
-    public function update(Request $request,TargetSasaran $target_sasaran)
-    {
-
-        $request->validate([
-
-            'posyandu_id'=>'required',
-
-            'bulan'=>'required',
-
-            'tahun'=>'required',
-
-            'rw'=>'required',
-
-            'rt'=>'required',
-
-            'sasaran_ibu_hamil'=>'required|numeric',
-
-            'sasaran_ibu_melahirkan'=>'required|numeric',
-
-            'sasaran_bayi_baru_lahir'=>'required|numeric'
+            'sasaran_bayi_baru_lahir' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
 
         ]);
 
-        $result=$this->service->update(
 
-            $target_sasaran,
+        try {
 
-            $request->all()
-
-        );
-
-        return redirect()
-
-            ->route('adminpanel.master.target-sasaran.index')
-
-            ->with(
-
-                $result['success']
-                    ? 'success'
-                    : 'error',
-
-                $result['message']
-
+            $this->service->store(
+                $validated,
+                auth()->user()
             );
 
+
+            return redirect()
+                ->route(
+                    'master.target-sasaran.index'
+                )
+                ->with(
+                    'success',
+                    'Data berhasil disimpan.'
+                );
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    $e->getMessage()
+                );
+        }
     }
 
-    public function destroy(TargetSasaran $target_sasaran)
-    {
 
-        $result=$this->service->delete($target_sasaran);
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT
+    |--------------------------------------------------------------------------
+    */
 
-        return response()->json($result);
+    public function edit(
+        TargetSasaran $target_sasaran
+    ) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Pastikan Group 3 hanya bisa edit miliknya
+        |--------------------------------------------------------------------------
+        */
+
+        $this->service->ensureAllowedTarget(
+            $target_sasaran,
+            auth()->user()
+        );
+
+
+        return view(
+            'adminpanel.master.target-sasaran.edit',
+            [
+                'target_sasaran' =>
+                    $target_sasaran,
+
+                'posyandu' =>
+                    $this->service->getPosyandu(
+                        auth()->user()
+                    ),
+
+                'isGroup3' =>
+                    $this->service->isGroup3(
+                        auth()->user()
+                    ),
+            ]
+        );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
+    public function update(
+        Request $request,
+        TargetSasaran $target_sasaran
+    ) {
+
+        $validated = $request->validate([
+
+            'posyandu_id' => [
+                'required',
+                'exists:master_posyandu,id',
+            ],
+
+            'bulan' => [
+                'required',
+            ],
+
+            'tahun' => [
+                'required',
+            ],
+
+            'rw' => [
+                'required',
+            ],
+
+            'rt' => [
+                'required',
+            ],
+
+            'sasaran_ibu_hamil' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'sasaran_ibu_melahirkan' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'sasaran_bayi_baru_lahir' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+        ]);
+
+
+        try {
+
+            $this->service->update(
+                $target_sasaran,
+                $validated,
+                auth()->user()
+            );
+
+
+            return redirect()
+                ->route(
+                    'master.target-sasaran.index'
+                )
+                ->with(
+                    'success',
+                    'Data berhasil diperbarui.'
+                );
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    $e->getMessage()
+                );
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
+
+    public function destroy(
+        TargetSasaran $target_sasaran
+    ) {
+
+        try {
+
+            $this->service->delete(
+                $target_sasaran,
+                auth()->user()
+            );
+
+
+            return response()->json([
+
+                'success' => true,
+
+                'message' =>
+                    'Data berhasil dihapus.',
+
+            ]);
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' =>
+                    $e->getMessage(),
+
+            ], 500);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SELECT POSYANDU
+    |--------------------------------------------------------------------------
+    */
+
+    public function selectPosyandu(
+        Request $request
+    ) {
+
+        $data =
+            $this->service->getPosyandu(
+                auth()->user(),
+                $request->q
+            );
+
+
+        return response()->json(
+
+            $data->map(function ($item) {
+
+                return [
+
+                    'id' =>
+                        $item->id,
+
+                    'text' =>
+                        $item->namaPosyandu,
+
+                ];
+
+            })
+
+        );
+    }
 }

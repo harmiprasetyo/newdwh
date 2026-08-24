@@ -12,19 +12,93 @@ use App\Services\ActivityLogService;
 
 class UserWebController extends Controller
 {
-    public function index()
-    {
-        return view('admin.user');
+
+private function currentUser()
+{
+    return auth()->user();
+}
+
+public function index()
+{
+    $user = auth()->user();
+
+    return view('admin.user', [
+        'currentUser' => $user
+    ]);
+}
+
+
+
+
+   public function data(Request $request)
+{
+    $user = $this->currentUser();
+
+    $query = UserApp::with([
+        'group',
+        'role',
+        'faskes',
+        'kota',
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER GROUP 3
+    |--------------------------------------------------------------------------
+    */
+
+    if ($user->groupid == 3) {
+
+        $query->whereIn('groupid', [3, 4, 5])
+              ->where('kodeFaskes', $user->kodeFaskes);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER TAMBAHAN
+    |--------------------------------------------------------------------------
+    */
 
-    public function data()
-    {
-        return response()->json([
-            'data' => UserApp::with('group')->get()
-        ]);
+    if ($request->filled('username')) {
+        $query->where(
+            'username',
+            'like',
+            '%' . $request->username . '%'
+        );
     }
 
+    if ($request->filled('provinsi')) {
+        $query->where(
+            'kodePropinsi',
+            $request->provinsi
+        );
+    }
+
+    if ($request->filled('kota')) {
+        $query->where(
+            'kodeKota',
+            $request->kota
+        );
+    }
+
+    if ($request->filled('kecamatan')) {
+        $query->where(
+            'kodeKecamatan',
+            $request->kecamatan
+        );
+    }
+
+    if ($request->filled('faskes')) {
+        $query->where(
+            'kodeFaskes',
+            $request->faskes
+        );
+    }
+
+    return response()->json([
+        'data' => $query->get()
+    ]);
+}
 
     public function show($id)
     {
@@ -230,8 +304,20 @@ class UserWebController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function groups()
-    {
-        return UserGroups::all();
+   public function groups()
+{
+    $user = $this->currentUser();
+
+    if ($user->groupid == 3) {
+        return response()->json([
+            'data' => UserGroups::whereIn('group_id', [4, 5])
+                ->orderBy('group_id')
+                ->get()
+        ]);
     }
+
+    return response()->json([
+        'data' => UserGroups::orderBy('group_id')->get()
+    ]);
+}
 }

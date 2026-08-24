@@ -56,6 +56,23 @@ mix.js(
     'resources/js/adminpanel/master/masterfaskes.js',
     'public/js/adminpanel/master'
 )
+ .js(
+        'resources/js/adminpanel/posyandu/index.js',
+        'public/js/adminpanel/posyandu'
+    )
+
+    .js(
+        'resources/js/adminpanel/posyandu/create.js',
+        'public/js/adminpanel/posyandu'
+    )
+     .js(
+        'resources/js/adminpanel/posyandu/edit.js',
+        'public/js/adminpanel/posyandu'
+    )
+    .js(
+    'resources/js/adminpanel/wilayahkerja/posyandu.js',
+    'public/js/adminpanel/wilayahkerja'
+)
 
 .postCss(
     'resources/css/app.css',

@@ -9,5 +9,9 @@
     "/js/adminpanel/userpanel/users.js": "/js/adminpanel/userpanel/users.js",
     "/js/adminpanel/wilayahkerja/puskesmas.js": "/js/adminpanel/wilayahkerja/puskesmas.js",
     "/js/adminpanel/master/masterfaskes.js": "/js/adminpanel/master/masterfaskes.js",
+    "/js/adminpanel/posyandu/index.js": "/js/adminpanel/posyandu/index.js",
+    "/js/adminpanel/posyandu/create.js": "/js/adminpanel/posyandu/create.js",
+    "/js/adminpanel/posyandu/edit.js": "/js/adminpanel/posyandu/edit.js",
+    "/js/adminpanel/wilayahkerja/posyandu.js": "/js/adminpanel/wilayahkerja/posyandu.js",
     "/css/app.css": "/css/app.css"
 }

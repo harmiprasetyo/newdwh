@@ -4,11 +4,13 @@ namespace App\Http\Controllers\AdminPanel\UserPanel;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\UserPanel\UserApp;
 use App\Models\Master\MasterFaskes;
+use App\Models\UserGroups;
 use App\Services\ActivityLogService;
 
 class UserAppController extends Controller
@@ -22,6 +24,32 @@ class UserAppController extends Controller
     public function index()
     {
         return view('adminpanel.userpanel.users.index');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CURRENT USER
+    |--------------------------------------------------------------------------
+    */
+
+    private function currentUser()
+    {
+        return Auth::user();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | IS GROUP 3
+    |--------------------------------------------------------------------------
+    */
+
+    private function isGroup3(): bool
+    {
+        $user = $this->currentUser();
+
+        return $user && (int) $user->groupid === 3;
     }
 
 
@@ -42,6 +70,36 @@ class UserAppController extends Controller
                 'district',
                 'faskes',
             ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESTRICTION GROUP 3
+        |--------------------------------------------------------------------------
+        |
+        | Group 3 hanya boleh melihat:
+        |
+        | group 3, 4, 5
+        |
+        | dengan kodeFaskes yang sama dengan user login.
+        |
+        */
+
+        if ($this->isGroup3()) {
+
+            $authUser = $this->currentUser();
+
+            $query->whereIn(
+                'groupid',
+                [3, 4, 5, 6]
+            );
+
+            $query->where(
+                'kodeFaskes',
+                $authUser->kodeFaskes
+            );
+        }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -77,7 +135,7 @@ class UserAppController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | GROUP
+        | GROUP FILTER
         |--------------------------------------------------------------------------
         */
 
@@ -92,7 +150,7 @@ class UserAppController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | ROLE
+        | ROLE FILTER
         |--------------------------------------------------------------------------
         */
 
@@ -150,6 +208,12 @@ class UserAppController extends Controller
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | EXECUTE
+        |--------------------------------------------------------------------------
+        */
+
         $users = $query
             ->orderBy('namalengkap')
             ->get();
@@ -177,25 +241,11 @@ class UserAppController extends Controller
                 'email' =>
                     $user->email,
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | GROUP
-                |--------------------------------------------------------------------------
-                */
-
                 'group_id' =>
                     $user->groupid,
 
                 'group_name' =>
                     optional($user->group)->group_name,
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | ROLE
-                |--------------------------------------------------------------------------
-                */
 
                 'role_id' =>
                     $user->role_id,
@@ -203,26 +253,12 @@ class UserAppController extends Controller
                 'role_name' =>
                     optional($user->roleData)->role_name,
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | FASKES
-                |--------------------------------------------------------------------------
-                */
-
                 'kodeFaskes' =>
                     $user->kodeFaskes,
 
                 'namaFaskes' =>
                     optional($user->faskes)->namaFaskes
                     ?? $user->namaFaskes,
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | WILAYAH
-                |--------------------------------------------------------------------------
-                */
 
                 'kodePropinsi' =>
                     $user->kodePropinsi,
@@ -242,16 +278,8 @@ class UserAppController extends Controller
                 'kecamatan_name' =>
                     optional($user->district)->name,
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | LEGACY ROLE
-                |--------------------------------------------------------------------------
-                */
-
                 'role' =>
                     $user->role,
-
 
                 'created_at' =>
                     optional($user->created_at)
@@ -291,6 +319,26 @@ class UserAppController extends Controller
             'district',
             'faskes',
         ])->findOrFail($id);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SECURITY GROUP 3
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->isGroup3()) {
+
+            $authUser = $this->currentUser();
+
+            abort_unless(
+                in_array((int) $user->groupid, [3, 4, 5, 6], true)
+                &&
+                $user->kodeFaskes === $authUser->kodeFaskes,
+                403,
+                'Anda tidak memiliki akses ke user ini.'
+            );
+        }
 
 
         return response()->json([
@@ -344,12 +392,79 @@ class UserAppController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | GROUP OPTIONS
+    |--------------------------------------------------------------------------
+    */
+
+    public function groups()
+    {
+
+
+
+    $query = UserGroups::query();
+
+        /*
+        |--------------------------------------------------------------------------
+        | GROUP 3
+        |--------------------------------------------------------------------------
+        |
+        | Group 3 hanya boleh membuat group 4 dan 5.
+        |
+        */
+
+        if ($this->isGroup3()) {
+
+            $query->whereIn(
+                'group_id',
+                [4, 5, 6]
+            );
+        }
+
+        return response()->json([
+
+            'success' => true,
+
+            'data' =>
+                $query
+                    ->orderBy('group_id')
+                    ->get(),
+
+        ]);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
     | STORE
     |--------------------------------------------------------------------------
     */
 
     public function store(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
+
+        if ((int) auth()->user()->groupid === 3) {
+
+    if (!in_array((int) $request->groupid, [4, 5, 6], true)) {
+
+        return response()->json([
+            'message' => 'User Group 3 hanya dapat mengelola user Group 4, Group 5, atau Group 6.'
+        ], 403);
+    }
+
+    $request->merge([
+        'kodePropinsi'  => auth()->user()->kodePropinsi,
+        'kodeKota'      => auth()->user()->kodeKota,
+        'kodeKecamatan' => auth()->user()->kodeKecamatan,
+        'kodeFaskes'    => auth()->user()->kodeFaskes,
+    ]);
+}
+
+
         $validator = Validator::make(
             $request->all(),
             [
@@ -407,7 +522,66 @@ class UserAppController extends Controller
         }
 
 
-        $data = $validator->validated();
+        $data =
+            $validator->validated();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SECURITY GROUP 3
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->isGroup3()) {
+
+            $authUser =
+                $this->currentUser();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP
+            |--------------------------------------------------------------------------
+            */
+
+            if (!in_array(
+                (int) $data['groupid'],
+                [4, 5, 6],
+                true
+            )) {
+
+                return response()->json([
+
+                    'success' => false,
+
+                    'message' =>
+                        'User Group 3 hanya dapat membuat user Group 4 atau Group 5.',
+
+                ], 403);
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | PENEMPATAN
+            |--------------------------------------------------------------------------
+            |
+            | Paksa menggunakan penempatan user login.
+            |
+            */
+
+            $data['kodePropinsi'] =
+                $authUser->kodePropinsi;
+
+            $data['kodeKota'] =
+                $authUser->kodeKota;
+
+            $data['kodeKecamatan'] =
+                $authUser->kodeKecamatan;
+
+            $data['kodeFaskes'] =
+                $authUser->kodeFaskes;
+        }
 
 
         /*
@@ -433,22 +607,18 @@ class UserAppController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CREATE USER
+        | CREATE
         |--------------------------------------------------------------------------
         */
 
-        $user = UserApp::create($data);
+        $user =
+            UserApp::create($data);
 
 
         /*
         |--------------------------------------------------------------------------
         | ACTIVITY LOG
         |--------------------------------------------------------------------------
-        |
-        | subject = UserApp MODEL
-        | oldValues = null
-        | newValues = array
-        |
         */
 
         ActivityLogService::log(
@@ -462,7 +632,8 @@ class UserAppController extends Controller
                 ')',
             subject: $user,
             oldValues: null,
-            newValues: $this->activityData($user)
+            newValues:
+                $this->activityData($user)
         );
 
 
@@ -497,13 +668,46 @@ class UserAppController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | SIMPAN DATA LAMA
+        | SECURITY
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->isGroup3()) {
+
+            $authUser =
+                $this->currentUser();
+
+
+            abort_unless(
+                in_array(
+                    (int) $user->groupid,
+                    [3, 4, 5, 6],
+                    true
+                )
+                &&
+                $user->kodeFaskes ===
+                    $authUser->kodeFaskes,
+                403,
+                'Anda tidak memiliki akses untuk mengubah user ini.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | OLD VALUES
         |--------------------------------------------------------------------------
         */
 
         $oldValues =
             $this->activityData($user);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
 
         $validator = Validator::make(
             $request->all(),
@@ -572,6 +776,63 @@ class UserAppController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | SECURITY GROUP 3
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->isGroup3()) {
+
+            $authUser =
+                $this->currentUser();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP YANG BOLEH DIKELOLA
+            |--------------------------------------------------------------------------
+            */
+
+            if (!in_array(
+                (int) $data['groupid'],
+                [4, 5, 6],
+                true
+            )
+            &&
+            (int) $user->groupid !== 3) {
+
+                return response()->json([
+
+                    'success' => false,
+
+                    'message' =>
+                        'User Group 3 hanya dapat mengelola Group 4, Group 5, atau Group 6.',
+
+                ], 403);
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | PENEMPATAN DIPAKSA
+            |--------------------------------------------------------------------------
+            */
+
+            $data['kodePropinsi'] =
+                $authUser->kodePropinsi;
+
+            $data['kodeKota'] =
+                $authUser->kodeKota;
+
+            $data['kodeKecamatan'] =
+                $authUser->kodeKecamatan;
+
+            $data['kodeFaskes'] =
+                $authUser->kodeFaskes;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
         | PASSWORD
         |--------------------------------------------------------------------------
         */
@@ -588,13 +849,12 @@ class UserAppController extends Controller
             unset(
                 $data['password']
             );
-
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | NAMA FASKES
+        | FASKES NAME
         |--------------------------------------------------------------------------
         */
 
@@ -603,18 +863,11 @@ class UserAppController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | UPDATE USER
+        | UPDATE
         |--------------------------------------------------------------------------
         */
 
         $user->update($data);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | REFRESH MODEL
-        |--------------------------------------------------------------------------
-        */
 
         $user->refresh();
 
@@ -636,7 +889,8 @@ class UserAppController extends Controller
                 ')',
             subject: $user,
             oldValues: $oldValues,
-            newValues: $this->activityData($user)
+            newValues:
+                $this->activityData($user)
         );
 
 
@@ -665,19 +919,34 @@ class UserAppController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | SIMPAN DATA SEBELUM DELETE
+        | SECURITY GROUP 3
         |--------------------------------------------------------------------------
         */
+
+        if ($this->isGroup3()) {
+
+            $authUser =
+                $this->currentUser();
+
+
+            abort_unless(
+                in_array(
+                    (int) $user->groupid,
+                    [3, 4, 5, 6],
+                    true
+                )
+                &&
+                $user->kodeFaskes ===
+                    $authUser->kodeFaskes,
+                403,
+                'Anda tidak memiliki akses untuk menghapus user ini.'
+            );
+        }
+
 
         $oldValues =
             $this->activityData($user);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | SIMPAN INFORMASI UNTUK DESKRIPSI
-        |--------------------------------------------------------------------------
-        */
 
         $userName =
             $user->username;
@@ -685,22 +954,6 @@ class UserAppController extends Controller
         $fullName =
             $user->namalengkap;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | ACTIVITY LOG
-        |--------------------------------------------------------------------------
-        |
-        | PENTING:
-        | subject tetap MODEL UserApp.
-        |
-        | Jangan gunakan:
-        |
-        | subject: $oldValues
-        |
-        | karena $oldValues adalah ARRAY.
-        |
-        */
 
         ActivityLogService::log(
             action: 'delete',
@@ -716,12 +969,6 @@ class UserAppController extends Controller
             newValues: null
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE
-        |--------------------------------------------------------------------------
-        */
 
         $user->delete();
 
@@ -755,10 +1002,33 @@ class UserAppController extends Controller
             MasterFaskes::query();
 
 
-        $query->where(
-            'kodeKecamatan',
-            $request->kecamatan
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | GROUP 3
+        |--------------------------------------------------------------------------
+        |
+        | Hanya boleh melihat faskes miliknya.
+        |
+        */
+
+        if ($this->isGroup3()) {
+
+            $authUser =
+                $this->currentUser();
+
+
+            $query->where(
+                'kodeFaskes',
+                $authUser->kodeFaskes
+            );
+        }
+        else {
+
+            $query->where(
+                'kodeKecamatan',
+                $request->kecamatan
+            );
+        }
 
 
         $data =
@@ -817,7 +1087,6 @@ class UserAppController extends Controller
 
             $data['namaFaskes'] =
                 null;
-
         }
     }
 
@@ -826,11 +1095,6 @@ class UserAppController extends Controller
     |--------------------------------------------------------------------------
     | ACTIVITY LOG DATA
     |--------------------------------------------------------------------------
-    |
-    | Data yang disimpan ke old_values / new_values.
-    |
-    | Password dan api_token sengaja tidak dicatat.
-    |
     */
 
     private function activityData(

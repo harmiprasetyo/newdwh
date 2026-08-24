@@ -32,31 +32,23 @@ id="id"
 name="id">
 <div class="mb-3">
 
-<label>
+    <label>
+        Posyandu
+    </label>
 
-Posyandu
+    <select
+        name="kodePosyandu"
+        id="kodePosyandu"
+        class="form-select"
+        required>
 
-</label>
-
-<select
-    name="kodePosyandu"
-    id="kodePosyandu"
-    class="form-select">
-
-    <option value="">Pilih Posyandu</option>
-
-    @foreach($posyandu as $item)
-
-        <option value="{{ $item->kodePosyandu }}">
-            {{ $item->namaPosyandu }}
+        <option value="">
+            Pilih Posyandu
         </option>
 
-    @endforeach
-
-</select>
+    </select>
 
 </div>
-
 <div class="mb-3">
 
     <label class="form-label">
@@ -88,33 +80,3 @@ Simpan
 
 </div>
 
-<script>
-    const tagifyRW = new Tagify(document.querySelector('#rw'),{
-
-    duplicates:false,
-
-    maxTags:30,
-
-    pattern:/^[0-9]{1,3}$/,
-
-    dropdown:{
-        enabled:0
-    }
-
-});
-
-
-
-
-$('#kodePosyandu').select2({
-
-    dropdownParent: $('#offcanvasForm'),
-
-    width:'100%',
-
-    placeholder:'Pilih Posyandu'
-
-});
-
-
-    </script>

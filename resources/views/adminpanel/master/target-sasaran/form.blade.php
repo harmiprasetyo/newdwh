@@ -24,33 +24,32 @@
 
                     </label>
 
-                    <select
-                        name="posyandu_id"
-                        class="form-select select2"
-                        required>
+                   <select
+    name="posyandu_id"
+    id="posyandu_id"
+    class="form-select"
+    required
+>
+    <option value="">
+        Pilih Posyandu
+    </option>
 
-                        <option value="">
+    @foreach($posyandu as $item)
 
-                            Pilih Posyandu
+        <option
+            value="{{ $item->id }}"
+            @selected(
+                old(
+                    'posyandu_id',
+                    $target_sasaran->posyandu_id ?? ''
+                ) == $item->id
+            )
+        >
+            {{ $item->namaPosyandu }}
+        </option>
 
-                        </option>
-
-                        @foreach($posyandu as $item)
-
-                        <option
-                            value="{{$item->id}}"
-
-                            @selected(old('posyandu_id',$target_sasaran->posyandu_id ?? '')==$item->id)
-
-                        >
-
-                            {{$item->namaPosyandu}}
-
-                        </option>
-
-                        @endforeach
-
-                    </select>
+    @endforeach
+</select>
 
                 </div>
 

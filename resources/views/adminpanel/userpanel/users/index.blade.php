@@ -590,11 +590,38 @@ window.UserPanelConfig = {
         @json(route('adminpanel.userpanel.users.faskes')),
 
     rolesByGroupUrl:
-        @json(route('adminpanel.userpanel.roles.bygroup'))
+        @json(route('adminpanel.userpanel.roles.bygroup')),
+
+    groupsUrl:
+        @json(route('adminpanel.userpanel.users.groups')),
+
+    currentUser: {
+    groupid:
+        @json(auth()->user()->groupid ?? null),
+
+    kodePropinsi:
+        @json(auth()->user()->kodePropinsi ?? null),
+
+    kodeKota:
+        @json(auth()->user()->kodeKota ?? null),
+
+    kodeKecamatan:
+        @json(auth()->user()->kodeKecamatan ?? null),
+
+    kodeFaskes:
+        @json(auth()->user()->kodeFaskes ?? null),
+
+    namaFaskes:
+        @json(auth()->user()->namaFaskes ?? null),
+
+    isGroup3:
+        @json((int) (auth()->user()->groupid ?? 0) === 3)
+}
 
 };
-
 </script>
+
+
 
 <script src="{{ mix('js/adminpanel/userpanel/users.js') }}"></script>
 
