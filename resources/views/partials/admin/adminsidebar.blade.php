@@ -212,27 +212,6 @@
         {{-- DATA TARGET                                           --}}
         {{-- ===================================================== --}}
 
-        <a href="#"
-           class="menu-toggle
-           {{ request()->is('adminpanel/master/target*') ? 'active' : '' }}">
-
-            <i class="fa fa-map"></i>
-            Data Target
-
-        </a>
-
-        <div class="submenu
-             {{ request()->is('adminpanel/master/target*') ? 'd-block' : '' }}">
-
-            <a href="{{ route('master.target-sasaran.index') }}"
-               class="{{ request()->is('adminpanel/master/target*') ? 'active' : '' }}">
-
-                Target Sasaran
-
-            </a>
-
-        </div>
-
 
 
 
