@@ -251,35 +251,6 @@
 
         </a>
 
-        <div class="submenu
-             {{ request()->is(
-                'adminpanel/masterobat*',
-                'adminpanel/parameterperingatan*',
-                'adminpanel/label-lplpo*'
-             ) ? 'd-block' : '' }}">
-
-            <a href="/adminpanel/masterobat"
-               class="{{ request()->is('adminpanel/masterobat*') ? 'active' : '' }}">
-
-                Master Obat
-
-            </a>
-
-            <a href="/adminpanel/parameterperingatan"
-               class="{{ request()->is('adminpanel/parameterperingatan*') ? 'active' : '' }}">
-
-                Peringatan data
-
-            </a>
-
-            <a href="/adminpanel/label-lplpo"
-               class="{{ request()->is('adminpanel/label-lplpo*') ? 'active' : '' }}">
-
-                Labeling Kolom LPLPO
-
-            </a>
-
-        </div>
 
 
         {{-- ===================================================== --}}
