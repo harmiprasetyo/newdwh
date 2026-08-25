@@ -97,4 +97,4 @@ deploy_production:
       EOF
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      when: manual # Klik tombol Play untuk deployment
+     # when: manual # Klik tombol Play untuk deployment
