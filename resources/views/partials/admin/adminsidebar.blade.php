@@ -234,22 +234,6 @@
         </div>
 
 
-        {{-- ===================================================== --}}
-        {{-- MASTER DATA LPLPO                                    --}}
-        {{-- ===================================================== --}}
-
-        <a href="#"
-           class="menu-toggle
-           {{ request()->is(
-                'adminpanel/masterobat*',
-                'adminpanel/parameterperingatan*',
-                'adminpanel/label-lplpo*'
-           ) ? 'active' : '' }}">
-
-            <i class="fa fa-map"></i>
-            Master Data LPLPO
-
-        </a>
 
 
 
