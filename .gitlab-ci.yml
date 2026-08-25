@@ -71,7 +71,6 @@ cek_build_frontend:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
-
 # ====================================================
 # STAGE 2: DEPLOY PRODUCTION
 # ====================================================
@@ -80,7 +79,7 @@ deploy_production:
   image: alpine:latest
 
   before_script:
-    - apk add --no-cache openssh-client sshpass
+    - apk add --no-cache openssh-client sshpass git
 
   script:
     - |
@@ -101,19 +100,27 @@ deploy_production:
         echo "=== UPDATE SOURCE CODE ==="
         echo "========================================"
 
-        echo "Commit CI:"
+        echo "Commit server sebelum update:"
         git rev-parse --short HEAD || true
+
+        echo "Commit CI:"
+        echo "$CI_COMMIT_SHORT_SHA"
 
         echo "Fetch source dari GitLab..."
 
-        git -c http.extraHeader="JOB-TOKEN: ${CI_JOB_TOKEN}" \
+        git -c credential.helper='!f() { echo username=gitlab-ci-token; echo password=$CI_JOB_TOKEN; }; f' \
             fetch origin main
 
         echo "Reset source ke origin/main..."
 
         git reset --hard origin/main
 
-        echo "Source code berhasil diperbarui."
+        echo "========================================"
+        echo "=== SOURCE CODE UPDATED ==="
+        echo "========================================"
+
+        echo "Commit server sesudah update:"
+        git rev-parse --short HEAD
 
         echo "========================================"
         echo "=== REBUILD & RESTART CONTAINER ==="
@@ -124,9 +131,6 @@ deploy_production:
         echo "========================================"
         echo "=== DEPLOY SELESAI ==="
         echo "========================================"
-
-        echo "Commit server:"
-        git rev-parse --short HEAD
 
       EOF
 
