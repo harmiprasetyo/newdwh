@@ -1,0 +1,100 @@
+stages:
+  - check_network
+  - build_check
+  - deploy
+
+default:
+  interruptible: true
+  tags:
+    - diskominfo-runner
+
+# ====================================================
+# STAGE 0: CHECK NETWORK (Diagnosa Jalur Runner ke VM)
+# ====================================================
+check-network:
+  stage: check_network
+  image: alpine:latest
+  tags:
+    - diskominfo-runner
+  before_script:
+    - apk add --no-cache iproute2 iputils netcat-openbsd curl
+  script:
+    - echo "=== IP Runner ==="
+    - hostname -I || ip addr show || true
+
+    - echo "=== Routing ==="
+    - ip route || true
+
+    - echo "=== Route ke VM Dinkes ==="
+    - ip route get 10.100.17.118 || true
+
+    - echo "=== Test Ping ==="
+    - ping -c 3 10.100.17.118 || true
+
+    - echo "=== Test SSH Port ==="
+    - nc -vz -w 5 10.100.17.118 22 || true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
+
+
+# ====================================================
+# STAGE 1: BUILD CHECK
+# ====================================================
+cek_build_frontend:
+  stage: build_check
+  image: node:20-alpine
+  variables:
+    NEXT_TELEMETRY_DISABLED: "1"
+  before_script:
+    - npm ci --cache .npm --prefer-offline || npm install --legacy-peer-deps --cache .npm
+  script:
+    - echo "=== MENCOBA PROSES BUILD APLIKASI ==="
+    - npm run build
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+
+# ====================================================
+# STAGE 2: DEPLOY PRODUCTION
+# ====================================================
+deploy_production:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client sshpass
+  script:
+    - |
+      sshpass -p "$SSH_PASSWORD" ssh \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        admin_primary_dwh@10.100.17.118 << 'EOF'
+
+        cd /home/admin_primary_dwh/newdwh || {
+          echo "Folder /home/admin_primary_dwh/newdwh tidak ditemukan!"
+          exit 1
+        }
+
+        echo "=== RESET & PULL CODE MAIN ==="
+
+        git reset --hard
+
+        git fetch origin main
+
+        git checkout -B main origin/main
+
+        echo "=== REBUILD & RESTART CONTAINER ==="
+
+        docker compose up -d --build app
+
+      EOF
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual # Klik tombol Play untuk deployment
