@@ -8,16 +8,17 @@ default:
   tags:
     - diskominfo-runner
 
+
 # ====================================================
-# STAGE 0: CHECK NETWORK (Diagnosa Jalur Runner ke VM)
+# STAGE 0: CHECK NETWORK
 # ====================================================
 check-network:
   stage: check_network
   image: alpine:latest
-  tags:
-    - diskominfo-runner
+
   before_script:
     - apk add --no-cache iproute2 iputils netcat-openbsd curl
+
   script:
     - echo "=== IP Runner ==="
     - hostname -I || ip addr show || true
@@ -33,14 +34,19 @@ check-network:
 
     - echo "=== Test SSH Port ==="
     - nc -vz -w 5 10.100.17.118 22 || true
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
 
+# ====================================================
+# CACHE NPM
+# ====================================================
 cache:
   key:
     files:
       - package-lock.json
+
   paths:
     - .npm/
 
@@ -51,13 +57,17 @@ cache:
 cek_build_frontend:
   stage: build_check
   image: node:20-alpine
+
   variables:
     NEXT_TELEMETRY_DISABLED: "1"
+
   before_script:
     - npm ci --legacy-peer-deps --cache .npm --prefer-offline
+
   script:
     - echo "=== MENCOBA PROSES BUILD APLIKASI ==="
     - npm run build
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
@@ -68,33 +78,57 @@ cek_build_frontend:
 deploy_production:
   stage: deploy
   image: alpine:latest
+
   before_script:
     - apk add --no-cache openssh-client sshpass
+
   script:
     - |
       sshpass -p "$SSH_PASSWORD" ssh \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
-        admin_primary_dwh@10.100.17.118 << 'EOF'
+        admin_primary_dwh@10.100.17.118 \
+        "CI_JOB_TOKEN='$CI_JOB_TOKEN' bash -s" << 'EOF'
+
+        set -e
 
         cd /home/admin_primary_dwh/newdwh || {
           echo "Folder /home/admin_primary_dwh/newdwh tidak ditemukan!"
           exit 1
         }
 
-        echo "=== RESET & PULL CODE MAIN ==="
+        echo "========================================"
+        echo "=== UPDATE SOURCE CODE ==="
+        echo "========================================"
 
-        git reset --hard
+        echo "Commit CI:"
+        git rev-parse --short HEAD || true
 
-        git fetch origin main
+        echo "Fetch source dari GitLab..."
 
-        git checkout -B main origin/main
+        git -c http.extraHeader="JOB-TOKEN: ${CI_JOB_TOKEN}" \
+            fetch origin main
 
+        echo "Reset source ke origin/main..."
+
+        git reset --hard origin/main
+
+        echo "Source code berhasil diperbarui."
+
+        echo "========================================"
         echo "=== REBUILD & RESTART CONTAINER ==="
+        echo "========================================"
 
         docker compose up -d --build app
 
+        echo "========================================"
+        echo "=== DEPLOY SELESAI ==="
+        echo "========================================"
+
+        echo "Commit server:"
+        git rev-parse --short HEAD
+
       EOF
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-     # when: manual # Klik tombol Play untuk deployment
