@@ -8,6 +8,35 @@ default:
   tags:
     - diskominfo-runner
 
+# ====================================================
+# STAGE 0: CHECK NETWORK (Diagnosa Jalur Runner ke VM)
+# ====================================================
+check-network:
+  stage: check_network
+  image: alpine:latest
+  tags:
+    - diskominfo-runner
+  before_script:
+    - apk add --no-cache iproute2 iputils netcat-openbsd curl
+  script:
+    - echo "=== IP Runner ==="
+    - hostname -I || ip addr show || true
+
+    - echo "=== Routing ==="
+    - ip route || true
+
+    - echo "=== Route ke VM Dinkes ==="
+    - ip route get 10.100.17.118 || true
+
+    - echo "=== Test Ping ==="
+    - ping -c 3 10.100.17.118 || true
+
+    - echo "=== Test SSH Port ==="
+    - nc -vz -w 5 10.100.17.118 22 || true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+
 cache:
   key:
     files:
@@ -17,52 +46,18 @@ cache:
 
 
 # ====================================================
-# STAGE 0: CHECK NETWORK
-# ====================================================
-check-network:
-  stage: check_network
-  image: alpine:latest
-
-  before_script:
-    - apk add --no-cache iproute2 iputils netcat-openbsd curl
-
-  script:
-    - echo "=== IP RUNNER ==="
-    - hostname -I || ip addr show || true
-
-    - echo "=== ROUTING ==="
-    - ip route || true
-
-    - echo "=== ROUTE KE SERVER ==="
-    - ip route get 10.100.17.118 || true
-
-    - echo "=== TEST PING ==="
-    - ping -c 3 10.100.17.118 || true
-
-    - echo "=== TEST SSH PORT ==="
-    - nc -vz -w 5 10.100.17.118 22
-
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
-
-# ====================================================
 # STAGE 1: BUILD CHECK
 # ====================================================
 cek_build_frontend:
   stage: build_check
   image: node:20-alpine
-
   variables:
     NEXT_TELEMETRY_DISABLED: "1"
-
   before_script:
     - npm ci --cache .npm --prefer-offline || npm install --legacy-peer-deps --cache .npm
-
   script:
     - echo "=== MENCOBA PROSES BUILD APLIKASI ==="
     - npm run build
-
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
@@ -73,61 +68,33 @@ cek_build_frontend:
 deploy_production:
   stage: deploy
   image: alpine:latest
-
   before_script:
     - apk add --no-cache openssh-client sshpass
-
   script:
     - |
-      echo "=========================================="
-      echo "     DEPLOY NEWDWH"
-      echo "=========================================="
-
       sshpass -p "$SSH_PASSWORD" ssh \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
         admin_primary_dwh@10.100.17.118 << 'EOF'
 
-        set -e
+        cd /home/admin_primary_dwh/newdwh || {
+          echo "Folder /home/admin_primary_dwh/newdwh tidak ditemukan!"
+          exit 1
+        }
 
-        echo "=== SERVER ==="
-        hostname
+        echo "=== RESET & PULL CODE MAIN ==="
 
-        echo "=== DIRECTORY ==="
-        cd /home/admin_primary_dwh/newdwh
-
-        pwd
-
-        echo "=== GIT REMOTE ==="
-        git remote -v
-
-        echo "=== RESET WORKING TREE ==="
         git reset --hard
 
-        echo "=== FETCH MAIN ==="
         git fetch origin main
 
-        echo "=== CHECKOUT MAIN ==="
         git checkout -B main origin/main
 
-        echo "=== CURRENT COMMIT ==="
-        git rev-parse HEAD
-
-        echo "=== CURRENT BRANCH ==="
-        git branch --show-current
-
         echo "=== REBUILD & RESTART CONTAINER ==="
+
         docker compose up -d --build app
 
-        echo "=== DOCKER STATUS ==="
-        docker compose ps
-
-        echo "=========================================="
-        echo "     DEPLOY SELESAI"
-        echo "=========================================="
-
       EOF
-
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      when: on_success
+      when: manual # Klik tombol Play untuk deployment

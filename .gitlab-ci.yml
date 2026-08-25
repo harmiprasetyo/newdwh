@@ -54,7 +54,7 @@ cek_build_frontend:
   variables:
     NEXT_TELEMETRY_DISABLED: "1"
   before_script:
-    - npm ci --cache .npm --prefer-offline || npm install --legacy-peer-deps --cache .npm
+    - npm ci --legacy-peer-deps --cache .npm --prefer-offline
   script:
     - echo "=== MENCOBA PROSES BUILD APLIKASI ==="
     - npm run build
