@@ -142,6 +142,52 @@ class DataRmeController extends Controller
     ->toArray();
 
 
+      $newENC = Http::withToken($token)->get($server."Encounter/".$encounterId);
+        $encResult = $newENC->json();
+
+       $episodeIdentifier = collect($encResult['identifier'] ?? [])
+    ->firstWhere(
+        'system',
+        'http://terminology.kemkes.go.id/CodeSystem/episodeofcare/puerperium'
+    );
+
+$episodeCode = strtoupper(
+    trim($episodeIdentifier['value'] ?? '')
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| JENIS KUNJUNGAN
+|--------------------------------------------------------------------------
+*/
+
+if (in_array($episodeCode, [
+    'K1',
+    'K2',
+    'K3',
+    'K4',
+    'K5',
+    'K6',
+], true)) {
+
+    $dt['NewENC']['ANC']['jenis_kunjungan'] = $episodeCode;
+
+} elseif (in_array($episodeCode, [
+    'KF1',
+    'KF2',
+    'KF3',
+    'KF4',
+], true)) {
+
+    $dt['NewENC']['PNC']['jenis_kunjungan'] = $episodeCode;
+}
+
+
+
+
+
+
 
 
 
@@ -528,6 +574,10 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
 
               if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='55283-6'){
                  $dt['ANC']['anc_djj']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
+            }
+
+            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='32422-8'){
+                 $dt['PNC']['pnc_payudara']=$obs['resource']['valueCodeableConcept']['coding'][0]['display'];
             }
 
 
@@ -943,6 +993,23 @@ if (isset($data['entry'])) {
     '9198-5' => [
         ['target' => 'neonatal', 'field' => 'apgar_1_menit', 'path' => 'valueInteger'],
     ],
+
+     '32422-8' => [
+        ['target' => 'pnc', 'field' => 'pemeriksaan_payudara', 'path' => 'valueCodeableConcept.coding.0.display'],
+    ],
+
+     'OC000017' => [
+        ['target' => 'pnc', 'field' => 'produksi_asi', 'path' => 'valueCodeableConcept.coding.0.display'],
+    ],
+
+    'OC000020' => [
+    [
+        'target' => 'pnc',
+        'field' => 'tanda_infeksi_perineum',
+        'path' => 'valueBoolean',
+        'transform' => 'boolean_ada',
+    ],
+],
 ];
 
 $containers = [
@@ -1105,6 +1172,7 @@ $dt['PNC'] = PncRecord::where('patient_id', $patient)->where('encounter_id', $en
 $dt['NEONATAL'] = NeonatalRecord::where('patient_id', $patient)->where('encounter_id', $encounterId)->get()->toArray();
 
 
+
  //       return response()->json([
  //           'status' => 'success'
 //        ]);
@@ -1165,7 +1233,7 @@ if (!empty($dataImn['entry'])) {
     }
 }
 
- $anamnese = Http::withToken($token)
+/* $anamnese = Http::withToken($token)
     ->get($server."Condition?encounter=".$encounterId);
 
 $resAnamnese = $anamnese->json();
@@ -1185,6 +1253,124 @@ if (!empty($resAnamnese['entry'])) {
         ];
     }
 }
+*/
+$anamnese = Http::withToken($token)
+    ->get($server . "Condition?encounter=" . $encounterId);
+
+$resAnamnese = $anamnese->json();
+
+
+/*
+|--------------------------------------------------------------------------
+| ANAMNESE
+|--------------------------------------------------------------------------
+*/
+
+$dt['ANAMNESE'] = [];
+
+
+/*
+|--------------------------------------------------------------------------
+| PNC DIAGNOSIS
+|--------------------------------------------------------------------------
+*/
+
+$dt['NewENC']['PNC']['diagnosis'] = [];
+
+
+if (!empty($resAnamnese['entry'])) {
+
+    foreach ($resAnamnese['entry'] as $item) {
+
+        $r = $item['resource'] ?? [];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL CATEGORY
+        |--------------------------------------------------------------------------
+        */
+
+        $categories = data_get(
+            $r,
+            'category',
+            []
+        );
+
+
+        $isEncounterDiagnosis = false;
+
+
+        foreach ($categories as $category) {
+
+            $codings = $category['coding'] ?? [];
+
+
+            foreach ($codings as $coding) {
+
+                if (
+                    ($coding['code'] ?? null)
+                    === 'encounter-diagnosis'
+                ) {
+
+                    $isEncounterDiagnosis = true;
+
+                    break 2;
+                }
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL DIAGNOSA
+        |--------------------------------------------------------------------------
+        */
+
+        $diagnosis = [
+
+            'diagnosa_kode' =>
+                data_get(
+                    $r,
+                    'code.coding.0.code'
+                ),
+
+            'diagnosa_display' =>
+                data_get(
+                    $r,
+                    'code.coding.0.display'
+                ),
+
+        ];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SIMPAN SEMUA CONDITION KE ANAMNESE
+        |--------------------------------------------------------------------------
+        */
+
+        $dt['ANAMNESE'][] = $diagnosis;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | JIKA encounter-diagnosis
+        |--------------------------------------------------------------------------
+        */
+
+        if ($isEncounterDiagnosis) {
+
+            $dt['NewENC']['PNC']['diagnosis'][] =
+                $diagnosis;
+        }
+    }
+}
+
+
+
+
+
 
 
          $plan = Http::withToken($token)->get($server."CarePlan?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);

@@ -24,7 +24,8 @@ class EncounterService
             // =========================
             // IDENTIFIER
             // =========================
-            $identifier = $r['identifier'][0]['value'] ?? null;
+            $identifier = $r['identifier'][1]['value'] ?? null;
+           //  $jeniskunjungan = $r['identifier'][1]['value'] ?? null;
 
             // =========================
             // CLASS

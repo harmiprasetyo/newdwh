@@ -2,6 +2,7 @@
 @section('container')
 
 
+
 <div class="container overflow-hidden mt-4">
   <div class="row gx-5 mt-4">
     <div class="col">
@@ -973,7 +974,13 @@
                    <tr>
                     <td>Jenis Kunjungan</td>
                     <td>:</td>
-                    <td></td>
+                    <td>
+                        @if(isset($dt['NewENC']['PNC']['jenis_kunjungan']))
+                        {{ $dt['NewENC']['PNC']['jenis_kunjungan'] }}
+                        @endif
+
+
+                    </td>
                    </tr>
                    <tr>
                     <td>G.P.A</td>
@@ -1003,16 +1010,14 @@
                    <tr>
                     <td style="vertical-align: top">Diagnosis</td>
                     <td style="vertical-align: top">:</td>
-                    <td>@if(isset($dt['ANAMNESE']))
-                        @foreach($dt['ANAMNESE'] as $diagnose)
+                    <td> @if(isset($dt['NewENC']['PNC']['diagnosis']))
+                        @foreach($dt['NewENC']['PNC']['diagnosis'] as $diagnose)
 
-                        <li>{{ $diagnose['diagnosa_kode'] }} - {{ $diagnose['diagnosa_display'] }}</li><br>
+                        <li>{{ $diagnose['diagnosa_kode'] }} - {{ $diagnose['diagnosa_display'] }}</li>
 
                         @endforeach
-
-
-
-                        @endif</td>
+                        @endif
+</td>
                    </tr>
 
                    <tr>
