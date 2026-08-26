@@ -1389,6 +1389,7 @@ if (!empty($resAnamnese['entry'])) {
        if(isset($proceData['entry'])){
         $dt['proc'] = $proceData;
         foreach($proceData['entry'] as $k=>$pr){
+           $dt['PNCPROC'][$k]['category'] = $pr['resource']['category']['coding'][0]['code'];
             $dt['PNCPROC'][$k]['code'] = $pr['resource']['code']['coding'][0]['code'];
             $dt['PNCPROC'][$k]['display'] = $pr['resource']['code']['coding'][0]['display'];
             $dt['PNCPROC'][$k]['procedure'] = $pr['resource']['code'];

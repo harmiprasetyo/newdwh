@@ -1035,14 +1035,20 @@
                    <tr>
                     <td>Pendarahan Pervaginum</td>
                     <td>:</td>
-                    <td>@if(isset($dt['PNC'][0]['pendarahan'])) {{ $dt['PNC'][0]['pendarahan'] }} mL @endif</td>
+                    <td>@if(isset($dt['ANAMNESE'][0]['diagnosa_kode']) && $dt['ANAMNESE'][0]['diagnosa_kode']=='289530006') Ada @else Tidak ada @endif</td>
                    </tr>
                    <tr>
                     <td>Infeksi Perineum</td>
                     <td>:</td>
                     <td>@if(isset($dt['PNC'][0]['tanda_infeksi_perineum']))
+                        @if($dt['PNC'][0]['tanda_infeksi_perineum']=="0")
+                        Tidak ada
+                        @else
+                        Ada
+                        @endif
 
-                        {{ $dt['PNC'][0]['tanda_infeksi_perineum'] }}
+
+
 
                         @endif</td>
                    </tr>
@@ -1075,30 +1081,27 @@
                     <td>:</td>
                     <td>
 
-                        @if(isset($dt['PNCPROC'][0]['procedure']))
-                        @foreach($dt['PNCPROC'][0]['procedure']['coding'] as $proc)
-                        <li>{{ $proc['code'] }} - {{ $proc['display'] }}</li>
-                        @endforeach
-                        @endif
+
+                       @if(!empty($dt['PNCPROC']))
+    @foreach($dt['PNCPROC'] as $procData)
+
+        @if(($procData['category'] ?? null) == '373110003')
+
+            @foreach($procData['procedure']['coding'] ?? [] as $proc)
+                <li>
+                    {{ $proc['code'] }} - {{ $proc['display'] }}
+                </li>
+            @endforeach
+
+        @endif
+
+    @endforeach
+@endif
 
 
                     </td>
                    </tr>
-                   <tr>
-                    <td>Laboratorium</td>
-                    <td>:</td>
-                    <td><span>
 
-                                @if (isset($dt['lab']))
-
-
-
-                                  @foreach ($dt['lab'] as $key=>$val )
-                                  {{  $val['label'] }}  : {{  $val['val'] }} </span><br>
-                                @endforeach
-
-                                     @endif</td>
-                   </tr>
                    <tr>
                     <td>Obat</td>
                     <td>:</td>

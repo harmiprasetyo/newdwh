@@ -4,61 +4,89 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use App\Models\UsersApp;
+use App\Services\ActivityLogService;
+
 class AuthController extends Controller
 {
     public function __construct()
     {
         // kalau sudah login, tidak boleh ke halaman login
         $this->middleware('guest')->only(['index', 'login']);
+
         // hanya user login yang boleh logout & akses home
         $this->middleware('auth')->only(['logout', 'home']);
     }
 
-    // halaman login
+    // =========================================================
+    // HALAMAN LOGIN
+    // =========================================================
+
     public function index()
     {
-    if (Auth::check()) {
-        return redirect()->route('homepage');
-    }
-    return view('login.loginform');
+        if (Auth::check()) {
+            return redirect()->route('homepage');
+        }
+
+        return view('login.loginform');
     }
 
-    // proses login
 
+    // =========================================================
+    // PROSES LOGIN
+    // =========================================================
 
     public function login(Request $request)
     {
-
-
-
-
-
-      $request->validate([
+        $request->validate([
             'username' => 'required',
             'password' => 'required'
         ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOGIN BERHASIL
+        |--------------------------------------------------------------------------
+        */
 
         if (Auth::attempt([
             'username' => $request->username,
             'password' => $request->password
         ])) {
 
-            // penting untuk security
+            // Security
             $request->session()->regenerate();
 
-              // 🔥 AMBIL USER
-        $user = Auth::user();
+            // Ambil user
+            $user = Auth::user();
 
-        // 🔥 SIMPAN KE SESSION
-        session([
-            'group' => $user->groupid,
-            'kodeFaskes' => $user->kodeFaskes,
-            'kab' => $user->kodeKota,
-            'prop' => $user->kodePropinsi
-        ]);
 
+            /*
+            |--------------------------------------------------------------------------
+            | SIMPAN SESSION
+            |--------------------------------------------------------------------------
+            */
+
+            session([
+                'group' => $user->groupid,
+                'kodeFaskes' => $user->kodeFaskes,
+                'kab' => $user->kodeKota,
+                'prop' => $user->kodePropinsi
+            ]);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTIVITY LOG
+            |--------------------------------------------------------------------------
+            */
+
+            ActivityLogService::log(
+                'login',
+                'auth',
+                'Login berhasil'
+            );
 
 
             return response()->json([
@@ -67,66 +95,168 @@ class AuthController extends Controller
             ]);
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOGIN GAGAL
+        |--------------------------------------------------------------------------
+        */
+
+        ActivityLogService::log(
+            'login_failed',
+            'auth',
+            'Login gagal - username atau password salah'
+        );
+
+
         return response()->json([
             'success' => false,
             'message' => 'Username atau password salah'
         ], 401);
-
     }
 
-    // halaman setelah login
+
+    // =========================================================
+    // HOME
+    // =========================================================
+
     public function home()
     {
+        if (auth()->user()->groupid == 3) {
 
-    if(auth()->user()->groupid == 3) {
-        return view('homepage');
-    }elseif(auth()->user()->groupid == 1) {
-        return view('homepageadmin');
-    }else{
+            return view('homepage');
 
-       return view('homepage'); // buat view home.blade.php
+        } elseif (auth()->user()->groupid == 1) {
+
+            return view('homepageadmin');
+
+        } else {
+
+            return view('homepage');
+        }
     }
-    }
 
-    // logout
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
+
     public function logout(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | ACTIVITY LOG SEBELUM LOGOUT
+        |--------------------------------------------------------------------------
+        */
+
+        ActivityLogService::log(
+            'logout',
+            'auth',
+            'User logout'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOGOUT
+        |--------------------------------------------------------------------------
+        */
+
         Auth::logout();
 
         // invalidate session
         $request->session()->invalidate();
+
+        // regenerate CSRF token
         $request->session()->regenerateToken();
 
         return redirect('/login');
     }
 
 
-   public function loginsso(Request $request)
-{
-    $request->validate([
-        'token' => 'required'
-    ]);
+    // =========================================================
+    // SSO LOGIN
+    // =========================================================
 
-    // cari user berdasarkan token
-    $user = UsersApp::where('api_token', hash('sha256', $request->token))->first();
+    public function loginsso(Request $request)
+    {
+        $request->validate([
+            'token' => 'required'
+        ]);
 
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Token tidak valid'
-        ], 401);
+
+        /*
+        |--------------------------------------------------------------------------
+        | CARI USER BERDASARKAN TOKEN
+        |--------------------------------------------------------------------------
+        */
+
+        $user = UsersApp::where(
+            'api_token',
+            hash('sha256', $request->token)
+        )->first();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOKEN TIDAK VALID
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user) {
+
+            ActivityLogService::log(
+                'login_failed',
+                'auth',
+                'SSO login gagal - token tidak valid'
+            );
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tidak valid'
+            ], 401);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOGIN MANUAL
+        |--------------------------------------------------------------------------
+        */
+
+        Auth::login($user);
+
+        // regenerate session
+        $request->session()->regenerate();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SIMPAN SESSION
+        |--------------------------------------------------------------------------
+        */
+
+        session([
+            'group' => $user->groupid,
+            'kodeFaskes' => $user->kodeFaskes,
+            'kab' => $user->kodeKota,
+            'prop' => $user->kodePropinsi
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTIVITY LOG
+        |--------------------------------------------------------------------------
+        */
+
+        ActivityLogService::log(
+            'login',
+            'auth',
+            'SSO login berhasil'
+        );
+
+
+        return redirect()->route('homepage');
     }
-
-    // 🔥 login manual (pakai session)
-    Auth::login($user);
-
-    // regenerate session (BENAR untuk web)
-    $request->session()->regenerate();
-
-    /* return response()->json([
-        'success' => true,
-        'redirect' => route('homepage')
-    ]); */
-    return redirect()->route('homepage');
-}
 }
