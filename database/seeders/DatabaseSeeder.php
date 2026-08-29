@@ -19,6 +19,32 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 
+    /**
+         * =========================
+         * USER GROUPS
+         * =========================
+         */
+        UserGroups::upsert([
+
+            [
+            "group_id"=>"1",
+            "group_name"=>"Administrator"
+                ],
+            [
+            "group_id"=>"2",
+            "group_name"=>"Dinas Kesehatan"],
+            [
+            "group_id"=>"3",
+            "group_name"=>"Admin Faskes"],
+            ["group_id"=>"4",
+                "group_name"=>"Program Puskesmas"],
+                ["group_id"=>"5",
+                "group_name"=>"Farmasi Puskesmas"],
+                ["group_id"=>"6",
+                "group_name"=>"TPMB"],
+        ], ['group_id'], ['group_name']);
+
+
 
 
    UserRoles::upsert([[
@@ -60,30 +86,6 @@ class DatabaseSeeder extends Seeder
     ],['role_name','groupId'],['role_name','groupId']);
 
 
-    /**
-         * =========================
-         * USER GROUPS
-         * =========================
-         */
-        UserGroups::upsert([
-
-            [
-            "group_id"=>"1",
-            "group_name"=>"Administrator"
-                ],
-            [
-            "group_id"=>"2",
-            "group_name"=>"Dinas Kesehatan"],
-            [
-            "group_id"=>"3",
-            "group_name"=>"Admin Faskes"],
-            ["group_id"=>"4",
-                "group_name"=>"Program Puskesmas"],
-                ["group_id"=>"5",
-                "group_name"=>"Farmasi Puskesmas"],
-                ["group_id"=>"99",
-                "group_name"=>"TPMB"],
-        ], ['group_id'], ['group_name']);
 
 
         /**
