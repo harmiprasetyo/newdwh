@@ -13,5 +13,6 @@
     "/js/adminpanel/posyandu/create.js": "/js/adminpanel/posyandu/create.js",
     "/js/adminpanel/posyandu/edit.js": "/js/adminpanel/posyandu/edit.js",
     "/js/adminpanel/wilayahkerja/posyandu.js": "/js/adminpanel/wilayahkerja/posyandu.js",
+    "/js/newlplpo/stokesensial.js": "/js/newlplpo/stokesensial.js",
     "/css/app.css": "/css/app.css"
 }

@@ -63,37 +63,37 @@
                     <div class="row g-3">
 
                         {{-- ==========================================
-                            KODE OBAT
-                        =========================================== --}}
+    KODE OBAT
+=========================================== --}}
 
-                        <div class="col-md-5">
+<div class="col-md-5">
 
-                            <label
-                                for="kode_obat"
-                                class="form-label fw-semibold">
+    <label
+        for="kode_obat"
+        class="form-label fw-semibold">
 
-                                Kode Obat
+        Kode Obat
 
-                                <span class="text-danger">*</span>
+        <span class="text-danger">*</span>
 
-                            </label>
+    </label>
 
-                            <input
-                                type="text"
-                                id="kode_obat"
-                                name="kode_obat"
-                                class="form-control"
-                                maxlength="50"
-                                autocomplete="off"
-                                placeholder="Masukkan kode obat"
-                                required>
+    <input
+        type="text"
+        id="kode_obat"
+        name="kode_obat"
+        class="form-control"
+        maxlength="50"
+        autocomplete="off"
+        placeholder="Masukkan kode obat"
+        required>
 
-                            <div
-                                class="invalid-feedback"
-                                id="kode_obat_error">
-                            </div>
+    <div
+        class="invalid-feedback"
+        id="kode_obat_error">
+    </div>
 
-                        </div>
+</div>
 
 
                         {{-- ==========================================

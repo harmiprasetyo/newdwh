@@ -389,14 +389,14 @@ class UserRoleController extends Controller
 public function rolesByGroup(Request $request)
 {
     $request->validate([
-        'groupId' => [
+        'groupid' => [
             'required',
             'exists:usergroups,group_id'
         ],
     ]);
 
     $roles = UserRole::query()
-        ->where('groupId', $request->groupId)
+        ->where('groupId', $request->groupid)
         ->orderBy('role_name')
         ->get([
             'id',

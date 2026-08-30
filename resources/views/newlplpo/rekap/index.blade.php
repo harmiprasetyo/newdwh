@@ -40,23 +40,31 @@
         <div class="card-header bg-success text-white">
 
             <strong>
+
                 <i class="bi bi-calendar-range me-1"></i>
+
                 Filter Periode Rekap
+
             </strong>
 
         </div>
 
+
         <div class="card-body">
 
             <div class="row g-3 align-items-end">
+
 
                 {{-- PERIODE MULAI --}}
 
                 <div class="col-lg-3 col-md-6">
 
                     <label class="form-label fw-semibold">
+
                         Periode Mulai
+
                     </label>
+
 
                     <div class="input-group">
 
@@ -79,6 +87,7 @@
                             @endforeach
 
                         </select>
+
 
                         <select
                             id="tahun_mulai"
@@ -112,8 +121,11 @@
                 <div class="col-lg-3 col-md-6">
 
                     <label class="form-label fw-semibold">
+
                         Periode Sampai
+
                     </label>
+
 
                     <div class="input-group">
 
@@ -136,6 +148,7 @@
                             @endforeach
 
                         </select>
+
 
                         <select
                             id="tahun_sampai"
@@ -171,16 +184,22 @@
                     <div class="col-lg-4 col-md-6">
 
                         <label class="form-label fw-semibold">
+
                             Faskes
+
                         </label>
+
 
                         <select
                             id="kode_faskes"
                             class="form-select">
 
                             <option value="">
+
                                 Semua Faskes
+
                             </option>
+
 
                             @foreach($faskes as $f)
 
@@ -237,17 +256,24 @@
             <div class="d-flex justify-content-between align-items-center">
 
                 <strong>
+
                     <i class="bi bi-file-earmark-bar-graph me-1"></i>
+
                     Rekap Laporan LPLPO
+
                 </strong>
 
+
                 <span class="badge bg-light text-success">
+
                     FINAL
+
                 </span>
 
             </div>
 
         </div>
+
 
         <div class="card-body">
 
@@ -256,8 +282,11 @@
                 <div class="col-md-4">
 
                     <div class="text-muted small">
+
                         PERIODE
+
                     </div>
+
 
                     <div
                         class="fw-bold fs-5"
@@ -273,8 +302,11 @@
                 <div class="col-md-4">
 
                     <div class="text-muted small">
+
                         JUMLAH LAPORAN
+
                     </div>
+
 
                     <div
                         class="fw-bold fs-5"
@@ -290,8 +322,11 @@
                 <div class="col-md-4">
 
                     <div class="text-muted small">
+
                         JUMLAH ITEM
+
                     </div>
+
 
                     <div
                         class="fw-bold fs-5"
@@ -300,6 +335,76 @@
                         -
 
                     </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- ==========================================================
+         LEGEND
+    =========================================================== --}}
+
+    <div class="card border-0 shadow-sm mb-3">
+
+        <div class="card-body py-2">
+
+            <div class="d-flex flex-wrap gap-3 align-items-center small">
+
+                <div>
+
+                    <span class="badge bg-success">
+                        OE
+                    </span>
+
+                    Obat Esensial
+
+                </div>
+
+
+                <div>
+
+                    <span class="badge bg-secondary">
+                        NOE
+                    </span>
+
+                    Non Obat Esensial
+
+                </div>
+
+
+                <div>
+
+                    <span class="badge bg-primary">
+                        Ya
+                    </span>
+
+                    Formularium PKM
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        class="badge bg-danger">
+                        NAPZA
+                    </span>
+
+                    Obat NAPZA
+
+                </div>
+
+
+                <div class="napza-legend">
+
+                    <span class="legend-box"></span>
+
+                    Baris obat NAPZA
 
                 </div>
 
@@ -327,6 +432,7 @@
                     Detail Rekap Item Obat
 
                 </strong>
+
 
                 <span
                     class="badge bg-light text-dark"
@@ -358,10 +464,6 @@
                             </th>
 
                             <th rowspan="2">
-                                Program
-                            </th>
-
-                            <th rowspan="2">
                                 Kode
                             </th>
 
@@ -371,6 +473,14 @@
 
                             <th rowspan="2">
                                 Sat
+                            </th>
+
+                            <th rowspan="2">
+                                Esensial
+                            </th>
+
+                            <th rowspan="2">
+                                Formularium PKM
                             </th>
 
                             <th colspan="2">
@@ -407,6 +517,7 @@
 
                         </tr>
 
+
                         <tr>
 
                             <th>PKD</th>
@@ -434,6 +545,7 @@
 
                     </thead>
 
+
                     <tbody>
 
                         <tr>
@@ -442,7 +554,9 @@
                                 colspan="21"
                                 class="text-center text-muted py-5">
 
-                                <i class="bi bi-hourglass-split fs-3 d-block mb-2"></i>
+                                <i
+                                    class="bi bi-hourglass-split fs-3 d-block mb-2">
+                                </i>
 
                                 Memuat data...
 
@@ -478,6 +592,7 @@
 
         </button>
 
+
         <button
             type="button"
             class="btn btn-success"
@@ -504,34 +619,135 @@
 
 <style>
 
+/*
+|--------------------------------------------------------------------------
+| TABLE
+|--------------------------------------------------------------------------
+*/
+
 #tableRekap {
+
     font-size: 13px;
+
 }
+
 
 #tableRekap th {
+
     white-space: nowrap;
+
     vertical-align: middle;
+
 }
+
 
 #tableRekap td {
+
     white-space: nowrap;
+
     vertical-align: middle;
+
 }
+
 
 #tableRekap thead th {
+
     position: sticky;
+
     top: 0;
+
     z-index: 2;
+
 }
 
-.table-primary td {
+
+/*
+|--------------------------------------------------------------------------
+| PROGRAM SUBTITLE
+|--------------------------------------------------------------------------
+*/
+
+#tableRekap tr.table-primary td {
+
     background-color: #cfe2ff !important;
+
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| NAPZA
+|--------------------------------------------------------------------------
+*/
+
+#tableRekap tr.table-napza td {
+
+    background-color: #f8d7da !important;
+
+}
+
+
+#tableRekap tr.table-napza:hover td {
+
+    background-color: #f1bfc4 !important;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| LEGEND NAPZA
+|--------------------------------------------------------------------------
+*/
+
+.napza-legend {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+}
+
+
+.legend-box {
+
+    display: inline-block;
+
+    width: 18px;
+
+    height: 18px;
+
+    background-color: #f8d7da;
+
+    border: 1px solid #e5aeb3;
+
+    border-radius: 3px;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| LOADING
+|--------------------------------------------------------------------------
+*/
 
 .rekap-loading {
+
     opacity: .6;
+
     pointer-events: none;
+
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| PRINT
+|--------------------------------------------------------------------------
+*/
 
 @media print {
 
@@ -545,16 +761,27 @@
 
     }
 
+
     .card {
 
         box-shadow: none !important;
+
         border: 1px solid #ddd !important;
 
     }
 
+
     #tableRekap {
 
-        font-size: 10px;
+        font-size: 9px;
+
+    }
+
+
+    #tableRekap th,
+    #tableRekap td {
+
+        padding: 3px !important;
 
     }
 
@@ -600,16 +827,28 @@ $(function () {
         return {
 
             bulan_mulai:
-                parseInt($('#bulan_mulai').val(), 10),
+                parseInt(
+                    $('#bulan_mulai').val(),
+                    10
+                ),
 
             tahun_mulai:
-                parseInt($('#tahun_mulai').val(), 10),
+                parseInt(
+                    $('#tahun_mulai').val(),
+                    10
+                ),
 
             bulan_sampai:
-                parseInt($('#bulan_sampai').val(), 10),
+                parseInt(
+                    $('#bulan_sampai').val(),
+                    10
+                ),
 
             tahun_sampai:
-                parseInt($('#tahun_sampai').val(), 10),
+                parseInt(
+                    $('#tahun_sampai').val(),
+                    10
+                ),
 
             kode_faskes:
                 $('#kode_faskes').length
@@ -634,12 +873,16 @@ $(function () {
             (filter.tahun_mulai * 100) +
             filter.bulan_mulai;
 
+
         const periodeSampai =
             (filter.tahun_sampai * 100) +
             filter.bulan_sampai;
 
 
-        if (periodeMulai > periodeSampai) {
+        if (
+            periodeMulai >
+            periodeSampai
+        ) {
 
             Swal.fire({
 
@@ -656,6 +899,7 @@ $(function () {
 
         }
 
+
         return true;
 
     }
@@ -663,7 +907,7 @@ $(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | LOADING BUTTON
+    | LOADING
     |--------------------------------------------------------------------------
     */
 
@@ -677,29 +921,42 @@ $(function () {
         if (status) {
 
             button
-                .prop('disabled', true)
+                .prop(
+                    'disabled',
+                    true
+                )
                 .html(`
                     <span
                         class="spinner-border spinner-border-sm me-1">
                     </span>
+
                     Memuat...
                 `);
 
+
             $('#tableRekap')
-                .addClass('rekap-loading');
+                .addClass(
+                    'rekap-loading'
+                );
 
         }
         else {
 
             button
-                .prop('disabled', false)
+                .prop(
+                    'disabled',
+                    false
+                )
                 .html(`
                     <i class="bi bi-search me-1"></i>
                     Tampilkan
                 `);
 
+
             $('#tableRekap')
-                .removeClass('rekap-loading');
+                .removeClass(
+                    'rekap-loading'
+                );
 
         }
 
@@ -727,11 +984,13 @@ $(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | VALIDASI FRONTEND
+        | VALIDASI
         |--------------------------------------------------------------------------
         */
 
-        if (!validatePeriod(filter)) {
+        if (
+            !validatePeriod(filter)
+        ) {
 
             return;
 
@@ -740,7 +999,7 @@ $(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | ABORT REQUEST SEBELUMNYA
+        | ABORT REQUEST LAMA
         |--------------------------------------------------------------------------
         */
 
@@ -756,7 +1015,7 @@ $(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | TAMPILKAN LOADING TABLE
+        | LOADING TABLE
         |--------------------------------------------------------------------------
         */
 
@@ -765,7 +1024,7 @@ $(function () {
             <tr>
 
                 <td
-                    colspan="20"
+                    colspan="21"
                     class="text-center py-5 text-muted">
 
                     <div
@@ -812,14 +1071,6 @@ $(function () {
                 kode_faskes:
                     filter.kode_faskes,
 
-                /*
-                |--------------------------------------------------------------------------
-                | PENTING
-                |--------------------------------------------------------------------------
-                | Mencegah browser menggunakan response GET lama.
-                |--------------------------------------------------------------------------
-                */
-
                 _:
                     new Date().getTime()
 
@@ -829,6 +1080,13 @@ $(function () {
 
             dataType: 'json',
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUCCESS
+            |--------------------------------------------------------------------------
+            */
+
             success: function (response) {
 
                 console.log(
@@ -837,7 +1095,9 @@ $(function () {
                 );
 
 
-                if (!response.success) {
+                if (
+                    !response.success
+                ) {
 
                     showError(
                         response.message ??
@@ -860,18 +1120,21 @@ $(function () {
 
             },
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | ERROR
+            |--------------------------------------------------------------------------
+            */
+
             error: function (
                 xhr,
                 status
             ) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | Request dibatalkan karena filter baru
-                |--------------------------------------------------------------------------
-                */
-
-                if (status === 'abort') {
+                if (
+                    status === 'abort'
+                ) {
 
                     return;
 
@@ -899,9 +1162,18 @@ $(function () {
                 }
 
 
-                showError(message);
+                showError(
+                    message
+                );
 
             },
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | COMPLETE
+            |--------------------------------------------------------------------------
+            */
 
             complete: function () {
 
@@ -918,7 +1190,7 @@ $(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | HEADER
+    | HEADER INFO
     |--------------------------------------------------------------------------
     */
 
@@ -930,6 +1202,7 @@ $(function () {
                 .text()
                 .trim();
 
+
         const tahunMulai =
             $('#tahun_mulai')
                 .val();
@@ -940,6 +1213,7 @@ $(function () {
                 .text()
                 .trim();
 
+
         const tahunSampai =
             $('#tahun_sampai')
                 .val();
@@ -947,15 +1221,25 @@ $(function () {
 
         $('#infoPeriode').html(`
 
-            ${escapeHtml(bulanMulaiText)}
-            ${escapeHtml(tahunMulai)}
+            ${escapeHtml(
+                bulanMulaiText
+            )}
+
+            ${escapeHtml(
+                tahunMulai
+            )}
 
             <span class="mx-2 text-muted">
                 s/d
             </span>
 
-            ${escapeHtml(bulanSampaiText)}
-            ${escapeHtml(tahunSampai)}
+            ${escapeHtml(
+                bulanSampaiText
+            )}
+
+            ${escapeHtml(
+                tahunSampai
+            )}
 
         `);
 
@@ -1005,18 +1289,21 @@ $(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | TIDAK ADA DATA
+        | EMPTY
         |--------------------------------------------------------------------------
         */
 
-        if (!items || !items.length) {
+        if (
+            !items ||
+            !items.length
+        ) {
 
             tbody.html(`
 
                 <tr>
 
                     <td
-                        colspan="20"
+                        colspan="21"
                         class="text-center text-muted py-5">
 
                         <i
@@ -1058,7 +1345,7 @@ $(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | LOOP ITEM
+        | LOOP
         |--------------------------------------------------------------------------
         */
 
@@ -1071,7 +1358,7 @@ $(function () {
 
             /*
             |--------------------------------------------------------------------------
-            | PROGRAM HEADER
+            | PROGRAM SUBTITLE
             |--------------------------------------------------------------------------
             */
 
@@ -1084,14 +1371,16 @@ $(function () {
                     <tr class="table-primary">
 
                         <td
-                            colspan="20"
+                            colspan="21"
                             class="fw-bold">
 
                             <i
                                 class="bi bi-folder2-open me-1">
                             </i>
 
-                            ${escapeHtml(program)}
+                            ${escapeHtml(
+                                program
+                            )}
 
                         </td>
 
@@ -1108,51 +1397,212 @@ $(function () {
 
             /*
             |--------------------------------------------------------------------------
-            | DATA ROW
+            | NAPZA
+            |--------------------------------------------------------------------------
+            */
+
+            const isNapza =
+                String(
+                    item.obat_napza ??
+                    'tidak'
+                )
+                .toLowerCase() === 'ya';
+
+
+            const rowClass =
+                isNapza
+                    ? 'table-napza'
+                    : '';
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ESENSIAL
+            |--------------------------------------------------------------------------
+            */
+
+            const essentialValue =
+                String(
+                    item.obat_esensial ??
+                    'noe'
+                )
+                .toLowerCase();
+
+
+            let essentialHtml;
+
+
+            if (
+                essentialValue === 'oe'
+            ) {
+
+                essentialHtml = `
+                    <span class="badge bg-success">
+                        OE
+                    </span>
+                `;
+
+            }
+            else if (
+                essentialValue === 'noe'
+            ) {
+
+                essentialHtml = `
+                    <span class="badge bg-secondary">
+                        NOE
+                    </span>
+                `;
+
+            }
+            else {
+
+                essentialHtml = `
+                    <span class="badge bg-warning text-dark">
+                        ${escapeHtml(
+                            item.obat_esensial
+                        )}
+                    </span>
+                `;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | FORMULARIUM PKM
+            |--------------------------------------------------------------------------
+            */
+
+            const formulariumValue =
+                String(
+                    item.obat_formularium_puskesmas ??
+                    'false'
+                )
+                .toLowerCase();
+
+
+            let formulariumHtml;
+
+
+            if (
+                formulariumValue === 'true'
+            ) {
+
+                formulariumHtml = `
+                    <span class="badge bg-primary">
+                        Ya
+                    </span>
+                `;
+
+            }
+            else if (
+                formulariumValue === 'false'
+            ) {
+
+                formulariumHtml = `
+                    <span class="badge bg-secondary">
+                        Tidak
+                    </span>
+                `;
+
+            }
+            else {
+
+                formulariumHtml = `
+                    <span class="badge bg-warning text-dark">
+                        ${escapeHtml(
+                            item.obat_formularium_puskesmas
+                        )}
+                    </span>
+                `;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ROW
             |--------------------------------------------------------------------------
             */
 
             tbody.append(`
 
-                <tr>
+                <tr class="${rowClass}">
 
-                    <td class="text-center fw-semibold">
+
+                    <!-- NO -->
+
+                    <td
+                        class="text-center fw-semibold">
 
                         ${no++}
 
                     </td>
 
 
-                    <td>
-
-                        ${escapeHtml(program)}
-
-                    </td>
-
+                    <!-- KODE -->
 
                     <td>
 
                         ${escapeHtml(
-                            item.kode_obat ?? '-'
+                            item.kode_obat ??
+                            '-'
                         )}
 
                     </td>
 
 
+                    <!-- NAMA OBAT -->
+
                     <td>
 
                         ${escapeHtml(
-                            item.nama_obat ?? '-'
+                            item.nama_obat ??
+                            '-'
                         )}
+
+                        ${
+                            isNapza
+                                ? `
+                                    <span
+                                        class="badge bg-danger ms-1">
+
+                                        NAPZA
+
+                                    </span>
+                                `
+                                : ''
+                        }
 
                     </td>
 
+
+                    <!-- SATUAN -->
 
                     <td class="text-center">
 
                         ${escapeHtml(
-                            item.satuan ?? '-'
+                            item.satuan ??
+                            '-'
                         )}
+
+                    </td>
+
+
+                    <!-- ESENSIAL -->
+
+                    <td class="text-center">
+
+                        ${essentialHtml}
+
+                    </td>
+
+
+                    <!-- FORMULARIUM -->
+
+                    <td class="text-center">
+
+                        ${formulariumHtml}
 
                     </td>
 
@@ -1273,7 +1723,8 @@ $(function () {
 
                     <!-- PERMINTAAN -->
 
-                    <td class="text-end fw-semibold">
+                    <td
+                        class="text-end fw-semibold">
 
                         ${number(
                             item.permintaan
@@ -1284,7 +1735,8 @@ $(function () {
 
                     <!-- PEMBERIAN -->
 
-                    <td class="text-end fw-semibold text-success">
+                    <td
+                        class="text-end fw-semibold">
 
                         ${number(
                             item.pemberian_program_pkd
@@ -1292,7 +1744,8 @@ $(function () {
 
                     </td>
 
-                    <td class="text-end fw-semibold text-success">
+                    <td
+                        class="text-end fw-semibold">
 
                         ${number(
                             item.pemberian_jkn
@@ -1327,16 +1780,24 @@ $(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ENTER PADA FILTER
+    | SELECT CHANGE
     |--------------------------------------------------------------------------
+    |
+    | Tidak otomatis load.
+    |
     */
 
-    $('#bulan_mulai, #tahun_mulai, #bulan_sampai, #tahun_sampai, #kode_faskes')
+    $(
+        '#bulan_mulai, ' +
+        '#tahun_mulai, ' +
+        '#bulan_sampai, ' +
+        '#tahun_sampai, ' +
+        '#kode_faskes'
+    )
         .on(
             'change',
             function () {
 
-                // Tidak otomatis request.
                 // User harus klik Tampilkan.
 
             }
@@ -1353,10 +1814,14 @@ $(function () {
     {
 
         const numeric =
-            Number(value ?? 0);
+            Number(
+                value ?? 0
+            );
 
 
-        if (isNaN(numeric)) {
+        if (
+            isNaN(numeric)
+        ) {
 
             return '0';
 
@@ -1365,7 +1830,9 @@ $(function () {
 
         return new Intl.NumberFormat(
             'id-ID'
-        ).format(numeric);
+        ).format(
+            numeric
+        );
 
     }
 
@@ -1402,14 +1869,16 @@ $(function () {
             <tr>
 
                 <td
-                    colspan="20"
+                    colspan="21"
                     class="text-center text-danger py-5">
 
                     <i
                         class="bi bi-exclamation-triangle fs-2 d-block mb-2">
                     </i>
 
-                    ${escapeHtml(message)}
+                    ${escapeHtml(
+                        message
+                    )}
 
                 </td>
 

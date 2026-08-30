@@ -74,6 +74,11 @@ mix.js(
     'public/js/adminpanel/wilayahkerja'
 )
 
+.js(
+    'resources/js/newlplpo/stokesensial.js',
+    'public/js/newlplpo'
+)
+
 .postCss(
     'resources/css/app.css',
     'public/css',

@@ -88,7 +88,7 @@ class DatabaseSeeder extends Seeder
 
 
     UsersApp::updateOrCreate(
-    ['username' => 'admin'],
+    ['username' => 'admindinkes'],
     [
         'email' => 'admin@dinkes.go.id',
         'namalengkap' => 'Administrator',

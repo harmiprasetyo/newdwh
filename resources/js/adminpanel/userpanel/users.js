@@ -8,8 +8,9 @@ $(function () {
     const currentUser =
         config.currentUser || {};
 
-   const isGroup3 =
-    parseInt(currentUser.groupid) === 3;
+    const isGroup3 =
+        parseInt(currentUser.groupid) === 3;
+
 
     console.log('USER PANEL DEBUG', {
         groupid: currentUser.groupid,
@@ -19,6 +20,9 @@ $(function () {
         kodeKecamatan: currentUser.kodeKecamatan,
         kodeFaskes: currentUser.kodeFaskes
     });
+
+    console.log('USER.JS BERHASIL DIJALANKAN');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -46,7 +50,10 @@ $(function () {
 
     function escapeHtml(value) {
 
-        if (value === null || value === undefined) {
+        if (
+            value === null ||
+            value === undefined
+        ) {
             return '';
         }
 
@@ -150,7 +157,7 @@ $(function () {
                         |--------------------------------------------------------------------------
                         | GROUP 3
                         |--------------------------------------------------------------------------
-                        | Hanya boleh memilih Group 4, Group 5, atau Group 6.
+                        | Group 3 hanya boleh membuat user Group 4, 5, 6.
                         */
 
                         if (
@@ -181,7 +188,7 @@ $(function () {
                                 ? String(selected)
                                 : ''
                         )
-                        .trigger('change');
+                        .trigger('change.select2');
 
 
                     /*
@@ -207,7 +214,7 @@ $(function () {
 
                     $('#filterGroup')
                         .html(filterHtml)
-                        .trigger('change');
+                        .trigger('change.select2');
 
                 },
 
@@ -237,16 +244,37 @@ $(function () {
         selectedRole = null
     ) {
 
-        $('#role_id')
-            .html(
-                '<option value="">Pilih Role</option>'
+        console.log('LOAD ROLE', {
+            groupId: groupId,
+            selectedRole: selectedRole,
+            url: config.rolesByGroupUrl
+        });
+
+
+        const $role =
+            $('#role_id');
+
+
+        $role
+            .empty()
+            .append(
+                $('<option>', {
+                    value: '',
+                    text: 'Pilih Role'
+                })
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
 
         if (!groupId) {
+
+            console.warn(
+                'Group belum dipilih.'
+            );
+
             return;
+
         }
 
 
@@ -259,17 +287,19 @@ $(function () {
                 'GET',
 
             data: {
-
-                groupid:
-                    groupId
-
+                groupid: groupId
             },
+
+            dataType:
+                'json',
 
             success:
                 function (res) {
 
-                    let html =
-                        '<option value="">Pilih Role</option>';
+                    console.log(
+                        'ROLE RESPONSE:',
+                        res
+                    );
 
 
                     if (
@@ -278,12 +308,17 @@ $(function () {
                     ) {
 
                         console.error(
-                            'Format response role tidak valid.',
+                            'Format response role tidak valid:',
                             res
                         );
 
                         return;
+
                     }
+
+
+                    let html =
+                        '<option value="">Pilih Role</option>';
 
 
                     res.data.forEach(function (role) {
@@ -297,14 +332,20 @@ $(function () {
                     });
 
 
-                    $('#role_id')
+                    $role
                         .html(html)
                         .val(
                             selectedRole !== null
                                 ? String(selectedRole)
                                 : ''
                         )
-                        .trigger('change');
+                        .trigger('change.select2');
+
+
+                    console.log(
+                        'ROLE LOADED:',
+                        res.data
+                    );
 
                 },
 
@@ -313,8 +354,20 @@ $(function () {
 
                     console.error(
                         'Gagal load role:',
+                        xhr.status,
                         xhr.responseText
                     );
+
+
+                    $role
+                        .empty()
+                        .append(
+                            $('<option>', {
+                                value: '',
+                                text: 'Gagal memuat Role'
+                            })
+                        )
+                        .trigger('change.select2');
 
                 }
 
@@ -360,7 +413,6 @@ $(function () {
                 |--------------------------------------------------------------------------
                 | GROUP 3
                 |--------------------------------------------------------------------------
-                | Hanya masukkan provinsi user login.
                 */
 
                 if (isGroup3) {
@@ -373,7 +425,7 @@ $(function () {
                         res.data.find(function (item) {
 
                             return String(item.code) ===
-                                   String(kodePropinsi);
+                                String(kodePropinsi);
 
                         });
 
@@ -390,12 +442,6 @@ $(function () {
 
                 }
                 else {
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | NON GROUP 3
-                    |--------------------------------------------------------------------------
-                    */
 
                     res.data.forEach(function (item) {
 
@@ -427,7 +473,7 @@ $(function () {
                             ? String(value)
                             : ''
                     )
-                    .trigger('change');
+                    .trigger('change.select2');
 
 
                 /*
@@ -453,7 +499,8 @@ $(function () {
 
                 $('#filterProvinsi')
                     .html(filterHtml)
-                    .trigger('change');
+                    .val('')
+                    .trigger('change.select2');
 
 
                 if (
@@ -488,7 +535,7 @@ $(function () {
                 '<option value="">Pilih Kota / Kabupaten</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
 
         if (!provinceCode) {
@@ -503,6 +550,7 @@ $(function () {
             }
 
             return;
+
         }
 
 
@@ -525,6 +573,7 @@ $(function () {
                     );
 
                     return;
+
                 }
 
 
@@ -532,7 +581,6 @@ $(function () {
                 |--------------------------------------------------------------------------
                 | GROUP 3
                 |--------------------------------------------------------------------------
-                | Hanya kota user login.
                 */
 
                 if (isGroup3) {
@@ -545,7 +593,7 @@ $(function () {
                         res.data.find(function (item) {
 
                             return String(item.code) ===
-                                   String(kodeKota);
+                                String(kodeKota);
 
                         });
 
@@ -593,7 +641,7 @@ $(function () {
                             ? String(value)
                             : ''
                     )
-                    .trigger('change');
+                    .trigger('change.select2');
 
 
                 if (
@@ -628,7 +676,15 @@ $(function () {
                 '<option value="">Pilih Kecamatan</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
+
+
+        $('#kodeFaskes')
+            .html(
+                '<option value="">Pilih Faskes</option>'
+            )
+            .val('')
+            .trigger('change.select2');
 
 
         if (!cityCode) {
@@ -643,6 +699,7 @@ $(function () {
             }
 
             return;
+
         }
 
 
@@ -665,6 +722,7 @@ $(function () {
                     );
 
                     return;
+
                 }
 
 
@@ -672,7 +730,6 @@ $(function () {
                 |--------------------------------------------------------------------------
                 | GROUP 3
                 |--------------------------------------------------------------------------
-                | Hanya kecamatan user login.
                 */
 
                 if (isGroup3) {
@@ -685,7 +742,7 @@ $(function () {
                         res.data.find(function (item) {
 
                             return String(item.code) ===
-                                   String(kodeKecamatan);
+                                String(kodeKecamatan);
 
                         });
 
@@ -733,7 +790,7 @@ $(function () {
                             ? String(value)
                             : ''
                     )
-                    .trigger('change');
+                    .trigger('change.select2');
 
 
                 if (
@@ -768,7 +825,7 @@ $(function () {
                 '<option value="">Pilih Faskes</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
 
         if (!kecamatan) {
@@ -783,6 +840,7 @@ $(function () {
             }
 
             return;
+
         }
 
 
@@ -805,6 +863,7 @@ $(function () {
                     );
 
                     return;
+
                 }
 
 
@@ -812,7 +871,6 @@ $(function () {
                 |--------------------------------------------------------------------------
                 | GROUP 3
                 |--------------------------------------------------------------------------
-                | Hanya faskes user login.
                 */
 
                 if (isGroup3) {
@@ -825,7 +883,7 @@ $(function () {
                         res.data.find(function (item) {
 
                             return String(item.kodeFaskes) ===
-                                   String(kodeFaskes);
+                                String(kodeFaskes);
 
                         });
 
@@ -873,7 +931,7 @@ $(function () {
                             ? String(value)
                             : ''
                     )
-                    .trigger('change');
+                    .trigger('change.select2');
 
 
                 if (
@@ -893,6 +951,432 @@ $(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | FORM PROVINSI -> KOTA
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'change',
+        '#kodePropinsi',
+        function () {
+
+            const provinceCode =
+                $(this).val();
+
+
+            console.log(
+                'PROVINSI CHANGE:',
+                provinceCode
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset Kota
+            |--------------------------------------------------------------------------
+            */
+
+            $('#kodeKota')
+                .html(
+                    '<option value="">Pilih Kota / Kabupaten</option>'
+                )
+                .val('')
+                .trigger('change.select2');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset Kecamatan
+            |--------------------------------------------------------------------------
+            */
+
+            $('#kodeKecamatan')
+                .html(
+                    '<option value="">Pilih Kecamatan</option>'
+                )
+                .val('')
+                .trigger('change.select2');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset Faskes
+            |--------------------------------------------------------------------------
+            */
+
+            $('#kodeFaskes')
+                .html(
+                    '<option value="">Pilih Faskes</option>'
+                )
+                .val('')
+                .trigger('change.select2');
+
+
+            if (!provinceCode) {
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP 3
+            |--------------------------------------------------------------------------
+            */
+
+            if (isGroup3) {
+
+                console.log(
+                    'Group 3 - lokasi dikunci.'
+                );
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LOAD KOTA
+            |--------------------------------------------------------------------------
+            */
+
+            loadKota(
+                provinceCode
+            );
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM KOTA -> KECAMATAN
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'change',
+        '#kodeKota',
+        function () {
+
+            const cityCode =
+                $(this).val();
+
+
+            console.log(
+                'KOTA CHANGE:',
+                cityCode
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset Kecamatan
+            |--------------------------------------------------------------------------
+            */
+
+            $('#kodeKecamatan')
+                .html(
+                    '<option value="">Pilih Kecamatan</option>'
+                )
+                .val('')
+                .trigger('change.select2');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset Faskes
+            |--------------------------------------------------------------------------
+            */
+
+            $('#kodeFaskes')
+                .html(
+                    '<option value="">Pilih Faskes</option>'
+                )
+                .val('')
+                .trigger('change.select2');
+
+
+            if (!cityCode) {
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP 3
+            |--------------------------------------------------------------------------
+            */
+
+            if (isGroup3) {
+
+                console.log(
+                    'Group 3 - lokasi dikunci.'
+                );
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LOAD KECAMATAN
+            |--------------------------------------------------------------------------
+            */
+
+            loadKecamatan(
+                cityCode
+            );
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM KECAMATAN -> FASKES
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'change',
+        '#kodeKecamatan',
+        function () {
+
+            const kecamatan =
+                $(this).val();
+
+
+            console.log(
+                'KECAMATAN CHANGE:',
+                kecamatan
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset Faskes
+            |--------------------------------------------------------------------------
+            */
+
+            $('#kodeFaskes')
+                .html(
+                    '<option value="">Pilih Faskes</option>'
+                )
+                .val('')
+                .trigger('change.select2');
+
+
+            if (!kecamatan) {
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP 3
+            |--------------------------------------------------------------------------
+            */
+
+            if (isGroup3) {
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LOAD FASKES
+            |--------------------------------------------------------------------------
+            */
+
+            loadFaskes(
+                kecamatan
+            );
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER PROVINSI -> KOTA
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'change',
+        '#filterProvinsi',
+        function () {
+
+            const province =
+                $(this).val();
+
+
+            console.log(
+                'FILTER PROVINSI CHANGE:',
+                province
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset Kota
+            |--------------------------------------------------------------------------
+            */
+
+            $('#filterKota')
+                .html(
+                    '<option value="">Semua Kota</option>'
+                )
+                .val('')
+                .trigger('change.select2');
+
+
+            if (!province) {
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LOAD KOTA
+            |--------------------------------------------------------------------------
+            */
+
+            $.get(
+                `/adminpanel/wilayah/listkota?province_code=${encodeURIComponent(province)}`,
+                function (res) {
+
+                    let html =
+                        '<option value="">Semua Kota</option>';
+
+
+                    if (
+                        !res ||
+                        !Array.isArray(res.data)
+                    ) {
+
+                        console.error(
+                            'Format response filter kota tidak valid.',
+                            res
+                        );
+
+                        return;
+
+                    }
+
+
+                    res.data.forEach(function (item) {
+
+                        html += `
+                            <option value="${escapeHtml(item.code)}">
+                                ${escapeHtml(item.name)}
+                            </option>
+                        `;
+
+                    });
+
+
+                    $('#filterKota')
+                        .html(html)
+                        .val('')
+                        .trigger('change.select2');
+
+                }
+            );
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER GROUP / ROLE / PROVINSI / KOTA
+    |--------------------------------------------------------------------------
+    */
+
+    $('#filterGroup, #filterRole, #filterProvinsi, #filterKota')
+        .on(
+            'change',
+            function () {
+
+                if (table) {
+
+                    table.ajax.reload(
+                        null,
+                        false
+                    );
+
+                }
+
+            }
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER SEARCH
+    |--------------------------------------------------------------------------
+    */
+
+    $('#searchUser').on(
+        'keyup',
+        function () {
+
+            if (table) {
+
+                table.ajax.reload(
+                    null,
+                    false
+                );
+
+            }
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GROUP CHANGE
+    |--------------------------------------------------------------------------
+    */
+
+    $('#groupid').on(
+        'change',
+        function () {
+
+            const groupId =
+                $(this).val();
+
+
+            console.log(
+                'GROUP CHANGED:',
+                groupId
+            );
+
+
+            loadRoles(
+                groupId
+            );
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
     | DEFAULT LOCATION GROUP 3
     |--------------------------------------------------------------------------
     */
@@ -900,7 +1384,9 @@ $(function () {
     function loadDefaultLocation() {
 
         if (!isGroup3) {
+
             return;
+
         }
 
 
@@ -917,12 +1403,6 @@ $(function () {
             currentUser.kodeFaskes;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI DATA USER LOGIN
-        |--------------------------------------------------------------------------
-        */
-
         if (
             !province ||
             !city ||
@@ -936,46 +1416,23 @@ $(function () {
             );
 
             return;
+
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | PROVINSI
-        |--------------------------------------------------------------------------
-        */
 
         loadProvinsi(
             province,
             function () {
-
-                /*
-                |--------------------------------------------------------------------------
-                | KOTA
-                |--------------------------------------------------------------------------
-                */
 
                 loadKota(
                     province,
                     city,
                     function () {
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | KECAMATAN
-                        |--------------------------------------------------------------------------
-                        */
-
                         loadKecamatan(
                             city,
                             district,
                             function () {
-
-                                /*
-                                |--------------------------------------------------------------------------
-                                | FASKES
-                                |--------------------------------------------------------------------------
-                                */
 
                                 loadFaskes(
                                     district,
@@ -1008,7 +1465,9 @@ $(function () {
     function lockLocationForGroup3() {
 
         if (!isGroup3) {
+
             return;
+
         }
 
 
@@ -1024,12 +1483,6 @@ $(function () {
         $('#kodeFaskes')
             .prop('disabled', true);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | INFO
-        |--------------------------------------------------------------------------
-        */
 
         $('#group3LocationInfo')
             .remove();
@@ -1101,14 +1554,13 @@ $(function () {
         $('.is-invalid')
             .removeClass('is-invalid');
 
-
         $('.invalid-feedback')
             .text('');
 
 
         /*
         |--------------------------------------------------------------------------
-        | Reset Select2
+        | Reset Group
         |--------------------------------------------------------------------------
         */
 
@@ -1117,54 +1569,78 @@ $(function () {
                 '<option value="">Pilih Group</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reset Role
+        |--------------------------------------------------------------------------
+        */
 
         $('#role_id')
             .html(
                 '<option value="">Pilih Role</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reset Provinsi
+        |--------------------------------------------------------------------------
+        */
 
         $('#kodePropinsi')
             .html(
                 '<option value="">Pilih Provinsi</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reset Kota
+        |--------------------------------------------------------------------------
+        */
 
         $('#kodeKota')
             .html(
                 '<option value="">Pilih Kota / Kabupaten</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reset Kecamatan
+        |--------------------------------------------------------------------------
+        */
 
         $('#kodeKecamatan')
             .html(
                 '<option value="">Pilih Kecamatan</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reset Faskes
+        |--------------------------------------------------------------------------
+        */
 
         $('#kodeFaskes')
             .html(
                 '<option value="">Pilih Faskes</option>'
             )
             .val('')
-            .trigger('change');
+            .trigger('change.select2');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Unlock terlebih dahulu
-        |--------------------------------------------------------------------------
-        */
 
         unlockLocation();
 
@@ -1441,7 +1917,6 @@ $(function () {
                                 |--------------------------------------------------------------------------
                                 | GROUP 3
                                 |--------------------------------------------------------------------------
-                                | Tidak boleh edit/delete user Group 3.
                                 */
 
                                 if (
@@ -1502,129 +1977,6 @@ $(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER SEARCH
-    |--------------------------------------------------------------------------
-    */
-
-    $('#searchUser').on(
-        'keyup',
-        function () {
-
-            if (table) {
-                table.ajax.reload();
-            }
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FILTER GROUP / ROLE / PROVINSI / KOTA
-    |--------------------------------------------------------------------------
-    */
-
-    $('#filterGroup, #filterRole, #filterProvinsi, #filterKota')
-        .on(
-            'change',
-            function () {
-
-                if (table) {
-                    table.ajax.reload();
-                }
-
-            }
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FILTER PROVINSI -> KOTA
-    |--------------------------------------------------------------------------
-    */
-
-    $('#filterProvinsi').on(
-        'change',
-        function () {
-
-            const province =
-                $(this).val();
-
-
-            $('#filterKota')
-                .html(
-                    '<option value="">Semua Kota</option>'
-                )
-                .val('')
-                .trigger('change');
-
-
-            if (!province) {
-                return;
-            }
-
-
-            $.get(
-                `/adminpanel/wilayah/listkota?province_code=${encodeURIComponent(province)}`,
-                function (res) {
-
-                    let html =
-                        '<option value="">Semua Kota</option>';
-
-
-                    if (
-                        res &&
-                        Array.isArray(res.data)
-                    ) {
-
-                        res.data.forEach(function (item) {
-
-                            html += `
-                                <option value="${escapeHtml(item.code)}">
-                                    ${escapeHtml(item.name)}
-                                </option>
-                            `;
-
-                        });
-
-                    }
-
-
-                    $('#filterKota')
-                        .html(html)
-                        .trigger('change');
-
-                }
-            );
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | GROUP CHANGE
-    |--------------------------------------------------------------------------
-    */
-
-    $('#groupid').on(
-        'change',
-        function () {
-
-            const groupId =
-                $(this).val();
-
-
-            loadRoles(
-                groupId
-            );
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
     | ADD USER
     |--------------------------------------------------------------------------
     */
@@ -1639,12 +1991,6 @@ $(function () {
             $('#userModalTitle')
                 .text('Tambah User');
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Password
-            |--------------------------------------------------------------------------
-            */
 
             $('#passwordHelp')
                 .text(
@@ -1669,20 +2015,10 @@ $(function () {
 
             if (isGroup3) {
 
-                /*
-                | Group 3:
-                | lokasi langsung mengikuti user login.
-                */
-
                 loadDefaultLocation();
 
             }
             else {
-
-                /*
-                | Group lain:
-                | lokasi bebas dipilih.
-                */
 
                 loadProvinsi();
 
@@ -1718,78 +2054,125 @@ $(function () {
 
 
             $.ajax({
-    url: `${config.baseUrl}/${id}`,
-    type: 'GET',
 
-    success: function (res) {
+                url:
+                    `${config.baseUrl}/${id}`,
 
-        const data = res.data;
+                type:
+                    'GET',
 
-        resetForm();
+                success:
+                    function (res) {
 
-        // BASIC DATA
-        $('#userid').val(data.userid);
-        $('#username').val(data.username);
-        $('#namalengkap').val(data.namalengkap);
-        $('#email').val(data.email);
-        $('#password').val('');
+                        const data =
+                            res.data;
 
-        // GROUP
-        loadGroups(data.groupid);
 
-        // ROLE
-        loadRoles(
-            data.groupid,
-            data.role_id
-        );
+                        resetForm();
 
-        // LOCATION
-        const province =
-            isGroup3
-                ? currentUser.kodePropinsi
-                : data.kodePropinsi;
 
-        const city =
-            isGroup3
-                ? currentUser.kodeKota
-                : data.kodeKota;
+                        /*
+                        |--------------------------------------------------------------------------
+                        | BASIC DATA
+                        |--------------------------------------------------------------------------
+                        */
 
-        const district =
-            isGroup3
-                ? currentUser.kodeKecamatan
-                : data.kodeKecamatan;
+                        $('#userid')
+                            .val(data.userid);
 
-        const faskes =
-            isGroup3
-                ? currentUser.kodeFaskes
-                : data.kodeFaskes;
+                        $('#username')
+                            .val(data.username);
 
-        // PROVINSI
-        loadProvinsi(
-            province,
-            function () {
+                        $('#namalengkap')
+                            .val(data.namalengkap);
 
-                // KOTA
-                loadKota(
-                    province,
-                    city,
-                    function () {
+                        $('#email')
+                            .val(data.email);
 
-                        // KECAMATAN
-                        loadKecamatan(
-                            city,
-                            district,
+                        $('#password')
+                            .val('');
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | GROUP
+                        |--------------------------------------------------------------------------
+                        */
+
+                        loadGroups(
+                            data.groupid
+                        );
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | ROLE
+                        |--------------------------------------------------------------------------
+                        */
+
+                        loadRoles(
+                            data.groupid,
+                            data.role_id
+                        );
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | LOCATION
+                        |--------------------------------------------------------------------------
+                        */
+
+                        const province =
+                            isGroup3
+                                ? currentUser.kodePropinsi
+                                : data.kodePropinsi;
+
+                        const city =
+                            isGroup3
+                                ? currentUser.kodeKota
+                                : data.kodeKota;
+
+                        const district =
+                            isGroup3
+                                ? currentUser.kodeKecamatan
+                                : data.kodeKecamatan;
+
+                        const faskes =
+                            isGroup3
+                                ? currentUser.kodeFaskes
+                                : data.kodeFaskes;
+
+
+                        loadProvinsi(
+                            province,
                             function () {
 
-                                // FASKES
-                                loadFaskes(
-                                    district,
-                                    faskes,
+                                loadKota(
+                                    province,
+                                    city,
                                     function () {
 
-                                        if (isGroup3) {
-                                            lockLocationForGroup3();
-                                        }
+                                        loadKecamatan(
+                                            city,
+                                            district,
+                                            function () {
+
+                                                loadFaskes(
+                                                    district,
+                                                    faskes,
+                                                    function () {
+
+                                                        if (isGroup3) {
+
+                                                            lockLocationForGroup3();
+
+                                                        }
+
+                                                    }
+                                                );
+
+                                            }
+                                        );
 
                                     }
                                 );
@@ -1797,43 +2180,66 @@ $(function () {
                             }
                         );
 
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | TITLE
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $('#userModalTitle')
+                            .text('Edit User');
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | PASSWORD
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $('#passwordHelp')
+                            .text(
+                                'Kosongkan jika password tidak ingin diubah'
+                            );
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | SHOW MODAL
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $('#userModal')
+                            .modal('show');
+
+                    },
+
+                error:
+                    function (xhr) {
+
+                        console.error(
+                            'Gagal mengambil data user:',
+                            xhr.responseText
+                        );
+
+
+                        Swal.fire({
+
+                            icon:
+                                'error',
+
+                            title:
+                                'Gagal',
+
+                            text:
+                                xhr.responseJSON?.message ||
+                                'Data user tidak dapat diambil.'
+
+                        });
+
                     }
-                );
 
-            }
-        );
-
-        // TITLE
-        $('#userModalTitle')
-            .text('Edit User');
-
-        // PASSWORD
-        $('#passwordHelp')
-            .text(
-                'Kosongkan jika password tidak ingin diubah'
-            );
-
-        // SHOW MODAL
-        $('#userModal')
-            .modal('show');
-    },
-
-    error: function (xhr) {
-
-        console.error(
-            'Gagal mengambil data user:',
-            xhr.responseText
-        );
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal',
-            text:
-                xhr.responseJSON?.message ||
-                'Data user tidak dapat diambil.'
-        });
-    }
-});
+            });
 
         }
     );
@@ -1878,7 +2284,9 @@ $(function () {
                 function (result) {
 
                     if (!result.isConfirmed) {
+
                         return;
+
                     }
 
 
@@ -2018,8 +2426,6 @@ $(function () {
             |--------------------------------------------------------------------------
             | GROUP 3
             |--------------------------------------------------------------------------
-            | Jangan percayakan lokasi dari disabled select.
-            | Paksa menggunakan lokasi user login.
             */
 
             if (isGroup3) {
@@ -2036,12 +2442,6 @@ $(function () {
                 data.kodeFaskes =
                     currentUser.kodeFaskes;
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | Group hanya 4 / 5
-                |--------------------------------------------------------------------------
-                */
 
                 if (
                     ![4, 5, 6].includes(
@@ -2176,14 +2576,9 @@ $(function () {
                             );
 
                             return;
+
                         }
 
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | ERROR
-                        |--------------------------------------------------------------------------
-                        */
 
                         Swal.fire({
 
@@ -2228,7 +2623,6 @@ $(function () {
 
         $('.is-invalid')
             .removeClass('is-invalid');
-
 
         $('.invalid-feedback')
             .text('');
@@ -2280,5 +2674,6 @@ $(function () {
     loadProvinsi();
 
     initTable();
+})
 
-});
+

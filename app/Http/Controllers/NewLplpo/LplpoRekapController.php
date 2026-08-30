@@ -45,6 +45,7 @@ class LplpoRekapController extends Controller
             now()->year
         );
 
+
         /*
         |--------------------------------------------------------------------------
         | VALIDASI BULAN
@@ -63,6 +64,26 @@ class LplpoRekapController extends Controller
             );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI TAHUN
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $tahunMulai < 2000 ||
+            $tahunMulai > 2100 ||
+            $tahunSampai < 2000 ||
+            $tahunSampai > 2100
+        ) {
+            abort(
+                422,
+                'Tahun periode tidak valid.'
+            );
+        }
+
+
         /*
         |--------------------------------------------------------------------------
         | VALIDASI PERIODE
@@ -76,11 +97,13 @@ class LplpoRekapController extends Controller
             ($tahunSampai * 100) + $bulanSampai;
 
         if ($periodeMulai > $periodeSampai) {
+
             abort(
                 422,
                 'Periode mulai tidak boleh lebih besar dari periode sampai.'
             );
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -89,11 +112,13 @@ class LplpoRekapController extends Controller
         */
 
         if (!in_array($groupId, [2, 3, 5])) {
+
             abort(
                 403,
                 'Anda tidak memiliki akses ke halaman rekap LPLPO.'
             );
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -102,6 +127,7 @@ class LplpoRekapController extends Controller
         */
 
         $faskes = collect();
+
 
         if ($groupId === 2) {
 
@@ -116,6 +142,7 @@ class LplpoRekapController extends Controller
                     'namaFaskes'
                 ]);
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -148,13 +175,11 @@ class LplpoRekapController extends Controller
 
         $groupId = (int) $user->groupid;
 
+
         /*
         |--------------------------------------------------------------------------
         | PARAMETER PERIODE
         |--------------------------------------------------------------------------
-        |
-        | Gunakan nama parameter yang sama dengan index()
-        |
         */
 
         $bulanMulai = (int) $request->input(
@@ -177,6 +202,7 @@ class LplpoRekapController extends Controller
             now()->year
         );
 
+
         /*
         |--------------------------------------------------------------------------
         | VALIDASI BULAN
@@ -189,11 +215,13 @@ class LplpoRekapController extends Controller
             $bulanSampai < 1 ||
             $bulanSampai > 12
         ) {
+
             return response()->json([
                 'success' => false,
                 'message' => 'Bulan periode tidak valid.'
             ], 422);
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -207,11 +235,13 @@ class LplpoRekapController extends Controller
             $tahunSampai < 2000 ||
             $tahunSampai > 2100
         ) {
+
             return response()->json([
                 'success' => false,
                 'message' => 'Tahun periode tidak valid.'
             ], 422);
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -225,6 +255,7 @@ class LplpoRekapController extends Controller
         $periodeSampai =
             ($tahunSampai * 100) + $bulanSampai;
 
+
         if ($periodeMulai > $periodeSampai) {
 
             return response()->json([
@@ -233,6 +264,7 @@ class LplpoRekapController extends Controller
                     'Periode dari tidak boleh lebih besar dari periode sampai.'
             ], 422);
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -282,18 +314,6 @@ class LplpoRekapController extends Controller
         |--------------------------------------------------------------------------
         | FILTER PERIODE
         |--------------------------------------------------------------------------
-        |
-        | Contoh:
-        |
-        | 2025-11 s/d 2026-02
-        |
-        | Akan mengambil:
-        |
-        | 2025-11
-        | 2025-12
-        | 2026-01
-        | 2026-02
-        |
         */
 
         $reportQuery->where(function ($query) use (
@@ -305,7 +325,7 @@ class LplpoRekapController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | PERIODE DALAM TAHUN YANG SAMA
+            | TAHUN SAMA
             |--------------------------------------------------------------------------
             */
 
@@ -354,7 +374,7 @@ class LplpoRekapController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | TAHUN DI TENGAH
+            | TAHUN TENGAH
             |--------------------------------------------------------------------------
             */
 
@@ -399,7 +419,7 @@ class LplpoRekapController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | FILTER BERDASARKAN GROUP
+        | FILTER GROUP
         |--------------------------------------------------------------------------
         */
 
@@ -431,6 +451,7 @@ class LplpoRekapController extends Controller
                 );
             }
         }
+
 
         elseif (
             $groupId === 3 ||
@@ -489,6 +510,39 @@ class LplpoRekapController extends Controller
 
         if ($reportIds->isNotEmpty()) {
 
+            /*
+            |--------------------------------------------------------------------------
+            | MASTER STOK MINIMAL
+            |--------------------------------------------------------------------------
+            |
+            | Kita buat subquery terlebih dahulu agar join tidak
+            | menggandakan baris item ketika data report memiliki
+            | beberapa periode.
+            |
+            */
+
+            $stokMinimal = DB::table(
+                'master_stokminimal_obat'
+            )
+                ->select(
+                    'kode_obat',
+                    'kodeFaskes',
+                    'tahun',
+                    DB::raw(
+                        'MAX(obat_esensial) as obat_esensial'
+                    ),
+                    DB::raw(
+                        'MAX(obat_formularium_puskesmas)
+                         as obat_formularium_puskesmas'
+                    )
+                )
+                ->groupBy(
+                    'kode_obat',
+                    'kodeFaskes',
+                    'tahun'
+                );
+
+
             $items = DB::table(
                 'new_lplpo_itemlist as i'
             )
@@ -508,7 +562,64 @@ class LplpoRekapController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | HANYA ITEM DARI REPORT DALAM PERIODE
+                | MASTER OBAT
+                |--------------------------------------------------------------------------
+                */
+
+                ->leftJoin(
+                    'master_obat as mo',
+                    'mo.kode_obat',
+                    '=',
+                    'i.kode_obat'
+                )
+
+                /*
+                |--------------------------------------------------------------------------
+                | REPORT
+                |--------------------------------------------------------------------------
+                */
+
+                ->leftJoin(
+                    'new_lplpo_reports as r',
+                    'r.id',
+                    '=',
+                    'i.report_id'
+                )
+
+                /*
+                |--------------------------------------------------------------------------
+                | STOK MINIMAL
+                |--------------------------------------------------------------------------
+                */
+
+                ->leftJoinSub(
+                    $stokMinimal,
+                    'ms',
+                    function ($join) {
+
+                        $join->on(
+                            'ms.kode_obat',
+                            '=',
+                            'i.kode_obat'
+                        )
+
+                        ->on(
+                            'ms.kodeFaskes',
+                            '=',
+                            'r.kode_faskes'
+                        )
+
+                        ->on(
+                            'ms.tahun',
+                            '=',
+                            'r.tahun'
+                        );
+                    }
+                )
+
+                /*
+                |--------------------------------------------------------------------------
+                | FILTER REPORT
                 |--------------------------------------------------------------------------
                 */
 
@@ -517,11 +628,17 @@ class LplpoRekapController extends Controller
                     $reportIds
                 )
 
+                /*
+                |--------------------------------------------------------------------------
+                | SELECT
+                |--------------------------------------------------------------------------
+                */
+
                 ->select(
 
                     /*
                     |--------------------------------------------------------------------------
-                    | IDENTITAS
+                    | PROGRAM
                     |--------------------------------------------------------------------------
                     */
 
@@ -535,11 +652,60 @@ class LplpoRekapController extends Controller
                         ) as program_name'
                     ),
 
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | IDENTITAS OBAT
+                    |--------------------------------------------------------------------------
+                    */
+
                     'i.kode_obat',
 
                     'i.nama_obat',
 
                     'i.satuan',
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | NAPZA
+                    |--------------------------------------------------------------------------
+                    */
+
+                    DB::raw(
+                        'COALESCE(
+                            mo.obat_napza,
+                            "tidak"
+                        ) as obat_napza'
+                    ),
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ESENSIAL
+                    |--------------------------------------------------------------------------
+                    */
+
+                    DB::raw(
+                        'COALESCE(
+                            ms.obat_esensial,
+                            "noe"
+                        ) as obat_esensial'
+                    ),
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FORMULARIUM PKM
+                    |--------------------------------------------------------------------------
+                    */
+
+                    DB::raw(
+                        'COALESCE(
+                            ms.obat_formularium_puskesmas,
+                            "false"
+                        ) as obat_formularium_puskesmas'
+                    ),
 
 
                     /*
@@ -740,12 +906,24 @@ class LplpoRekapController extends Controller
                 */
 
                 ->groupBy(
+
                     'i.program_id',
+
                     'p.program_name',
+
                     'i.program_name',
+
                     'i.kode_obat',
+
                     'i.nama_obat',
-                    'i.satuan'
+
+                    'i.satuan',
+
+                    'mo.obat_napza',
+
+                    'ms.obat_esensial',
+
+                    'ms.obat_formularium_puskesmas'
                 )
 
                 /*

@@ -2,7 +2,7 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | URL
+    | CONFIG
     |--------------------------------------------------------------------------
     */
 
@@ -11,27 +11,41 @@ $(document).ready(function () {
     const dataUrl = config.dataUrl;
     const storeUrl = config.storeUrl;
 
-
     let editMode = false;
 
 
     /*
     |--------------------------------------------------------------------------
-    | SELECT2 OBAT
+    | PASTIKAN KODE OBAT ADALAH INPUT TEXT
     |--------------------------------------------------------------------------
+    |
+    | Tidak menggunakan Select2.
+    |
     */
 
-    $('#kode_obat').select2({
+    const kodeObat = $('#kode_obat');
 
-        dropdownParent: $('#modalObat'),
+    if (kodeObat.length) {
 
-        width: '100%',
+        // Hapus kemungkinan instance Select2 lama
+        if (kodeObat.hasClass('select2-hidden-accessible')) {
 
-        placeholder: '-- Pilih Obat --',
+            kodeObat.select2('destroy');
 
-        allowClear: true
+        }
 
-    });
+        // Pastikan elemen benar-benar input
+        if (kodeObat.prop('tagName').toLowerCase() !== 'input') {
+
+            console.error(
+                'ERROR: #kode_obat bukan input text.'
+            );
+
+        }
+
+        kodeObat.attr('type', 'text');
+
+    }
 
 
     /*
@@ -62,82 +76,65 @@ $(document).ready(function () {
 
             {
                 data: 'DT_RowIndex',
-
                 name: 'DT_RowIndex',
-
                 orderable: false,
-
                 searchable: false,
-
                 className: 'text-center'
-
             },
 
             {
                 data: 'kode_obat',
-
                 name: 'kode_obat'
-
             },
 
             {
                 data: 'nama_obat',
-
                 name: 'nama_obat'
-
             },
 
             {
                 data: 'satuan',
-
                 name: 'satuan'
-
             },
 
             {
                 data: 'obat_napza',
-
                 name: 'obat_napza',
-
                 className: 'text-center'
-
             },
 
             {
                 data: 'aksi',
-
                 name: 'aksi',
-
                 orderable: false,
-
                 searchable: false,
-
                 className: 'text-center'
-
             }
 
         ],
 
         order: [
-
             [
                 2,
                 'asc'
             ]
-
         ],
 
         language: {
 
             search: 'Cari:',
 
-            searchPlaceholder: 'Cari kode / nama obat...',
+            searchPlaceholder:
+                'Cari kode / nama obat...',
 
-            processing: 'Memuat data...',
+            processing:
+                'Memuat data...',
 
-            emptyTable: 'Belum ada data.',
+            emptyTable:
+                'Belum ada data.',
 
-            zeroRecords: 'Data tidak ditemukan.'
+            zeroRecords:
+                'Data tidak ditemukan.'
 
         }
 
@@ -150,32 +147,37 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $('#btnTambahObat').on('click', function () {
+    $('#btnTambahObat').on(
+        'click',
+        function () {
 
-        editMode = false;
+            editMode = false;
 
-        clearForm();
+            clearForm();
 
-        $('#modalTitle').html(`
-            <i class="bi bi-plus-circle me-2"></i>
-            Tambah Obat
-        `);
+            $('#modalObatTitle').html(`
+                <i class="bi bi-plus-circle me-2"></i>
+                Tambah Obat
+            `);
 
-        $('#saveText').text('Simpan');
+            $('#saveTextObat')
+                .text('Simpan');
 
-        const modal =
-            bootstrap.Modal.getOrCreateInstance(
-                document.getElementById('modalObat')
-            );
 
-        modal.show();
+            const modal =
+                bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('modalObat')
+                );
 
-    });
+            modal.show();
+
+        }
+    );
 
 
     /*
     |--------------------------------------------------------------------------
-    | EDIT
+    | EDIT OBAT
     |--------------------------------------------------------------------------
     */
 
@@ -184,69 +186,109 @@ $(document).ready(function () {
         '.btn-edit-obat',
         function () {
 
-            const id = $(this).data('id');
+            const id =
+                $(this).data('id');
 
             editMode = true;
 
             clearForm();
 
-            $('#modalTitle').html(`
+
+            $('#modalObatTitle').html(`
                 <i class="bi bi-pencil-square me-2"></i>
                 Edit Obat
             `);
 
-            $('#saveText').text('Update');
+            $('#saveTextObat')
+                .text('Update');
 
 
             $.ajax({
 
-                url: config.baseUrl + '/' + id,
+                url:
+                    config.baseUrl + '/' + id,
 
-                type: 'GET',
+                type:
+                    'GET',
 
-                success: function (response) {
+                dataType:
+                    'json',
 
-                    const data = response.data;
+                success:
+                    function (response) {
 
-
-                    $('#data_id')
-                        .val(data.id);
-
-
-                    $('#kode_obat')
-                        .val(data.kode_obat);
-
-
-                    $('#nama_obat')
-                        .val(data.nama_obat);
+                        const data =
+                            response.data;
 
 
-                    $('#satuan')
-                        .val(data.satuan);
+                        $('#obat_id')
+                            .val(data.id);
 
 
-                    $('#obat_napza')
-                        .val(data.obat_napza);
+                        /*
+                        |--------------------------------------------------------------------------
+                        | KODE OBAT
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $('#kode_obat')
+                            .val(data.kode_obat);
 
 
-                    const modal =
-                        bootstrap.Modal.getOrCreateInstance(
-                            document.getElementById('modalObat')
+                        /*
+                        |--------------------------------------------------------------------------
+                        | NAMA
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $('#nama_obat')
+                            .val(data.nama_obat);
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | SATUAN
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $('#satuan')
+                            .val(data.satuan);
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | NAPZA
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $('#obat_napza')
+                            .val(
+                                data.obat_napza ?? 'tidak'
+                            );
+
+
+                        const modal =
+                            bootstrap.Modal
+                                .getOrCreateInstance(
+                                    document.getElementById(
+                                        'modalObat'
+                                    )
+                                );
+
+                        modal.show();
+
+                    },
+
+                error:
+                    function (xhr) {
+
+                        Swal.fire(
+                            'Error',
+                            getErrorMessage(xhr),
+                            'error'
                         );
 
-                    modal.show();
-
-                },
-
-                error: function (xhr) {
-
-                    Swal.fire(
-                        'Error',
-                        getErrorMessage(xhr),
-                        'error'
-                    );
-
-                }
+                    }
 
             });
 
@@ -274,83 +316,102 @@ $(document).ready(function () {
 
             Swal.fire({
 
-                title: 'Hapus Obat?',
+                title:
+                    'Hapus Obat?',
 
                 html: `
                     Data obat
-                    <strong>${escapeHtml(nama)}</strong>
+                    <strong>
+                        ${escapeHtml(nama)}
+                    </strong>
                     akan dihapus.
                 `,
 
-                icon: 'warning',
+                icon:
+                    'warning',
 
-                showCancelButton: true,
+                showCancelButton:
+                    true,
 
-                confirmButtonText: 'Ya, Hapus',
+                confirmButtonText:
+                    'Ya, Hapus',
 
-                cancelButtonText: 'Batal',
+                cancelButtonText:
+                    'Batal',
 
-                confirmButtonColor: '#dc3545'
+                confirmButtonColor:
+                    '#dc3545'
 
-            }).then(function (result) {
+            }).then(
+                function (result) {
 
-                if (!result.isConfirmed) {
+                    if (!result.isConfirmed) {
 
-                    return;
-
-                }
-
-
-                $.ajax({
-
-                    url:
-                        config.baseUrl + '/' + id,
-
-                    type: 'DELETE',
-
-                    data: {
-
-                        _token: config.csrfToken
-
-                    },
-
-                    success: function (response) {
-
-                        Swal.fire({
-
-                            icon: 'success',
-
-                            title: 'Berhasil',
-
-                            text: response.message,
-
-                            timer: 1500,
-
-                            showConfirmButton: false
-
-                        });
-
-
-                        table.ajax.reload(
-                            null,
-                            false
-                        );
-
-                    },
-
-                    error: function (xhr) {
-
-                        Swal.fire(
-                            'Tidak dapat dihapus',
-                            getErrorMessage(xhr),
-                            'error'
-                        );
+                        return;
 
                     }
 
-                });
 
-            });
+                    $.ajax({
+
+                        url:
+                            config.baseUrl + '/' + id,
+
+                        type:
+                            'DELETE',
+
+                        data: {
+
+                            _token:
+                                config.csrfToken
+
+                        },
+
+                        success:
+                            function (response) {
+
+                                Swal.fire({
+
+                                    icon:
+                                        'success',
+
+                                    title:
+                                        'Berhasil',
+
+                                    text:
+                                        response.message,
+
+                                    timer:
+                                        1500,
+
+                                    showConfirmButton:
+                                        false
+
+                                });
+
+
+                                table.ajax.reload(
+                                    null,
+                                    false
+                                );
+
+                            },
+
+                        error:
+                            function (xhr) {
+
+                                Swal.fire(
+                                    'Tidak dapat dihapus',
+                                    getErrorMessage(xhr),
+                                    'error'
+                                );
+
+                            }
+
+                    });
+
+                }
+            );
 
         }
     );
@@ -372,7 +433,7 @@ $(document).ready(function () {
 
 
             const id =
-                $('#data_id').val();
+                $('#obat_id').val();
 
 
             let url =
@@ -393,16 +454,22 @@ $(document).ready(function () {
             }
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | PAYLOAD
+            |--------------------------------------------------------------------------
+            */
+
             const payload = {
 
                 kode_obat:
-                    $('#kode_obat').val(),
+                    $('#kode_obat').val().trim(),
 
                 nama_obat:
-                    $('#nama_obat').val(),
+                    $('#nama_obat').val().trim(),
 
                 satuan:
-                    $('#satuan').val(),
+                    $('#satuan').val().trim(),
 
                 obat_napza:
                     $('#obat_napza').val(),
@@ -418,59 +485,76 @@ $(document).ready(function () {
 
             $.ajax({
 
-                url: url,
+                url:
+                    url,
 
-                type: method,
+                type:
+                    method,
 
-                data: payload,
+                data:
+                    payload,
 
-                success: function (response) {
+                dataType:
+                    'json',
 
-                    const modal =
-                        bootstrap.Modal.getInstance(
-                            document.getElementById('modalObat')
+                success:
+                    function (response) {
+
+                        const modal =
+                            bootstrap.Modal.getInstance(
+                                document.getElementById(
+                                    'modalObat'
+                                )
+                            );
+
+
+                        if (modal) {
+
+                            modal.hide();
+
+                        }
+
+
+                        Swal.fire({
+
+                            icon:
+                                'success',
+
+                            title:
+                                'Berhasil',
+
+                            text:
+                                response.message,
+
+                            timer:
+                                1500,
+
+                            showConfirmButton:
+                                false
+
+                        });
+
+
+                        table.ajax.reload(
+                            null,
+                            false
                         );
 
-                    if (modal) {
+                    },
 
-                        modal.hide();
+                error:
+                    function (xhr) {
+
+                        handleError(xhr);
+
+                    },
+
+                complete:
+                    function () {
+
+                        setLoading(false);
 
                     }
-
-
-                    Swal.fire({
-
-                        icon: 'success',
-
-                        title: 'Berhasil',
-
-                        text: response.message,
-
-                        timer: 1500,
-
-                        showConfirmButton: false
-
-                    });
-
-
-                    table.ajax.reload(
-                        null,
-                        false
-                    );
-
-                },
-
-                error: function (xhr) {
-
-                    handleError(xhr);
-
-                },
-
-                complete: function () {
-
-                    setLoading(false);
-
-                }
 
             });
 
@@ -487,16 +571,49 @@ $(document).ready(function () {
     function clearForm()
     {
 
-        $('#formObat')[0].reset();
+        const form =
+            $('#formObat')[0];
 
-        $('#data_id').val('');
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ID EDIT
+        |--------------------------------------------------------------------------
+        */
+
+        $('#obat_id')
+            .val('');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KODE OBAT
+        |--------------------------------------------------------------------------
+        | Input text biasa.
+        |--------------------------------------------------------------------------
+        */
 
         $('#kode_obat')
-            .val(null)
-            .trigger('change');
+            .val('')
+            .removeClass('is-invalid');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAPZA
+        |--------------------------------------------------------------------------
+        */
 
         $('#obat_napza')
             .val('tidak');
+
 
         clearValidation();
 
@@ -505,7 +622,7 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | VALIDATION
+    | CLEAR VALIDATION
     |--------------------------------------------------------------------------
     */
 
@@ -516,6 +633,7 @@ $(document).ready(function () {
             .find('.is-invalid')
             .removeClass('is-invalid');
 
+
         $('#formObat')
             .find('.invalid-feedback')
             .text('');
@@ -525,14 +643,16 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ERROR
+    | HANDLE VALIDATION ERROR
     |--------------------------------------------------------------------------
     */
 
     function handleError(xhr)
     {
 
-        console.error(xhr.responseText);
+        console.error(
+            xhr.responseText
+        );
 
 
         if (
@@ -545,22 +665,25 @@ $(document).ready(function () {
 
 
             Object.keys(errors)
-                .forEach(function (field) {
+                .forEach(
+                    function (field) {
 
-                    const input =
-                        $('#' + field);
-
-                    input.addClass(
-                        'is-invalid'
-                    );
+                        const input =
+                            $('#' + field);
 
 
-                    $('#' + field + '_error')
-                        .text(
-                            errors[field][0]
+                        input.addClass(
+                            'is-invalid'
                         );
 
-                });
+
+                        $('#' + field + '_error')
+                            .text(
+                                errors[field][0]
+                            );
+
+                    }
+                );
 
 
             Swal.fire(
@@ -568,6 +691,7 @@ $(document).ready(function () {
                 'Periksa kembali data yang dimasukkan.',
                 'warning'
             );
+
 
             return;
 
@@ -609,30 +733,40 @@ $(document).ready(function () {
     function setLoading(status)
     {
 
-        $('#btnSimpan')
-            .prop('disabled', status);
+        $('#btnSimpanObat')
+            .prop(
+                'disabled',
+                status
+            );
 
 
         if (status) {
 
-            $('#spinner')
+            $('#spinnerObat')
                 .removeClass('d-none');
 
-            $('#saveIcon')
+
+            $('#saveIconObat')
                 .addClass('d-none');
 
-            $('#saveText')
-                .text('Menyimpan...');
 
-        } else {
+            $('#saveTextObat')
+                .text(
+                    'Menyimpan...'
+                );
 
-            $('#spinner')
+        }
+        else {
+
+            $('#spinnerObat')
                 .addClass('d-none');
 
-            $('#saveIcon')
+
+            $('#saveIconObat')
                 .removeClass('d-none');
 
-            $('#saveText')
+
+            $('#saveTextObat')
                 .text(
                     editMode
                         ? 'Update'

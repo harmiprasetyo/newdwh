@@ -43,6 +43,7 @@ use App\Http\Controllers\AdminPanel\UserPanel\UserRoleController;
 use App\Http\Controllers\AdminPanel\UserPanel\UserAppController;
 use App\Http\Controllers\AdminPanel\WilayahKerja\WilayahKerjaPuskesmasController;
 use App\Http\Controllers\AdminPanel\Master\MasterFaskesController;
+use App\Http\Controllers\NewLplpo\LplpoStokEsensialController;
 
 use App\Http\Controllers\TestMailController;
 
@@ -803,6 +804,27 @@ Route::get(
 
 
 
+ Route::prefix('stokesensial')
+            ->name('stokesensial.')
+            ->group(function () {
+
+                Route::get(
+                    '/',
+                    [
+                        LplpoStokEsensialController::class,
+                        'index'
+                    ]
+                )->name('index');
+
+                Route::get(
+                    '/data',
+                    [
+                        LplpoStokEsensialController::class,
+                        'data'
+                    ]
+                )->name('data');
+
+            });
 
 Route::prefix('stok-esensial')
     ->name('stok-esensial.')
