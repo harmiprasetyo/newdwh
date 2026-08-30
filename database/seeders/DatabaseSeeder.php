@@ -87,6 +87,24 @@ class DatabaseSeeder extends Seeder
 
 
 
+    UsersApp::updateOrCreate(
+    ['username' => 'admin'],
+    [
+        'email' => 'admin@dinkes.go.id',
+        'namalengkap' => 'Administrator',
+        'groupid' => 1,
+        'role_id' => UserRoles::where('role_name', 'Super Admin')
+            ->where('groupId', 1)
+            ->value('id'),
+        'kodeFaskes' => null,
+        'namaFaskes' => null,
+        'kodePropinsi' => null,
+        'kodeKota' => null,
+        'kodeKecamatan' => null,
+        'password' => Hash::make('Admin@123456'),
+    ]
+);
+
 
         /**
          * =========================
