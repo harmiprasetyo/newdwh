@@ -431,198 +431,252 @@ public function duplicate(Request $request)
     }
 
 
+ /*
+|--------------------------------------------------------------------------
+| DATATABLE
+|--------------------------------------------------------------------------
+*/
+
+public function datatable(Request $request)
+{
+    $user = auth()->user();
+
+    $query = StokMinimalObat::query()
+
+        ->from('master_stokminimal_obat as s')
+
+        ->leftJoin(
+            'master_obat as o',
+            'o.kode_obat',
+            '=',
+            's.kode_obat'
+        )
+
+        ->leftJoin(
+            'master_faskes as f',
+            'f.kodeFaskes',
+            '=',
+            's.kodeFaskes'
+        )
+
+        ->select([
+            's.id',
+            's.kode_obat',
+            's.kodeFaskes',
+            's.stok_minimal',
+            's.stok_optimum',
+            's.obat_esensial',
+            's.obat_formularium_puskesmas',
+            's.tahun',
+
+            'o.nama_obat',
+
+            'f.namaFaskes',
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BATASI FASKES GROUP 3 / 4 / 5
+    |--------------------------------------------------------------------------
+    |
+    | Group 3, 4, dan 5 hanya boleh melihat data milik
+    | faskes user yang sedang login.
+    |
+    */
+
+    if (
+        in_array(
+            (int) $user->groupid,
+            [3, 4, 5],
+            true
+        )
+    ) {
+
+        $query->where(
+            's.kodeFaskes',
+            $user->kodeFaskes
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER TAHUN
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('tahun')) {
+
+        $query->where(
+            's.tahun',
+            $request->tahun
+        );
+
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | DATATABLE
     |--------------------------------------------------------------------------
     */
 
-    public function datatable(Request $request)
-    {
-        $query = StokMinimalObat::query()
+    return datatables()
+        ->of($query)
 
-            ->from('master_stokminimal_obat as s')
-
-            ->leftJoin(
-                'master_obat as o',
-                'o.kode_obat',
-                '=',
-                's.kode_obat'
-            )
-
-            ->leftJoin(
-                'master_faskes as f',
-                'f.kodeFaskes',
-                '=',
-                's.kodeFaskes'
-            )
-
-            ->select([
-                's.id',
-                's.kode_obat',
-                's.kodeFaskes',
-                's.stok_minimal',
-                's.stok_optimum',
-                's.obat_esensial',
-                's.obat_formularium_puskesmas',
-                's.tahun',
-
-                'o.nama_obat',
-
-                'f.namaFaskes',
-            ]);
+        ->addIndexColumn()
 
 
         /*
         |--------------------------------------------------------------------------
-        | FILTER TAHUN
+        | OBAT
         |--------------------------------------------------------------------------
         */
 
-        if ($request->filled('tahun')) {
+        ->addColumn(
+            'obat',
+            function ($row) {
 
-            $query->where(
-                's.tahun',
-                $request->tahun
-            );
+                return $row->nama_obat ?? '-';
 
-        }
+            }
+        )
 
 
         /*
         |--------------------------------------------------------------------------
-        | DATATABLE
+        | FASKES
         |--------------------------------------------------------------------------
         */
 
-        return datatables()
-            ->of($query)
+        ->addColumn(
+            'faskes',
+            function ($row) {
 
-            ->addIndexColumn()
+                return $row->namaFaskes ?? '-';
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | OBAT
-            |--------------------------------------------------------------------------
-            */
-
-            ->addColumn(
-                'obat',
-                function ($row) {
-
-                    return $row->nama_obat
-                        ?? '-';
-
-                }
-            )
+            }
+        )
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | FASKES
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | AKSI
+        |--------------------------------------------------------------------------
+        */
 
-            ->addColumn(
-                'faskes',
-                function ($row) {
+        ->addColumn(
+            'aksi',
+            function ($row) {
 
-                    return $row->namaFaskes
-                        ?? '-';
+                return '
+                    <div class="btn-group btn-group-sm">
 
-                }
-            )
+                        <button
+                            type="button"
+                            class="btn btn-warning btn-edit"
+                            data-id="' . $row->id . '">
+
+                            <i class="bi bi-pencil-square"></i>
+
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-delete"
+                            data-id="' . $row->id . '">
+
+                            <i class="bi bi-trash"></i>
+
+                        </button>
+
+                    </div>
+                ';
+
+            }
+        )
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | AKSI
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | OBAT ESENSIAL
+        |--------------------------------------------------------------------------
+        */
 
-            ->addColumn(
-                'aksi',
-                function ($row) {
+        ->editColumn(
+            'obat_esensial',
+            function ($row) {
+
+                if ($row->obat_esensial === 'oe') {
 
                     return '
-                        <div class="btn-group btn-group-sm">
-
-                            <button
-                                type="button"
-                                class="btn btn-warning btn-edit"
-                                data-id="' . $row->id . '">
-
-                                <i class="bi bi-pencil-square"></i>
-
-                            </button>
-
-                            <button
-                                type="button"
-                                class="btn btn-danger btn-delete"
-                                data-id="' . $row->id . '">
-
-                                <i class="bi bi-trash"></i>
-
-                            </button>
-
-                        </div>
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Esensial
+                        </span>
                     ';
 
                 }
-            )
-             ->editColumn('obat_esensial', function ($row) {
-
-            if ($row->obat_esensial === 'oe') {
 
                 return '
-                    <span class="badge bg-success">
-                        <i class="bi bi-check-circle me-1"></i>
-                        Esensial
+                    <span class="badge bg-secondary">
+                        <i class="bi bi-dash-circle me-1"></i>
+                        Non Esensial
                     </span>
                 ';
+
             }
-
-            return '
-                <span class="badge bg-secondary">
-                    <i class="bi bi-dash-circle me-1"></i>
-                    Non Esensial
-                </span>
-            ';
-        })
+        )
 
 
-           ->editColumn(
-    'obat_formularium_puskesmas',
-    function ($row) {
+        /*
+        |--------------------------------------------------------------------------
+        | FORMULARIUM PUSKESMAS
+        |--------------------------------------------------------------------------
+        */
 
-        if ($row->obat_formularium_puskesmas === 'true') {
+        ->editColumn(
+            'obat_formularium_puskesmas',
+            function ($row) {
 
-            return '
-                <span class="badge bg-success">
-                    Ya
-                </span>
-            ';
+                if (
+                    $row->obat_formularium_puskesmas === 'true'
+                ) {
 
-        }
+                    return '
+                        <span class="badge bg-success">
+                            Ya
+                        </span>
+                    ';
 
-        return '
-            <span class="badge bg-secondary">
-                Tidak
-            </span>
-        ';
-    }
-)
+                }
 
-           ->rawColumns([
-    'aksi',
-    'obat_esensial',
-    'obat_formularium_puskesmas'
-])
+                return '
+                    <span class="badge bg-secondary">
+                        Tidak
+                    </span>
+                ';
 
-            ->make(true);
-    }
+            }
+        )
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | RAW COLUMNS
+        |--------------------------------------------------------------------------
+        */
+
+        ->rawColumns([
+            'aksi',
+            'obat_esensial',
+            'obat_formularium_puskesmas'
+        ])
+
+        ->make(true);
+}
 
     /*
     |--------------------------------------------------------------------------

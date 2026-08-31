@@ -90,6 +90,11 @@
     ➜ Rekap LPLPO
 </a>
 
+ <a href="{{ route('newlplpo.stokesensial.index') }}">
+    ➜ Monitoring Stok Obat DOEN
+</a>
+
+
         <a href="{{ route('newlplpo.verifikasi.index') }}">
             ➜ Verifikasi LPLPO
         </a>
@@ -152,6 +157,8 @@
         <a href="{{ route('newlplpo.rekap') }}">
     ➜ Rekap LPLPO
 </a>
+ <a href="{{ route('newlplpo.stokesensial.index') }}">
+    ➜  Monitoring Stok Obat DOEN </a>
 
     </div>
 
