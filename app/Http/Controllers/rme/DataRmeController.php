@@ -556,6 +556,14 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
                 $dt['ANC']['anc_perut']=$obs['resource']['valueString'];
             }
 
+            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='301230006'){
+                $dt['ANC']['anc_paru']=$obs['resource']['valueString'];
+            }
+
+            if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='116312005'){
+                $dt['ANC']['anc_tungkai']=$obs['resource']['valueString'];
+            }
+
               if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='246435002'){
                 $dt['ANC']['anc_jumlah_janin']=$obs['resource']['valueInteger'];
             }
@@ -629,13 +637,19 @@ $dt['ANC']['anc_diagnosa'] = [];
 if (($kondisi['total'] ?? 0) > 0) {
 
     foreach ($kondisi['entry'] as $nres) {
+         $categoryCode = data_get(
+            $nres,
+            'resource.category.0.coding.0.code'
+        );
 
+    if ($categoryCode === 'encounter-diagnosis') {
         $dt['ANC']['anc_diagnosa'][] = [
             'code' => data_get($nres, 'resource.code.coding.0.code'),
             'display' => data_get($nres, 'resource.code.coding.0.display'),
             'system' => data_get($nres, 'resource.code.coding.0.system'),
             'category' => data_get($nres, 'resource.category.0.coding.0.display'),
         ];
+    }
     }
 }
 
@@ -1262,6 +1276,7 @@ $resAnamnese = $anamnese->json();
 
 /*
 |--------------------------------------------------------------------------
+
 | ANAMNESE
 |--------------------------------------------------------------------------
 */

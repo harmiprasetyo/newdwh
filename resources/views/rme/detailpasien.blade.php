@@ -370,11 +370,25 @@
                     <th> @if(isset($dt['ANC']['anc_jantung'])){{ $dt['ANC']['anc_leher'] }} @endif</th>
                     <th></th>
                 </tr>
+                  <tr>
+                    <th>Pemeriksaan Fisik Paru-paru</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_paru'])){{ $dt['ANC']['anc_paru'] }} @endif</th>
+                    <th></th>
+                </tr>
 
                 <tr>
                     <th>Pemeriksaan Fisik Perut</th>
                     <th>:</th>
                     <th> @if(isset($dt['ANC']['anc_perut'])){{ $dt['ANC']['anc_perut'] }} @endif</th>
+                    <th></th>
+                </tr>
+
+
+                 <tr>
+                    <th>Pemeriksaan Fisik Tungkai</th>
+                    <th>:</th>
+                    <th> @if(isset($dt['ANC']['anc_tungkai'])){{ $dt['ANC']['anc_tungkai'] }} @endif</th>
                     <th></th>
                 </tr>
 
@@ -1062,7 +1076,7 @@
                         @if(isset($dt['PNCPROC'][0]['code']) && $dt['PNCPROC'][0]['code']=='408988007') Ya @endif</td>
                    </tr>
                    <tr>
-                    <td>Skrining Kesehatan Jiwa</td>
+                  <!--  <td>Skrining Kesehatan Jiwa</td>
                     <td>:</td>
                     <td></td>
                    </tr>
@@ -1076,7 +1090,7 @@
                     <td>:</td>
                     <td></td>
                    </tr>
-                   <tr>
+                   <tr> -->
                     <td>Tindakan</td>
                     <td>:</td>
                     <td>
