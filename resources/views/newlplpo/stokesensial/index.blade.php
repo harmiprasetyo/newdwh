@@ -717,23 +717,23 @@
 }
 
 .heat-danger {
-    background-color: #f8d7da !important;
-    color: #842029 !important;
+    background-color: #eb081b !important;
+    color: #0c0b0b !important;
 }
 
 .heat-warning {
-    background-color: #ffe5cc !important;
-    color: #7a4100 !important;
+    background-color: #ee966e !important;
+    color: #0e0d0c !important;
 }
 
 .heat-yellow {
-    background-color: #fff3cd !important;
-    color: #664d03 !important;
+    background-color: #f0db7d !important;
+    color: #141413 !important;
 }
 
 .heat-success {
-    background-color: #d1e7dd !important;
-    color: #0f5132 !important;
+    background-color: #57eba8 !important;
+    color: #0d0e0d !important;
 }
 
 .heat-nodata {
@@ -772,7 +772,7 @@
 }
 
 .formularium-ya {
-    color: #198754;
+    color: #0b0c0c;
     font-weight: 700;
 }
 
