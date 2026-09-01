@@ -5,6 +5,7 @@ namespace App\Http\Controllers\NewLplpo;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\NewLplpo\ItemService;
+use App\Models\NewLplpo\Item;
 
 class LplpoItemController extends Controller
 {
@@ -15,7 +16,6 @@ class LplpoItemController extends Controller
         $this->service = $service;
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | DEFAULT VALUE
@@ -25,33 +25,19 @@ class LplpoItemController extends Controller
     public function defaultValue(Request $request)
     {
         $request->validate([
-
-            'report_id' =>
-                'required|integer',
-
-            'kode_obat' =>
-                'required|string',
-
-            'program_id' =>
-                'required|integer',
-
+            'report_id' => 'required|integer',
+            'kode_obat' => 'required|string',
+            'program_id' => 'required|integer',
         ]);
 
         return response()->json(
-
             $this->service->defaultValue(
-
                 $request->report_id,
-
                 $request->kode_obat,
-
                 $request->program_id
-
             )
-
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -62,87 +48,74 @@ class LplpoItemController extends Controller
     public function list($reportId)
     {
         return response()->json(
-
-            $this->service->datatable(
-                $reportId
-            )
-
+            $this->service->datatable($reportId)
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT
+    |--------------------------------------------------------------------------
+    */
 
-      /**
-     * DATA ITEM UNTUK EDIT
-     */
-    /**
- * =========================================================
- * DATA ITEM UNTUK EDIT
- * =========================================================
- */
-public function edit($id)
-{
-    try {
+    public function edit($id)
+    {
+        try {
 
-        $item = $this->service->find($id);
+            $item = $this->service->find($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => $item
+            return response()->json([
+                'success' => true,
+                'data' => $item
+            ]);
+
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Data item tidak ditemukan.',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'program_id' => 'required|integer',
+            'kode_obat' => 'required|string',
+            'nama_obat' => 'required|string',
+            'satuan' => 'required|string',
         ]);
 
-    } catch (\Throwable $e) {
+        try {
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Data item tidak ditemukan.',
-            'error' => $e->getMessage()
-        ], 404);
+            $item = $this->service->update(
+                $id,
+                $request->all()
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item berhasil diupdate.',
+                'data' => $item
+            ]);
+
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupdate item.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
-
-
-/**
- * =========================================================
- * UPDATE ITEM
- * =========================================================
- */
-public function update(Request $request, $id)
-{
-    $request->validate([
-
-        'program_id' => 'required|integer',
-
-        'kode_obat' => 'required|string',
-
-        'nama_obat' => 'required|string',
-
-        'satuan' => 'required|string',
-
-    ]);
-
-
-    $item = $this->service->update(
-        $id,
-        $request->all()
-    );
-
-
-    return response()->json([
-
-        'success' => true,
-
-        'message' =>
-            'Item berhasil diupdate.',
-
-        'data' =>
-            $item
-
-    ]);
-}
-
-
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -153,78 +126,34 @@ public function update(Request $request, $id)
     public function store(Request $request)
     {
         $request->validate([
-
-            'report_id' =>
-                'required|integer',
-
-            'program_id' =>
-                'required|integer',
-
-            'kode_obat' =>
-                'required|string',
-
-            'nama_obat' =>
-                'required|string',
-
-            'satuan' =>
-                'required|string',
-
+            'report_id' => 'required|integer',
+            'program_id' => 'required|integer',
+            'kode_obat' => 'required|string',
+            'nama_obat' => 'required|string',
+            'satuan' => 'required|string',
         ]);
 
-        $item = $this->service->create(
+        try {
 
-            $request->all()
+            $item = $this->service->create(
+                $request->all()
+            );
 
-        );
+            return response()->json([
+                'success' => true,
+                'message' => 'Item berhasil disimpan.',
+                'data' => $item
+            ]);
 
-        return response()->json([
+        } catch (\Throwable $e) {
 
-            'success' => true,
-
-            'message' =>
-                'Item berhasil disimpan.',
-
-            'data' =>
-                $item
-
-        ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan item.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE
-    |--------------------------------------------------------------------------
-    */
-
-  /*  public function update(
-        Request $request,
-        $id
-    ) {
-
-        $item = \App\Models\NewLplpo\Item::findOrFail($id);
-
-        $item = $this->service->update(
-
-            $item,
-
-            $request->all()
-
-        );
-
-        return response()->json([
-
-            'success' => true,
-
-            'message' =>
-                'Item berhasil diupdate.',
-
-            'data' =>
-                $item
-
-        ]);
-    }*/
-
 
     /*
     |--------------------------------------------------------------------------
@@ -234,45 +163,51 @@ public function update(Request $request, $id)
 
     public function destroy($id)
     {
-        $item =
-            \App\Models\NewLplpo\Item::findOrFail($id);
+        try {
 
-        $this->service->delete($item);
+            $item = Item::findOrFail($id);
 
-        return response()->json([
+            $this->service->delete($item);
 
-            'success' => true,
+            return response()->json([
+                'success' => true,
+                'message' => 'Item berhasil dihapus.'
+            ]);
 
-            'message' =>
-                'Item berhasil dihapus.'
+        } catch (\Throwable $e) {
 
-        ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus item.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | COPY PREVIOUS MONTH
+    |--------------------------------------------------------------------------
+    */
 
     public function copyPreviousMonth(Request $request)
-{
-    $request->validate([
-        'report_id' => 'required|integer'
-    ]);
+    {
+        $request->validate([
+            'report_id' => 'required|integer'
+        ]);
 
-    $items = $this->service->copyPreviousMonthItems(
-        $request->report_id
-    );
+        $items = $this->service->copyPreviousMonthItems(
+            $request->report_id
+        );
 
-    return response()->json([
+        return response()->json([
+            'success' => true,
 
-        'success' => true,
-
-        'message' =>
-            $items->count() > 0
+            'message' => $items->count() > 0
                 ? $items->count() . ' item bulan sebelumnya berhasil dimasukkan.'
                 : 'Tidak ada data bulan sebelumnya yang perlu dimasukkan.',
 
-        'count' =>
-            $items->count()
-
-    ]);
-}
-
+            'count' => $items->count()
+        ]);
+    }
 }

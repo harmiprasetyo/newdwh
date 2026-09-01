@@ -557,7 +557,7 @@
                                                 type="number"
                                                 id="stok_minimum"
                                                 name="stok_minimum"
-                                                id="stok_minimum"
+
                                                 readonly
                                                 class="form-control bg-light">
 
@@ -575,7 +575,7 @@
                                                 type="number"
                                                 id="stok_optimum"
                                                 name="stok_optimum"
-                                                id="stok_optimum"
+
                                                   value="0"
                                                 class="form-control bg-light">
 
@@ -598,23 +598,7 @@
 
                                         </div>
 
-                                       <!-- <div class="col-md-3">
 
-                                            <label class="form-label">
-
-                                                Pemberian
-
-                                            </label>
-
-                                            <input
-                                                type="number"
-                                                name="pemberian"
-                                                readonly
-                                                min="0"
-                                                value="0"
-                                                class="form-control">
-
-                                        </div>-->
                                         <input type="hidden"
        name="pemberian_program_pkd"
        value="0">
