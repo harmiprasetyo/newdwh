@@ -78,6 +78,14 @@ mix.js(
     'resources/js/newlplpo/stokesensial.js',
     'public/js/newlplpo'
 )
+.js(
+    'resources/js/newlplpo/buatlplpo.js',
+    'public/js/newlplpo'
+)
+.js(
+    'resources/js/newlplpo/item.js',
+    'public/js/newlplpo'
+)
 
 .postCss(
     'resources/css/app.css',
