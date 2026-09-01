@@ -1099,7 +1099,7 @@
                        @if(!empty($dt['PNCPROC']))
     @foreach($dt['PNCPROC'] as $procData)
 
-        @if(($procData['category'] ?? null) == '373110003')
+        @if(($procData['category'] ?? null) == '103693007')
 
             @foreach($procData['procedure']['coding'] ?? [] as $proc)
                 <li>
