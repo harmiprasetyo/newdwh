@@ -687,13 +687,18 @@ if (($prosedur['total'] ?? 0) > 0) {
         }
 
 
-         if (
+       /*  if (
             data_get($proc, 'resource.code.coding.0.system') === 'http://hl7.org/fhir/sid/icd-9-cm' &&
             data_get($proc, 'resource.code.coding.0.code') === '73.01'
         ) {
             $dtx['INC']['inc_tindakan'] =  data_get($proc, 'resource.code.coding.0.display');
             break;
-        }
+        }*/
+            $category = data_get($proc,'resource.category.coding.0.code');
+            if($category=='103693007'){
+                 $dtx['INC']['inc_tindakan'] =  data_get($proc, 'resource.code.coding.0.display');
+
+            }
     }
 }
 
