@@ -1,0 +1,56 @@
+name: Promote Develop to Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Pilih target release"
+        required: true
+        type: choice
+        options:
+          - bogor
+          - bekasi
+          - both
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show promotion target
+        run: |
+          echo "Source : develop"
+          echo "Target : ${{ inputs.target }}"
+
+      - name: Create PR to Bogor
+        if: inputs.target == 'bogor' || inputs.target == 'both'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --base release/bogor \
+            --head develop \
+            --title "Promote develop to release/bogor" \
+            --body "Promotion dari develop ke release/bogor." \
+            || echo "PR Bogor sudah ada."
+
+      - name: Create PR to Bekasi
+        if: inputs.target == 'bekasi' || inputs.target == 'both'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --base release/bekasi \
+            --head develop \
+            --title "Promote develop to release/bekasi" \
+            --body "Promotion dari develop ke release/bekasi." \
+            || echo "PR Bekasi sudah ada."
