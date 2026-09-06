@@ -24,5 +24,5 @@ jobs:
           git remote add gitlab-bekasi \
             https://oauth2:${GITLAB_TOKEN}@repo.bekasikota.go.id/${GITLAB_REPO}
 
-          git push gitlab-bekasi release/bekasi:main
+          git push gitlab-bekasi release/bekasi:main --force
 
