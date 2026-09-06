@@ -1,0 +1,98 @@
+name: Promote Develop to Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Pilih target release"
+        required: true
+        type: choice
+        options:
+          - bogor
+          - bekasi
+          - both
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: promote-develop-to-release
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show promotion target
+        run: |
+          echo "======================================"
+          echo "Source : develop"
+          echo "Target : ${{ inputs.target }}"
+          echo "======================================"
+
+      - name: Verify develop branch
+        run: |
+          git fetch origin develop
+
+          echo "Latest develop commit:"
+          git log origin/develop -1 --oneline
+
+      - name: Create PR to Bogor
+        if: inputs.target == 'bogor' || inputs.target == 'both'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Checking PR develop -> release/bogor..."
+
+          EXISTING_PR=$(gh pr list \
+            --base release/bogor \
+            --head develop \
+            --state open \
+            --json number,url \
+            --jq '.[0] | "\(.number) \(.url)"')
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR Bogor sudah ada: $EXISTING_PR"
+          else
+            echo "Membuat PR develop -> release/bogor..."
+
+            gh pr create \
+              --base release/bogor \
+              --head develop \
+              --title "Promote develop to release/bogor" \
+              --body "Promotion dari develop ke release/bogor."
+          fi
+
+      - name: Create PR to Bekasi
+        if: inputs.target == 'bekasi' || inputs.target == 'both'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Checking PR develop -> release/bekasi..."
+
+          EXISTING_PR=$(gh pr list \
+            --base release/bekasi \
+            --head develop \
+            --state open \
+            --json number,url \
+            --jq '.[0] | "\(.number) \(.url)"')
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR Bekasi sudah ada: $EXISTING_PR"
+          else
+            echo "Membuat PR develop -> release/bekasi..."
+
+            gh pr create \
+              --base release/bekasi \
+              --head develop \
+              --title "Promote develop to release/bekasi" \
+              --body "Promotion dari develop ke release/bekasi."
+          fi
+
