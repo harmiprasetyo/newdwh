@@ -14,7 +14,10 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
+
+concurrency:
+  group: promote-develop-to-release
+  cancel-in-progress: false
 
 jobs:
   promote:
@@ -26,31 +29,47 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Show promotion target
         run: |
+          echo "======================================"
           echo "Source : develop"
           echo "Target : ${{ inputs.target }}"
+          echo "======================================"
 
-      - name: Create PR to Bogor
+      - name: Fetch branches
+        run: |
+          git fetch origin develop
+          git fetch origin release/bogor
+          git fetch origin release/bekasi
+
+      - name: Promote to Bogor
         if: inputs.target == 'bogor' || inputs.target == 'both'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create \
-            --base release/bogor \
-            --head develop \
-            --title "Promote develop to release/bogor" \
-            --body "Promotion dari develop ke release/bogor." \
-            || echo "PR Bogor sudah ada."
+          echo "Promoting develop -> release/bogor"
 
-      - name: Create PR to Bekasi
+          git checkout -B release/bogor origin/release/bogor
+
+          git merge origin/develop \
+            --no-ff \
+            -m "Promote develop to release/bogor"
+
+          git push origin release/bogor
+
+      - name: Promote to Bekasi
         if: inputs.target == 'bekasi' || inputs.target == 'both'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create \
-            --base release/bekasi \
-            --head develop \
-            --title "Promote develop to release/bekasi" \
-            --body "Promotion dari develop ke release/bekasi." \
-            || echo "PR Bekasi sudah ada."
+          echo "Promoting develop -> release/bekasi"
+
+          git checkout -B release/bekasi origin/release/bekasi
+
+          git merge origin/develop \
+            --no-ff \
+            -m "Promote develop to release/bekasi"
+
+          git push origin release/bekasi
+
