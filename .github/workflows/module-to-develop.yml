@@ -7,54 +7,33 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   merge-to-develop:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Create Pull Request
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Configure Git
         run: |
-          PR_URL=$(gh pr create \
-            --base develop \
-            --head "${GITHUB_REF_NAME}" \
-            --title "Merge ${GITHUB_REF_NAME} into develop" \
-            --body "Automatic PR dari ${GITHUB_REF_NAME} ke develop." \
-            2>/dev/null || true)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if [ -n "$PR_URL" ]; then
-            echo "PR berhasil dibuat: $PR_URL"
-          else
-            echo "PR mungkin sudah ada."
-          fi
-
-      - name: Merge Pull Request
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Merge module into develop
         run: |
-          PR_NUMBER=$(gh pr list \
-            --base develop \
-            --head "${GITHUB_REPOSITORY_OWNER}:${GITHUB_REF_NAME}" \
-            --state open \
-            --json number \
-            --jq '.[0].number')
+          echo "Source branch : ${GITHUB_REF_NAME}"
+          echo "Target branch : develop"
 
-          if [ -z "$PR_NUMBER" ]; then
-            echo "Tidak ada PR terbuka untuk di-merge."
-            exit 0
-          fi
+          git fetch origin develop "${GITHUB_REF_NAME}"
 
-          echo "Merging PR #$PR_NUMBER"
+          git checkout develop
+          git pull origin develop
 
-          gh pr merge "$PR_NUMBER" \
-            --merge \
-            --delete-branch=false
+          git merge "origin/${GITHUB_REF_NAME}" --no-ff -m "Merge ${GITHUB_REF_NAME} into develop"
+
+          git push origin develop
 
