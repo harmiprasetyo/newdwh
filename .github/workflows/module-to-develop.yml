@@ -10,20 +10,51 @@ permissions:
   pull-requests: write
 
 jobs:
-  create-pr:
+  merge-to-develop:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create \
+          PR_URL=$(gh pr create \
             --base develop \
             --head "${GITHUB_REF_NAME}" \
             --title "Merge ${GITHUB_REF_NAME} into develop" \
             --body "Automatic PR dari ${GITHUB_REF_NAME} ke develop." \
-            || echo "PR sudah ada atau tidak dapat dibuat."
+            2>/dev/null || true)
+
+          if [ -n "$PR_URL" ]; then
+            echo "PR berhasil dibuat: $PR_URL"
+          else
+            echo "PR mungkin sudah ada."
+          fi
+
+      - name: Merge Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=$(gh pr list \
+            --base develop \
+            --head "${GITHUB_REPOSITORY_OWNER}:${GITHUB_REF_NAME}" \
+            --state open \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Tidak ada PR terbuka untuk di-merge."
+            exit 0
+          fi
+
+          echo "Merging PR #$PR_NUMBER"
+
+          gh pr merge "$PR_NUMBER" \
+            --merge \
+            --delete-branch=false
+
