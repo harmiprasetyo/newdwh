@@ -1,0 +1,28 @@
+name: Sync GitHub to GitLab Bekasi
+
+on:
+  push:
+    branches:
+      - release/bekasi
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout GitHub repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to GitLab Bekasi
+        env:
+          GITLAB_TOKEN: ${{ secrets.BEKASI_GITLAB_TOKEN }}
+          GITLAB_REPO: ${{ secrets.BEKASI_GITLAB_REPO }}
+        run: |
+          git remote add gitlab-bekasi \
+            https://oauth2:${GITLAB_TOKEN}@repo.bekasikota.go.id/${GITLAB_REPO}
+
+          git push gitlab-bekasi release/bekasi:main --force
+
