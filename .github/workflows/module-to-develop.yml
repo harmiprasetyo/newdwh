@@ -7,23 +7,33 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  create-pr:
+  merge-to-develop:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Create Pull Request
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Configure Git
         run: |
-          gh pr create \
-            --base develop \
-            --head "${GITHUB_REF_NAME}" \
-            --title "Merge ${GITHUB_REF_NAME} into develop" \
-            --body "Automatic PR dari ${GITHUB_REF_NAME} ke develop." \
-            || echo "PR sudah ada atau tidak dapat dibuat."
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge module into develop
+        run: |
+          echo "Source branch : ${GITHUB_REF_NAME}"
+          echo "Target branch : develop"
+
+          git fetch origin develop "${GITHUB_REF_NAME}"
+
+          git checkout develop
+          git pull origin develop
+
+          git merge "origin/${GITHUB_REF_NAME}" --no-ff -m "Merge ${GITHUB_REF_NAME} into develop"
+
+          git push origin develop
+
