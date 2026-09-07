@@ -24,16 +24,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # ============================================================
+      # CHECKOUT
+      # ============================================================
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
+      # ============================================================
+      # CONFIGURE GIT
+      # ============================================================
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      # ============================================================
+      # SHOW TARGET
+      # ============================================================
       - name: Show promotion target
         run: |
           echo "======================================"
@@ -41,16 +52,26 @@ jobs:
           echo "Target : ${{ inputs.target }}"
           echo "======================================"
 
+      # ============================================================
+      # FETCH ALL BRANCHES
+      # ============================================================
       - name: Fetch branches
         run: |
           git fetch origin develop
           git fetch origin release/bogor
           git fetch origin release/bekasi
 
+      # ============================================================
+      # PROMOTE TO BOGOR
+      # ============================================================
       - name: Promote to Bogor
         if: inputs.target == 'bogor' || inputs.target == 'both'
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
+          echo "======================================"
           echo "Promoting develop -> release/bogor"
+          echo "======================================"
 
           git checkout -B release/bogor origin/release/bogor
 
@@ -58,12 +79,28 @@ jobs:
             --no-ff \
             -m "Promote develop to release/bogor"
 
+          echo "Push release/bogor to GitHub..."
+
+          git remote set-url origin \
+            https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
+
           git push origin release/bogor
 
+          echo "======================================"
+          echo "Promotion to release/bogor SUCCESS"
+          echo "======================================"
+
+      # ============================================================
+      # PROMOTE TO BEKASI
+      # ============================================================
       - name: Promote to Bekasi
         if: inputs.target == 'bekasi' || inputs.target == 'both'
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
+          echo "======================================"
           echo "Promoting develop -> release/bekasi"
+          echo "======================================"
 
           git checkout -B release/bekasi origin/release/bekasi
 
@@ -71,5 +108,13 @@ jobs:
             --no-ff \
             -m "Promote develop to release/bekasi"
 
+          echo "Push release/bekasi to GitHub..."
+
+          git remote set-url origin \
+            https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
+
           git push origin release/bekasi
 
+          echo "======================================"
+          echo "Promotion to release/bekasi SUCCESS"
+          echo "======================================"
