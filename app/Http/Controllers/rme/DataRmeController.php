@@ -695,7 +695,7 @@ if (($prosedur['total'] ?? 0) > 0) {
             break;
         }*/
             $category = data_get($proc,'resource.category.coding.0.code');
-            if($category=='103693007'){
+            if($category=='373110003'){
                  $dtx['INC']['inc_tindakan'] =  data_get($proc, 'resource.code.coding.0.display');
 
             }
