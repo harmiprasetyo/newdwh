@@ -15,6 +15,7 @@ class StokMinimalObat extends Model
         'stok_minimal',
         'stok_optimum',
         'obat_esensial',
+        'kategori',
         'obat_formularium_puskesmas',
         'tahun',
     ];

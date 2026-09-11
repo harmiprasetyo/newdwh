@@ -125,11 +125,11 @@ public function detail($id)
 {
     $report = Report::findOrFail($id);
 
-    $items = Item::with('program')
-        ->where('report_id', $report->id)
-        ->orderBy('program_id')
-        ->orderBy('nama_obat')
-        ->get();
+    /*
+    |--------------------------------------------------------------------------
+    | FASKES
+    |--------------------------------------------------------------------------
+    */
 
     $faskes = MasterFaskes::with([
         'type',
@@ -142,7 +142,86 @@ public function detail($id)
 
     /*
     |--------------------------------------------------------------------------
-    | Master Obat
+    | ITEM LPLPO
+    |--------------------------------------------------------------------------
+    */
+
+    $items = Item::with('program')
+        ->where('report_id', $report->id)
+        ->orderBy('program_id')
+        ->orderBy('nama_obat')
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | MASTER OBAT
+    |--------------------------------------------------------------------------
+    |
+    | Ambil status:
+    | - Obat Esensial
+    | - Formularium Puskesmas
+    |
+    | berdasarkan:
+    | kode faskes
+    | kode obat
+    | tahun laporan
+    |
+    */
+
+    $masterStokMinimal = DB::table(
+        'master_stokminimal_obat'
+    )
+    ->where(
+        'kodeFaskes',
+        $report->kode_faskes
+    )
+    ->where(
+        'tahun',
+        $report->tahun
+    )
+    ->whereIn(
+        'kode_obat',
+        $items->pluck('kode_obat')
+    )
+    ->select([
+        'kode_obat',
+        'obat_esensial',
+        'obat_formularium_puskesmas',
+        'stok_minimal',
+        'stok_optimum',
+    ])
+    ->get()
+    ->keyBy('kode_obat');
+
+    /*
+    |--------------------------------------------------------------------------
+    | TEMPELKAN DATA MASTER KE ITEM
+    |--------------------------------------------------------------------------
+    */
+
+    $items->each(function ($item) use ($masterStokMinimal) {
+
+        $master =
+            $masterStokMinimal->get(
+                $item->kode_obat
+            );
+
+        $item->obat_esensial =
+            $master->obat_esensial ?? null;
+
+        $item->obat_formularium_puskesmas =
+            $master->obat_formularium_puskesmas ?? null;
+
+        $item->stok_minimal_master =
+            $master->stok_minimal ?? null;
+
+        $item->stok_optimum_master =
+            $master->stok_optimum ?? null;
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | MASTER OBAT UNTUK TAMBAH OBAT
     |--------------------------------------------------------------------------
     */
 
@@ -156,7 +235,7 @@ public function detail($id)
 
     /*
     |--------------------------------------------------------------------------
-    | Master Program
+    | MASTER PROGRAM
     |--------------------------------------------------------------------------
     */
 
@@ -166,15 +245,17 @@ public function detail($id)
             'program_name'
         ]);
 
-    return view('newlplpo.pemberian_detail', compact(
-        'report',
-        'faskes',
-        'items',
-        'masterObats',
-        'programs'
-    ));
+    return view(
+        'newlplpo.pemberian_detail',
+        compact(
+            'report',
+            'faskes',
+            'items',
+            'masterObats',
+            'programs'
+        )
+    );
 }
-
 
     /**
      * Update jumlah pemberian

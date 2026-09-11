@@ -64,9 +64,26 @@ class KunjunganService
     }
 
 
-    public function update(Kunjungan $kunjungan, array $data)
-    {
-        return DB::transaction(function () use ($kunjungan, $data) {
+  public function update(Kunjungan $kunjungan, array $data)
+{
+    return DB::transaction(function () use ($kunjungan, $data) {
+
+        $kunjungan->loadMissing('report');
+
+        if (
+            $kunjungan->report &&
+            in_array($kunjungan->report->lplpo_status, [
+                'waiting',
+                'approved',
+            ], true)
+        ) {
+            throw ValidationException::withMessages([
+                'report' =>
+                    'Data kunjungan tidak dapat diubah karena laporan sedang terkunci.'
+            ]);
+        }
+
+        // kode existing tetap di bawah sini
 
             $jkn = (int) ($data['kunjungan_jkn'] ?? 0);
             $tunai = (int) ($data['kunjungan_tunai'] ?? 0);

@@ -1,0 +1,125 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class MasterObatFornas2025Seeder extends Seeder
+{
+    public function run(): void
+    {
+        $data = [
+            ['kode_obat' => '1-1', 'nama_obat' => 'fentanil', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '1-2', 'nama_obat' => 'fentanil', 'satuan' => 'lembar', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '1-3', 'nama_obat' => 'fentanil', 'satuan' => 'lembar', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '1-4', 'nama_obat' => 'fentanil', 'satuan' => 'lembar', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '2-1', 'nama_obat' => 'hidromorfon', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '2-2', 'nama_obat' => 'hidromorfon', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '3-1', 'nama_obat' => 'kodein', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '3-2', 'nama_obat' => 'kodein', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '4-1', 'nama_obat' => 'morfin', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '4-2', 'nama_obat' => 'morfin', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '4-3', 'nama_obat' => 'morfin', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '4-4', 'nama_obat' => 'morfin', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '4-5', 'nama_obat' => 'morfin', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '4-6', 'nama_obat' => 'morfin', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '5-1', 'nama_obat' => 'oksikodon', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '5-2', 'nama_obat' => 'oksikodon', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '5-3', 'nama_obat' => 'oksikodon', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '6-1', 'nama_obat' => 'petidin', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '7-1', 'nama_obat' => 'remifentanil', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '7-2', 'nama_obat' => 'remifentanil', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '7-3', 'nama_obat' => 'remifentanil', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '8-1', 'nama_obat' => 'sufentanil', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '2-3', 'nama_obat' => 'ibuprofen', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '2-4', 'nama_obat' => 'ibuprofen', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '2-5', 'nama_obat' => 'ibuprofen', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '6-2', 'nama_obat' => 'natrium diklofenak', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '6-3', 'nama_obat' => 'natrium diklofenak', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '7-4', 'nama_obat' => 'parasetamol', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '8-2', 'nama_obat' => 'selekoksib', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '9-1', 'nama_obat' => 'tramadol', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '9-2', 'nama_obat' => 'tramadol', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANALGESIK, ANTIPIRETIK, ANTIINFLAMASI NON STEROID, ANTIPIRAI', 'golongan_obat' => 'ANALGESIK NON NARKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '3-3', 'nama_obat' => 'fenobarbital', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '3-4', 'nama_obat' => 'fenobarbital', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '3-5', 'nama_obat' => 'fenobarbital', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '9-3', 'nama_obat' => 'okskarbazepin*', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '10-1', 'nama_obat' => 'topiramat', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '10-2', 'nama_obat' => 'topiramat', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '10-3', 'nama_obat' => 'topiramat', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '11-1', 'nama_obat' => 'valproat*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '11-2', 'nama_obat' => 'valproat*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '11-3', 'nama_obat' => 'valproat*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '11-4', 'nama_obat' => 'valproat*', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '12-1', 'nama_obat' => 'zonisamid', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIEPILEPSI - ANTIKONVULSI', 'golongan_obat' => '', 'kategori_obat' => ''],
+            ['kode_obat' => '1-5', 'nama_obat' => 'amoksisilin', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '13-1', 'nama_obat' => 'prokain benzilpenisilin', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '14-1', 'nama_obat' => 'sefadroksil', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '14-2', 'nama_obat' => 'sefadroksil', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '14-3', 'nama_obat' => 'sefadroksil', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '14-4', 'nama_obat' => 'sefadroksil', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '14-5', 'nama_obat' => 'sefadroksil', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '15-1', 'nama_obat' => 'sefaleksin', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '16-1', 'nama_obat' => 'sefazolin', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '17-1', 'nama_obat' => 'sefepim', 'satuan' => 'vial', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '18-1', 'nama_obat' => 'sefiksim', 'satuan' => 'tablet/kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '18-2', 'nama_obat' => 'sefiksim', 'satuan' => 'tablet/kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '18-3', 'nama_obat' => 'sefiksim', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '19-1', 'nama_obat' => 'sefoperazon', 'satuan' => 'vial', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '20-1', 'nama_obat' => 'sefotaksim', 'satuan' => 'vial', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '20-2', 'nama_obat' => 'sefotaksim', 'satuan' => 'vial', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '21-1', 'nama_obat' => 'sefpirom', 'satuan' => 'vial', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '22-1', 'nama_obat' => 'seftazidim', 'satuan' => 'vial', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '23-1', 'nama_obat' => 'seftriakson', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '24-1', 'nama_obat' => 'sefuroksim', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '24-2', 'nama_obat' => 'sefuroksim', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '24-3', 'nama_obat' => 'sefuroksim', 'satuan' => 'vial', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Beta laktam'],
+            ['kode_obat' => '3-6', 'nama_obat' => 'metronidazol', 'satuan' => 'ovula', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTIINFEKSI', 'golongan_obat' => 'ANTIBAKTERI', 'kategori_obat' => 'Lain–Lain'],
+            ['kode_obat' => '6-4', 'nama_obat' => 'metotreksat [Ca]', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'ANTINEOPLASTIK', 'kategori_obat' => 'Antimetabolit'],
+            ['kode_obat' => '6-5', 'nama_obat' => 'metotreksat [Ca]', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'ANTINEOPLASTIK', 'kategori_obat' => 'Antimetabolit'],
+            ['kode_obat' => '12-2', 'nama_obat' => 'siklosporin', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'IMUNOSUPRESAN', 'kategori_obat' => ''],
+            ['kode_obat' => '12-3', 'nama_obat' => 'siklosporin', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'IMUNOSUPRESAN', 'kategori_obat' => ''],
+            ['kode_obat' => '12-4', 'nama_obat' => 'siklosporin', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'IMUNOSUPRESAN', 'kategori_obat' => ''],
+            ['kode_obat' => '12-5', 'nama_obat' => 'siklosporin', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'IMUNOSUPRESAN', 'kategori_obat' => ''],
+            ['kode_obat' => '13-2', 'nama_obat' => 'takrolimus', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'IMUNOSUPRESAN', 'kategori_obat' => ''],
+            ['kode_obat' => '13-3', 'nama_obat' => 'takrolimus', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'IMUNOSUPRESAN', 'kategori_obat' => ''],
+            ['kode_obat' => '13-4', 'nama_obat' => 'takrolimus', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'IMUNOSUPRESAN', 'kategori_obat' => ''],
+            ['kode_obat' => '13-5', 'nama_obat' => 'takrolimus', 'satuan' => 'kapsul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'ANTINEOPLASTIK DAN IMUNOMODULATOR', 'golongan_obat' => 'IMUNOSUPRESAN', 'kategori_obat' => ''],
+            ['kode_obat' => '2-6', 'nama_obat' => 'eritropoietin-alfa', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT yang MEMENGARUHI DARAH', 'golongan_obat' => 'HEMATOPOETIK', 'kategori_obat' => ''],
+            ['kode_obat' => '5-4', 'nama_obat' => 'glimepirid*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'HORMON, OBAT ENDOKRIN LAIN dan KONTRASEPSI', 'golongan_obat' => 'ANTIDIABETES', 'kategori_obat' => 'Antidiabetes Oral'],
+            ['kode_obat' => '15-2', 'nama_obat' => 'nifedipin*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT KARDIOVASKULAR', 'golongan_obat' => 'ANTIHIPERTENSI', 'kategori_obat' => 'Antihipertensi Sistemik'],
+            ['kode_obat' => '15-3', 'nama_obat' => 'nifedipin*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT KARDIOVASKULAR', 'golongan_obat' => 'ANTIHIPERTENSI', 'kategori_obat' => 'Antihipertensi Sistemik'],
+            ['kode_obat' => '17-2', 'nama_obat' => 'nimodipin', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT KARDIOVASKULAR', 'golongan_obat' => 'ANTIHIPERTENSI', 'kategori_obat' => 'Antihipertensi Sistemik'],
+            ['kode_obat' => '20-3', 'nama_obat' => 'ramipril*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT KARDIOVASKULAR', 'golongan_obat' => 'ANTIHIPERTENSI', 'kategori_obat' => 'Antihipertensi Sistemik'],
+            ['kode_obat' => '21-2', 'nama_obat' => 'telmisartan*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT KARDIOVASKULAR', 'golongan_obat' => 'ANTIHIPERTENSI', 'kategori_obat' => 'Antihipertensi Sistemik'],
+            ['kode_obat' => '22-2', 'nama_obat' => 'valsartan*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT KARDIOVASKULAR', 'golongan_obat' => 'ANTIHIPERTENSI', 'kategori_obat' => 'Antihipertensi Sistemik'],
+            ['kode_obat' => '23-2', 'nama_obat' => 'verapamil*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT KARDIOVASKULAR', 'golongan_obat' => 'ANTIHIPERTENSI', 'kategori_obat' => 'Antihipertensi Sistemik'],
+            ['kode_obat' => '8-3', 'nama_obat' => 'paliperidon palmitat*', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'PSIKOFARMAKA', 'golongan_obat' => 'ANTIPSIKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '9-4', 'nama_obat' => 'quetiapin', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'PSIKOFARMAKA', 'golongan_obat' => 'ANTIPSIKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '9-5', 'nama_obat' => 'quetiapin', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'PSIKOFARMAKA', 'golongan_obat' => 'ANTIPSIKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '9-6', 'nama_obat' => 'quetiapin', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'PSIKOFARMAKA', 'golongan_obat' => 'ANTIPSIKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '10-4', 'nama_obat' => 'risperidon', 'satuan' => 'botol', 'obat_napza' => 'tidak', 'kelompok_obat' => 'PSIKOFARMAKA', 'golongan_obat' => 'ANTIPSIKOTIK', 'kategori_obat' => ''],
+            ['kode_obat' => '1-6', 'nama_obat' => 'mesalazin', 'satuan' => 'suppositoria', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT untuk SALURAN CERNA', 'golongan_obat' => 'OBAT untuk ANTIINFLAMASI', 'kategori_obat' => ''],
+            ['kode_obat' => '15-4', 'nama_obat' => 'metilprednisolon', 'satuan' => 'ampul', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT untuk SALURAN NAPAS', 'golongan_obat' => 'ANTIASMA', 'kategori_obat' => ''],
+            ['kode_obat' => '17-3', 'nama_obat' => 'prokaterol', 'satuan' => 'tabung', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT untuk SALURAN NAPAS', 'golongan_obat' => 'ANTIASMA', 'kategori_obat' => ''],
+            ['kode_obat' => '18-4', 'nama_obat' => 'salbutamol', 'satuan' => 'tabung', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT untuk SALURAN NAPAS', 'golongan_obat' => 'ANTIASMA', 'kategori_obat' => ''],
+            ['kode_obat' => '18-5', 'nama_obat' => 'salbutamol', 'satuan' => 'tabung', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT untuk SALURAN NAPAS', 'golongan_obat' => 'ANTIASMA', 'kategori_obat' => ''],
+            ['kode_obat' => '19-2', 'nama_obat' => 'teofilin*', 'satuan' => 'tablet', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT untuk SALURAN NAPAS', 'golongan_obat' => 'ANTIASMA', 'kategori_obat' => ''],
+            ['kode_obat' => '20-4', 'nama_obat' => 'terbutalin', 'satuan' => 'tabung', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT untuk SALURAN NAPAS', 'golongan_obat' => 'ANTIASMA', 'kategori_obat' => ''],
+            ['kode_obat' => '20-5', 'nama_obat' => 'terbutalin', 'satuan' => 'tabung', 'obat_napza' => 'tidak', 'kelompok_obat' => 'OBAT untuk SALURAN NAPAS', 'golongan_obat' => 'ANTIASMA', 'kategori_obat' => ''],
+        ];
+
+        foreach (array_chunk($data, 500) as $chunk) {
+            foreach ($chunk as $row) {
+                DB::table('master_obat')->updateOrInsert(
+                    ['kode_obat' => $row['kode_obat']],
+                    array_merge($row, [
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ])
+                );
+            }
+        }
+    }
+}
