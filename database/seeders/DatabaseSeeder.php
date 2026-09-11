@@ -27,9 +27,9 @@ class DatabaseSeeder extends Seeder
             MasterFaskesSeeder::class,
         ]);
 
-          $this->call([
-            MasterObatFornas2025Seeder::class,
-        ]);
+         $this->call([
+    MasterObatSeeder::class,
+]);
 
         $this->call([
             UsersAppSeeder::class,
