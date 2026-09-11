@@ -98,39 +98,60 @@ class ReportService
     |--------------------------------------------------------------------------
     */
 
-    public function laporan($request)
-    {
-        return Report::withCount('items')
+  public function laporan($request)
+{
+    return Report::withCount('items')
 
-            ->when(
-                $request->bulan,
-                function ($q) use ($request) {
+        ->when(
+            $request->bulan,
+            function ($q) use ($request) {
 
-                    $q->where(
-                        'bulan',
-                        $request->bulan
-                    );
+                $q->where(
+                    'bulan',
+                    $request->bulan
+                );
 
-                }
-            )
+            }
+        )
 
-            ->when(
-                $request->tahun,
-                function ($q) use ($request) {
+        ->when(
+            $request->tahun,
+            function ($q) use ($request) {
 
-                    $q->where(
-                        'tahun',
-                        $request->tahun
-                    );
+                $q->where(
+                    'tahun',
+                    $request->tahun
+                );
 
-                }
-            )
+            }
+        )
 
-            ->orderByDesc('created_at')
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER KODE FASKES
+        |--------------------------------------------------------------------------
+        |
+        | Jika controller mengirim kode_faskes,
+        | maka laporan hanya diambil dari faskes tersebut.
+        |
+        */
 
-            ->get();
-    }
+        ->when(
+            $request->kode_faskes,
+            function ($q) use ($request) {
 
+                $q->where(
+                    'kode_faskes',
+                    $request->kode_faskes
+                );
+
+            }
+        )
+
+        ->orderByDesc('created_at')
+
+        ->get();
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -179,36 +200,33 @@ class ReportService
     |--------------------------------------------------------------------------
     */
 
-    public function update(
-        Report $report,
-        array $data
-    ) {
+ public function update(Report $report, array $data)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | Laporan yang sudah approved / submitted tidak boleh diedit
+    |--------------------------------------------------------------------------
+    */
+    if (in_array($report->lplpo_status, [
+        'waiting',
+        'approved',
+    ], true)) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | LAPORAN SUDAH SUBMIT
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $report->report_status === 'SUBMITED'
-            &&
-            ($data['report_status'] ?? null) !== 'DRAFT'
-        ) {
-
-            throw ValidationException::withMessages([
-
-                'report' =>
-                    'Laporan sudah disubmit.'
-
-            ]);
-
-        }
-
-        $report->update($data);
-
-        return $report;
+        throw ValidationException::withMessages([
+            'report' =>
+                'Laporan tidak dapat diubah karena sedang dalam proses approval atau sudah disetujui.'
+        ]);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | REJECTED boleh diperbaiki
+    |--------------------------------------------------------------------------
+    */
+    $report->update($data);
+
+    return $report->fresh();
+}
 
 
     /*

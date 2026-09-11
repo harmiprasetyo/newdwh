@@ -88,6 +88,25 @@ mix.js(
     'public/js/newlplpo'
 )
 
+.js(
+    'resources/js/newlplpo/report_monitoring.js',
+    'public/js/newlplpo'
+)
+.js( 'resources/js/newlplpo/kategoriobat.js', 'public/js/newlplpo' )
+.js(
+    'resources/js/newlplpo/stokesensial_monitoring.js',
+    'public/js/newlplpo'
+)
+.js(
+    'resources/js/newlplpo/kunjungan.js',
+    'public/js/newlplpo'
+)
+.js(
+    'resources/js/newlplpo/infokapus.js',
+    'public/js/newlplpo'
+)
+
+
 .postCss(
     'resources/css/app.css',
     'public/css',

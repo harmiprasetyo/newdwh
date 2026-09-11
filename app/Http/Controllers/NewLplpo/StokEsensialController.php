@@ -61,6 +61,7 @@ public function setting(Request $request)
             'stok_optimum' => 0,
 
             'obat_esensial' => 'noe',
+            'kategori' => '',
 
             'obat_formularium_puskesmas' => 'false',
 
@@ -87,6 +88,9 @@ public function setting(Request $request)
 
         'obat_esensial' =>
             $data->obat_esensial ?? 'noe',
+
+         'kategori' =>
+        $data->kategori ?? '',
 
         'obat_formularium_puskesmas' =>
             $data->obat_formularium_puskesmas ?? 'false',
@@ -138,20 +142,14 @@ public function duplicate(Request $request)
     if (
         in_array(
             (int) $user->groupid,
-            [3, 5]
+            [3, 5],
+            true
         )
     ) {
 
         $kodeFaskes = $user->kodeFaskes;
 
     } else {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Untuk Dinkes sebaiknya jangan langsung melakukan
-        | duplikasi semua faskes tanpa filter.
-        |--------------------------------------------------------------------------
-        */
 
         $kodeFaskes = $request->kodeFaskes;
 
@@ -177,7 +175,7 @@ public function duplicate(Request $request)
         |--------------------------------------------------------------------------
         */
 
-        $query = DB::table(
+        $sourceData = DB::table(
             'master_stokminimal_obat'
         )
         ->where(
@@ -187,10 +185,8 @@ public function duplicate(Request $request)
         ->where(
             'kodeFaskes',
             $kodeFaskes
-        );
-
-
-        $sourceData = $query->get();
+        )
+        ->get();
 
 
         if ($sourceData->isEmpty()) {
@@ -205,35 +201,160 @@ public function duplicate(Request $request)
 
         /*
         |--------------------------------------------------------------------------
-        | CEK DATA TUJUAN
-        |--------------------------------------------------------------------------
-        */
-
-        $existingCount = DB::table(
-            'master_stokminimal_obat'
-        )
-        ->where(
-            'tahun',
-            $keTahun
-        )
-        ->where(
-            'kodeFaskes',
-            $kodeFaskes
-        )
-        ->count();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | INSERT / UPDATE
+        | COUNTER
         |--------------------------------------------------------------------------
         */
 
         $inserted = 0;
         $updated  = 0;
+        $skipped  = 0;
 
+        $skippedData = [];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROSES DATA
+        |--------------------------------------------------------------------------
+        */
 
         foreach ($sourceData as $source) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | CEK APAKAH OBAT SUDAH ADA DI TAHUN TUJUAN
+            |--------------------------------------------------------------------------
+            */
+
+            $existing = DB::table(
+                'master_stokminimal_obat'
+            )
+            ->where(
+                'kode_obat',
+                $source->kode_obat
+            )
+            ->where(
+                'kodeFaskes',
+                $source->kodeFaskes
+            )
+            ->where(
+                'tahun',
+                $keTahun
+            )
+            ->first();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | KATEGORI
+            |--------------------------------------------------------------------------
+            */
+
+            $kategori = $source->kategori;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | KATEGORI HANYA BERLAKU UNTUK OBAT ESENSIAL
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $source->obat_esensial !== 'oe'
+            ) {
+
+                $kategori = null;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CEK BENTURAN KATEGORI
+            |--------------------------------------------------------------------------
+            |
+            | Jika kategori sudah digunakan oleh OBAT LAIN
+            | pada faskes + tahun tujuan, maka data dilewati.
+            |
+            */
+
+            if (
+                $kategori !== null &&
+                trim($kategori) !== ''
+            ) {
+
+                $kategori = trim($kategori);
+
+
+                $kategoriConflictQuery = DB::table(
+                    'master_stokminimal_obat'
+                )
+                ->where(
+                    'kodeFaskes',
+                    $kodeFaskes
+                )
+                ->where(
+                    'tahun',
+                    $keTahun
+                )
+                ->where(
+                    'kategori',
+                    $kategori
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Kalau obat yang sama sudah ada di target,
+                | record tersebut bukan dianggap konflik.
+                |--------------------------------------------------------------------------
+                */
+
+                if ($existing) {
+
+                    $kategoriConflictQuery
+                        ->where(
+                            'id',
+                            '!=',
+                            $existing->id
+                        );
+
+                }
+
+
+                $kategoriConflict =
+                    $kategoriConflictQuery->exists();
+
+
+                if ($kategoriConflict) {
+
+                    $skipped++;
+
+                    $skippedData[] = [
+
+                        'kode_obat' =>
+                            $source->kode_obat,
+
+                        'kategori' =>
+                            $kategori,
+
+                        'alasan' =>
+                            "Kategori \"{$kategori}\" sudah digunakan oleh obat lain pada tahun {$keTahun}.",
+
+                    ];
+
+                    continue;
+
+                }
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DATA YANG AKAN DISIMPAN
+            |--------------------------------------------------------------------------
+            */
 
             $data = [
 
@@ -252,6 +373,9 @@ public function duplicate(Request $request)
                 'obat_esensial' =>
                     $source->obat_esensial,
 
+                'kategori' =>
+                    $kategori,
+
                 'obat_formularium_puskesmas' =>
                     $source->obat_formularium_puskesmas,
 
@@ -266,45 +390,36 @@ public function duplicate(Request $request)
 
             /*
             |--------------------------------------------------------------------------
-            | UNIQUE:
-            | kode_obat + kodeFaskes + tahun
+            | UPDATE
             |--------------------------------------------------------------------------
             */
 
-            $exists = DB::table(
-                'master_stokminimal_obat'
-            )
-            ->where(
-                'kode_obat',
-                $source->kode_obat
-            )
-            ->where(
-                'kodeFaskes',
-                $source->kodeFaskes
-            )
-            ->where(
-                'tahun',
-                $keTahun
-            )
-            ->first();
-
-
-            if ($exists) {
+            if ($existing) {
 
                 DB::table(
                     'master_stokminimal_obat'
                 )
                 ->where(
                     'id',
-                    $exists->id
+                    $existing->id
                 )
                 ->update($data);
 
                 $updated++;
 
-            } else {
+            }
 
-                $data['created_at'] = now();
+
+            /*
+            |--------------------------------------------------------------------------
+            | INSERT
+            |--------------------------------------------------------------------------
+            */
+
+            else {
+
+                $data['created_at'] =
+                    now();
 
                 DB::table(
                     'master_stokminimal_obat'
@@ -321,15 +436,33 @@ public function duplicate(Request $request)
         DB::commit();
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSE
+        |--------------------------------------------------------------------------
+        */
+
+        $message =
+            "Duplikasi selesai. " .
+            "{$inserted} data ditambahkan, " .
+            "{$updated} data diperbarui";
+
+        if ($skipped > 0) {
+
+            $message .=
+                ", {$skipped} data dilewati karena kategori sudah digunakan.";
+
+        }
+
+        $message .= '.';
+
+
         return response()->json([
 
             'success' => true,
 
             'message' =>
-                "Duplikasi berhasil. " .
-                "{$inserted} data ditambahkan dan " .
-                "{$updated} data diperbarui " .
-                "dari tahun {$dariTahun} ke {$keTahun}.",
+                $message,
 
             'dari_tahun' =>
                 $dariTahun,
@@ -345,6 +478,12 @@ public function duplicate(Request $request)
 
             'updated' =>
                 $updated,
+
+            'skipped' =>
+                $skipped,
+
+            'skipped_data' =>
+                $skippedData,
 
         ]);
 
@@ -374,6 +513,7 @@ public function duplicate(Request $request)
 
     }
 }
+
     /*
     |--------------------------------------------------------------------------
     | INDEX
@@ -466,6 +606,7 @@ public function datatable(Request $request)
             's.stok_minimal',
             's.stok_optimum',
             's.obat_esensial',
+            's.kategori',
             's.obat_formularium_puskesmas',
             's.tahun',
 
@@ -629,6 +770,9 @@ public function datatable(Request $request)
 
             }
         )
+        ->editColumn('kategori',
+        function ($row) {return $row->kategori ?? '-';}
+        )
 
 
         /*
@@ -689,7 +833,7 @@ public function datatable(Request $request)
         $user = auth()->user();
 
 
-        $rules = [
+     /*   $rules = [
 
             'kode_obat' => [
                 'required',
@@ -730,6 +874,7 @@ public function datatable(Request $request)
                     'false'
                 ])
             ],
+            'kategori' => ['nullable','string','max:100',],
 
             'tahun' => [
                 'required',
@@ -743,6 +888,213 @@ public function datatable(Request $request)
 
         $validated = $request->validate($rules);
 
+      */
+$validated = $request->validate([
+
+    'kode_obat' => [
+        'required',
+        'string',
+        'max:50',
+    ],
+
+    'kodeFaskes' => [
+        'required',
+        'string',
+        'max:255',
+    ],
+
+    'stok_minimal' => [
+        'required',
+        'integer',
+        'min:0',
+    ],
+
+    'stok_optimum' => [
+        'required',
+        'integer',
+        'min:0',
+        'gte:stok_minimal',
+    ],
+
+    'obat_esensial' => [
+        'required',
+        Rule::in([
+            'oe',
+            'noe',
+        ]),
+    ],
+
+    'obat_formularium_puskesmas' => [
+        'required',
+        Rule::in([
+            'true',
+            'false',
+        ]),
+    ],
+
+    'kategori' => [
+        'nullable',
+        'string',
+        'max:100',
+    ],
+
+    'tahun' => [
+        'required',
+        'integer',
+        'min:2000',
+        'max:2100',
+    ],
+
+]);
+
+
+/*
+|--------------------------------------------------------------------------
+| KATEGORI
+|--------------------------------------------------------------------------
+*/
+
+$kategori = trim(
+    (string) ($validated['kategori'] ?? '')
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| NON ESENSIAL
+|--------------------------------------------------------------------------
+|
+| Kalau obat bukan esensial, kategori harus kosong.
+|
+*/
+
+if ($validated['obat_esensial'] === 'noe') {
+
+    $kategori = null;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| ESENSIAL
+|--------------------------------------------------------------------------
+|
+| Kalau obat esensial, kategori wajib.
+|
+*/
+
+if (
+    $validated['obat_esensial'] === 'oe' &&
+    $kategori === ''
+) {
+
+    throw ValidationException::withMessages([
+        'kategori' =>
+            'Kategori wajib dipilih untuk obat esensial.',
+    ]);
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| CEK KATEGORI MASTER
+|--------------------------------------------------------------------------
+*/
+
+if ($kategori !== null) {
+
+    $kategoriExists = DB::table(
+        'new_lplpo_kategori'
+    )
+        ->where(
+            'kategori',
+            $kategori
+        )
+        ->exists();
+
+    if (!$kategoriExists) {
+
+        throw ValidationException::withMessages([
+            'kategori' =>
+                'Kategori obat tidak valid.',
+        ]);
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| CEK KATEGORI SUDAH DIGUNAKAN
+|--------------------------------------------------------------------------
+*/
+
+if ($kategori !== null) {
+
+    $kategoriUsed = StokMinimalObat::query()
+        ->where(
+            'kodeFaskes',
+            $validated['kodeFaskes']
+        )
+        ->where(
+            'tahun',
+            $validated['tahun']
+        )
+        ->where(
+            'kategori',
+            $kategori
+        )
+        ->exists();
+
+    if ($kategoriUsed) {
+
+        throw ValidationException::withMessages([
+            'kategori' =>
+                "Kategori \"{$kategori}\" sudah digunakan oleh obat lain pada faskes dan tahun tersebut.",
+        ]);
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SIMPAN NORMALIZED VALUE
+|--------------------------------------------------------------------------
+*/
+
+$validated['kategori'] = $kategori;
+
+
+
+ /*       if (!empty($validated['kategori'])) {
+
+    $kategori =
+        trim($validated['kategori']);
+
+    $exists =
+        DB::table('new_lplpo_kategori')
+            ->where('kategori', $kategori)
+            ->exists();
+
+    if (!$exists) {
+
+        DB::table('new_lplpo_kategori')
+            ->insert([
+                'kategori' => $kategori,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+    }
+
+    $validated['kategori'] = $kategori;
+}
+*/
 
         /*
         |--------------------------------------------------------------------------
@@ -939,56 +1291,187 @@ public function datatable(Request $request)
         $data = $query->firstOrFail();
 
 
-        $validated = $request->validate([
 
-            'kode_obat' => [
-                'required',
-                'string',
-                'max:50',
-            ],
+$validated = $request->validate([
 
-            'kodeFaskes' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+    'kode_obat' => [
+        'required',
+        'string',
+        'max:50',
+    ],
 
-            'stok_minimal' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
+    'kodeFaskes' => [
+        'required',
+        'string',
+        'max:255',
+    ],
 
-            'stok_optimum' => [
-                'required',
-                'integer',
-                'min:0',
-                'gte:stok_minimal',
-            ],
+    'stok_minimal' => [
+        'required',
+        'integer',
+        'min:0',
+    ],
 
-            'obat_esensial' => [
-                'required',
-                Rule::in([
-                    'oe',
-                    'noe'
-                ])
-            ],
-                'obat_formularium_puskesmas' => [
-                    'required',
-                    Rule::in([
-                        'true',
-                        'false'
-                    ])
-                ],
+    'stok_optimum' => [
+        'required',
+        'integer',
+        'min:0',
+        'gte:stok_minimal',
+    ],
 
-            'tahun' => [
-                'required',
-                'integer',
-                'min:2000',
-                'max:2100'
-            ],
+    'obat_esensial' => [
+        'required',
+        Rule::in([
+            'oe',
+            'noe',
+        ]),
+    ],
 
+    'obat_formularium_puskesmas' => [
+        'required',
+        Rule::in([
+            'true',
+            'false',
+        ]),
+    ],
+
+    'kategori' => [
+        'nullable',
+        'string',
+        'max:100',
+    ],
+
+    'tahun' => [
+        'required',
+        'integer',
+        'min:2000',
+        'max:2100',
+    ],
+
+]);
+
+
+/*
+|--------------------------------------------------------------------------
+| NORMALISASI KATEGORI
+|--------------------------------------------------------------------------
+*/
+
+$kategori = trim(
+    (string) ($validated['kategori'] ?? '')
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| NON ESENSIAL
+|--------------------------------------------------------------------------
+*/
+
+if ($validated['obat_esensial'] === 'noe') {
+
+    $kategori = null;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| ESENSIAL WAJIB KATEGORI
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $validated['obat_esensial'] === 'oe' &&
+    $kategori === ''
+) {
+
+    throw ValidationException::withMessages([
+        'kategori' =>
+            'Kategori wajib dipilih untuk obat esensial.',
+    ]);
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| CEK MASTER KATEGORI
+|--------------------------------------------------------------------------
+*/
+
+if ($kategori !== null) {
+
+    $kategoriExists = DB::table(
+        'new_lplpo_kategori'
+    )
+        ->where(
+            'kategori',
+            $kategori
+        )
+        ->exists();
+
+    if (!$kategoriExists) {
+
+        throw ValidationException::withMessages([
+            'kategori' =>
+                'Kategori obat tidak valid.',
         ]);
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| CEK KATEGORI DIGUNAKAN RECORD LAIN
+|--------------------------------------------------------------------------
+*/
+
+if ($kategori !== null) {
+
+    $kategoriUsed = StokMinimalObat::query()
+        ->where(
+            'kodeFaskes',
+            $validated['kodeFaskes']
+        )
+        ->where(
+            'tahun',
+            $validated['tahun']
+        )
+        ->where(
+            'kategori',
+            $kategori
+        )
+        ->where(
+            'id',
+            '!=',
+            $id
+        )
+        ->exists();
+
+    if ($kategoriUsed) {
+
+        throw ValidationException::withMessages([
+            'kategori' =>
+                "Kategori \"{$kategori}\" sudah digunakan oleh obat lain pada faskes dan tahun tersebut.",
+        ]);
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SIMPAN NORMALIZED VALUE
+|--------------------------------------------------------------------------
+*/
+
+$validated['kategori'] = $kategori;
+
+
 
 
         /*
@@ -1153,4 +1636,143 @@ public function datatable(Request $request)
             ], 500);
         }
     }
+
+
+
+/*
+|--------------------------------------------------------------------------
+| KATEGORI
+|--------------------------------------------------------------------------
+|
+| Mengambil kategori dari new_lplpo_kategori.
+|
+| Kategori yang sudah digunakan oleh obat lain pada
+| faskes + tahun yang sama akan diberi status used = true.
+|
+| edit_id digunakan agar kategori milik record yang sedang
+| diedit tetap bisa dipilih.
+|
+*/
+
+public function kategori(Request $request)
+{
+    $user = auth()->user();
+
+    $tahun = (int) $request->input(
+        'tahun',
+        now()->year
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | TENTUKAN FASKES
+    |--------------------------------------------------------------------------
+    */
+
+    $kodeFaskes = $request->input('kodeFaskes');
+
+    if (
+        !in_array(
+            (int) $user->groupid,
+            [1, 2],
+            true
+        )
+    ) {
+        $kodeFaskes = $user->kodeFaskes;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RECORD YANG SEDANG DIEDIT
+    |--------------------------------------------------------------------------
+    */
+
+    $editId = (int) $request->input(
+        'edit_id',
+        0
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | KATEGORI YANG SUDAH DIGUNAKAN
+    |--------------------------------------------------------------------------
+    */
+
+    $usedQuery = DB::table(
+        'master_stokminimal_obat'
+    )
+        ->where(
+            'tahun',
+            $tahun
+        )
+        ->where(
+            'kodeFaskes',
+            $kodeFaskes
+        )
+        ->whereNotNull('kategori')
+        ->where(
+            'kategori',
+            '<>',
+            ''
+        );
+
+    if ($editId > 0) {
+
+        $usedQuery->where(
+            'id',
+            '!=',
+            $editId
+        );
+
+    }
+
+    $usedKategori = $usedQuery
+        ->pluck('kategori')
+        ->map(function ($value) {
+
+            return trim($value);
+
+        })
+        ->filter()
+        ->unique()
+        ->values();
+
+    /*
+    |--------------------------------------------------------------------------
+    | MASTER KATEGORI
+    |--------------------------------------------------------------------------
+    */
+
+    $data = DB::table(
+        'new_lplpo_kategori'
+    )
+        ->select([
+            'id',
+            'kategori'
+        ])
+        ->orderBy('kategori')
+        ->get()
+        ->map(function ($item) use ($usedKategori) {
+
+            $item->kategori = trim(
+                $item->kategori
+            );
+
+            $item->used = $usedKategori
+                ->contains(
+                    $item->kategori
+                );
+
+            return $item;
+
+        })
+        ->values();
+
+    return response()->json([
+        'success' => true,
+        'data' => $data,
+    ]);
+}
+
+
 }

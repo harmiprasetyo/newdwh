@@ -27,10 +27,9 @@ class LplpoStokEsensialService
         | GROUP 1
         |--------------------------------------------------------------------------
         | Semua faskes
+        |--------------------------------------------------------------------------
         */
-
         if ($groupId === 1) {
-
             return $query
                 ->orderBy('namaFaskes')
                 ->get();
@@ -38,13 +37,12 @@ class LplpoStokEsensialService
 
         /*
         |--------------------------------------------------------------------------
-        | GROUP 2
+        | GROUP 2 / DINKES
         |--------------------------------------------------------------------------
         | Hanya faskes dalam kabupaten/kota user
+        |--------------------------------------------------------------------------
         */
-
         if ($groupId === 2) {
-
             return $query
                 ->where(
                     'kodeKabupaten',
@@ -59,17 +57,13 @@ class LplpoStokEsensialService
 
     /**
      * ==========================================================
-     * HEATMAP GROUP 3, 4, 5
+     * GROUP 3, 4, 5
      * ==========================================================
      *
-     * Baris:
-     *     Obat esensial
+     * Monitoring:
      *
-     * Kolom:
-     *     Bulan
-     *
-     * Faskes:
-     *     Faskes milik user
+     * ROW    = OBAT
+     * COLUMN = PERIODE
      */
     public function getHeatmapPeriode(
         $user,
@@ -79,82 +73,75 @@ class LplpoStokEsensialService
         int $tahunSampai
     ): array {
 
-        $kodeFaskes =
-            $user->kodeFaskes;
+        $kodeFaskes = $user->kodeFaskes;
 
-        /*
-        |--------------------------------------------------------------------------
-        | DAFTAR PERIODE
-        |--------------------------------------------------------------------------
-        */
-
-        $periods =
-            $this->generatePeriods(
-                $bulanMulai,
-                $tahunMulai,
-                $bulanSampai,
-                $tahunSampai
-            );
+        $periods = $this->generatePeriods(
+            $bulanMulai,
+            $tahunMulai,
+            $bulanSampai,
+            $tahunSampai
+        );
 
         /*
         |--------------------------------------------------------------------------
         | FASKES
         |--------------------------------------------------------------------------
         */
+        $faskes = DB::table('master_faskes')
+            ->where(
+                'kodeFaskes',
+                $kodeFaskes
+            )
+            ->first([
+                'kodeFaskes',
+                'namaFaskes'
+            ]);
 
-        $faskes =
-            DB::table('master_faskes')
-                ->where(
-                    'kodeFaskes',
-                    $kodeFaskes
-                )
-                ->first([
-                    'kodeFaskes',
-                    'namaFaskes'
-                ]);
+        if (!$faskes) {
+            return [
+                'faskes' => null,
+                'periods' => $periods,
+                'rows' => []
+            ];
+        }
 
         /*
         |--------------------------------------------------------------------------
-        | MASTER OBAT ESENSIAL
+        | TAHUN
         |--------------------------------------------------------------------------
-        |
-        | Ambil berdasarkan seluruh tahun yang dibutuhkan.
-        |
         */
+        $tahunList = collect($periods)
+            ->pluck('tahun')
+            ->unique()
+            ->values()
+            ->all();
 
-        $tahunList =
-            collect($periods)
-                ->pluck('tahun')
-                ->unique()
-                ->values();
-
-        $masterQuery =
-            DB::table(
+        /*
+        |--------------------------------------------------------------------------
+        | MASTER OBAT
+        |--------------------------------------------------------------------------
+        */
+        $master = DB::table(
                 'master_stokminimal_obat as s'
             )
-
             ->join(
                 'master_obat as o',
                 'o.kode_obat',
                 '=',
                 's.kode_obat'
             )
-
             ->where(
                 's.kodeFaskes',
                 $kodeFaskes
             )
-
             ->where(
                 's.obat_esensial',
                 'oe'
             )
-
             ->whereIn(
                 's.tahun',
                 $tahunList
             )
-
             ->select(
                 's.kode_obat',
                 'o.nama_obat',
@@ -165,83 +152,85 @@ class LplpoStokEsensialService
                 's.stok_minimal',
                 's.stok_optimum',
                 's.tahun'
-            );
-
-        $master =
-            $masterQuery
-                ->orderBy('o.nama_obat')
-                ->get();
+            )
+            ->orderBy('o.nama_obat')
+            ->get();
 
         /*
         |--------------------------------------------------------------------------
-        | DATA STOK
+        | INDEX MASTER
         |--------------------------------------------------------------------------
         */
-
-        $stock =
-            $this->getStockForPeriods(
-                $kodeFaskes,
-                $periods
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | FORMAT ROW
-        |--------------------------------------------------------------------------
-        */
-
-        $rows = [];
+        $masterIndex = [];
 
         foreach ($master as $item) {
+            $masterIndex[
+                $item->tahun
+            ][
+                $item->kode_obat
+            ] = $item;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK
+        |--------------------------------------------------------------------------
+        */
+        $stock = $this->getStockForPeriods(
+            $kodeFaskes,
+            $periods
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | ROW
+        |--------------------------------------------------------------------------
+        */
+        $rows = [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | UNIQUE OBAT
+        |--------------------------------------------------------------------------
+        */
+        $obatList = $master
+            ->groupBy('kode_obat')
+            ->map(function ($items) {
+                return $items->first();
+            })
+            ->values();
+
+        foreach ($obatList as $item) {
 
             $row = [
                 'kode_obat' => $item->kode_obat,
                 'nama_obat' => $item->nama_obat,
                 'satuan' => $item->satuan,
                 'obat_napza' => $item->obat_napza,
-                'obat_esensial' => $item->obat_esensial,
+                'obat_esensial' => 'oe',
                 'cells' => []
             ];
 
             foreach ($periods as $period) {
 
-                $key =
-                    $period['tahun'] .
-                    '-' .
-                    str_pad(
-                        $period['bulan'],
-                        2,
-                        '0',
-                        STR_PAD_LEFT
-                    );
-
-                /*
-                |--------------------------------------------------------------------------
-                | MASTER STOCK
-                |--------------------------------------------------------------------------
-                */
+                $key = $this->periodKey(
+                    $period['tahun'],
+                    $period['bulan']
+                );
 
                 $minimum =
-                    $master
-                        ->where(
-                            'kode_obat',
-                            $item->kode_obat
-                        )
-                        ->where(
-                            'tahun',
-                            $period['tahun']
-                        )
-                        ->first();
-
-                /*
-                |--------------------------------------------------------------------------
-                | STOCK
-                |--------------------------------------------------------------------------
-                */
+                    $masterIndex[
+                        $period['tahun']
+                    ][
+                        $item->kode_obat
+                    ] ?? null;
 
                 $stockItem =
-                    $stock[$key][$item->kode_obat]
-                    ?? null;
+                    $stock[
+                        $key
+                    ][
+                        $item->kode_obat
+                    ] ?? null;
 
                 $row['cells'][$key] =
                     $this->buildCell(
@@ -262,164 +251,73 @@ class LplpoStokEsensialService
 
     /**
      * ==========================================================
-     * HEATMAP GROUP 1, 2
+     * GROUP 1
      * ==========================================================
      *
-     * Baris:
-     *     Obat esensial
-     *
-     * Kolom:
-     *     Faskes
-     *
-     * Filter:
-     *     Satu bulan + satu tahun
+     * ROW    = OBAT
+     * COLUMN = FASKES
      */
-    public function getHeatmapPerFaskes(
+    public function getHeatmapPerObat(
         $user,
         int $bulan,
         int $tahun,
         ?string $kodeFaskes = null
     ): array {
 
-        $groupId =
-            (int) $user->groupid;
-
-        /*
-        |--------------------------------------------------------------------------
-        | FASKES
-        |--------------------------------------------------------------------------
-        */
-
-        $faskesQuery =
-            DB::table('master_faskes')
-                ->select(
-                    'kodeFaskes',
-                    'namaFaskes'
-                );
-
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP 2
-        |--------------------------------------------------------------------------
-        */
-
-        if ($groupId === 2) {
-
-            $faskesQuery->where(
-                'kodeKabupaten',
-                $user->kodeKota
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | FILTER FASKES
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $kodeFaskes !== null &&
-            $kodeFaskes !== ''
-        ) {
-
-            $allowed =
-                $faskesQuery
-                    ->where(
-                        'kodeFaskes',
-                        $kodeFaskes
-                    )
-                    ->exists();
-
-            if (!$allowed) {
-
-                abort(
-                    403,
-                    'Faskes tidak diperbolehkan.'
-                );
-            }
-
-            $faskesQuery =
-                DB::table('master_faskes')
-                    ->where(
-                        'kodeFaskes',
-                        $kodeFaskes
-                    )
-                    ->select(
-                        'kodeFaskes',
-                        'namaFaskes'
-                    );
-        }
-
-        $faskes =
-            $faskesQuery
-                ->orderBy('namaFaskes')
-                ->get();
+        $faskes = $this->getFilteredFaskes(
+            $user,
+            $kodeFaskes
+        );
 
         if ($faskes->isEmpty()) {
-
             return [
                 'bulan' => $bulan,
                 'tahun' => $tahun,
+                'mode' => 'obat',
                 'faskes' => [],
                 'rows' => []
             ];
         }
 
-        $kodeFaskesList =
-            $faskes
-                ->pluck('kodeFaskes')
-                ->values();
+        $kodeFaskesList = $faskes
+            ->pluck('kodeFaskes')
+            ->values()
+            ->all();
 
         /*
         |--------------------------------------------------------------------------
-        | MASTER OBAT ESENSIAL
+        | MASTER OBAT
         |--------------------------------------------------------------------------
-        |
-        | UNION seluruh obat esensial yang tersedia
-        | pada faskes yang ditampilkan.
-        |
         */
-
-        $master =
-            DB::table(
+        $master = DB::table(
                 'master_stokminimal_obat as s'
             )
-
             ->join(
                 'master_obat as o',
                 'o.kode_obat',
                 '=',
                 's.kode_obat'
             )
-
             ->whereIn(
                 's.kodeFaskes',
                 $kodeFaskesList
             )
-
             ->where(
                 's.tahun',
                 $tahun
             )
-
             ->where(
                 's.obat_esensial',
                 'oe'
             )
-
             ->select(
                 's.kode_obat',
                 'o.nama_obat',
                 'o.satuan',
                 'o.obat_napza'
             )
-
             ->distinct()
-
-            ->orderBy(
-                'o.nama_obat'
-            )
-
+            ->orderBy('o.nama_obat')
             ->get();
 
         /*
@@ -427,34 +325,21 @@ class LplpoStokEsensialService
         | MASTER PER FASKES
         |--------------------------------------------------------------------------
         */
-
-        $masterFaskes =
-            DB::table(
+        $masterFaskes = DB::table(
                 'master_stokminimal_obat as s'
             )
-
-            ->join(
-                'master_obat as o',
-                'o.kode_obat',
-                '=',
-                's.kode_obat'
-            )
-
             ->whereIn(
                 's.kodeFaskes',
                 $kodeFaskesList
             )
-
             ->where(
                 's.tahun',
                 $tahun
             )
-
             ->where(
                 's.obat_esensial',
                 'oe'
             )
-
             ->select(
                 's.kode_obat',
                 's.kodeFaskes',
@@ -463,7 +348,6 @@ class LplpoStokEsensialService
                 's.obat_esensial',
                 's.obat_formularium_puskesmas'
             )
-
             ->get();
 
         /*
@@ -471,92 +355,20 @@ class LplpoStokEsensialService
         | STOCK
         |--------------------------------------------------------------------------
         */
-
-        $stock =
-            DB::table(
-                'new_lplpo_itemlist as i'
-            )
-
-            ->join(
-                'new_lplpo_reports as r',
-                'r.id',
-                '=',
-                'i.report_id'
-            )
-
-            ->whereIn(
-                'r.kode_faskes',
-                $kodeFaskesList
-            )
-
-            ->where(
-                'r.bulan',
-                $bulan
-            )
-
-            ->where(
-                'r.tahun',
-                $tahun
-            )
-
-            ->where(
-                'r.report_status',
-                'FINAL'
-            )
-
-            ->select(
-                'r.kode_faskes',
-                'i.kode_obat',
-
-                DB::raw(
-                    'SUM(
-                        COALESCE(
-                            i.stok_akhir_program_pkd,
-                            0
-                        ) +
-                        COALESCE(
-                            i.stok_akhir_jkn,
-                            0
-                        )
-                    ) as stok_akhir'
-                )
-            )
-
-            ->groupBy(
-                'r.kode_faskes',
-                'i.kode_obat'
-            )
-
-            ->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | INDEX STOCK
-        |--------------------------------------------------------------------------
-        */
-
-        $stockIndex = [];
-
-        foreach ($stock as $item) {
-
-            $stockIndex[
-                $item->kode_faskes
-            ][
-                $item->kode_obat
-            ] =
-                (int) $item->stok_akhir;
-        }
+        $stock = $this->getStockForFaskes(
+            $kodeFaskesList,
+            $bulan,
+            $tahun
+        );
 
         /*
         |--------------------------------------------------------------------------
         | INDEX MASTER
         |--------------------------------------------------------------------------
         */
-
         $masterIndex = [];
 
         foreach ($masterFaskes as $item) {
-
             $masterIndex[
                 $item->kodeFaskes
             ][
@@ -566,10 +378,24 @@ class LplpoStokEsensialService
 
         /*
         |--------------------------------------------------------------------------
+        | INDEX STOCK
+        |--------------------------------------------------------------------------
+        */
+        $stockIndex = [];
+
+        foreach ($stock as $item) {
+            $stockIndex[
+                $item->kode_faskes
+            ][
+                $item->kode_obat
+            ] = (int) $item->stok_akhir;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | ROWS
         |--------------------------------------------------------------------------
         */
-
         $rows = [];
 
         foreach ($master as $item) {
@@ -599,17 +425,20 @@ class LplpoStokEsensialService
                         $item->kode_obat
                     ] ?? null;
 
+                $stockObject = null;
+
+                if ($stockValue !== null) {
+                    $stockObject = (object) [
+                        'stok_akhir' => $stockValue
+                    ];
+                }
+
                 $row['cells'][
                     $f->kodeFaskes
-                ] =
-                    $this->buildCell(
-                        $stockValue !== null
-                            ? (object) [
-                                'stok_akhir' => $stockValue
-                            ]
-                            : null,
-                        $masterItem
-                    );
+                ] = $this->buildCell(
+                    $stockObject,
+                    $masterItem
+                );
             }
 
             $rows[] = $row;
@@ -618,9 +447,442 @@ class LplpoStokEsensialService
         return [
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'mode' => 'obat',
             'faskes' => $faskes,
             'rows' => $rows
         ];
+    }
+
+    /**
+     * ==========================================================
+     * GROUP 2 / DINKES
+     * ==========================================================
+     *
+     * ROW    = KATEGORI OBAT
+     * COLUMN = FASKES
+     *
+     * Semua obat dalam kategori dijumlahkan.
+     */
+    public function getHeatmapPerKategori(
+        $user,
+        int $bulan,
+        int $tahun,
+        ?string $kodeFaskes = null
+    ): array {
+
+        $faskes = $this->getFilteredFaskes(
+            $user,
+            $kodeFaskes
+        );
+
+        if ($faskes->isEmpty()) {
+            return [
+                'bulan' => $bulan,
+                'tahun' => $tahun,
+                'mode' => 'kategori',
+                'faskes' => [],
+                'rows' => []
+            ];
+        }
+
+        $kodeFaskesList = $faskes
+            ->pluck('kodeFaskes')
+            ->values()
+            ->all();
+
+        /*
+        |--------------------------------------------------------------------------
+        | MASTER KATEGORI
+        |--------------------------------------------------------------------------
+        */
+        $master = DB::table(
+                'master_stokminimal_obat as s'
+            )
+            ->join(
+                'master_obat as o',
+                'o.kode_obat',
+                '=',
+                's.kode_obat'
+            )
+            ->whereIn(
+                's.kodeFaskes',
+                $kodeFaskesList
+            )
+            ->where(
+                's.tahun',
+                $tahun
+            )
+            ->where(
+                's.obat_esensial',
+                'oe'
+            )
+            ->whereNotNull(
+                's.kategori'
+            )
+            ->where(
+                's.kategori',
+                '<>',
+                ''
+            )
+            ->select(
+                's.kategori'
+            )
+            ->distinct()
+            ->orderBy(
+                's.kategori'
+            )
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | MASTER PER KATEGORI + FASKES
+        |--------------------------------------------------------------------------
+        */
+        $masterFaskes = DB::table(
+                'master_stokminimal_obat as s'
+            )
+            ->whereIn(
+                's.kodeFaskes',
+                $kodeFaskesList
+            )
+            ->where(
+                's.tahun',
+                $tahun
+            )
+            ->where(
+                's.obat_esensial',
+                'oe'
+            )
+            ->whereNotNull(
+                's.kategori'
+            )
+            ->where(
+                's.kategori',
+                '<>',
+                ''
+            )
+            ->select(
+                's.kodeFaskes',
+                's.kategori',
+                DB::raw(
+                    'SUM(COALESCE(s.stok_minimal, 0)) as stok_minimal'
+                ),
+                DB::raw(
+                    'SUM(COALESCE(s.stok_optimum, 0)) as stok_optimum'
+                ),
+                DB::raw(
+                    'MAX(s.obat_formularium_puskesmas) as obat_formularium_puskesmas'
+                )
+            )
+            ->groupBy(
+                's.kodeFaskes',
+                's.kategori'
+            )
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK PER OBAT
+        |--------------------------------------------------------------------------
+        */
+        $stock = $this->getStockForFaskes(
+            $kodeFaskesList,
+            $bulan,
+            $tahun
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | INDEX MASTER
+        |--------------------------------------------------------------------------
+        */
+        $masterIndex = [];
+
+        foreach ($masterFaskes as $item) {
+
+            $masterIndex[
+                $item->kodeFaskes
+            ][
+                $item->kategori
+            ] = $item;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK MASTER -> KATEGORI
+        |--------------------------------------------------------------------------
+        |
+        | Karena stock masih disimpan per kode obat,
+        | kita mapping kode_obat -> kategori_obat.
+        |
+        */
+        $obatKategori = DB::table(
+                'master_stokminimal_obat'
+            )
+            ->whereIn(
+                'kodeFaskes',
+                $kodeFaskesList
+            )
+            ->where(
+                'tahun',
+                $tahun
+            )
+            ->where(
+                'obat_esensial',
+                'oe'
+            )
+            ->whereNotNull(
+                'kategori'
+            )
+            ->where(
+                'kategori',
+                '<>',
+                ''
+            )
+            ->select(
+                'kodeFaskes',
+                'kode_obat',
+                'kategori'
+            )
+            ->get();
+
+        $kategoriMap = [];
+
+        foreach ($obatKategori as $item) {
+
+            $kategoriMap[
+                $item->kodeFaskes
+            ][
+                $item->kode_obat
+            ] = $item->kategori;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | AGREGASI STOCK PER KATEGORI
+        |--------------------------------------------------------------------------
+        */
+        $stockCategoryIndex = [];
+
+        foreach ($stock as $item) {
+
+            $kategori =
+                $kategoriMap[
+                    $item->kode_faskes
+                ][
+                    $item->kode_obat
+                ] ?? null;
+
+            if (!$kategori) {
+                continue;
+            }
+
+            if (!isset(
+                $stockCategoryIndex[
+                    $item->kode_faskes
+                ][
+                    $kategori
+                ]
+            )) {
+
+                $stockCategoryIndex[
+                    $item->kode_faskes
+                ][
+                    $kategori
+                ] = 0;
+            }
+
+            $stockCategoryIndex[
+                $item->kode_faskes
+            ][
+                $kategori
+            ] += (int) $item->stok_akhir;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ROWS
+        |--------------------------------------------------------------------------
+        */
+        $rows = [];
+
+        foreach ($master as $category) {
+
+            $kategori = $category->kategori;
+
+            $row = [
+                'kategori' => $kategori,
+                'nama_obat' => $kategori,
+                'cells' => []
+            ];
+
+            foreach ($faskes as $f) {
+
+                $masterItem =
+                    $masterIndex[
+                        $f->kodeFaskes
+                    ][
+                        $kategori
+                    ] ?? null;
+
+                $stockValue =
+                    $stockCategoryIndex[
+                        $f->kodeFaskes
+                    ][
+                        $kategori
+                    ] ?? null;
+
+                $stockObject = null;
+
+                if ($stockValue !== null) {
+
+                    $stockObject = (object) [
+                        'stok_akhir' => $stockValue
+                    ];
+                }
+
+                $row['cells'][
+                    $f->kodeFaskes
+                ] = $this->buildCell(
+                    $stockObject,
+                    $masterItem
+                );
+            }
+
+            $rows[] = $row;
+        }
+
+        return [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'mode' => 'kategori',
+            'faskes' => $faskes,
+            'rows' => $rows
+        ];
+    }
+
+    /**
+     * ==========================================================
+     * FILTER FASKES
+     * ==========================================================
+     */
+    protected function getFilteredFaskes(
+        $user,
+        ?string $kodeFaskes
+    ): Collection {
+
+        $groupId = (int) $user->groupid;
+
+        $query = DB::table('master_faskes')
+            ->select(
+                'kodeFaskes',
+                'namaFaskes'
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | GROUP 2
+        |--------------------------------------------------------------------------
+        */
+        if ($groupId === 2) {
+
+            $query->where(
+                'kodeKabupaten',
+                $user->kodeKota
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER FASKES
+        |--------------------------------------------------------------------------
+        */
+        if (
+            $kodeFaskes !== null &&
+            $kodeFaskes !== ''
+        ) {
+
+            /*
+             * Validasi bahwa faskes memang boleh dilihat user.
+             */
+            if (
+                !(clone $query)
+                    ->where(
+                        'kodeFaskes',
+                        $kodeFaskes
+                    )
+                    ->exists()
+            ) {
+
+                abort(
+                    403,
+                    'Faskes tidak diperbolehkan.'
+                );
+            }
+
+            $query->where(
+                'kodeFaskes',
+                $kodeFaskes
+            );
+        }
+
+        return $query
+            ->orderBy('namaFaskes')
+            ->get();
+    }
+
+    /**
+     * ==========================================================
+     * STOCK PER FASKES
+     * ==========================================================
+     */
+    protected function getStockForFaskes(
+        array $kodeFaskesList,
+        int $bulan,
+        int $tahun
+    ): Collection {
+
+        return DB::table(
+                'new_lplpo_itemlist as i'
+            )
+            ->join(
+                'new_lplpo_reports as r',
+                'r.id',
+                '=',
+                'i.report_id'
+            )
+            ->whereIn(
+                'r.kode_faskes',
+                $kodeFaskesList
+            )
+            ->where(
+                'r.bulan',
+                $bulan
+            )
+            ->where(
+                'r.tahun',
+                $tahun
+            )
+            ->where(
+                'r.report_status',
+                'FINAL'
+            )
+            ->select(
+                'r.kode_faskes',
+                'i.kode_obat',
+                DB::raw(
+                    'SUM(
+                        COALESCE(i.stok_akhir_program_pkd, 0)
+                        +
+                        COALESCE(i.stok_akhir_jkn, 0)
+                    ) AS stok_akhir'
+                )
+            )
+            ->groupBy(
+                'r.kode_faskes',
+                'i.kode_obat'
+            )
+            ->get();
     }
 
     /**
@@ -637,132 +899,80 @@ class LplpoStokEsensialService
             return [];
         }
 
-        $conditions = [];
-
-        foreach ($periods as $period) {
-
-            $conditions[] = [
-                $period['tahun'],
-                $period['bulan']
-            ];
-        }
-
-        $query =
-            DB::table(
+        $query = DB::table(
                 'new_lplpo_itemlist as i'
             )
-
             ->join(
                 'new_lplpo_reports as r',
                 'r.id',
                 '=',
                 'i.report_id'
             )
-
             ->where(
                 'r.kode_faskes',
                 $kodeFaskes
             )
-
             ->where(
                 'r.report_status',
                 'FINAL'
             )
+            ->where(function ($q) use ($periods) {
 
-            ->where(function ($q) use ($conditions) {
+                foreach ($periods as $index => $period) {
 
-                foreach ($conditions as $index => $condition) {
+                    $callback = function ($sub) use ($period) {
 
-                    [$tahun, $bulan] =
-                        $condition;
+                        $sub->where(
+                            'r.tahun',
+                            $period['tahun']
+                        )->where(
+                            'r.bulan',
+                            $period['bulan']
+                        );
+                    };
 
                     if ($index === 0) {
-
-                        $q->where(function ($sub) use (
-                            $tahun,
-                            $bulan
-                        ) {
-
-                            $sub
-                                ->where(
-                                    'r.tahun',
-                                    $tahun
-                                )
-                                ->where(
-                                    'r.bulan',
-                                    $bulan
-                                );
-                        });
-
+                        $q->where(
+                            $callback
+                        );
                     } else {
-
-                        $q->orWhere(function ($sub) use (
-                            $tahun,
-                            $bulan
-                        ) {
-
-                            $sub
-                                ->where(
-                                    'r.tahun',
-                                    $tahun
-                                )
-                                ->where(
-                                    'r.bulan',
-                                    $bulan
-                                );
-                        });
+                        $q->orWhere(
+                            $callback
+                        );
                     }
                 }
             })
-
             ->select(
                 'r.tahun',
                 'r.bulan',
                 'i.kode_obat',
-
                 DB::raw(
                     'SUM(
-                        COALESCE(
-                            i.stok_akhir_program_pkd,
-                            0
-                        ) +
-                        COALESCE(
-                            i.stok_akhir_jkn,
-                            0
-                        )
-                    ) as stok_akhir'
+                        COALESCE(i.stok_akhir_program_pkd, 0)
+                        +
+                        COALESCE(i.stok_akhir_jkn, 0)
+                    ) AS stok_akhir'
                 )
             )
-
             ->groupBy(
                 'r.tahun',
                 'r.bulan',
                 'i.kode_obat'
             )
-
             ->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | INDEX
-        |--------------------------------------------------------------------------
-        */
 
         $result = [];
 
         foreach ($query as $item) {
 
-            $key =
-                $item->tahun .
-                '-' .
-                str_pad(
-                    $item->bulan,
-                    2,
-                    '0',
-                    STR_PAD_LEFT
-                );
+            $key = $this->periodKey(
+                $item->tahun,
+                $item->bulan
+            );
 
-            $result[$key][
+            $result[
+                $key
+            ][
                 $item->kode_obat
             ] = $item;
         }
@@ -782,10 +992,9 @@ class LplpoStokEsensialService
 
         /*
         |--------------------------------------------------------------------------
-        | TIDAK ADA MASTER MINIMUM
+        | MASTER TIDAK ADA
         |--------------------------------------------------------------------------
         */
-
         if (!$minimum) {
 
             return [
@@ -803,10 +1012,9 @@ class LplpoStokEsensialService
 
         /*
         |--------------------------------------------------------------------------
-        | TIDAK ADA DATA STOCK
+        | STOCK TIDAK ADA
         |--------------------------------------------------------------------------
         */
-
         if (!$stock) {
 
             return [
@@ -829,20 +1037,21 @@ class LplpoStokEsensialService
         $stokMinimal =
             (int) $minimum->stok_minimal;
 
+        $stokOptimum =
+            (int) $minimum->stok_optimum;
+
         /*
         |--------------------------------------------------------------------------
-        | STOK MINIMAL = 0
+        | MINIMAL = 0
         |--------------------------------------------------------------------------
         */
-
         if ($stokMinimal <= 0) {
 
             return [
                 'available' => true,
                 'stok_akhir' => $stokAkhir,
                 'stok_minimal' => $stokMinimal,
-                'stok_optimum' =>
-                    (int) $minimum->stok_optimum,
+                'stok_optimum' => $stokOptimum,
                 'formularium' =>
                     $minimum->obat_formularium_puskesmas,
                 'percentage' => null,
@@ -852,30 +1061,17 @@ class LplpoStokEsensialService
 
         /*
         |--------------------------------------------------------------------------
-        | PERSENTASE
+        | PERCENTAGE
         |--------------------------------------------------------------------------
-        |
-        | (stok akhir - stok minimal)
-        | --------------------------------
-        | stok minimal
-        |
         */
-
         $percentage =
-            (
-                (
-                    $stokAkhir -
-                    $stokMinimal
-                ) /
-                $stokMinimal
-            ) * 100;
+            ($stokAkhir / $stokMinimal) * 100;
 
         /*
         |--------------------------------------------------------------------------
         | LEVEL
         |--------------------------------------------------------------------------
         */
-
         if ($percentage < 25) {
 
             $level = 'danger';
@@ -897,17 +1093,33 @@ class LplpoStokEsensialService
             'available' => true,
             'stok_akhir' => $stokAkhir,
             'stok_minimal' => $stokMinimal,
-            'stok_optimum' =>
-                (int) $minimum->stok_optimum,
+            'stok_optimum' => $stokOptimum,
             'formularium' =>
                 $minimum->obat_formularium_puskesmas,
             'percentage' =>
-                round(
-                    $percentage,
-                    2
-                ),
+                round($percentage, 2),
             'level' => $level
         ];
+    }
+
+    /**
+     * ==========================================================
+     * PERIOD KEY
+     * ==========================================================
+     */
+    protected function periodKey(
+        int $tahun,
+        int $bulan
+    ): string {
+
+        return $tahun .
+            '-' .
+            str_pad(
+                $bulan,
+                2,
+                '0',
+                STR_PAD_LEFT
+            );
     }
 
     /**
@@ -924,19 +1136,17 @@ class LplpoStokEsensialService
 
         $result = [];
 
-        $current =
-            \Carbon\Carbon::create(
-                $tahunMulai,
-                $bulanMulai,
-                1
-            );
+        $current = \Carbon\Carbon::create(
+            $tahunMulai,
+            $bulanMulai,
+            1
+        );
 
-        $end =
-            \Carbon\Carbon::create(
-                $tahunSampai,
-                $bulanSampai,
-                1
-            );
+        $end = \Carbon\Carbon::create(
+            $tahunSampai,
+            $bulanSampai,
+            1
+        );
 
         while ($current->lte($end)) {
 
