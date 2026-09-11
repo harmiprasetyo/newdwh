@@ -18,7 +18,8 @@ class Report extends Model
         'tahun',
         'nama_faskes',
         'nomor_lplpo',
-        'report_status'
+        'report_status',
+        'lplpo_status'
     ];
 
     protected $casts = [
@@ -56,6 +57,15 @@ public function kunjungan()
     );
 }
 
+
+public function linkApproval()
+{
+    return $this->hasOne(
+        InfoLinkApproval::class,
+        'reportId',
+        'id'
+    );
+}
 
 
 }

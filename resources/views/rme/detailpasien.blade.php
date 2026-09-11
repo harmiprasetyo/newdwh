@@ -954,7 +954,7 @@
                 </tr>
 
                  <tr>
-                                    <td>Tindakan</td><td>:</td>
+                                    <td>Tindakan INC</td><td>:</td>
                                     <td>
                                         @if(isset($ndt['INC']['inc_tindakan']))
 

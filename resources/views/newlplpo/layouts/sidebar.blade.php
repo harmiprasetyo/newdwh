@@ -1,13 +1,32 @@
+
 @php
     $userGroup = Auth::user()->groupid ?? null;
+    $userName  = Auth::user()->namalengkap ?? '';
 @endphp
 
+{{-- ==========================================================
+     SIDEBAR HEADER / LOGO
+========================================================== --}}
 
-<h4 class="text-center mt-3">
-    LPLPO
-</h4>
+<div class="sidebar-header text-center py-3 px-2">
 
-<hr>
+    {{-- Logo LPLPO --}}
+    <div class="sidebar-logo mb-2">
+        <img
+            src="{{ asset('img/sidebarlogo.png') }}"
+            alt="LPLPO"
+            class="img-fluid"
+        >
+    </div>
+
+    {{-- Nama Pengguna --}}
+    <div class="sidebar-user-name">
+        {{ $userName }}
+    </div>
+
+</div>
+
+<hr class="sidebar-divider">
 
 
 {{-- ==========================================================
@@ -49,21 +68,30 @@
 
     </div>
 
+
+    {{-- ======================================================
+         MASTER DATA
+    ======================================================= --}}
+
     <a href="#">
-    🗂️ Master Data
-</a>
-
-<div class="submenu">
-
-    <a href="{{ route('newlplpo.program.index') }}">
-        ➜ Master Data Program
+        🗂️ Master Data
     </a>
 
- <a href="{{ route('newlplpo.masterdataobat.index') }}">
-    ➜ Master Data Obat
-</a>
+    <div class="submenu">
 
-</div>
+        <a href="{{ route('newlplpo.program.index') }}">
+            ➜ Master Data Program
+        </a>
+
+        <a href="{{ route('newlplpo.masterdataobat.index') }}">
+            ➜ Master Data Obat
+        </a>
+          <a href="{{ route('newlplpo.kategoriobat.index') }}">
+        ➜ Master Kategori Obat
+    </a>
+
+
+    </div>
 
 
 {{-- ==========================================================
@@ -87,13 +115,16 @@
         </a>
 
         <a href="{{ route('newlplpo.rekap') }}">
-    ➜ Rekap LPLPO
-</a>
+            ➜ Rekap LPLPO
+        </a>
 
- <a href="{{ route('newlplpo.stokesensial.index') }}">
-    ➜ Monitoring Stok Obat DOEN
-</a>
+        <a href="{{ route('newlplpo.stokesensial.index') }}">
+            ➜ Monitoring Stok Obat DOEN
+        </a>
 
+        <a href="{{ route('newlplpo.report.monitoring') }}">
+            ➜ Absensi Puskesmas
+        </a>
 
         <a href="{{ route('newlplpo.verifikasi.index') }}">
             ➜ Verifikasi LPLPO
@@ -106,25 +137,30 @@
     </div>
 
 
-    {{-- ==========================================================
-     MASTER DATA
-=========================================================== --}}
+    {{-- ======================================================
+         MASTER DATA
+    ======================================================= --}}
 
-<a href="#">
-    🗂️ Master Data
-</a>
-
-<div class="submenu">
-
-    <a href="{{ route('newlplpo.program.index') }}">
-        ➜ Master Data Program
+    <a href="#">
+        🗂️ Master Data
     </a>
 
- <a href="{{ route('newlplpo.masterdataobat.index') }}">
-    ➜ Master Data Obat
-</a>
+    <div class="submenu">
 
-</div>
+        <a href="{{ route('newlplpo.program.index') }}">
+            ➜ Master Data Program
+        </a>
+
+        <a href="{{ route('newlplpo.masterdataobat.index') }}">
+            ➜ Master Data Obat
+        </a>
+
+          <a href="{{ route('newlplpo.kategoriobat.index') }}">
+        ➜ Master Kategori Obat
+    </a>
+
+
+    </div>
 
 
 {{-- ==========================================================
@@ -151,42 +187,74 @@
         <a href="{{ route('newlplpo.laporan') }}">
             ➜ Daftar LPLPO Baru
         </a>
-          <a href="{{ route('newlplpo.arsip.index') }}">
+
+        <a href="{{ route('newlplpo.arsip.index') }}">
             ➜ Arsip LPLPO
         </a>
+
         <a href="{{ route('newlplpo.rekap') }}">
-    ➜ Rekap LPLPO
-</a>
- <a href="{{ route('newlplpo.stokesensial.index') }}">
-    ➜  Monitoring Stok Obat DOEN </a>
+            ➜ Rekap LPLPO
+        </a>
+
+        <a href="{{ route('newlplpo.stokesensial.index') }}">
+            ➜ Monitoring Stok Obat DOEN
+        </a>
 
     </div>
 
+
+    {{-- ======================================================
+         MASTER DATA
+    ======================================================= --}}
+
     <a href="#">
-    🗂️ Master Data
-</a>
+        🗂️ Master Data
+    </a>
 
-<div class="submenu">
+    <div class="submenu">
 
-   <a href="{{ route('newlplpo.stok-esensial.index') }}">
+        <a href="{{ route('newlplpo.stok-esensial.index') }}">
+            ➜ Stok Min dan Esensial
+        </a>
 
-    ➜ Stok Min dan Esensial
+    </div>
 
-</a>
+@endif
 
-</div>
+@if((int) auth()->user()->groupid === 3)
 
+    <li class="nav-item">
+
+        <a
+            href="{{ route('newlplpo.infokapus.index') }}"
+            class="nav-link"
+        >
+
+            <i class="bi bi-person-badge me-2"></i>
+
+            <span>
+                Info Kepala Puskesmas
+            </span>
+
+        </a>
+
+    </li>
 
 @endif
 
 
-<hr>
+{{-- ==========================================================
+     DIVIDER
+========================================================== --}}
+
+<hr class="sidebar-divider">
 
 
-{{-- Logout --}}
+{{-- ==========================================================
+     LOGOUT
+========================================================== --}}
 
 <a href="{{ route('logout') }}">
     🚪 Logout
 </a>
-
 

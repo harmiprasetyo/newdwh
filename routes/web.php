@@ -46,6 +46,10 @@ use App\Http\Controllers\AdminPanel\Master\MasterFaskesController;
 use App\Http\Controllers\NewLplpo\LplpoStokEsensialController;
 
 use App\Http\Controllers\TestMailController;
+use App\Http\Controllers\NewLplpo\LplpoReportController as ReportController;
+use App\Http\Controllers\NewLplpo\KategoriObatController;
+use App\Http\Controllers\NewLplpo\ApprovalController;
+use App\Http\Controllers\NewLplpo\InfoKapusController;
 
 
 
@@ -739,6 +743,107 @@ Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
 
 
 
+ /*
+        |--------------------------------------------------------------------------
+        | INFO KAPUS
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('infokapus')
+            ->name('infokapus.')
+            ->group(function () {
+
+                Route::get(
+                    '/',
+                    [InfoKapusController::class, 'index']
+                )->name('index');
+
+                Route::get(
+                    '/create',
+                    [InfoKapusController::class, 'create']
+                )->name('create');
+
+                Route::post(
+                    '/',
+                    [InfoKapusController::class, 'store']
+                )->name('store');
+
+                Route::get(
+                    '/{kapus}/edit',
+                    [InfoKapusController::class, 'edit']
+                )->name('edit');
+
+                Route::put(
+                    '/{kapus}',
+                    [InfoKapusController::class, 'update']
+                )->name('update');
+
+                Route::post(
+                    '/{kapus}/reset-esign',
+                    [InfoKapusController::class, 'resetEsign']
+                )->name('reset-esign');
+
+                Route::delete(
+                    '/{kapus}',
+                    [InfoKapusController::class, 'destroy']
+                )->name('destroy');
+            });
+
+/*
+|--------------------------------------------------------------------------
+| NEW LPLPO - MASTER KATEGORI OBAT
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('kategori-obat')
+    ->name('kategoriobat.')
+    ->middleware('auth')
+    ->group(function () {
+
+        Route::get('/', [
+            KategoriObatController::class,
+            'index'
+        ])->name('index');
+
+        Route::get('/datatable', [
+            KategoriObatController::class,
+            'datatable'
+        ])->name('datatable');
+
+        Route::get('/{id}', [
+            KategoriObatController::class,
+            'show'
+        ])->name('show');
+
+        Route::post('/', [
+            KategoriObatController::class,
+            'store'
+        ])->name('store');
+
+        Route::put('/{id}', [
+            KategoriObatController::class,
+            'update'
+        ])->name('update');
+
+        Route::delete('/{id}', [
+            KategoriObatController::class,
+            'destroy'
+        ])->name('destroy');
+    });
+
+
+
+ Route::get(
+        '/report-monitoring',
+        [ReportController::class, 'monitoring']
+    )->name('report.monitoring');
+
+    Route::get(
+        '/report-monitoring/data',
+        [ReportController::class, 'monitoringData']
+    )->name('report.monitoring.data');
+
+
 Route::prefix('bekasi')
     ->name('bekasi.')
     ->group(function () {
@@ -804,6 +909,7 @@ Route::get(
 
 
 
+
  Route::prefix('stokesensial')
             ->name('stokesensial.')
             ->group(function () {
@@ -832,6 +938,7 @@ Route::prefix('stok-esensial')
     ->group(function () {
          Route::post('/duplikasi',[StokEsensialController::class, 'duplicate'])->name('duplicate');
          Route::get('/setting',[StokEsensialController::class, 'setting'])->name('setting');
+         Route::get('/kategori/list', [StokEsensialController::class, 'kategori']) ->name('kategori');
 
 
         Route::get(
@@ -1016,6 +1123,10 @@ Route::prefix('program')
     Route::get('/', [DashboardController::class,'index'])->name('index');
     Route::get('/buatlplpo',[LplpoController::class,'create'])->name('create');
     Route::post('/buatlplpo',[LplpoController::class,'store'])->name('store');
+    //Route::post('/{id}/kirim-approval',[ApprovalController::class, 'send'])->name('approval.send');
+    //Route::get('/approval/{token}',[ApprovalController::class, 'show'])->name('approval.show');
+    Route::post('/{id}/approval/send', [ApprovalController::class, 'send'])->name('approval.send');
+    Route::post('/{id}/resubmit-approval',[LplpoController::class, 'resubmitApproval'])->name('resubmit-approval');
     Route::get('/{id}/edit',[LplpoController::class,'edit'])->name('edit');
     Route::get('/{id}/detail', [LplpoController::class,'detail'])->name('detail');
     Route::get('/arsiplplpo',[LplpoController::class,'arsip'])->name('arsip');
@@ -1036,3 +1147,19 @@ Route::get('/realtime', [DashboardPageController::class, 'realtime']);
 Route::put('/{id}',[LplpoController::class, 'update'])->name('update');
 });
 Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
+
+
+
+Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
+
+    Route::get('/approval/{token}', [ApprovalController::class, 'show'])
+        ->name('approval.show');
+
+    Route::post('/approval/{token}/approve', [ApprovalController::class,'approve'])
+    ->name('approval.approve');
+    Route::post('/approval/{token}/reject', [ApprovalController::class,'reject'])
+    ->name('approval.reject');
+    Route::get('/approval-verifikasi/{token}', [ApprovalController::class,'verify'])
+    ->name('approval.verify');
+
+});

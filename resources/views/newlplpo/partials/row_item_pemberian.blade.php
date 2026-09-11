@@ -11,6 +11,42 @@
     <td>{{ $item->nama_obat }}</td>
 
     <td>{{ $item->satuan }}</td>
+    <td class="text-center">
+
+    @if($item->obat_esensial === 'oe')
+
+        <span class="badge bg-success">
+            OE
+        </span>
+
+    @else
+
+        <span class="badge bg-secondary">
+            NOE
+        </span>
+
+    @endif
+
+</td>
+
+<td class="text-center">
+   
+
+    @if($item->obat_formularium_puskesmas === 'true')
+
+        <span class="badge bg-primary">
+            Ya
+        </span>
+
+    @else
+
+        <span class="badge bg-secondary">
+            Tidak
+        </span>
+
+    @endif
+
+</td>
 
     <td class="text-end">{{ number_format($item->stok_awal_progam_pkd) }}</td>
     <td class="text-end">{{ number_format($item->stok_awal_jkn) }}</td>
