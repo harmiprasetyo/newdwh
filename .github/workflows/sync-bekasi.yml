@@ -35,9 +35,7 @@ jobs:
           git remote add gitlab-bekasi \
             https://oauth2:${GITLAB_TOKEN}@repo.bekasikota.go.id/${GITLAB_REPO}
 
-          git push gitlab-bekasi \
-            release/bekasi:main \
-            --force
+          git push gitlab-bekasi release/bekasi:main --force
 
           echo "======================================"
           echo "Sync to GitLab Bekasi SUCCESS"
