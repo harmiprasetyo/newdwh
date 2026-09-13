@@ -62,17 +62,6 @@ jobs:
           git fetch origin release/bekasi
 
       # ============================================================
-      # VERIFY DEVELOP
-      # ============================================================
-      - name: Verify develop branch
-        run: |
-          echo "======================================"
-          echo "Latest develop commit:"
-          echo "======================================"
-
-          git log origin/develop -1 --oneline
-
-      # ============================================================
       # PROMOTE TO BOGOR
       # ============================================================
       - name: Promote to Bogor
@@ -85,8 +74,6 @@ jobs:
           echo "======================================"
 
           git checkout -B release/bogor origin/release/bogor
-
-          echo "Merging develop..."
 
           git merge origin/develop \
             --no-ff \
@@ -116,8 +103,6 @@ jobs:
           echo "======================================"
 
           git checkout -B release/bekasi origin/release/bekasi
-
-          echo "Merging develop..."
 
           git merge origin/develop \
             --no-ff \

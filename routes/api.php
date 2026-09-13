@@ -31,6 +31,9 @@ use App\Http\Controllers\Api\OrganizationController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+/**
+ * route auth
+ */
 
 
 Route::prefix('newauth')->group(function () {
