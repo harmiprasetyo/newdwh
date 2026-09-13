@@ -13,8 +13,7 @@ on:
           - both
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: write
 
 concurrency:
   group: promote-develop-to-release
@@ -33,6 +32,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      # ============================================================
+      # CONFIGURE GIT
+      # ============================================================
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       # ============================================================
       # SHOW TARGET
@@ -45,75 +53,83 @@ jobs:
           echo "======================================"
 
       # ============================================================
+      # FETCH ALL BRANCHES
+      # ============================================================
+      - name: Fetch branches
+        run: |
+          git fetch origin develop
+          git fetch origin release/bogor
+          git fetch origin release/bekasi
+
+      # ============================================================
       # VERIFY DEVELOP
       # ============================================================
       - name: Verify develop branch
         run: |
-          git fetch origin develop
-
+          echo "======================================"
           echo "Latest develop commit:"
+          echo "======================================"
+
           git log origin/develop -1 --oneline
 
       # ============================================================
-      # CREATE PR TO BOGOR
+      # PROMOTE TO BOGOR
       # ============================================================
-      - name: Create PR to Bogor
+      - name: Promote to Bogor
         if: inputs.target == 'bogor' || inputs.target == 'both'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           echo "======================================"
-          echo "Checking PR develop -> release/bogor"
+          echo "Promoting develop -> release/bogor"
           echo "======================================"
 
-          EXISTING_PR=$(gh pr list \
-            --base release/bogor \
-            --head develop \
-            --state open \
-            --json number,url \
-            --jq '.[0] | "\(.number) \(.url)"')
+          git checkout -B release/bogor origin/release/bogor
 
-          if [ -n "$EXISTING_PR" ]; then
-            echo "PR Bogor sudah ada:"
-            echo "$EXISTING_PR"
-          else
-            echo "Membuat PR develop -> release/bogor..."
+          echo "Merging develop..."
 
-            gh pr create \
-              --base release/bogor \
-              --head develop \
-              --title "Promote develop to release/bogor" \
-              --body "Promotion dari develop ke release/bogor."
-          fi
+          git merge origin/develop \
+            --no-ff \
+            -m "Promote develop to release/bogor"
+
+          echo "Push release/bogor to GitHub..."
+
+          git remote set-url origin \
+            https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
+
+          git push origin release/bogor
+
+          echo "======================================"
+          echo "Promotion to release/bogor SUCCESS"
+          echo "======================================"
 
       # ============================================================
-      # CREATE PR TO BEKASI
+      # PROMOTE TO BEKASI
       # ============================================================
-      - name: Create PR to Bekasi
+      - name: Promote to Bekasi
         if: inputs.target == 'bekasi' || inputs.target == 'both'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           echo "======================================"
-          echo "Checking PR develop -> release/bekasi"
+          echo "Promoting develop -> release/bekasi"
           echo "======================================"
 
-          EXISTING_PR=$(gh pr list \
-            --base release/bekasi \
-            --head develop \
-            --state open \
-            --json number,url \
-            --jq '.[0] | "\(.number) \(.url)"')
+          git checkout -B release/bekasi origin/release/bekasi
 
-          if [ -n "$EXISTING_PR" ]; then
-            echo "PR Bekasi sudah ada:"
-            echo "$EXISTING_PR"
-          else
-            echo "Membuat PR develop -> release/bekasi..."
+          echo "Merging develop..."
 
-            gh pr create \
-              --base release/bekasi \
-              --head develop \
-              --title "Promote develop to release/bekasi" \
-              --body "Promotion dari develop ke release/bekasi."
-          fi
+          git merge origin/develop \
+            --no-ff \
+            -m "Promote develop to release/bekasi"
+
+          echo "Push release/bekasi to GitHub..."
+
+          git remote set-url origin \
+            https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
+
+          git push origin release/bekasi
+
+          echo "======================================"
+          echo "Promotion to release/bekasi SUCCESS"
+          echo "======================================"
