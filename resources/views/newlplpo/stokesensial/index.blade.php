@@ -391,7 +391,7 @@
 
 
     {{-- ==========================================================
-         INFO
+         INFO x
     =========================================================== --}}
 
     <div
@@ -467,7 +467,7 @@
                     <span class="legend-box heat-warning"></span>
 
                     <span>
-                        25% - < 35%
+                        25% -  < 35%
                     </span>
 
                 </div>
@@ -477,7 +477,7 @@
                     <span class="legend-box heat-yellow"></span>
 
                     <span>
-                        35% - 50%
+                        35% - 70%
                     </span>
 
                 </div>
@@ -487,7 +487,7 @@
                     <span class="legend-box heat-success"></span>
 
                     <span>
-                        > 50%
+                        > 70%
                     </span>
 
                 </div>
@@ -523,87 +523,68 @@
          HEATMAP
     =========================================================== --}}
 
-    <div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm">
 
-        <div class="card-header bg-success text-white">
+    <div class="card-header bg-success text-white">
 
-            <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center">
 
-                <strong>
+            <strong>
+                <i class="bi bi-grid-3x3-gap me-1"></i>
+                Heatmap Stok Obat Esensial
+            </strong>
 
-                    <i class="bi bi-grid-3x3-gap me-1"></i>
-
-                    Heatmap Stok Obat Esensial
-
-                </strong>
-
-                <span
-                    id="jumlahObat"
-                    class="badge bg-light text-success">
-
-                    0 Obat
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="card-body p-0">
-
-            <div
-                class="table-responsive heatmap-wrapper">
-
-                <table
-                    id="tableHeatmap"
-                    class="table table-bordered table-sm mb-0">
-
-                    <thead id="heatmapHead">
-
-                        <tr>
-
-                            <th
-                                colspan="5"
-                                class="text-center py-4">
-
-                                Memuat data...
-
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="heatmapBody">
-
-                        <tr>
-
-                            <td
-                                colspan="5"
-                                class="text-center text-muted py-5">
-
-                                <div
-                                    class="spinner-border text-success mb-2">
-                                </div>
-
-                                <div>
-                                    Memuat data...
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
+            <span
+                id="jumlahObat"
+                class="badge bg-light text-success">
+                0 Data
+            </span>
 
         </div>
 
     </div>
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive heatmap-wrapper">
+
+            <table
+                id="tableHeatmap"
+                class="table table-bordered table-sm mb-0">
+
+                <thead id="heatmapHead">
+                    <tr>
+                        <th class="text-center py-4">
+                            Memuat data...
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody id="heatmapBody">
+
+                    <tr>
+                        <td class="text-center text-muted py-5">
+
+                            <div
+                                class="spinner-border text-success mb-2">
+                            </div>
+
+                            <div>
+                                Memuat data...
+                            </div>
+
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
 
 
     {{-- ==========================================================
@@ -818,41 +799,27 @@
 
 @endpush
 
-
-{{-- ==========================================================
-     SCRIPT CONFIG
-=========================================================== --}}
-
 @push('script')
 
 <script>
+    window.lplpoStokEsensialConfig = {
+        dataUrl: @json(route('newlplpo.stokesensial.data')),
 
-window.lplpoStokEsensialConfig = {
+        groupId: @json($groupId),
 
-    dataUrl: @json(
-        route('newlplpo.stokesensial.data')
-    ),
+        bulanMulai: @json($bulanMulai),
+        tahunMulai: @json($tahunMulai),
 
-    groupId: @json($groupId),
+        bulanSampai: @json($bulanSampai),
+        tahunSampai: @json($tahunSampai),
 
-    bulanMulai: @json($bulanMulai),
+        bulan: @json($bulan),
+        tahun: @json($tahun),
 
-    tahunMulai: @json($tahunMulai),
-
-    bulanSampai: @json($bulanSampai),
-
-    tahunSampai: @json($tahunSampai),
-
-    bulan: @json($bulan),
-
-    tahun: @json($tahun),
-
-    csrfToken: @json(csrf_token())
-
-};
-
+        csrfToken: @json(csrf_token())
+    };
 </script>
 
-<script src="{{ mix('js/newlplpo/stokesensial.js') }}"></script>
+<script src="{{ mix('js/newlplpo/stokesensial_monitoring.js') }}"></script>
 
 @endpush

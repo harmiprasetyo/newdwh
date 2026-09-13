@@ -11,18 +11,32 @@ jobs:
 
     steps:
 
+      # ============================================================
+      # CHECKOUT GITHUB REPOSITORY
+      # ============================================================
       - name: Checkout GitHub repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # ============================================================
+      # PUSH TO GITLAB BEKASI
+      # ============================================================
       - name: Push to GitLab Bekasi
         env:
           GITLAB_TOKEN: ${{ secrets.BEKASI_GITLAB_TOKEN }}
           GITLAB_REPO: ${{ secrets.BEKASI_GITLAB_REPO }}
         run: |
+          echo "======================================"
+          echo "Sync GitHub release/bekasi"
+          echo "to GitLab Bekasi main"
+          echo "======================================"
+
           git remote add gitlab-bekasi \
             https://oauth2:${GITLAB_TOKEN}@repo.bekasikota.go.id/${GITLAB_REPO}
 
           git push gitlab-bekasi release/bekasi:main --force
 
+          echo "======================================"
+          echo "Sync to GitLab Bekasi SUCCESS"
+          echo "======================================"

@@ -28,135 +28,59 @@ class LplpoStokEsensialController extends Controller
 
         $groupId = (int) $user->groupid;
 
-        if (!in_array($groupId, [1, 2, 3, 4, 5], true)) {
-            abort(
-                403,
-                'Anda tidak memiliki akses ke monitoring stok obat esensial.'
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP 3, 4, 5
-        |--------------------------------------------------------------------------
-        |
-        | Default:
-        | bulan mulai  = bulan sekarang
-        | tahun mulai  = tahun sekarang
-        | bulan sampai = bulan sekarang
-        | tahun sampai = tahun sekarang
-        |
-        */
-
-        $bulanMulai = (int) $request->input(
-            'bulan_mulai',
-            now()->month
-        );
-
-        $tahunMulai = (int) $request->input(
-            'tahun_mulai',
-            now()->year
-        );
-
-        $bulanSampai = (int) $request->input(
-            'bulan_sampai',
-            now()->month
-        );
-
-        $tahunSampai = (int) $request->input(
-            'tahun_sampai',
-            now()->year
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP 1, 2
-        |--------------------------------------------------------------------------
-        */
-
-        $bulan = (int) $request->input(
-            'bulan',
-            now()->month
-        );
-
-        $tahun = (int) $request->input(
-            'tahun',
-            now()->year
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI
-        |--------------------------------------------------------------------------
-        */
-
-        $this->validateMonthYear(
-            $bulanMulai,
-            $tahunMulai
-        );
-
-        $this->validateMonthYear(
-            $bulanSampai,
-            $tahunSampai
-        );
-
-        $this->validateMonthYear(
-            $bulan,
-            $tahun
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI RANGE
-        |--------------------------------------------------------------------------
-        */
-
-        $periodeMulai =
-            ($tahunMulai * 100) + $bulanMulai;
-
-        $periodeSampai =
-            ($tahunSampai * 100) + $bulanSampai;
-
-        if ($periodeMulai > $periodeSampai) {
-            abort(
-                422,
-                'Periode mulai tidak boleh lebih besar dari periode sampai.'
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | DATA FASKES
-        |--------------------------------------------------------------------------
-        */
-
-        $faskes = collect();
-
-        if (in_array($groupId, [1, 2], true)) {
-
-            $faskes = $this->service->getFaskesForUser(
-                $user
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | VIEW
-        |--------------------------------------------------------------------------
-        */
+        $this->authorizeGroup($groupId);
 
         return view(
             'newlplpo.stokesensial.index',
-            compact(
-                'groupId',
-                'bulanMulai',
-                'tahunMulai',
-                'bulanSampai',
-                'tahunSampai',
-                'bulan',
-                'tahun',
-                'faskes'
-            )
+            [
+                'groupId' => $groupId,
+
+                'bulanMulai' =>
+                    (int) $request->input(
+                        'bulan_mulai',
+                        now()->month
+                    ),
+
+                'tahunMulai' =>
+                    (int) $request->input(
+                        'tahun_mulai',
+                        now()->year
+                    ),
+
+                'bulanSampai' =>
+                    (int) $request->input(
+                        'bulan_sampai',
+                        now()->month
+                    ),
+
+                'tahunSampai' =>
+                    (int) $request->input(
+                        'tahun_sampai',
+                        now()->year
+                    ),
+
+                'bulan' =>
+                    (int) $request->input(
+                        'bulan',
+                        now()->month
+                    ),
+
+                'tahun' =>
+                    (int) $request->input(
+                        'tahun',
+                        now()->year
+                    ),
+
+                'faskes' =>
+                    in_array(
+                        $groupId,
+                        [1, 2],
+                        true
+                    )
+                        ? $this->service
+                            ->getFaskesForUser($user)
+                        : collect()
+            ]
         );
     }
 
@@ -171,71 +95,90 @@ class LplpoStokEsensialController extends Controller
 
         $groupId = (int) $user->groupid;
 
-        if (!in_array($groupId, [1, 2, 3, 4, 5], true)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki akses.'
-            ], 403);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP 3, 4, 5
-        |--------------------------------------------------------------------------
-        */
-
-        $bulanMulai = (int) $request->input(
-            'bulan_mulai',
-            now()->month
-        );
-
-        $tahunMulai = (int) $request->input(
-            'tahun_mulai',
-            now()->year
-        );
-
-        $bulanSampai = (int) $request->input(
-            'bulan_sampai',
-            now()->month
-        );
-
-        $tahunSampai = (int) $request->input(
-            'tahun_sampai',
-            now()->year
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP 1, 2
-        |--------------------------------------------------------------------------
-        */
-
-        $bulan = (int) $request->input(
-            'bulan',
-            now()->month
-        );
-
-        $tahun = (int) $request->input(
-            'tahun',
-            now()->year
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI
-        |--------------------------------------------------------------------------
-        */
-
         try {
 
-            $this->validateMonthYear(
-                $bulanMulai,
-                $tahunMulai
+            $this->authorizeGroup($groupId);
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP 3,4,5
+            |--------------------------------------------------------------------------
+            */
+            if (
+                in_array(
+                    $groupId,
+                    [3, 4, 5],
+                    true
+                )
+            ) {
+
+                $bulanMulai = (int) $request->input(
+                    'bulan_mulai',
+                    now()->month
+                );
+
+                $tahunMulai = (int) $request->input(
+                    'tahun_mulai',
+                    now()->year
+                );
+
+                $bulanSampai = (int) $request->input(
+                    'bulan_sampai',
+                    now()->month
+                );
+
+                $tahunSampai = (int) $request->input(
+                    'tahun_sampai',
+                    now()->year
+                );
+
+                $this->validateMonthYear(
+                    $bulanMulai,
+                    $tahunMulai
+                );
+
+                $this->validateMonthYear(
+                    $bulanSampai,
+                    $tahunSampai
+                );
+
+                $this->validateRange(
+                    $bulanMulai,
+                    $tahunMulai,
+                    $bulanSampai,
+                    $tahunSampai
+                );
+
+                $result =
+                    $this->service->getHeatmapPeriode(
+                        $user,
+                        $bulanMulai,
+                        $tahunMulai,
+                        $bulanSampai,
+                        $tahunSampai
+                    );
+
+                return response()->json([
+                    'success' => true,
+                    'mode' => 'periode',
+                    'group_id' => $groupId,
+                    'data' => $result
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP 1,2
+            |--------------------------------------------------------------------------
+            */
+            $bulan = (int) $request->input(
+                'bulan',
+                now()->month
             );
 
-            $this->validateMonthYear(
-                $bulanSampai,
-                $tahunSampai
+            $tahun = (int) $request->input(
+                'tahun',
+                now()->year
             );
 
             $this->validateMonthYear(
@@ -243,94 +186,92 @@ class LplpoStokEsensialController extends Controller
                 $tahun
             );
 
+            $kodeFaskes =
+                $request->input(
+                    'kode_faskes'
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP 2
+            |--------------------------------------------------------------------------
+            | KATEGORI OBAT
+            |--------------------------------------------------------------------------
+            */
+            if ($groupId === 2) {
+
+                $result =
+                    $this->service->getHeatmapPerKategori(
+                        $user,
+                        $bulan,
+                        $tahun,
+                        $kodeFaskes
+                    );
+
+                return response()->json([
+                    'success' => true,
+                    'mode' => 'kategori',
+                    'group_id' => $groupId,
+                    'data' => $result
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP 1
+            |--------------------------------------------------------------------------
+            | PER OBAT
+            |--------------------------------------------------------------------------
+            */
+            $result =
+                $this->service->getHeatmapPerObat(
+                    $user,
+                    $bulan,
+                    $tahun,
+                    $kodeFaskes
+                );
+
+            return response()->json([
+                'success' => true,
+                'mode' => 'obat',
+                'group_id' => $groupId,
+                'data' => $result
+            ]);
+
         } catch (\Throwable $e) {
+
+            report($e);
 
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
             ], 422);
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI RANGE
-        |--------------------------------------------------------------------------
-        */
-
-        $periodeMulai =
-            ($tahunMulai * 100) + $bulanMulai;
-
-        $periodeSampai =
-            ($tahunSampai * 100) + $bulanSampai;
-
-        if ($periodeMulai > $periodeSampai) {
-
-            return response()->json([
-                'success' => false,
-                'message' =>
-                    'Periode mulai tidak boleh lebih besar dari periode sampai.'
-            ], 422);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | MODE
-        |--------------------------------------------------------------------------
-        */
-
-        if (in_array($groupId, [3, 4, 5], true)) {
-
-            $result =
-                $this->service->getHeatmapPeriode(
-                    $user,
-                    $bulanMulai,
-                    $tahunMulai,
-                    $bulanSampai,
-                    $tahunSampai
-                );
-
-            return response()->json([
-                'success' => true,
-                'mode' => 'periode',
-                'group_id' => $groupId,
-                'bulan_mulai' => $bulanMulai,
-                'tahun_mulai' => $tahunMulai,
-                'bulan_sampai' => $bulanSampai,
-                'tahun_sampai' => $tahunSampai,
-                'data' => $result
-            ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP 1, 2
-        |--------------------------------------------------------------------------
-        */
-
-        $kodeFaskes =
-            $request->input('kode_faskes');
-
-        $result =
-            $this->service->getHeatmapPerFaskes(
-                $user,
-                $bulan,
-                $tahun,
-                $kodeFaskes
-            );
-
-        return response()->json([
-            'success' => true,
-            'mode' => 'faskes',
-            'group_id' => $groupId,
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-            'data' => $result
-        ]);
     }
 
     /**
      * ==========================================================
-     * VALIDATE MONTH / YEAR
+     * AUTHORIZE GROUP
+     * ==========================================================
+     */
+    protected function authorizeGroup(int $groupId): void
+    {
+        if (!in_array(
+            $groupId,
+            [1, 2, 3, 4, 5],
+            true
+        )) {
+
+            abort(
+                403,
+                'Anda tidak memiliki akses ke monitoring stok obat esensial.'
+            );
+        }
+    }
+
+    /**
+     * ==========================================================
+     * VALIDATE MONTH YEAR
      * ==========================================================
      */
     protected function validateMonthYear(
@@ -347,6 +288,34 @@ class LplpoStokEsensialController extends Controller
         if ($tahun < 2000 || $tahun > 2100) {
             throw new \InvalidArgumentException(
                 'Tahun tidak valid.'
+            );
+        }
+    }
+
+    /**
+     * ==========================================================
+     * VALIDATE RANGE
+     * ==========================================================
+     */
+    protected function validateRange(
+        int $bulanMulai,
+        int $tahunMulai,
+        int $bulanSampai,
+        int $tahunSampai
+    ): void {
+
+        $start =
+            ($tahunMulai * 100)
+            + $bulanMulai;
+
+        $end =
+            ($tahunSampai * 100)
+            + $bulanSampai;
+
+        if ($start > $end) {
+
+            throw new \InvalidArgumentException(
+                'Periode mulai tidak boleh lebih besar dari periode sampai.'
             );
         }
     }

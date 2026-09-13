@@ -22,82 +22,186 @@ class LplpoArsipController extends Controller
     /**
      * Datatable
      */
-    public function datatable(Request $request)
-    {
-        $query = Report::query()
-            ->where('report_status', 'FINAL');
+   /**
+ * Datatable
+ */
+public function datatable(Request $request)
+{
+    $query = Report::query()
+        ->where('report_status', 'FINAL');
 
-        if ($request->filled('bulan')) {
-            $query->where('bulan', $request->bulan);
-        }
 
-        if ($request->filled('tahun')) {
-            $query->where('tahun', $request->tahun);
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER FASKES USER
+    |--------------------------------------------------------------------------
+    |
+    | Group 3, 4, 5 hanya dapat melihat
+    | arsip LPLPO dari faskes miliknya.
+    |
+    */
 
-        return DataTables::of($query)
+    $user = auth()->user();
 
-            ->addIndexColumn()
+    if (
+        in_array(
+            (int) $user->groupid,
+            [3, 4, 5],
+            true
+        )
+    ) {
 
-            ->editColumn('created_at', function ($row) {
-                return optional($row->created_at)->format('d-m-Y H:i');
-            })
+        $query->where(
+            'kode_faskes',
+            $user->kodeFaskes
+        );
 
-            ->addColumn('nama_faskes', function ($row) {
-
-                return optional(
-                    MasterFaskes::where(
-                        'kodeFaskes',
-                        $row->kode_faskes
-                    )->first()
-                )->namaFaskes;
-
-            })
-
-            ->addColumn('items_count', function ($row) {
-
-                return Item::where(
-                    'report_id',
-                    $row->id
-                )->count();
-
-            })
-
-            ->addColumn('status', function () {
-
-                return '<span class="badge bg-success">
-                            SELESAI
-                        </span>';
-
-            })
-
-            ->addColumn('aksi', function ($row) {
-
-                return '
-                    <a href="' . route('newlplpo.arsip.detail', $row->id) . '"
-                        class="btn btn-primary btn-sm">
-
-                        <i class="bi bi-eye"></i>
-
-                    </a>
-
-                    <a href="' . route('newlplpo.arsip.print', $row->id) . '"
-                        class="btn btn-success btn-sm">
-
-                        <i class="bi bi-printer"></i>
-
-                    </a>
-                ';
-
-            })
-
-            ->rawColumns([
-                'status',
-                'aksi'
-            ])
-
-            ->make(true);
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER BULAN
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('bulan')) {
+
+        $query->where(
+            'bulan',
+            $request->bulan
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER TAHUN
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('tahun')) {
+
+        $query->where(
+            'tahun',
+            $request->tahun
+        );
+
+    }
+
+
+    return DataTables::of($query)
+
+        ->addIndexColumn()
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREATED AT
+        |--------------------------------------------------------------------------
+        */
+
+        ->editColumn('created_at', function ($row) {
+
+            return optional(
+                $row->created_at
+            )->format('d-m-Y H:i');
+
+        })
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA FASKES
+        |--------------------------------------------------------------------------
+        */
+
+        ->addColumn('nama_faskes', function ($row) {
+
+            return optional(
+                MasterFaskes::where(
+                    'kodeFaskes',
+                    $row->kode_faskes
+                )->first()
+            )->namaFaskes;
+
+        })
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL ITEM
+        |--------------------------------------------------------------------------
+        */
+
+        ->addColumn('items_count', function ($row) {
+
+            return Item::where(
+                'report_id',
+                $row->id
+            )->count();
+
+        })
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        ->addColumn('status', function () {
+
+            return '<span class="badge bg-success">
+                        SELESAI
+                    </span>';
+
+        })
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AKSI
+        |--------------------------------------------------------------------------
+        */
+
+        ->addColumn('aksi', function ($row) {
+
+            return '
+                <a href="' . route(
+                    'newlplpo.arsip.detail',
+                    $row->id
+                ) . '"
+                    class="btn btn-primary btn-sm"
+                    title="Detail">
+
+                    <i class="bi bi-eye"></i>
+
+                </a>
+
+                <a href="' . route(
+                    'newlplpo.arsip.print',
+                    $row->id
+                ) . '"
+                    class="btn btn-success btn-sm"
+                    title="Print">
+
+                    <i class="bi bi-printer"></i>
+
+                </a>
+            ';
+
+        })
+
+
+        ->rawColumns([
+            'status',
+            'aksi'
+        ])
+
+        ->make(true);
+}
 
     /**
      * Detail Arsip

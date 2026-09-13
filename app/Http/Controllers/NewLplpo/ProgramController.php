@@ -7,6 +7,7 @@ use App\Models\NewLplpo\Program;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
 
 class ProgramController extends Controller
 {
@@ -36,15 +37,15 @@ class ProgramController extends Controller
 
             ->addIndexColumn()
 
-            ->editColumn('created_at', function ($row) {
+          ->editColumn('created_at', function ($row) {
 
-                if (!$row->created_at) {
-                    return '-';
-                }
+    if (!$row->created_at) {
+        return '-';
+    }
 
-                return $row->created_at->format('d-m-Y H:i');
+    return Carbon::parse($row->created_at)->format('d-m-Y H:i');
 
-            })
+})
 
             ->addColumn('action', function ($row) {
 
