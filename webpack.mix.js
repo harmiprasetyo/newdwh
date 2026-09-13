@@ -105,7 +105,10 @@ mix.js(
     'resources/js/newlplpo/infokapus.js',
     'public/js/newlplpo'
 )
-
+  .js(
+        'resources/js/dashboard/index.js',
+        'public/js/dashboard'
+    )
 
 .postCss(
     'resources/css/app.css',

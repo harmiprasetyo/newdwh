@@ -176,10 +176,57 @@ Route::middleware('auth')->group(function () {
          Route::get('/listkecamatan', [IndonesiaController::class, 'listkecamatan'])->name('listkecamatan');
          Route::get('/listdesa', [IndonesiaController::class, 'listdesa'])->name('listdesa');
     });
-    Route::get('/provinsi', fn() => view('admin.propinsi'));
-    Route::get('/kota', fn() => view('admin.kota'));
-    Route::get('/kecamatan', fn() => view('admin.kecamatan'));
-    Route::get('/desa', fn() => view('admin.desa'));
+
+
+
+
+ 
+
+    Route::get('/provinsi', function () {
+
+        abort_unless(
+            (int) auth()->user()->groupid === 1,
+            403
+        );
+
+        return view('admin.propinsi');
+
+    });
+
+    Route::get('/kota', function () {
+
+        abort_unless(
+            (int) auth()->user()->groupid === 1,
+            403
+        );
+
+        return view('admin.kota');
+
+    });
+
+    Route::get('/kecamatan', function () {
+
+        abort_unless(
+            (int) auth()->user()->groupid === 1,
+            403
+        );
+
+        return view('admin.kecamatan');
+
+    });
+
+    Route::get('/desa', function () {
+
+        abort_unless(
+            (int) auth()->user()->groupid === 1,
+            403
+        );
+
+        return view('admin.desa');
+
+    });
+
+
     Route::prefix('geojson')->group(function () {
     Route::get('/provinsi', [IndonesiaController::class, 'geojsonProvinsi']);
     });
@@ -1140,11 +1187,13 @@ Route::prefix('program')
 
 
 Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getKabupaten']);
-Route::prefix('dashboard')->group(function () {
-  Route::get('/', [DashboardPageController::class, 'index']);
+Route::prefix('dashboard')->name('dashboard')->group(function () {
+
+
+Route::get('/', [DashboardPageController::class, 'index']);
 Route::get('/realtime', [DashboardPageController::class, 'realtime']);
 
-Route::put('/{id}',[LplpoController::class, 'update'])->name('update');
+
 });
 Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
 
