@@ -12,6 +12,7 @@ use App\Models\UserPanel\UserApp;
 use App\Models\Master\MasterFaskes;
 use App\Models\UserGroups;
 use App\Services\ActivityLogService;
+use Illuminate\Validation\Rules\Password;
 
 class UserAppController extends Controller
 {
@@ -465,45 +466,59 @@ class UserAppController extends Controller
 }
 
 
-        $validator = Validator::make(
-            $request->all(),
-            [
+       $validator = Validator::make(
+    $request->all(),
+    [
+        'username' =>
+            'required|string|max:255|unique:users_app,username',
 
-                'username' =>
-                    'required|string|max:255|unique:users_app,username',
+        'email' =>
+            'required|email|max:255|unique:users_app,email',
 
-                'email' =>
-                    'required|email|max:255|unique:users_app,email',
+        'namalengkap' =>
+            'required|string|max:255',
 
-                'namalengkap' =>
-                    'required|string|max:255',
+        'groupid' =>
+            'required|exists:usergroups,group_id',
 
-                'groupid' =>
-                    'required|exists:usergroups,group_id',
+        'role_id' =>
+            'nullable|exists:user_roles,id',
 
-                'role_id' =>
-                    'nullable|exists:user_roles,id',
+        'password' => [
+            'required',
+            'string',
+            Password::min(8)
+                ->mixedCase()
+                ->numbers()
+                ->symbols(),
+        ],
 
-                'password' =>
-                    'required|string|min:6',
+        'kodePropinsi' =>
+            'nullable',
 
-                'kodePropinsi' =>
-                    'nullable',
+        'kodeKota' =>
+            'nullable',
 
-                'kodeKota' =>
-                    'nullable',
+        'kodeKecamatan' =>
+            'nullable',
 
-                'kodeKecamatan' =>
-                    'nullable',
+        'kodeFaskes' =>
+            'nullable|string|max:255',
 
-                'kodeFaskes' =>
-                    'nullable|string|max:255',
+        'role' =>
+            'nullable|string|max:255',
+    ],
+    [
+        'password.required' =>
+            'Password wajib diisi.',
 
-                'role' =>
-                    'nullable|string|max:255',
+        'password.min' =>
+            'Password minimal 8 karakter.',
 
-            ]
-        );
+        'password.string' =>
+            'Password harus berupa teks.',
+    ]
+);
 
 
         if ($validator->fails()) {
@@ -732,8 +747,14 @@ class UserAppController extends Controller
                 'role_id' =>
                     'nullable|exists:user_roles,id',
 
-                'password' =>
-                    'nullable|string|min:6',
+               'password' => [
+    'nullable',
+    'string',
+    Password::min(8)
+        ->mixedCase()
+        ->numbers()
+        ->symbols(),
+],
 
                 'kodePropinsi' =>
                     'nullable',
