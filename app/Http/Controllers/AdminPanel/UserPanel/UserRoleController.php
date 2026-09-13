@@ -13,6 +13,21 @@ class UserRoleController extends Controller
     /**
      * Halaman utama User Role
      */
+     public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+
+            $user = auth()->user();
+
+            if (!$user || (int) $user->groupid !== 1) {
+
+                abort(403, 'Anda tidak memiliki hak akses ke User Roles.');
+            }
+
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         return view('adminpanel.userpanel.roles.index');

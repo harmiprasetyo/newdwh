@@ -12,6 +12,19 @@ class ActivityLogController extends Controller
     /**
      * Halaman Activity Log
      */
+        public function __construct(){
+            $this->middleware(function ($request, $next) {
+
+            $user = auth()->user();
+
+            if (!$user || (int) $user->groupid !== 1) {
+
+                abort(403, 'Anda tidak memiliki hak akses ke Activity Log.');
+            }
+
+            return $next($request);
+        });
+        }
     public function index()
     {
         return view('adminpanel.activitylog.index');
