@@ -23,12 +23,27 @@ class MasterFaskesController extends Controller
 
     public function __construct(MasterFaskesService $service)
     {
-        $this->service = $service;
+
+    $this->middleware(function ($request, $next) {
+
+            $user = auth()->user();
+
+            if (!$user || (int) $user->groupid !== 1) {
+
+                abort(403, 'Anda tidak memiliki hak akses ke Master Faskes.');
+            }
+
+            return $next($request);
+        });
+    $this->service = $service;
     }
 
     /**
      * Halaman utama
      */
+
+
+
    public function index()
 {
     $types = ListTypeFaskes::orderBy('typeFaskes')->get();

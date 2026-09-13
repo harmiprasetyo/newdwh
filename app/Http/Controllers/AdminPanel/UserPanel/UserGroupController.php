@@ -14,6 +14,23 @@ class UserGroupController extends Controller
     /**
      * Halaman utama
      */
+     public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+
+            $user = auth()->user();
+
+            if (!$user || (int) $user->groupid !== 1) {
+
+                abort(403, 'Anda tidak memiliki hak akses ke User Group.');
+            }
+
+            return $next($request);
+        });
+    }
+
+
+
     public function index()
     {
         return view(
