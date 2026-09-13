@@ -15,7 +15,7 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label>Password</label>
+                        <label>Password </label>
                         <input type="password" class="form-control" id="password" placeholder="Masukkan Password">
                     </div>
                     <div class="form-group mt-3">
