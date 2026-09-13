@@ -13,7 +13,7 @@ on:
           - both
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 concurrency:
@@ -25,11 +25,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # ============================================================
+      # CHECKOUT
+      # ============================================================
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # ============================================================
+      # SHOW TARGET
+      # ============================================================
       - name: Show promotion target
         run: |
           echo "======================================"
@@ -37,6 +44,9 @@ jobs:
           echo "Target : ${{ inputs.target }}"
           echo "======================================"
 
+      # ============================================================
+      # VERIFY DEVELOP
+      # ============================================================
       - name: Verify develop branch
         run: |
           git fetch origin develop
@@ -44,12 +54,17 @@ jobs:
           echo "Latest develop commit:"
           git log origin/develop -1 --oneline
 
+      # ============================================================
+      # CREATE PR TO BOGOR
+      # ============================================================
       - name: Create PR to Bogor
         if: inputs.target == 'bogor' || inputs.target == 'both'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Checking PR develop -> release/bogor..."
+          echo "======================================"
+          echo "Checking PR develop -> release/bogor"
+          echo "======================================"
 
           EXISTING_PR=$(gh pr list \
             --base release/bogor \
@@ -59,7 +74,8 @@ jobs:
             --jq '.[0] | "\(.number) \(.url)"')
 
           if [ -n "$EXISTING_PR" ]; then
-            echo "PR Bogor sudah ada: $EXISTING_PR"
+            echo "PR Bogor sudah ada:"
+            echo "$EXISTING_PR"
           else
             echo "Membuat PR develop -> release/bogor..."
 
@@ -70,12 +86,17 @@ jobs:
               --body "Promotion dari develop ke release/bogor."
           fi
 
+      # ============================================================
+      # CREATE PR TO BEKASI
+      # ============================================================
       - name: Create PR to Bekasi
         if: inputs.target == 'bekasi' || inputs.target == 'both'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Checking PR develop -> release/bekasi..."
+          echo "======================================"
+          echo "Checking PR develop -> release/bekasi"
+          echo "======================================"
 
           EXISTING_PR=$(gh pr list \
             --base release/bekasi \
@@ -85,7 +106,8 @@ jobs:
             --jq '.[0] | "\(.number) \(.url)"')
 
           if [ -n "$EXISTING_PR" ]; then
-            echo "PR Bekasi sudah ada: $EXISTING_PR"
+            echo "PR Bekasi sudah ada:"
+            echo "$EXISTING_PR"
           else
             echo "Membuat PR develop -> release/bekasi..."
 
@@ -95,4 +117,3 @@ jobs:
               --title "Promote develop to release/bekasi" \
               --body "Promotion dari develop ke release/bekasi."
           fi
-
