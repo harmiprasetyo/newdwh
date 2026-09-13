@@ -1,1356 +1,1138 @@
 $(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | CONFIG
-    |--------------------------------------------------------------------------
-    */
+    'use strict';
 
-    const config =
-        window.lplpoStokEsensialConfig;
+    // =========================================================
+    // CONFIG
+    // =========================================================
+
+    const config = window.StokEsensialConfig || {};
+
+    const currentUser = config.currentUser || {};
 
     const groupId =
-        parseInt(
-            config.groupId,
-            10
-        );
+        parseInt(currentUser.groupid || 0, 10);
 
-    let currentRequest = null;
+    const userKodeFaskes =
+        currentUser.kodeFaskes || null;
+
+    const isAdmin =
+        [1, 2].includes(groupId);
+
+    const dataUrl =
+        config.dataUrl || '';
+
+    const storeUrl =
+        config.storeUrl || '';
+
+    const kategoriUrl =
+        config.kategoriUrl || '';
+
+   const obatUrl = config.obatUrl || '';
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD DATA
-    |--------------------------------------------------------------------------
-    */
+    // =========================================================
+    // STATE
+    // =========================================================
 
-    function loadData()
-    {
-        const params = {};
+    let table = null;
+
+    let currentEditId = 0;
+    
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP 3,4,5
-        |--------------------------------------------------------------------------
-        */
+    // =========================================================
+    // ELEMENT
+    // =========================================================
+
+    const modalData =
+        $('#modalData');
+
+    const formData =
+        $('#formData');
+
+    const kategoriWrapper =
+        $('#kategoriWrapper');
+
+    const kategori =
+        $('#kategori');
+
+    const obatEsensial =
+        $('#obat_esensial');
+
+    const tahun =
+        $('#tahun');
+
+    // IMPORTANT:
+    // Ini adalah element jQuery, jadi gunakan $kodeFaskes
+    // agar tidak bentrok dengan userKodeFaskes.
+
+    const $kodeFaskes =
+        $('#kodeFaskes');
+
+
+
+// =========================================================
+// SELECT2 OBAT
+// =========================================================
+
+const kodeObat = $('#kode_obat');
+
+kodeObat.select2({
+
+    theme: 'bootstrap-5',
+
+    dropdownParent: modalData,
+
+    width: '100%',
+
+    placeholder: 'Pilih Obat',
+
+    allowClear: true,
+
+    ajax: {
+
+        url: obatUrl,
+
+        type: 'GET',
+
+        dataType: 'json',
+
+        delay: 250,
+
+        data: function (params) {
+
+            return {
+
+                search: params.term || '',
+
+                tahun: tahun.val(),
+
+                kodeFaskes:
+                    $kodeFaskes.val(),
+
+                exclude_stok_setting: 1,
+
+                edit_id:
+                    currentEditId || ''
+
+            };
+
+        },
+
+        processResults: function (response) {
+
+            return {
+
+                results: (response.data || [])
+                    .map(function (item) {
+
+                        return {
+
+                            id:
+                                item.kode_obat,
+
+                            text:
+                                item.kode_obat +
+                                ' — ' +
+                                item.nama_obat
+
+                        };
+
+                    })
+
+            };
+
+        },
+
+        cache: true
+
+    }
+
+});
+
+
+
+
+
+    // =========================================================
+    // SELECT2 KATEGORI
+    // =========================================================
+
+    kategori.select2({
+
+        theme: 'bootstrap-5',
+
+        dropdownParent: modalData,
+
+        width: '100%',
+
+        placeholder: 'Pilih Kategori',
+
+        allowClear: true
+
+    });
+
+
+    // =========================================================
+    // RESET KATEGORI
+    // =========================================================
+
+    function resetKategori() {
+
+        kategori
+            .empty()
+            .append(
+                '<option value="">Pilih Kategori</option>'
+            )
+            .val(null)
+            .trigger('change');
+
+    }
+
+
+    // =========================================================
+    // LOAD KATEGORI
+    // =========================================================
+
+    function loadKategori(selectedValue = null) {
+
+        const tahunValue =
+            tahun.val();
+
+        const faskesValue =
+            $kodeFaskes.val();
+
 
         if (
-            [3, 4, 5].includes(groupId)
+            !tahunValue ||
+            !faskesValue
         ) {
 
-            params.bulan_mulai =
-                parseInt(
-                    $('#bulan_mulai').val(),
-                    10
-                );
+            resetKategori();
 
-            params.tahun_mulai =
-                parseInt(
-                    $('#tahun_mulai').val(),
-                    10
-                );
-
-            params.bulan_sampai =
-                parseInt(
-                    $('#bulan_sampai').val(),
-                    10
-                );
-
-            params.tahun_sampai =
-                parseInt(
-                    $('#tahun_sampai').val(),
-                    10
-                );
-
-
-            if (
-                !validateRange(
-                    params
-                )
-            ) {
-
-                return;
-
-            }
+            return;
 
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP 1,2
-        |--------------------------------------------------------------------------
-        */
+        if (!kategoriUrl) {
 
-        if (
-            [1, 2].includes(groupId)
-        ) {
+            console.error(
+                'StokEsensialConfig.kategoriUrl belum tersedia.'
+            );
 
-            params.bulan =
-                parseInt(
-                    $('#bulan').val(),
-                    10
-                );
+            resetKategori();
 
-            params.tahun =
-                parseInt(
-                    $('#tahun').val(),
-                    10
-                );
-
-            params.kode_faskes =
-                $('#kode_faskes').length
-                    ? $('#kode_faskes').val()
-                    : '';
+            return;
 
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | ABORT REQUEST
-        |--------------------------------------------------------------------------
-        */
-
-        if (currentRequest) {
-
-            currentRequest.abort();
-
-        }
+        kategori
+            .prop('disabled', true);
 
 
-        setLoading(true);
+        $.ajax({
+
+            url: kategoriUrl,
+
+            type: 'GET',
+
+            data: {
+
+                tahun:
+                    tahunValue,
+
+                kodeFaskes:
+                    faskesValue,
+
+                edit_id:
+                    currentEditId || 0
+
+            },
+
+            success: function (response) {
+
+                resetKategori();
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LOADING
-        |--------------------------------------------------------------------------
-        */
-
-        renderLoading();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | AJAX
-        |--------------------------------------------------------------------------
-        */
-
-        currentRequest =
-            $.ajax({
-
-                url: config.dataUrl,
-
-                type: 'GET',
-
-                data: params,
-
-                cache: false,
-
-                dataType: 'json',
-
-                success: function (response) {
-
-                    if (
-                        !response.success
-                    ) {
-
-                        showError(
-                            response.message ||
-                            'Data tidak dapat diproses.'
-                        );
-
-                        return;
-
-                    }
-
-
-                    if (
-                        response.mode === 'periode'
-                    ) {
-
-                        renderPeriode(
-                            response.data
-                        );
-
-                    } else {
-
-                        renderFaskes(
-                            response.data
-                        );
-
-                    }
-
-                },
-
-                error: function (
-                    xhr,
-                    status
+                if (
+                    response &&
+                    response.success &&
+                    Array.isArray(response.data)
                 ) {
 
-                    if (
-                        status === 'abort'
-                    ) {
+                    response.data.forEach(
+                        function (item) {
 
-                        return;
+                            const itemKategori =
+                                String(
+                                    item.kategori || ''
+                                ).trim();
 
-                    }
+
+                            if (!itemKategori) {
+                                return;
+                            }
 
 
-                    console.error(
-                        xhr.responseText
+                            /*
+                            |--------------------------------------------------------------------------
+                            | KATEGORI SUDAH DIGUNAKAN
+                            |--------------------------------------------------------------------------
+                            |
+                            | Jangan tampilkan kategori yang sudah
+                            | digunakan oleh obat lain.
+                            |
+                            | Tetapi kategori milik data yang sedang
+                            | diedit tetap boleh ditampilkan.
+                            |
+                            */
+
+                            if (
+                                item.used === true &&
+                                itemKategori !==
+                                    String(
+                                        selectedValue || ''
+                                    ).trim()
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            const option =
+                                new Option(
+
+                                    itemKategori,
+
+                                    itemKategori,
+
+                                    false,
+
+                                    itemKategori ===
+                                        String(
+                                            selectedValue || ''
+                                        ).trim()
+
+                                );
+
+
+                            kategori.append(option);
+
+                        }
                     );
-
-
-                    showError(
-                        xhr.responseJSON?.message ||
-                        'Gagal mengambil data heatmap.'
-                    );
-
-                },
-
-                complete: function () {
-
-                    setLoading(false);
-
-                    currentRequest = null;
 
                 }
 
-            });
 
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDATE RANGE
-    |--------------------------------------------------------------------------
-    */
-
-    function validateRange(params)
-    {
-
-        const mulai =
-            (
-                params.tahun_mulai *
-                100
-            ) +
-            params.bulan_mulai;
-
-        const sampai =
-            (
-                params.tahun_sampai *
-                100
-            ) +
-            params.bulan_sampai;
-
-
-        if (mulai > sampai) {
-
-            Swal.fire({
-
-                icon: 'warning',
-
-                title: 'Periode Tidak Valid',
-
-                text:
-                    'Periode mulai tidak boleh lebih besar dari periode sampai.'
-
-            });
-
-            return false;
-
-        }
-
-        return true;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RENDER PERIODE
-    |--------------------------------------------------------------------------
-    */
-
-    function renderPeriode(data)
-    {
-
-        const periods =
-            data.periods || [];
-
-        const rows =
-            data.rows || [];
-
-        const faskes =
-            data.faskes || null;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | INFO
-        |--------------------------------------------------------------------------
-        */
-
-        $('#infoPeriode')
-            .text(
-                formatPeriode(
-                    config.bulanMulai,
-                    config.tahunMulai,
-                    config.bulanSampai,
-                    config.tahunSampai
-                )
-            );
-
-
-        $('#infoFaskes')
-            .text(
-                faskes
-                    ? (
-                        faskes.kodeFaskes +
-                        ' - ' +
-                        faskes.namaFaskes
+                kategori
+                    .val(
+                        selectedValue || null
                     )
-                    : '-'
-            );
+                    .trigger('change');
 
+            },
 
-        $('#jumlahObat')
-            .text(
-                number(
-                    rows.length
-                ) +
-                ' Obat'
-            );
+            error: function (xhr) {
 
+                console.error(
+                    'Gagal memuat kategori:',
+                    xhr
+                );
 
-        /*
-        |--------------------------------------------------------------------------
-        | HEADER
-        |--------------------------------------------------------------------------
-        */
 
-        let head = `
+                kategori
+                    .empty()
+                    .append(
+                        '<option value="">Gagal memuat kategori</option>'
+                    )
+                    .val(null)
+                    .trigger('change');
 
-            <tr>
+            },
 
-                <th
-                    rowspan="2"
-                    class="text-center">
+            complete: function () {
 
-                    No
+                kategori
+                    .prop('disabled', false);
 
-                </th>
-
-                <th
-                    rowspan="2"
-                    class="obat-code">
-
-                    Kode
-
-                </th>
-
-                <th
-                    rowspan="2"
-                    class="obat-name">
-
-                    Nama Obat
-
-                </th>
-
-                <th
-                    rowspan="2"
-                    class="obat-satuan">
-
-                    Sat
-
-                </th>
-
-        `;
-
-
-        periods.forEach(function (period) {
-
-            head += `
-
-                <th
-                    rowspan="2"
-                    class="text-center">
-
-                    ${escapeHtml(
-                        period.label
-                    )}
-
-                </th>
-
-            `;
-
-        });
-
-
-        head += `
-
-            </tr>
-
-        `;
-
-
-        $('#heatmapHead')
-            .html(head);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | BODY
-        |--------------------------------------------------------------------------
-        */
-
-        const tbody =
-            $('#heatmapBody');
-
-        tbody.empty();
-
-
-        if (!rows.length) {
-
-            tbody.html(`
-
-                <tr>
-
-                    <td
-                        colspan="${4 + periods.length}"
-                        class="text-center text-muted py-5">
-
-                        <i
-                            class="bi bi-inbox fs-1 d-block mb-2">
-                        </i>
-
-                        Tidak ada obat esensial.
-
-                    </td>
-
-                </tr>
-
-            `);
-
-            return;
-
-        }
-
-
-        rows.forEach(function (
-            row,
-            index
-        ) {
-
-            const napza =
-                row.obat_napza === 'ya';
-
-
-            tbody.append(`
-
-                <tr>
-
-                    <td class="text-center">
-
-                        ${index + 1}
-
-                    </td>
-
-                    <td
-                        class="${napza ? 'heat-napza' : ''}">
-
-                        ${escapeHtml(
-                            row.kode_obat
-                        )}
-
-                    </td>
-
-                    <td
-                        class="obat-name ${napza ? 'heat-napza' : ''}">
-
-                        ${escapeHtml(
-                            row.nama_obat
-                        )}
-
-                        ${
-                            napza
-                                ? `
-                                    <span class="napza-label">
-                                        NAPZA
-                                    </span>
-                                  `
-                                : ''
-                        }
-
-                    </td>
-
-                    <td
-                        class="text-center ${napza ? 'heat-napza' : ''}">
-
-                        ${escapeHtml(
-                            row.satuan || '-'
-                        )}
-
-                    </td>
-
-                    ${renderPeriodCells(
-                        row,
-                        periods
-                    )}
-
-                </tr>
-
-            `);
+            }
 
         });
 
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | RENDER FASKES
-    |--------------------------------------------------------------------------
-    */
-
-    function renderFaskes(data)
-    {
-
-        const faskes =
-            data.faskes || [];
-
-        const rows =
-            data.rows || [];
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | INFO
-        |--------------------------------------------------------------------------
-        */
-
-        $('#infoPeriode')
-            .text(
-                formatMonthYear(
-                    data.bulan,
-                    data.tahun
-                )
-            );
-
-
-        $('#infoFaskes')
-            .text(
-                faskes.length +
-                ' Faskes'
-            );
-
-
-        $('#jumlahObat')
-            .text(
-                number(
-                    rows.length
-                ) +
-                ' Obat'
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | HEADER
-        |--------------------------------------------------------------------------
-        */
-
-        let head = `
-
-            <tr>
-
-                <th
-                    rowspan="2"
-                    class="text-center">
-
-                    No
-
-                </th>
-
-                <th
-                    rowspan="2"
-                    class="obat-code">
-
-                    Kode
-
-                </th>
-
-                <th
-                    rowspan="2"
-                    class="obat-name">
-
-                    Nama Obat
-
-                </th>
-
-                <th
-                    rowspan="2"
-                    class="obat-satuan">
-
-                    Sat
-
-                </th>
-
-        `;
-
-
-        faskes.forEach(function (f) {
-
-            head += `
-
-                <th
-                    class="text-center"
-                    title="${escapeHtml(
-                        f.kodeFaskes
-                    )}">
-
-                    ${escapeHtml(
-                        f.namaFaskes
-                    )}
-
-                </th>
-
-            `;
-
-        });
-
-
-        head += `
-
-            </tr>
-
-        `;
-
-
-        $('#heatmapHead')
-            .html(head);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | BODY
-        |--------------------------------------------------------------------------
-        */
-
-        const tbody =
-            $('#heatmapBody');
-
-        tbody.empty();
-
-
-        if (!rows.length) {
-
-            tbody.html(`
-
-                <tr>
-
-                    <td
-                        colspan="${4 + faskes.length}"
-                        class="text-center text-muted py-5">
-
-                        <i
-                            class="bi bi-inbox fs-1 d-block mb-2">
-                        </i>
-
-                        Tidak ada obat esensial.
-
-                    </td>
-
-                </tr>
-
-            `);
-
-            return;
-
-        }
-
-
-        rows.forEach(function (
-            row,
-            index
-        ) {
-
-            const napza =
-                row.obat_napza === 'ya';
-
-
-            let html = `
-
-                <tr>
-
-                    <td class="text-center">
-
-                        ${index + 1}
-
-                    </td>
-
-                    <td
-                        class="${napza ? 'heat-napza' : ''}">
-
-                        ${escapeHtml(
-                            row.kode_obat
-                        )}
-
-                    </td>
-
-                    <td
-                        class="obat-name ${napza ? 'heat-napza' : ''}">
-
-                        ${escapeHtml(
-                            row.nama_obat
-                        )}
-
-                        ${
-                            napza
-                                ? `
-                                    <span class="napza-label">
-                                        NAPZA
-                                    </span>
-                                  `
-                                : ''
-                        }
-
-                    </td>
-
-                    <td
-                        class="text-center ${napza ? 'heat-napza' : ''}">
-
-                        ${escapeHtml(
-                            row.satuan || '-'
-                        )}
-
-                    </td>
-
-            `;
-
-
-            faskes.forEach(function (f) {
-
-                const cell =
-                    row.cells[
-                        f.kodeFaskes
-                    ] || null;
-
-
-                html +=
-                    renderStockCell(
-                        cell
-                    );
-
-            });
-
-
-            html += `
-
-                </tr>
-
-            `;
-
-
-            tbody.append(html);
-
-        });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PERIOD CELLS
-    |--------------------------------------------------------------------------
-    */
-
-    function renderPeriodCells(
-        row,
-        periods
+    // =========================================================
+    // SHOW / HIDE KATEGORI
+    // =========================================================
+
+    function toggleKategori(
+        selectedValue = null
     ) {
 
-        let html = '';
+        const value =
+            obatEsensial.val();
 
 
-        periods.forEach(function (
-            period
-        ) {
+        if (value === 'oe') {
 
-            const key =
-                period.tahun +
-                '-' +
-                String(
-                    period.bulan
-                ).padStart(
-                    2,
-                    '0'
-                );
+            kategoriWrapper
+                .slideDown(150);
 
+            kategori
+                .prop('required', true);
 
-            const cell =
-                row.cells[key]
-                || null;
-
-
-            html +=
-                renderStockCell(
-                    cell
-                );
-
-        });
-
-
-        return html;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | STOCK CELL
-    |--------------------------------------------------------------------------
-    */
-
-    function renderStockCell(cell)
-    {
-
-        if (!cell) {
-
-            return `
-
-                <td
-                    class="stock-cell heat-nodata">
-
-                    <span>
-                        -
-                    </span>
-
-                </td>
-
-            `;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NO DATA
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !cell.available ||
-            cell.stok_akhir === null
-        ) {
-
-            return `
-
-                <td
-                    class="stock-cell heat-nodata"
-                    title="${escapeHtml(
-                        buildTooltip(cell)
-                    )}">
-
-                    <span>
-                        -
-                    </span>
-
-                </td>
-
-            `;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CLASS
-        |--------------------------------------------------------------------------
-        */
-
-        let cssClass =
-            'heat-' +
-            (
-                cell.level ||
-                'nodata'
+            loadKategori(
+                selectedValue
             );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PERCENTAGE
-        |--------------------------------------------------------------------------
-        */
-
-        let percentage =
-            cell.percentage !== null
-                ? numberDecimal(
-                    cell.percentage
-                ) + '%'
-                : '-';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | FORMULARIUM
-        |--------------------------------------------------------------------------
-        */
-
-        let formText = '';
-
-        if (
-            cell.formularium === 'true'
-        ) {
-
-            formText =
-                '<div class="small formularium-ya">Form PKM</div>';
-
-        } else if (
-            cell.formularium === 'false'
-        ) {
-
-            formText =
-                '<div class="small formularium-tidak">Non Form</div>';
-
-        }
-
-
-        return `
-
-            <td
-                class="stock-cell ${cssClass}"
-                title="${escapeHtml(
-                    buildTooltip(cell)
-                )}">
-
-                <div class="stock-value">
-
-                    ${number(
-                        cell.stok_akhir
-                    )}
-
-                </div>
-
-                <div class="stock-percent">
-
-                    ${percentage}
-
-                </div>
-
-                ${formText}
-
-            </td>
-
-        `;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | TOOLTIP
-    |--------------------------------------------------------------------------
-    */
-
-    function buildTooltip(cell)
-    {
-
-        if (!cell) {
-
-            return 'Tidak ada data';
-
-        }
-
-
-        let text =
-            'Stok Akhir: ' +
-            (
-                cell.stok_akhir !== null
-                    ? number(cell.stok_akhir)
-                    : '-'
-            );
-
-
-        text +=
-            '\nStok Minimal: ' +
-            (
-                cell.stok_minimal !== null
-                    ? number(cell.stok_minimal)
-                    : '-'
-            );
-
-
-        text +=
-            '\nStok Optimum: ' +
-            (
-                cell.stok_optimum !== null
-                    ? number(cell.stok_optimum)
-                    : '-'
-            );
-
-
-        text +=
-            '\nPersentase: ' +
-            (
-                cell.percentage !== null
-                    ? numberDecimal(
-                        cell.percentage
-                    ) + '%'
-                    : '-'
-            );
-
-
-        text +=
-            '\nFormularium PKM: ' +
-            (
-                cell.formularium === 'true'
-                    ? 'Ya'
-                    : cell.formularium === 'false'
-                        ? 'Tidak'
-                        : '-'
-            );
-
-
-        return text;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOADING
-    |--------------------------------------------------------------------------
-    */
-
-    function setLoading(status)
-    {
-
-        $('#btnFilter')
-            .prop(
-                'disabled',
-                status
-            );
-
-
-        if (status) {
-
-            $('#btnFilter')
-                .html(`
-
-                    <span
-                        class="spinner-border spinner-border-sm me-1">
-                    </span>
-
-                    Memuat...
-
-                `);
 
         } else {
 
-            $('#btnFilter')
-                .html(`
+            kategoriWrapper
+                .hide();
 
-                    <i
-                        class="bi bi-search me-1">
-                    </i>
+            kategori
+                .prop('required', false);
 
-                    Tampilkan
-
-                `);
+            resetKategori();
 
         }
 
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOADING TABLE
-    |--------------------------------------------------------------------------
-    */
-
-    function renderLoading()
-    {
-
-        $('#heatmapHead')
-            .html(`
-
-                <tr>
-
-                    <th
-                        colspan="10"
-                        class="text-center py-3">
-
-                        Memuat data...
-
-                    </th>
-
-                </tr>
-
-            `);
-
-
-        $('#heatmapBody')
-            .html(`
-
-                <tr>
-
-                    <td
-                        colspan="10"
-                        class="text-center text-muted py-5">
-
-                        <div
-                            class="spinner-border text-success mb-2">
-                        </div>
-
-                        <div>
-                            Mengambil data heatmap...
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            `);
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ERROR
-    |--------------------------------------------------------------------------
-    */
-
-    function showError(message)
-    {
-
-        $('#heatmapBody')
-            .html(`
-
-                <tr>
-
-                    <td
-                        colspan="20"
-                        class="text-center text-danger py-5">
-
-                        <i
-                            class="bi bi-exclamation-triangle fs-2 d-block mb-2">
-                        </i>
-
-                        ${escapeHtml(message)}
-
-                    </td>
-
-                </tr>
-
-            `);
-
-
-        Swal.fire({
-
-            icon: 'error',
-
-            title: 'Gagal',
-
-            text: message
-
-        });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FORMAT MONTH YEAR
-    |--------------------------------------------------------------------------
-    */
-
-    function formatMonthYear(
-        bulan,
-        tahun
-    )
-    {
-
-        const names = [
-
-            '',
-            'Januari',
-            'Februari',
-            'Maret',
-            'April',
-            'Mei',
-            'Juni',
-            'Juli',
-            'Agustus',
-            'September',
-            'Oktober',
-            'November',
-            'Desember'
-
-        ];
-
-        return (
-            names[bulan] ||
-            bulan
-        ) +
-        ' ' +
-        tahun;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FORMAT PERIOD
-    |--------------------------------------------------------------------------
-    */
-
-    function formatPeriode(
-        bulanMulai,
-        tahunMulai,
-        bulanSampai,
-        tahunSampai
-    )
-    {
-
-        const mulai =
-            formatMonthYear(
-                bulanMulai,
-                tahunMulai
-            );
-
-        const sampai =
-            formatMonthYear(
-                bulanSampai,
-                tahunSampai
-            );
-
-
-        if (
-            bulanMulai === bulanSampai &&
-            tahunMulai === tahunSampai
-        ) {
-
-            return mulai;
-
-        }
-
-
-        return mulai +
-            ' s/d ' +
-            sampai;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | NUMBER
-    |--------------------------------------------------------------------------
-    */
-
-    function number(value)
-    {
-
-        const numeric =
-            Number(value ?? 0);
-
-
-        if (
-            Number.isNaN(numeric)
-        ) {
-
-            return '0';
-
-        }
-
-
-        return new Intl.NumberFormat(
-            'id-ID'
-        ).format(numeric);
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DECIMAL
-    |--------------------------------------------------------------------------
-    */
-
-    function numberDecimal(value)
-    {
-
-        const numeric =
-            Number(value ?? 0);
-
-
-        if (
-            Number.isNaN(numeric)
-        ) {
-
-            return '0';
-
-        }
-
-
-        return new Intl.NumberFormat(
-            'id-ID',
-            {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            }
-        ).format(numeric);
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ESCAPE
-    |--------------------------------------------------------------------------
-    */
-
-    function escapeHtml(value)
-    {
-
-        return $('<div>')
-            .text(
-                value ?? ''
-            )
-            .html();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FILTER
-    |--------------------------------------------------------------------------
-    */
-
-    $('#btnFilter').on(
-        'click',
+    // =========================================================
+    // OBAT ESENSIAL CHANGE
+    // =========================================================
+
+    obatEsensial.on(
+        'change',
         function () {
 
-            loadData();
+            toggleKategori();
 
         }
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | INITIAL LOAD
-    |--------------------------------------------------------------------------
-    */
+    // =========================================================
+    // TAHUN CHANGE
+    // =========================================================
 
-    loadData();
+    tahun.on(
+        'change',
+        function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Ketika tahun berubah, kategori lama jangan otomatis
+            | dipertahankan karena kategori memiliki scope:
+            |
+            | kodeFaskes + tahun
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                obatEsensial.val() === 'oe'
+            ) {
+
+                loadKategori(null);
+
+            }
+
+        }
+    );
+
+
+    // =========================================================
+    // FASKES CHANGE
+    // =========================================================
+
+    $kodeFaskes.on(
+        'change',
+        function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Ketika faskes berubah, kategori lama juga harus
+            | dikosongkan karena kategori memiliki scope faskes.
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                obatEsensial.val() === 'oe'
+            ) {
+
+                loadKategori(null);
+
+            }
+
+        }
+    );
+
+
+    // =========================================================
+    // DATATABLE
+    // =========================================================
+
+    table =
+        $('#datatable').DataTable({
+
+            processing: true,
+
+            serverSide: true,
+
+            ajax: {
+
+                url: dataUrl,
+
+                data: function (d) {
+
+                    d.tahun =
+                        $('#filterTahun').val();
+
+                    d.kodeFaskes =
+                        $('#filterFaskes').val();
+
+                }
+
+            },
+
+            columns: [
+
+                {
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+
+                {
+                    data: 'obat',
+                    name: 'o.nama_obat'
+                },
+
+                {
+                    data: 'faskes',
+                    name: 'f.namaFaskes'
+                },
+
+                {
+                    data: 'stok_minimal',
+                    name: 's.stok_minimal'
+                },
+
+                {
+                    data: 'stok_optimum',
+                    name: 's.stok_optimum'
+                },
+
+                {
+                    data: 'obat_esensial',
+                    name: 's.obat_esensial'
+                },
+
+                {
+                    data: 'kategori',
+                    name: 's.kategori',
+                    defaultContent: '-'
+                },
+
+                {
+                    data:
+                        'obat_formularium_puskesmas',
+                    name:
+                        's.obat_formularium_puskesmas'
+                },
+
+                {
+                    data: 'tahun',
+                    name: 's.tahun'
+                },
+
+                {
+                    data: 'aksi',
+                    name: 'aksi',
+                    orderable: false,
+                    searchable: false
+                }
+
+            ]
+
+        });
+
+
+    // =========================================================
+    // FILTER
+    // =========================================================
+
+    $('#filterTahun, #filterFaskes')
+        .on(
+            'change',
+            function () {
+
+                table.ajax.reload();
+
+            }
+        );
+
+
+    // =========================================================
+    // ADD
+    // =========================================================
+
+    $('#btnTambah').on(
+        'click',
+        function () {
+
+            currentEditId = 0;
+
+
+            formData[0].reset();
+
+
+            $('#data_id')
+                .val('');
+
+
+            $('#modalDataLabel')
+                .text(
+                    'Tambah Stok & Esensial'
+                );
+
+
+            resetKategori();
+
+
+            kategoriWrapper
+                .hide();
+
+
+            kategori
+                .prop('required', false);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Untuk user non-admin, faskes mengikuti
+            | faskes user login.
+            |--------------------------------------------------------------------------
+            */
+
+            if (!isAdmin && userKodeFaskes) {
+
+                $kodeFaskes
+                    .val(userKodeFaskes)
+                    .trigger('change.select2');
+
+            }
+
+
+            modalData.modal('show');
+
+        }
+    );
+
+
+    // =========================================================
+    // EDIT
+    // =========================================================
+
+    $(document).on(
+        'click',
+        '.btn-edit',
+        function () {
+
+            const id =
+                $(this).data('id');
+
+
+            currentEditId = id;
+
+
+            $.ajax({
+
+                url:
+                    '/newlplpo/stok-esensial/' +
+                    id,
+
+                type: 'GET',
+
+                success: function (response) {
+
+                    const data =
+                        response.data;
+
+
+                    $('#data_id')
+                        .val(data.id);
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | OBAT
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $('#kode_obat')
+                        .empty()
+                        .append(
+                            new Option(
+
+                                data.obat?.nama_obat ||
+                                    data.kode_obat,
+
+                                data.kode_obat,
+
+                                true,
+
+                                true
+
+                            )
+                        )
+                        .trigger('change');
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FASKES
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $kodeFaskes
+                        .val(data.kodeFaskes)
+                        .trigger('change.select2');
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | STOCK
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $('#stok_minimal')
+                        .val(data.stok_minimal);
+
+
+                    $('#stok_optimum')
+                        .val(data.stok_optimum);
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ESENSIAL
+                    |--------------------------------------------------------------------------
+                    */
+
+                    obatEsensial
+                        .val(data.obat_esensial)
+                        .trigger('change.select2');
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | TAHUN
+                    |--------------------------------------------------------------------------
+                    */
+
+                    tahun
+                        .val(data.tahun)
+                        .trigger('change.select2');
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FORMULARIUM
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $('#obat_formularium_puskesmas')
+                        .val(
+                            data.obat_formularium_puskesmas
+                        )
+                        .trigger('change.select2');
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | KATEGORI
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        data.obat_esensial === 'oe'
+                    ) {
+
+                        kategoriWrapper
+                            .show();
+
+                        kategori
+                            .prop('required', true);
+
+
+                        loadKategori(
+                            data.kategori || null
+                        );
+
+                    } else {
+
+                        kategoriWrapper
+                            .hide();
+
+                        kategori
+                            .prop('required', false);
+
+                        resetKategori();
+
+                    }
+
+
+                    $('#modalDataLabel')
+                        .text(
+                            'Edit Stok & Esensial'
+                        );
+
+
+                    modalData.modal('show');
+
+                },
+
+                error: function (xhr) {
+
+                    console.error(
+                        'Gagal mengambil data:',
+                        xhr
+                    );
+
+
+                    Swal.fire(
+
+                        'Error',
+
+                        'Gagal mengambil data.',
+
+                        'error'
+
+                    );
+
+                }
+
+            });
+
+        }
+    );
+
+
+    // =========================================================
+    // SUBMIT
+    // =========================================================
+
+    formData.on(
+        'submit',
+        function (e) {
+
+            e.preventDefault();
+
+
+            const id =
+                $('#data_id').val();
+
+
+            const isEdit =
+                !!id;
+
+
+            const url =
+                isEdit
+
+                    ? '/newlplpo/stok-esensial/' +
+                        id
+
+                    : storeUrl;
+
+
+            const method =
+                isEdit
+                    ? 'PUT'
+                    : 'POST';
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | KATEGORI
+            |--------------------------------------------------------------------------
+            */
+
+            let kategoriValue =
+                kategori.val();
+
+
+            if (
+                obatEsensial.val() !== 'oe'
+            ) {
+
+                kategoriValue = '';
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | PAYLOAD
+            |--------------------------------------------------------------------------
+            */
+
+            const payload = {
+
+                _token:
+                    $('meta[name="csrf-token"]')
+                        .attr('content'),
+
+                kode_obat:
+                    $('#kode_obat').val(),
+
+                kodeFaskes:
+                    $kodeFaskes.val(),
+
+                stok_minimal:
+                    $('#stok_minimal').val(),
+
+                stok_optimum:
+                    $('#stok_optimum').val(),
+
+                obat_esensial:
+                    obatEsensial.val(),
+
+                kategori:
+                    kategoriValue,
+
+                obat_formularium_puskesmas:
+                    $('#obat_formularium_puskesmas')
+                        .val(),
+
+                tahun:
+                    tahun.val()
+
+            };
+
+
+            $.ajax({
+
+                url: url,
+
+                type: method,
+
+                data: payload,
+
+                beforeSend: function () {
+
+                    $('#btnSimpan')
+                        .prop(
+                            'disabled',
+                            true
+                        );
+
+                },
+
+                success: function (response) {
+
+                    modalData.modal('hide');
+
+
+                    table.ajax.reload(
+                        null,
+                        false
+                    );
+
+
+                    Swal.fire({
+
+                        icon: 'success',
+
+                        title: 'Berhasil',
+
+                        text:
+                            response.message ||
+                            'Data berhasil disimpan.',
+
+                        timer: 1800,
+
+                        showConfirmButton: false
+
+                    });
+
+                },
+
+                error: function (xhr) {
+
+                    let message =
+                        'Terjadi kesalahan.';
+
+
+                    if (
+                        xhr.responseJSON?.message
+                    ) {
+
+                        message =
+                            xhr.responseJSON.message;
+
+                    }
+
+
+                    if (
+                        xhr.responseJSON?.errors?.kategori
+                    ) {
+
+                        message =
+                            xhr.responseJSON
+                                .errors
+                                .kategori[0];
+
+                    }
+
+
+                    Swal.fire({
+
+                        icon: 'error',
+
+                        title:
+                            'Tidak dapat menyimpan',
+
+                        text: message
+
+                    });
+
+                },
+
+                complete: function () {
+
+                    $('#btnSimpan')
+                        .prop(
+                            'disabled',
+                            false
+                        );
+
+                }
+
+            });
+
+        }
+    );
+
+
+    // =========================================================
+    // DELETE
+    // =========================================================
+
+    $(document).on(
+        'click',
+        '.btn-delete',
+        function () {
+
+            const id =
+                $(this).data('id');
+
+
+            Swal.fire({
+
+                title: 'Hapus data?',
+
+                text:
+                    'Data yang dihapus tidak dapat dikembalikan.',
+
+                icon: 'warning',
+
+                showCancelButton: true,
+
+                confirmButtonText:
+                    'Ya, hapus',
+
+                cancelButtonText:
+                    'Batal'
+
+            }).then(
+                function (result) {
+
+                    if (
+                        !result.isConfirmed
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    $.ajax({
+
+                        url:
+                            '/newlplpo/stok-esensial/' +
+                            id,
+
+                        type: 'DELETE',
+
+                        data: {
+
+                            _token:
+                                $('meta[name="csrf-token"]')
+                                    .attr('content')
+
+                        },
+
+                        success: function (
+                            response
+                        ) {
+
+                            table.ajax.reload(
+                                null,
+                                false
+                            );
+
+
+                            Swal.fire({
+
+                                icon: 'success',
+
+                                title: 'Berhasil',
+
+                                text:
+                                    response.message ||
+                                    'Data berhasil dihapus.',
+
+                                timer: 1500,
+
+                                showConfirmButton:
+                                    false
+
+                            });
+
+                        },
+
+                        error: function (xhr) {
+
+                            Swal.fire(
+
+                                'Error',
+
+                                xhr.responseJSON?.message ||
+                                'Data gagal dihapus.',
+
+                                'error'
+
+                            );
+
+                        }
+
+                    });
+
+                }
+            );
+
+        }
+    );
 
 });
+

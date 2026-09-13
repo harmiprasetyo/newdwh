@@ -19,32 +19,130 @@ class KunjunganController extends Controller
 
 
     /**
-     * Form input kunjungan
+     * ==========================================================
+     * FORM INPUT KUNJUNGAN
+     * ==========================================================
+     *
+     * Jika report sudah memiliki data kunjungan:
+     *   -> tampilkan data tersebut
+     *
+     * Jika belum:
+     *   -> cari report lain dengan:
+     *      - faskes sama
+     *      - bulan sama
+     *      - tahun sama
+     *
+     *   -> jika ditemukan data kunjungan,
+     *      gunakan sebagai template/default form.
+     *
+     * Data template TIDAK dianggap sebagai data milik report
+     * yang sedang dibuat.
      */
-    public function create($reportId)
-    {
-        $report = Report::findOrFail($reportId);
+    /**
+ * ==========================================================
+ * FORM INPUT KUNJUNGAN
+ * ==========================================================
+ */
+public function create($reportId)
+{
+    $report = Report::findOrFail($reportId);
 
-        $kunjungan = Kunjungan::where(
-            'report_id',
-            $reportId
-        )->first();
 
-        return view(
-            'newlplpo.kunjungan.form',
-            compact(
-                'report',
-                'kunjungan'
-            )
+    /*
+     * ==========================================================
+     * CEK DATA KUNJUNGAN REPORT SAAT INI
+     * ==========================================================
+     */
+    $kunjungan = $report->kunjungan;
+
+
+    /*
+     * ==========================================================
+     * JIKA SUDAH ADA
+     *
+     * Jangan tampilkan form create.
+     * Langsung arahkan ke form edit.
+     * ==========================================================
+     */
+    if ($kunjungan) {
+
+        return redirect()->route(
+            'newlplpo.kunjungan.edit',
+            $report->id
         );
     }
 
 
-    /**
-     * Simpan kunjungan
+    /*
+     * ==========================================================
+     * CARI TEMPLATE
+     *
+     * Cari report lain dengan:
+     *
+     * kode_faskes sama
+     * bulan sama
+     * tahun sama
+     *
+     * dan sudah memiliki kunjungan.
+     * ==========================================================
      */
-    public function store(Request $request, $reportId)
-    {
+    $kunjunganTemplate = null;
+
+    $reportSumber = Report::where(
+            'id',
+            '!=',
+            $report->id
+        )
+        ->where(
+            'kode_faskes',
+            $report->kode_faskes
+        )
+        ->where(
+            'bulan',
+            $report->bulan
+        )
+        ->where(
+            'tahun',
+            $report->tahun
+        )
+        ->whereHas('kunjungan')
+        ->latest('id')
+        ->first();
+
+
+    /*
+     * ==========================================================
+     * JIKA TEMPLATE DITEMUKAN
+     * ==========================================================
+     */
+    if ($reportSumber) {
+
+        $kunjunganTemplate =
+            $reportSumber->kunjungan;
+
+    }
+
+
+    return view(
+        'newlplpo.kunjungan.form',
+        compact(
+            'report',
+            'kunjungan',
+            'kunjunganTemplate'
+        )
+    );
+}
+
+    /**
+     * ==========================================================
+     * SIMPAN KUNJUNGAN
+     * ==========================================================
+     */
+    public function store(
+        Request $request,
+        $reportId
+    ) {
+
         $report = Report::findOrFail($reportId);
 
         $validated = $request->validate([
@@ -81,10 +179,12 @@ class KunjunganController extends Controller
 
         ]);
 
+
         $this->service->create(
             $report->id,
             $validated
         );
+
 
         return redirect()
             ->route(
@@ -99,7 +199,9 @@ class KunjunganController extends Controller
 
 
     /**
-     * Form edit
+     * ==========================================================
+     * FORM EDIT
+     * ==========================================================
      */
     public function edit($reportId)
     {
@@ -109,6 +211,7 @@ class KunjunganController extends Controller
             'report_id',
             $reportId
         )->firstOrFail();
+
 
         return view(
             'newlplpo.kunjungan.form',
@@ -121,7 +224,9 @@ class KunjunganController extends Controller
 
 
     /**
-     * Update
+     * ==========================================================
+     * UPDATE
+     * ==========================================================
      */
     public function update(
         Request $request,
@@ -134,6 +239,7 @@ class KunjunganController extends Controller
             'report_id',
             $reportId
         )->firstOrFail();
+
 
         $validated = $request->validate([
 
@@ -169,10 +275,12 @@ class KunjunganController extends Controller
 
         ]);
 
+
         $this->service->update(
             $kunjungan,
             $validated
         );
+
 
         return redirect()
             ->route(
@@ -187,7 +295,9 @@ class KunjunganController extends Controller
 
 
     /**
-     * Hapus
+     * ==========================================================
+     * HAPUS
+     * ==========================================================
      */
     public function destroy($reportId)
     {
@@ -196,7 +306,11 @@ class KunjunganController extends Controller
             $reportId
         )->firstOrFail();
 
-        $this->service->delete($kunjungan);
+
+        $this->service->delete(
+            $kunjungan
+        );
+
 
         return redirect()
             ->route(

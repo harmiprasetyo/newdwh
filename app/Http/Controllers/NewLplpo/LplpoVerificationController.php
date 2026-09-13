@@ -13,6 +13,7 @@ use App\Models\NewLplpo\ReportNote;
 use App\Models\Master\MasterFaskes;
 
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\NewLplpo\InfoLinkApproval;
 
 class LplpoVerificationController extends Controller
 {
@@ -34,96 +35,228 @@ class LplpoVerificationController extends Controller
      * Datatable laporan yang menunggu verifikasi
      * ==========================================================
      */
-    public function datatable(Request $request)
-    {
+   public function datatable(Request $request)
+{
+    $kodeKabupaten = auth()->user()->kodeKota;
 
-        $kodeKabupaten = auth()->user()->kodeKota;
+    $query = Report::query()
 
-      //  dd($kodeKabupaten);
+        ->join(
+            'master_faskes',
+            'master_faskes.kodeFaskes',
+            '=',
+            'new_lplpo_reports.kode_faskes'
+        )
 
-        $query = Report::query()
+        ->where(
+            'report_status',
+            'SUBMITED'
+        )
 
-            ->join(
-                'master_faskes',
-                'master_faskes.kodeFaskes',
-                '=',
-                'new_lplpo_reports.kode_faskes'
-            )
+        ->where(
+            'master_faskes.kodeKabupaten',
+            $kodeKabupaten
+        )
 
-            ->where('report_status','SUBMITED')
+        ->when(
+            $request->bulan,
+            function ($q) use ($request) {
 
-            ->where(
-                'master_faskes.kodeKabupaten',
-                $kodeKabupaten
-            )
+                $q->where(
+                    'bulan',
+                    $request->bulan
+                );
 
-            ->when($request->bulan,function($q) use($request){
+            }
+        )
 
-                $q->where('bulan',$request->bulan);
+        ->when(
+            $request->tahun,
+            function ($q) use ($request) {
 
-            })
+                $q->where(
+                    'tahun',
+                    $request->tahun
+                );
 
-            ->when($request->tahun,function($q) use($request){
+            }
+        )
 
-                $q->where('tahun',$request->tahun);
+        ->select(
+            'new_lplpo_reports.*',
+            'master_faskes.namaFaskes'
+        )
 
-            })
+        ->with([
+            'linkApproval'
+        ])
 
-            ->select(
-                'new_lplpo_reports.*',
-                'master_faskes.namaFaskes'
-            )
+        ->withCount('items');
 
-            ->withCount('items');
-            //dd($query);
 
-        return DataTables::of($query)
+    return DataTables::of($query)
 
-            ->addIndexColumn()
+        ->addIndexColumn()
 
-            ->editColumn('created_at',function($row){
 
-                return $row->created_at->format('d-m-Y');
+        /*
+        |--------------------------------------------------------------------------
+        | CREATED AT
+        |--------------------------------------------------------------------------
+        */
 
-            })
+        ->editColumn(
+            'created_at',
+            function ($row) {
 
-            ->addColumn('nama_faskes',function($row){
+                return $row->created_at
+                    ? $row->created_at->format('d-m-Y')
+                    : '-';
+
+            }
+        )
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA FASKES
+        |--------------------------------------------------------------------------
+        */
+
+        ->addColumn(
+            'nama_faskes',
+            function ($row) {
 
                 return $row->namaFaskes;
 
-            })
+            }
+        )
 
-            ->addColumn('status_badge',function($row){
 
-                return '<span class="badge bg-warning">Terkirim</span>';
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS
+        |--------------------------------------------------------------------------
+        */
 
-            })
+        ->addColumn(
+            'status_badge',
+            function ($row) {
 
-            ->addColumn('action',function($row){
+                return '
+                    <span class="badge bg-warning">
+                        Terkirim
+                    </span>
+                ';
+
+            }
+        )
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | QR CODE APPROVAL KAPUS
+        |--------------------------------------------------------------------------
+        */
+
+        ->addColumn(
+            'qr_code',
+            function ($row) {
+
+                $approval = $row->linkApproval;
+
+                /*
+                 * Belum ada approval
+                 */
+                if (
+                    !$approval ||
+                    empty($approval->verificationToken)
+                ) {
+
+                    return '
+                        <span class="badge bg-secondary">
+                            -
+                        </span>
+                    ';
+
+                }
+
+
+                /*
+                 * URL verifikasi publik
+                 */
+                $verificationUrl = route(
+                    'newlplpo.approval.verify',
+                    $approval->verificationToken
+                );
+
+
+                return '
+                    <div class="text-center">
+
+                        <div
+                            class="qr-code"
+                            data-url="' .
+                            e($verificationUrl)
+                            . '"
+                            style="
+                                width:100px;
+                                height:100px;
+                                margin:auto;
+                            ">
+                        </div>
+
+                        <small class="text-muted">
+                            Scan QR
+                        </small>
+
+                    </div>
+                ';
+
+            }
+        )
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTION
+        |--------------------------------------------------------------------------
+        */
+
+        ->addColumn(
+            'action',
+            function ($row) {
 
                 return '
 
-                <a
-                    href="'.route('newlplpo.verifikasi.detail',$row->id).'"
-                    class="btn btn-primary btn-sm">
+                    <a
+                        href="' .
+                        route(
+                            'newlplpo.verifikasi.detail',
+                            $row->id
+                        ) .
+                        '"
+                        class="btn btn-primary btn-sm"
+                        title="Detail">
 
-                    <i class="bi bi-eye"></i>
+                        <i class="bi bi-eye"></i>
 
-                </a>
+                    </a>
 
                 ';
 
-            })
+            }
+        )
 
-            ->rawColumns([
-                'status_badge',
-                'action'
-            ])
 
-            ->make(true);
+        ->rawColumns([
+            'status_badge',
+            'qr_code',
+            'action'
+        ])
 
-    }
-
+        ->make(true);
+}
     /**
      * ==========================================================
      * Detail laporan

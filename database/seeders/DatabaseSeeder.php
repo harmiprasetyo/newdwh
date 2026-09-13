@@ -19,6 +19,21 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 
+    $this->call([
+            NewLplpoKategoriSeeder::class,
+        ]);
+
+          $this->call([
+            MasterFaskesSeeder::class,
+        ]);
+
+         $this->call([
+    MasterObatSeeder::class,
+]);
+
+        $this->call([
+            UsersAppSeeder::class,
+        ]);
     /**
          * =========================
          * USER GROUPS
@@ -48,47 +63,56 @@ class DatabaseSeeder extends Seeder
 
 
    UserRoles::upsert([[
+    'id' => 1,
         'role_name' => 'Super Admin',
         'groupId' => 1
     ],
     [
+        'id' => 2,
         'role_name' => 'program',
         'groupId' => 2
     ],
      [
+        'id' => 3,
         'role_name' => 'farmasi',
         'groupId' => 2
     ],
     [
+        'id' => 4,
         'role_name' => 'program',
         'groupId' => 3
     ],
     [
+        'id' => 5,
         'role_name' => 'farmasi',
         'groupId' => 3
     ],
     [
+        'id' => 6,
         'role_name' => 'Dokter',
         'groupId' => 4
     ],
     [
+        'id' => 7,
         'role_name' => 'Perawat',
         'groupId' => 4
     ],
     [
+        'id' => 8,
         'role_name' => 'Bidan',
         'groupId' => 4
      ],
         [
+            'id' => 9,
             'role_name' => 'Tenaga Kesehatan Lain',
             'groupId' => 4
         ]
-    ],['role_name','groupId'],['role_name','groupId']);
+    ],['id'],['role_name','groupId']);
 
 
 
     UsersApp::updateOrCreate(
-    ['username' => 'admindinkes'],
+    ['username' => 'administrator'],
     [
         'email' => 'admin@dinkes.go.id',
         'namalengkap' => 'Administrator',
@@ -112,94 +136,16 @@ class DatabaseSeeder extends Seeder
          * =========================
          */
         ListTypeFaskes::upsert([
-            ["typeFaskes"=>"Puskesmas"],
-            ["typeFaskes"=>"Rumah Sakit"],
-            ["typeFaskes"=>"Klinik"]
-        ], ['typeFaskes'], []);
+            ["id" => 1, "typeFaskes" => "Puskesmas"],
+            ["id" => 2, "typeFaskes" => "Rumah Sakit"],
+            ["id" => 3, "typeFaskes" => "Klinik"]
+        ], ['id'], ['typeFaskes']);
 
 
 
-         LabelLplpo::upsert([
-            ["kodeKab"=>"3201",
-            "field1"=>"PKD",
-            "field2"=>"Program",
-            "field3"=>"JKN"]
-        ], ['kodeKab'], ["field1","field2","field3"]);
 
 
-        /**
-         * =========================
-         * MASTER FASKES
-         * =========================
-         */
-        MasterFaskes::upsert([
-            [
-                "kodeFaskes"=>"P3201090203",
-                "typeFaskes"=>"1",
-                "kodePropinsi"=>"32",
-                "kodeKabupaten"=>"3201",
-                "kodeKecamatan"=>"320109",
-                "kepemilikan"=>"Pemerintah",
-                "namaFaskes"=>"Puskesmas Ciderum"
-            ],
-            [
-                "kodeFaskes"=>"P3201090202",
-                "typeFaskes"=>"1",
-                "kodePropinsi"=>"32",
-                "kodeKabupaten"=>"3201",
-                "kodeKecamatan"=>"320109",
-                "kepemilikan"=>"Pemerintah",
-                "namaFaskes"=>"Puskesmas Cinagara"
-            ],
-            [
-                "kodeFaskes"=>"P3201090201",
-                "typeFaskes"=>"1",
-                "kodePropinsi"=>"32",
-                "kodeKabupaten"=>"3201",
-                "kodeKecamatan"=>"320109",
-                "kepemilikan"=>"Pemerintah",
-                "namaFaskes"=>"Puskesmas Caringin Bogor"
-            ],
-              [
-                "kodeFaskes"=>"P3201081101",
-                "typeFaskes"=>"1",
-                "kodePropinsi"=>"32",
-                "kodeKabupaten"=>"3201",
-                "kodeKecamatan"=>"320108",
-                "kepemilikan"=>"Pemerintah",
-                "namaFaskes"=>"Puskesmas Cigombong"
-            ],
-             [
-                "kodeFaskes"=>"P3201080203",
-                "typeFaskes"=>"1",
-                "kodePropinsi"=>"32",
-                "kodeKabupaten"=>"3201",
-                "kodeKecamatan"=>"320108",
-                "kepemilikan"=>"Pemerintah",
-                "namaFaskes"=>"Puskesmas Sukaharja"
-            ],
-            [
-                "kodeFaskes"=>"P3201071203",
-                "typeFaskes"=>"1",
-                "kodePropinsi"=>"32",
-                "kodeKabupaten"=>"3201",
-                "kodeKecamatan"=>"320107",
-                "kepemilikan"=>"Pemerintah",
-                "namaFaskes"=>"Puskesmas Sukaresmi Bogor"
-            ],
-            [
-                "kodeFaskes"=>"P3201071202",
-                "typeFaskes"=>"1",
-                "kodePropinsi"=>"32",
-                "kodeKabupaten"=>"3201",
-                "kodeKecamatan"=>"320107",
-                "kepemilikan"=>"Pemerintah",
-                "namaFaskes"=>"Puskesmas Sirna Galih"
-            ]
 
-        ], ['kodeFaskes'], [
-            'namaFaskes','typeFaskes','kodePropinsi','kodeKabupaten','kodeKecamatan','kepemilikan'
-        ]);
 
 
 

@@ -73,6 +73,9 @@
                     <th rowspan="2">Nama Obat</th>
                     <th rowspan="2">Sat</th>
 
+                    <th rowspan="2">Obat<br>Esensial</th>
+                    <th rowspan="2">Formularium Puskesmas</th>
+
                     <th colspan="2">Stok Awal</th>
                     <th colspan="2">Penerimaan</th>
                     <th colspan="2">Persediaan</th>

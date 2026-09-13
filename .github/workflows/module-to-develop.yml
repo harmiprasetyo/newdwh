@@ -1,0 +1,39 @@
+name: Module to Develop
+
+on:
+  push:
+    branches:
+      - 'modul/**'
+
+permissions:
+  contents: write
+
+jobs:
+  merge-to-develop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge module into develop
+        run: |
+          echo "Source branch : ${GITHUB_REF_NAME}"
+          echo "Target branch : develop"
+
+          git fetch origin develop "${GITHUB_REF_NAME}"
+
+          git checkout develop
+          git pull origin develop
+
+          git merge "origin/${GITHUB_REF_NAME}" --no-ff -m "Merge ${GITHUB_REF_NAME} into develop"
+
+          git push origin develop
+
