@@ -1,458 +1,353 @@
-
-
 @extends('layouts.dashboard.maindash')
+
 @section('content')
 
-   <h3 class="mb-3">📊 Dashboard</h3>
+<div class="container-fluid">
 
-<!-- FILTER -->
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="row">
+    {{-- ==========================================================
+         HEADER
+    =========================================================== --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <div class="col-md-2">
-                <select id="bulan" class="form-control">
-                    <option value="">Bulan</option>
-                    @for($i=1;$i<=12;$i++)
-                        <option value="{{ $i }}">{{ $i }}</option>
-                    @endfor
-                </select>
-            </div>
+        <div>
+            <h3 class="mb-1">
+                📊 Dashboard
+            </h3>
 
-            <div class="col-md-2">
-                <select id="tahun" class="form-control">
-                    <option value="">Tahun</option>
-                    @for($i=date('Y');$i>=2020;$i--)
-                        <option value="{{ $i }}">{{ $i }}</option>
-                    @endfor
-                </select>
-            </div>
+            <small class="text-muted">
+                Monitoring data pelayanan
+            </small>
+        </div>
+
+    </div>
 
 
+    {{-- ==========================================================
+         FILTER
+    =========================================================== --}}
+    <div class="card shadow-sm mb-4">
 
-            @if($groupId == 2 || $groupId == 1)
-<div class="col-md-4">
-    <select id="faskes" class="form-control" style="width:100%">
-        <option value="">-- Pilih Faskes --</option>
-    </select>
-</div>
+        <div class="card-body">
+
+            <form
+                method="GET"
+                action="{{ route('dashboard') }}"
+                id="dashboardFilterForm"
+            >
+
+                <div class="row g-3 align-items-end">
+
+                    {{-- BULAN --}}
+                    <div class="col-md-3">
+
+                        <label
+                            for="bulan"
+                            class="form-label"
+                        >
+                            Bulan
+                        </label>
+
+                        <select
+                            name="bulan"
+                            id="bulan"
+                            class="form-select"
+                        >
+                            <option value="">
+                                Semua Bulan
+                            </option>
+
+                            @foreach(range(1, 12) as $month)
+
+                                <option
+                                    value="{{ $month }}"
+                                    @selected((int) $bulan === $month)
+                                >
+                                    {{ \Carbon\Carbon::create()
+                                        ->month($month)
+                                        ->translatedFormat('F') }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- TAHUN --}}
+                    <div class="col-md-3">
+
+                        <label
+                            for="tahun"
+                            class="form-label"
+                        >
+                            Tahun
+                        </label>
+
+                        <select
+                            name="tahun"
+                            id="tahun"
+                            class="form-select"
+                        >
+
+                            @for(
+                                $year = now()->year;
+                                $year >= 2020;
+                                $year--
+                            )
+
+                                <option
+                                    value="{{ $year }}"
+                                    @selected((int) $tahun === $year)
+                                >
+                                    {{ $year }}
+                                </option>
+
+                            @endfor
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- FASKES --}}
+                  @if(in_array((int) $groupId, [1, 2]))
+
+    <div class="col-md-4">
+
+        <label
+            for="faskes"
+            class="form-label"
+        >
+            Faskes
+        </label>
+
+        <select
+            name="faskes"
+            id="faskes"
+            class="form-select"
+        >
+
+            <option value="">
+                Semua Faskes
+            </option>
+
+            @foreach($faskesList as $item)
+
+                <option
+                    value="{{ $item['name'] }}"
+                    @selected($faskes === $item['name'])
+                >
+                    {{ $item['name'] }}
+                </option>
+
+            @endforeach
+
+        </select>
+
+    </div>
+
 @endif
 
-            <div class="col-md-2">
-                <button class="btn btn-primary w-100" onclick="loadData()">🔍 Filter</button>
-            </div>
 
-        </div>
-    </div>
-</div>
+                    {{-- BUTTON --}}
+                    <div class="col-md-2">
 
-<!-- DASHBOARD GRID -->
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100"
+                        >
+                            🔍 Tampilkan
+                        </button>
 
-<div class="row mt-3">
+                    </div>
 
-<div class="col-md-12">
+                </div>
 
-<div class="card shadow-sm">
+            </form>
 
-<div class="card-body">
-
-<h6>
-
-📈 Cakupan ANC K1
-
-</h6>
-
-<div id="chartAncK1"></div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="row mt-3">
-
-    <!-- LOCATION -->
-    <div class="col-md-6">
-
-        <!-- CHART LOCATION -->
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body">
-                <h6 class="mb-2">Kunjungan per Location</h6>
-                <div id="chartLocation"></div>
-            </div>
-        </div>
-
-        <!-- TABLE LOCATION -->
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Rekap Location</h6>
-                <table class="table table-sm table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Location</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableLocation"></tbody>
-                </table>
-            </div>
         </div>
 
     </div>
 
-    <!-- PROVIDER (ONLY GROUP 2) -->
-    @if($groupId == 2 || $groupId== 1)
-    <div class="col-md-6">
 
-        <!-- CHART PROVIDER -->
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body">
-                <h6 class="mb-2">Kunjungan per Service Provider</h6>
-                <div id="chartProvider"></div>
-            </div>
+    {{-- ==========================================================
+         ANC K1
+    =========================================================== --}}
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <strong>
+                📈 Cakupan ANC K1
+            </strong>
         </div>
 
-        <!-- TABLE PROVIDER -->
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Rekap Service Provider</h6>
-                <table class="table table-sm table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Provider</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableProvider"></tbody>
-                </table>
-            </div>
+        <div class="card-body">
+
+            <div
+                id="chartAncK1"
+                style="min-height: 350px;"
+            ></div>
+
         </div>
 
     </div>
+
+
+    {{-- ==========================================================
+         LOCATION
+    =========================================================== --}}
+    @if(isset($dashboardData['per_location']))
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header">
+                <strong>
+                    📍 Data Berdasarkan Lokasi
+                </strong>
+            </div>
+
+            <div class="card-body">
+
+                <div
+                    id="chartLocation"
+                    style="min-height: 350px;"
+                ></div>
+
+                <div class="table-responsive mt-4">
+
+                    <table
+                        id="tableLocation"
+                        class="table table-bordered table-striped"
+                    >
+
+                        <thead>
+
+                            <tr>
+                                <th>Lokasi</th>
+                                <th>Total</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach(
+                                $dashboardData['per_location']
+                                as $item
+                            )
+
+                                <tr>
+
+                                    <td>
+                                        {{ $item->location ?: '-' }}
+                                    </td>
+
+                                    <td>
+                                        {{ number_format($item->total) }}
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    @endif
+
+
+    {{-- ==========================================================
+         PROVIDER
+    =========================================================== --}}
+    @if(isset($dashboardData['per_provider']))
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header">
+                <strong>
+                    🏥 Data Berdasarkan Provider
+                </strong>
+            </div>
+
+            <div class="card-body">
+
+                <div
+                    id="chartProvider"
+                    style="min-height: 400px;"
+                ></div>
+
+                <div class="table-responsive mt-4">
+
+                    <table
+                        id="tableProvider"
+                        class="table table-bordered table-striped"
+                    >
+
+                        <thead>
+
+                            <tr>
+                                <th>Provider</th>
+                                <th>Total</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach(
+                                $dashboardData['per_provider']
+                                as $item
+                            )
+
+                                <tr>
+
+                                    <td>
+                                        {{ $item->service_provider ?: '-' }}
+                                    </td>
+
+                                    <td>
+                                        {{ number_format($item->total) }}
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
     @endif
 
 </div>
+
+
+{{-- ==============================================================
+     DATA UNTUK JAVASCRIPT
+================================================================ --}}
+<script>
+    window.dashboardData = @json($dashboardData);
+    window.dashboardFilter = @json($dashboardFilter);
+</script>
 @endsection
+
 
 @push('scripts')
 
+    <script src="{{ mix('js/dashboard/index.js') }}"></script>
 
-<script>
-    window.API_KEY = '{{ config("app.api_key") }}';
-//let chartLocation, chartProvider;
-let chartLocation;
-let chartProvider;
-let chartAncK1;
-
-
-function loadData() {
-
-    let bulan = document.getElementById('bulan').value;
-    let tahun = document.getElementById('tahun').value;
-    let faskes = document.getElementById('faskes')?.value;
-
-    let url = `/api/dashboard?bulan=${bulan}&tahun=${tahun}`;
-
-    if (faskes) {
-        url += `&faskes=${faskes}`;
-    }
-
-    fetch(url, {
-        headers: {
-            'X-API-KEY': window.API_KEY,
-            'Accept': 'application/json'
-        }
-    })
-    .then(res => res.json())
-    .then(res => {
-
-        let data = res.data;
-
-        // ======================
-        // LOCATION
-        // ======================
-        let labels = data.per_location.map(i => i.location ?? '-');
-        let values = data.per_location.map(i => i.total ?? 0);
-
-        if (chartLocation) chartLocation.destroy();
-
-        chartLocation = new ApexCharts(document.querySelector("#chartLocation"), {
-            chart: {
-                type: 'bar',
-                height: 280 // 🔥 diperkecil
-            },
-            title: {
-                text: 'Kunjungan per Location',
-                align: 'left'
-            },
-            series: [{
-                name: 'Total',
-                data: values
-            }],
-            xaxis: {
-                categories: labels
-            }
-        });
-
-        chartLocation.render();
-
-        // ======================
-        // TABLE LOCATION
-        // ======================
-        let htmlLoc = '';
-        data.per_location.forEach(i => {
-            htmlLoc += `<tr>
-                <td>${i.location ?? '-'}</td>
-                <td>${i.total ?? 0}</td>
-            </tr>`;
-        });
-
-        document.getElementById('tableLocation').innerHTML = htmlLoc;
-
-        // ======================
-        // PROVIDER
-        // ======================
-        if (data.per_provider) {
-
-            let pLabel = data.per_provider.map(i => i.service_provider ?? '-');
-            let pVal = data.per_provider.map(i => i.total ?? 0);
-
-            if (chartProvider) chartProvider.destroy();
-
-            chartProvider = new ApexCharts(document.querySelector("#chartProvider"), {
-                chart: {
-                    type: 'bar',
-                    height: 280 // 🔥 sama biar konsisten
-                },
-                title: {
-                    text: 'Kunjungan per Service Provider',
-                    align: 'left'
-                },
-                series: [{
-                    name: 'Total',
-                    data: pVal
-                }],
-                xaxis: {
-                    categories: pLabel
-                }
-            });
-
-          const monthName = [
-    "",
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "Mei",
-    "Jun",
-    "Jul",
-    "Agu",
-    "Sep",
-    "Okt",
-    "Nov",
-    "Des"
-];
-
-let ancLabel = [];
-let ancValue = [];
-
-if(data.anc_k1){
-
-    data.anc_k1.forEach(function(item){
-
-        ancLabel.push(monthName[item.bulan]);
-
-        ancValue.push(item.percentage);
-
-    });
-
-    if(chartAncK1){
-
-        chartAncK1.destroy();
-
-    }
-
-    chartAncK1 = new ApexCharts(
-
-        document.querySelector("#chartAncK1"),
-
-        {
-
-            chart:{
-                type:'bar',
-                height:350,
-                toolbar:{
-                    show:false
-                }
-            },
-
-            series:[{
-
-                name:'ANC K1',
-
-                data:ancValue
-
-            }],
-
-            xaxis:{
-
-                categories:ancLabel,
-
-                title:{
-                    text:'Bulan'
-                }
-
-            },
-
-            yaxis:{
-
-                max:100,
-
-                title:{
-                    text:'Persentase (%)'
-                }
-
-            },
-
-            plotOptions:{
-
-                bar:{
-
-                    columnWidth:'45%',
-                    borderRadius:4
-
-                }
-
-            },
-
-            dataLabels:{
-
-                enabled:true,
-
-                formatter:function(val){
-
-                    return val+"%";
-
-                }
-
-            },
-
-            tooltip:{
-
-                y:{
-
-                    formatter:function(val){
-
-                        return val+" %";
-
-                    }
-
-                }
-
-            }
-
-        }
-
-    );
-
-    chartAncK1.render();
-
-}
-
-
-            // ======================
-            // TABLE PROVIDER
-            // ======================
-            let htmlProv = '';
-            data.per_provider.forEach(i => {
-                htmlProv += `<tr>
-                    <td>${i.service_provider ?? '-'}</td>
-                    <td>${i.total ?? 0}</td>
-                </tr>`;
-            });
-
-            document.getElementById('tableProvider').innerHTML = htmlProv;
-        }
-
-    });
-}
-
-// load awal
-loadData();
-
-
-$(function () {
-
-    $('#faskes').select2({
-
-        placeholder: 'Cari Faskes...',
-
-        allowClear: true,
-
-        ajax: {
-
-            url: '/api/organizations',
-
-            dataType: 'json',
-
-            delay: 300,
-            headers: {
-            'X-API-KEY': window.API_KEY,
-            'Accept': 'application/json'
-        },
-
-            data: function(params){
-
-                return {
-
-                    search: params.term
-
-                };
-
-            },
-
-            processResults: function(data){
-
-                return {
-
-                    results: $.map(data.data,function(item){
-
-                        return {
-
-                            id: item.name,
-                            text: item.name
-
-                        }
-
-                    })
-
-                };
-
-            },
-
-            cache:true
-
-        }
-
-    });
-
-
-        // otomatis reload ketika memilih faskes
-    $('#faskes').on('select2:select', function (e) {
-        loadData();
-    });
-
-    // otomatis reload ketika pilihan dihapus
-    $('#faskes').on('select2:clear', function (e) {
-        loadData();
-    });
-
-
-});
-</script>
 @endpush
-
-
