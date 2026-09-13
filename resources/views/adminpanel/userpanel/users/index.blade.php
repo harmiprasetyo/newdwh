@@ -417,27 +417,61 @@
 
                             <div class="mb-3">
 
-                                <label class="form-label">
-                                    Password
-                                </label>
+                                <div class="input-group">
+    <input
+        type="password"
+        id="password"
+        name="password"
+        class="form-control"
+        minlength="8"
+        autocomplete="new-password"
+    >
 
-                                <input
-                                    type="password"
-                                    id="password"
-                                    class="form-control"
-                                >
+    <button
+        type="button"
+        class="btn btn-outline-secondary"
+        id="btnTogglePassword"
+        tabindex="-1"
+    >
+        <i class="fas fa-eye"></i>
+    </button>
+</div>
 
-                                <small
-                                    id="passwordHelp"
-                                    class="text-muted"
-                                >
-                                    Minimal 6 karakter
-                                </small>
+<div class="mt-2">
+    <small class="text-muted">
+        Password harus memenuhi:
+    </small>
 
-                                <div
-                                    id="passwordError"
-                                    class="invalid-feedback"
-                                ></div>
+    <ul
+        id="passwordRequirements"
+        class="small text-muted mb-0 ps-3"
+    >
+        <li id="reqLength">
+            Minimal 8 karakter
+        </li>
+
+        <li id="reqUppercase">
+            Mengandung huruf besar (A-Z)
+        </li>
+
+        <li id="reqLowercase">
+            Mengandung huruf kecil (a-z)
+        </li>
+
+        <li id="reqNumber">
+            Mengandung angka (0-9)
+        </li>
+
+        <li id="reqSpecial">
+            Mengandung karakter spesial (!@#$%^&*)
+        </li>
+    </ul>
+</div>
+
+<div
+    id="passwordError"
+    class="invalid-feedback"
+></div>
 
                             </div>
 

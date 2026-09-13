@@ -75,7 +75,8 @@ Route::get(
 Route::get('/', [AuthController::class, 'index']); // default ke login
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::get('/ssologin', [AuthController::class, 'loginsso'])->name('ssologin');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
@@ -180,7 +181,7 @@ Route::middleware('auth')->group(function () {
 
 
 
- 
+
 
     Route::get('/provinsi', function () {
 

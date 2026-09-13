@@ -67,6 +67,121 @@ $(function () {
     }
 
 
+
+    function validatePassword(password) {
+
+    return {
+        length: password.length >= 8,
+
+        uppercase: /[A-Z]/.test(password),
+
+        lowercase: /[a-z]/.test(password),
+
+        number: /[0-9]/.test(password),
+
+        special: /[^A-Za-z0-9]/.test(password)
+    };
+}
+
+
+function updatePasswordRequirements(password) {
+
+    const result = validatePassword(password);
+
+    updatePasswordRequirement(
+        '#reqLength',
+        result.length
+    );
+
+    updatePasswordRequirement(
+        '#reqUppercase',
+        result.uppercase
+    );
+
+    updatePasswordRequirement(
+        '#reqLowercase',
+        result.lowercase
+    );
+
+    updatePasswordRequirement(
+        '#reqNumber',
+        result.number
+    );
+
+    updatePasswordRequirement(
+        '#reqSpecial',
+        result.special
+    );
+}
+
+/*
+|--------------------------------------------------------------------------
+| UPDATE PASSWORD REQUIREMENT
+|--------------------------------------------------------------------------
+*/
+function updatePasswordRequirement(
+    selector,
+    valid
+) {
+
+    const element = $(selector);
+
+    if (!element.length) {
+        return;
+    }
+
+    element
+        .toggleClass('text-success', valid)
+        .toggleClass('text-danger', !valid);
+
+    const icon = element.find('i');
+
+    if (icon.length) {
+
+        icon
+            .toggleClass('fa-check', valid)
+            .toggleClass('fa-times', !valid);
+    }
+}
+
+
+$(document).on(
+    'input',
+    '#password',
+    function () {
+
+        updatePasswordRequirements(
+            $(this).val()
+        );
+
+    }
+);
+function resetPasswordRequirements() {
+
+    updatePasswordRequirements('');
+}
+
+$('#btnAddUser').on('click', function () {
+
+    $('#userForm')[0].reset();
+
+    $('#userid').val('');
+
+    $('#password')
+        .val('')
+        .removeClass('is-invalid');
+
+    $('#passwordError').text('');
+
+    resetPasswordRequirements();
+
+    $('#userModalTitle').text(
+        'Tambah User'
+    );
+
+    // kode Anda untuk membuka modal
+});
+
     /*
     |--------------------------------------------------------------------------
     | SELECT2
