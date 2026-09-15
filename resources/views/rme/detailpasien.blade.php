@@ -367,7 +367,7 @@
                 <tr>
                     <th>Pemeriksaan Fisik Jantung</th>
                     <th>:</th>
-                    <th> @if(isset($dt['ANC']['anc_jantung'])){{ $dt['ANC']['anc_leher'] }} @endif</th>
+                    <th> @if(isset($dt['ANC']['anc_jantung'])){{ $dt['ANC']['anc_jantung'] }} @endif</th>
                     <th></th>
                 </tr>
                   <tr>
@@ -1137,11 +1137,8 @@
                    <tr>
                     <td>Kondisi Pulang</td>
                     <td>:</td>
-                    <td> @foreach($dt['ANAMNESE'] as $k=>$v)
-                            @if($v['diagnosa_kode']=='359746009')
-                            {{  $v['diagnosa_display'] }}
-                            @endif
-                            @endforeach</td>
+                    <td> {{ $dt['kondisipulang'] }}
+                        </td>
                    </tr>
                 </thead>
             </table>
