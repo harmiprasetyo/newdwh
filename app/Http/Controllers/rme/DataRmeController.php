@@ -581,7 +581,7 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
             }
 
               if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='10200-4'){
-                 $dt['ANC']['anc_djj']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
+                 $dt['ANC']['anc_djj']=$obs['resource']['valueString'];
             }
 
             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='32422-8'){
