@@ -1279,6 +1279,21 @@ $anamnese = Http::withToken($token)
 $resAnamnese = $anamnese->json();
 
 
+
+$condition = collect($resAnamnese['entry'] ?? [])
+    ->map(fn ($entry) => $entry['resource'] ?? [])
+    ->first(function ($resource) {
+        return collect($resource['code']['coding'] ?? [])
+            ->contains('code', '359746009');
+    });
+
+$code = $condition['code']['coding'][0]['code'] ?? null;
+$display = $condition['code']['coding'][0]['display'] ?? null;
+
+//dd($code, $display);
+
+$dt['kondisipulang']  = $display ?? null;
+
 /*
 |--------------------------------------------------------------------------
 
@@ -1362,6 +1377,8 @@ if (!empty($resAnamnese['entry'])) {
                 ),
 
         ];
+
+
 
 
         /*
