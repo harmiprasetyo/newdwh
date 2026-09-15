@@ -23,13 +23,22 @@ class PatientService
         $nik = null;
         $bpjs = null;
 
-        foreach ($r['identifier'] ?? [] as $id) {
-            $code = $id['type']['coding'][0]['code'] ?? null;
+      foreach ($r['identifier'] ?? [] as $id) {
+    $code = $id['type']['coding'][0]['code'] ?? null;
+    $value = $id['value'] ?? null;
 
-            if ($code == 'IHS') $ihs = $id['value'];
-            if ($code == 'NIK') $nik = $id['value'];
-        }
+    if ($code === 'IHS' && $value !== null) {
+        $ihs = $value;
+    }
 
+    if ($code === 'NIK' && $value !== null) {
+        $nik = $value;
+    }
+
+    if ($code === 'NIK-IBU' && $value !== null) {
+        $bpjs = $value;
+    }
+}
         // =========================
         // TELECOM
         // =========================
