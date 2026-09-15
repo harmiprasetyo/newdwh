@@ -367,7 +367,7 @@
                 <tr>
                     <th>Pemeriksaan Fisik Jantung</th>
                     <th>:</th>
-                    <th> @if(isset($dt['ANC']['anc_jantung'])){{ $dt['ANC']['anc_leher'] }} @endif</th>
+                    <th> @if(isset($dt['ANC']['anc_jantung'])){{ $dt['ANC']['anc_jantung'] }} @endif</th>
                     <th></th>
                 </tr>
                   <tr>
