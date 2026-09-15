@@ -580,8 +580,8 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
                  $dt['ANC']['anc_head']=$obs['resource']['valueCodeableConcept']['coding'][0]['display'];
             }
 
-              if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='10200-4'){
-                 $dt['ANC']['anc_djj']=$obs['resource']['valueString'];
+              if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='55283-6'){
+                 $dt['ANC']['anc_djj']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
             }
 
             if(isset($obs['resource']['code']['coding'][0]['code']) && $obs['resource']['code']['coding'][0]['code']=='32422-8'){
