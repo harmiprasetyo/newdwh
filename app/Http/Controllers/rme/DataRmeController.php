@@ -1279,7 +1279,7 @@ $anamnese = Http::withToken($token)
 $resAnamnese = $anamnese->json();
 
 
-
+/*
 $condition = collect($resAnamnese['entry'] ?? [])
     ->map(fn ($entry) => $entry['resource'] ?? [])
     ->first(function ($resource) {
@@ -1289,10 +1289,30 @@ $condition = collect($resAnamnese['entry'] ?? [])
 
 $code = $condition['code']['coding'][0]['code'] ?? null;
 $display = $condition['code']['coding'][0]['display'] ?? null;
+*/
+
+$conditionCodes = [
+    '359746009' => 'Stabil',
+    '268910001' => 'Tidak Stabil',
+    '419099009' => 'Perbaikan',
+];
+
+$conditionData = collect($resAnamnese['entry'] ?? [])
+    ->map(fn ($entry) => $entry['resource'] ?? [])
+    ->flatMap(function ($resource) {
+        return $resource['code']['coding'] ?? [];
+    })
+    ->first(function ($coding) use ($conditionCodes) {
+        return isset($conditionCodes[$coding['code']]);
+    });
+
+$conditionCode = $conditionData['code'] ?? null;
+$conditionDisplay = $conditionCodes[$conditionCode] ?? null;
+
 
 //dd($code, $display);
 
-$dt['kondisipulang']  = $display ?? null;
+$dt['kondisipulang']  = $conditionDisplay ?? null;
 
 /*
 |--------------------------------------------------------------------------
