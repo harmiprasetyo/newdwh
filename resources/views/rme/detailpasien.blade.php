@@ -493,10 +493,14 @@
                     <th style="vertical-align: middle">:</th>
                     <th>
 
-@if(isset($dt['ANC']['anc_education']))
-{{  $dt['ANC']['anc_education'] }}
-@endif
 
+@if(!empty($dt['ANC']['anc_education']))
+    <ul>
+        @foreach($dt['ANC']['anc_education'] as $education)
+            <li>{{ $education }}</li>
+        @endforeach
+    </ul>
+@endif
 
                     </th>
                     <th></th>
