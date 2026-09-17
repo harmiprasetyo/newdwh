@@ -654,7 +654,6 @@ if (($kondisi['total'] ?? 0) > 0) {
 }
 
 
-
 $procedure = Http::withToken($token)->get(
     $server . "Procedure?patient=" .
     $dt['PATIENTID']['patient_id'] .
@@ -665,42 +664,76 @@ $procedure = Http::withToken($token)->get(
 $prosedur = $procedure->json();
 
 $dt['ANC']['anc_usg'] = 'Tidak Dilakukan';
+$dt['ANC']['anc_education'] = [];
 
 if (($prosedur['total'] ?? 0) > 0) {
 
-    foreach ($prosedur['entry'] as $proc) {
+    foreach ($prosedur['entry'] ?? [] as $proc) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | USG
+        |--------------------------------------------------------------------------
+        */
         if (
-            data_get($proc, 'resource.code.coding.0.system') === 'http://hl7.org/fhir/sid/icd-9-cm' &&
+            data_get($proc, 'resource.code.coding.0.system') ===
+                'http://hl7.org/fhir/sid/icd-9-cm' &&
             data_get($proc, 'resource.code.coding.0.code') === '88.78'
         ) {
             $dt['ANC']['anc_usg'] = 'Dilakukan';
-            break;
-        }
-
-         if (
-            data_get($proc, 'resource.code.coding.0.system') === 'http://snomed.info/sct' &&
-            data_get($proc, 'resource.code.coding.0.code') === '408988007'
-        ) {
-            $dt['ANC']['anc_education'] =  data_get($proc, 'resource.code.coding.0.display');
-            break;
         }
 
 
-       /*  if (
-            data_get($proc, 'resource.code.coding.0.system') === 'http://hl7.org/fhir/sid/icd-9-cm' &&
-            data_get($proc, 'resource.code.coding.0.code') === '73.01'
-        ) {
-            $dtx['INC']['inc_tindakan'] =  data_get($proc, 'resource.code.coding.0.display');
-            break;
-        }*/
-            $category = data_get($proc,'resource.category.coding.0.code');
-            if($category=='373110003'){
-                 $dtx['INC']['inc_tindakan'] =  data_get($proc, 'resource.code.coding.0.display');
+        /*
+        |--------------------------------------------------------------------------
+        | CATEGORY
+        |--------------------------------------------------------------------------
+        */
+        $category = data_get(
+            $proc,
+            'resource.category.coding.0.code'
+        );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | INC - TINDAKAN
+        |--------------------------------------------------------------------------
+        */
+        if ($category === '373110003') {
+
+            $dtx['INC']['inc_tindakan'] =
+                data_get(
+                    $proc,
+                    'resource.code.coding.0.display'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ANC - EDUCATION
+        |--------------------------------------------------------------------------
+        */
+        if ($category === '409073007') {
+
+            $education = data_get(
+                $proc,
+                'resource.code.coding.0.display'
+            );
+
+            if ($education) {
+
+                $dt['ANC']['anc_education'][] = $education;
             }
+        }
     }
 }
+
+
+
+
+
 
 
 //KOHORT
