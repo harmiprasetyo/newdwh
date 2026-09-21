@@ -174,7 +174,7 @@
                     id="datatable"
                     class="table table-hover align-middle w-100">
 
-                   
+
 <thead>
     <tr>
 
@@ -284,35 +284,32 @@
 
                         {{-- OBAT --}}
 
-                        <div class="col-md-8">
+                      <div class="col-md-8">
 
-                            <label class="form-label fw-semibold">
+    <label class="form-label fw-semibold">
+        Obat
+        <span class="text-danger">*</span>
+    </label>
 
-                                Obat
+    <select
+        id="kode_obat"
+        name="kode_obat"
+        class="form-select"
+        style="width: 100%;"
+        required>
 
-                                <span class="text-danger">*</span>
+        <option value="">
+            -- Cari / Pilih Obat --
+        </option>
 
-                            </label>
+    </select>
 
-                            <select
-                                id="kode_obat"
-                                name="kode_obat"
-                                class="form-select"
-                                required>
+    <div
+        class="invalid-feedback"
+        id="kode_obat_error">
+    </div>
 
-                                <option value="">
-                                    -- Pilih Obat --
-                                </option>
-
-                            </select>
-
-                            <div
-                                class="invalid-feedback"
-                                id="kode_obat_error">
-                            </div>
-
-                        </div>
-
+</div>
 
                         {{-- FASKES --}}
 
@@ -453,7 +450,7 @@
 
                         </div>
 
-                  
+
 <div class="col-md-6" id="kategoriWrapper" style="display:none;">
 
     <label for="kategori" class="form-label">
@@ -740,23 +737,105 @@
 
 @endsection
 
+@push('styles')
+<style>
+    /*
+    |--------------------------------------------------------------------------
+    | Select2 - Pilih Obat
+    |--------------------------------------------------------------------------
+    */
 
+    #modalData .select2-container {
+        width: 100% !important;
+    }
+
+    #modalData .select2-selection--single {
+        height: 38px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+
+    #modalData .select2-selection__rendered {
+        line-height: 36px !important;
+        padding-left: 12px !important;
+    }
+
+    #modalData .select2-selection__arrow {
+        height: 36px !important;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dropdown obat
+    |--------------------------------------------------------------------------
+    */
+
+    #modalData .select2-dropdown {
+        border-color: #dee2e6;
+        border-radius: 0.375rem;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    /*
+    | Yang boleh scroll hanya daftar obat
+    */
+    #modalData .select2-results__options {
+        max-height: 280px !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+    }
+
+    /*
+    | Search box tetap di atas
+    */
+    #modalData .select2-search--dropdown {
+        padding: 8px;
+        background: #fff;
+    }
+
+    #modalData .select2-search__field {
+        width: 100% !important;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        padding: 7px 10px;
+    }
+
+    /*
+    | Item obat
+    */
+    #modalData .select2-results__option {
+        padding: 9px 12px;
+        cursor: pointer;
+    }
+
+    #modalData .select2-results__option--highlighted {
+        background-color: #0d6efd;
+        color: #fff;
+    }
+</style>
+
+@endpush
 @push('script')
-<script>
-    window.StokEsensialConfig = {
-        dataUrl: @json(route('newlplpo.stok-esensial.datatable')),
-        storeUrl: @json(route('newlplpo.stok-esensial.store')),
-        kategoriUrl: @json(route('newlplpo.stok-esensial.kategori')),
-        obatUrl: @json(route('newlplpo.masterdataobat.datatable')),
 
-        currentUser: {
-            groupid: @json(auth()->user()->groupid ?? 0),
-            kodeFaskes: @json(auth()->user()->kodeFaskes ?? null),
-            kodePropinsi: @json(auth()->user()->kodePropinsi ?? null),
-            kodeKota: @json(auth()->user()->kodeKota ?? null),
-            kodeKecamatan: @json(auth()->user()->kodeKecamatan ?? null)
-        }
-    };
+
+<script>
+window.StokEsensialConfig = {
+    dataUrl: @json(route('newlplpo.stok-esensial.datatable')),
+    storeUrl: @json(route('newlplpo.stok-esensial.store')),
+    duplicateUrl: @json(route('newlplpo.stok-esensial.duplicate')),
+    kategoriUrl: @json(route('newlplpo.stok-esensial.kategori')),
+    obatUrl: @json(route('newlplpo.masterdataobat.datatable')),
+
+    currentUser: {
+        groupid: @json(auth()->user()->groupid ?? 0),
+        kodeFaskes: @json(auth()->user()->kodeFaskes ?? null),
+        kodePropinsi: @json(auth()->user()->kodePropinsi ?? null),
+        kodeKota: @json(auth()->user()->kodeKota ?? null),
+        kodeKecamatan: @json(auth()->user()->kodeKecamatan ?? null)
+    }
+};
 </script>
 
 <script src="{{ asset('js/newlplpo/stokesensial.js') }}"></script>

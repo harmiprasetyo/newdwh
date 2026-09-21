@@ -89,7 +89,7 @@
                     <th rowspan="2">Opt</th>
 
                     <th rowspan="2">Permintaan</th>
-                    <th colspan="2">Pemberian</th>
+                    <th rowspan="2">Pemberian</th>
                      <th rowspan="2">Aksi</th>
 
                 </tr>
@@ -112,8 +112,7 @@
 
                     <th>PKD</th>
                     <th>JKN</th>
-                      <th>PKD</th>
-                    <th>JKN</th>
+
 
                 </tr>
 
@@ -135,7 +134,7 @@
         @if(strtolower($programName) != 'non program')
 
             <tr class="table-primary">
-                <td colspan="22">
+                <td colspan="24">
                     <strong>{{ $programName }}</strong>
                 </td>
             </tr>
