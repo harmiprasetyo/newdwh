@@ -77,7 +77,7 @@ Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::get('/ssologin', [AuthController::class, 'loginsso'])->name('ssologin');
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:login');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/logout', [AuthController::class, 'logout'])->name('custom.logout');
 
 
 Route::post('/send-otp', [OtpController::class, 'sendOtp']);
@@ -1203,12 +1203,13 @@ Route::prefix('program')
 
 
 Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getKabupaten']);
-Route::prefix('dashboard')->name('dashboard')->group(function () {
+Route::prefix('dashboard')->group(function () {
 
+    Route::get('/', [DashboardPageController::class, 'index'])
+        ->name('dashboard');
 
-Route::get('/', [DashboardPageController::class, 'index']);
-Route::get('/realtime', [DashboardPageController::class, 'realtime']);
-
+    Route::get('/realtime', [DashboardPageController::class, 'realtime'])
+        ->name('dashboard.realtime');
 
 });
 Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
