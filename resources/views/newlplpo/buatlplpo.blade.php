@@ -511,7 +511,7 @@
                                 Permintaan
                             </th>
 
-                            <th colspan="2">
+                            <th rowspan="2">
                                 Pemberian
                             </th>
 
@@ -546,11 +546,7 @@
                             <th>PKD</th>
                             <th>JKN</th>
 
-                            <th>PKD</th>
-                            <th>JKN</th>
 
-                            <th>PKD</th>
-                            <th>JKN</th>
 
                         </tr>
 
@@ -600,6 +596,18 @@
             .row-napza td {
                 background-color: #ffe4ef !important;
             }
+
+            #tblMasterObat tbody tr {
+    cursor: pointer;
+}
+
+#tblMasterObat tbody tr:hover {
+    background-color: #e8f5e9 !important;
+}
+
+#tblMasterObat tbody tr.table-primary {
+    background-color: #cfe2ff !important;
+}
 
         </style>
 
