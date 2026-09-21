@@ -31,6 +31,10 @@ class DatabaseSeeder extends Seeder
     MasterObatSeeder::class,
 ]);
 
+ $this->call([
+    MasterObatBHPSeeder::class,
+]);
+
         $this->call([
             UsersAppSeeder::class,
         ]);
