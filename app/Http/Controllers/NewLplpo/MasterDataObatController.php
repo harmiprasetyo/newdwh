@@ -31,54 +31,19 @@ class MasterDataObatController extends Controller
     /**
  * DataTable khusus Offcanvas LPLPO
  */
+/**
+ * DataTable khusus Offcanvas LPLPO
+ */
+/**
+ * DataTable khusus Offcanvas LPLPO
+ */
 public function datatableforcanvas(Request $request)
 {
     $query = $this->service->datatableforcanvas($request);
 
     return datatables()
         ->eloquent($query)
-
         ->addIndexColumn()
-
-        ->addColumn('aksi', function ($item) {
-
-            return '
-                <button
-                    type="button"
-                    class="btn btn-success btn-sm pilih-obat"
-
-                    data-id="' . $item->id . '"
-
-                    data-kode="' . e($item->kode_obat) . '"
-
-                    data-nama="' . e($item->nama_obat) . '"
-
-                    data-satuan="' . e($item->satuan) . '"
-
-                    data-min="' . (int) $item->stok_minimal . '"
-
-                    data-opt="' . (int) $item->stok_optimum . '"
-
-                    data-napza="' . e($item->obat_napza ?? 'tidak') . '"
-
-                    data-esensial="' . e($item->obat_esensial ?? 'tidak') . '"
-
-                    data-formularium="' . e($item->obat_formularium_puskesmas ?? 'tidak') . '"
-
-                >
-
-                    <i class="bi bi-check-circle me-1"></i>
-
-                    Pilih
-
-                </button>
-            ';
-        })
-
-        ->rawColumns([
-            'aksi'
-        ])
-
         ->make(true);
 }
 

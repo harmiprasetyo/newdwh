@@ -984,6 +984,16 @@ Route::prefix('stok-esensial')
             [LplpoRekapController::class, 'data']
         )->name('rekap.data');
 
+         Route::get(
+            '/rekap/export/excel',
+            [LplpoRekapController::class, 'exportExcel']
+        )->name('rekap.export.excel');
+
+        Route::get(
+            '/rekap/export/pdf',
+            [LplpoRekapController::class, 'exportPdf']
+        )->name('rekap.export.pdf');
+
 
 
 Route::prefix('masterdataobat')
@@ -1064,20 +1074,25 @@ Route::prefix('program')
             });
 
 
-    Route::prefix('arsip')->name('arsip.')->group(function () {
+   Route::prefix('arsip')->name('arsip.')->group(function () {
 
-    Route::get('/', [LplpoArsipController::class,'index'])
+    Route::get('/', [LplpoArsipController::class, 'index'])
         ->name('index');
 
-    Route::get('/datatable', [LplpoArsipController::class,'datatable'])
+    Route::get('/datatable', [LplpoArsipController::class, 'datatable'])
         ->name('datatable');
 
-    Route::get('/{id}', [LplpoArsipController::class,'detail'])
-        ->name('detail');
-
-    Route::get('/{id}/print', [LplpoArsipController::class,'print'])
+    Route::get('/{id}/print', [LplpoArsipController::class, 'print'])
         ->name('print');
 
+    Route::get('/{id}/export/excel', [LplpoArsipController::class, 'exportExcel'])
+        ->name('export.excel');
+
+    Route::get('/{id}/export/pdf', [LplpoArsipController::class, 'exportPdf'])
+        ->name('export.pdf');
+
+    Route::get('/{id}', [LplpoArsipController::class, 'detail'])
+        ->name('detail');
 });
 
 

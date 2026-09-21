@@ -21,5 +21,9 @@
     "/js/newlplpo/stokesensial_monitoring.js": "/js/newlplpo/stokesensial_monitoring.js",
     "/js/newlplpo/kunjungan.js": "/js/newlplpo/kunjungan.js",
     "/js/newlplpo/infokapus.js": "/js/newlplpo/infokapus.js",
-    "/css/app.css": "/css/app.css"
+    "/js/newlplpo/arsip/detail.js": "/js/newlplpo/arsip/detail.js",
+    "/js/newlplpo/rekap/index.js": "/js/newlplpo/rekap/index.js",
+    "/css/app.css": "/css/app.css",
+    "/css/newlplpo/arsip/detail.css": "/css/newlplpo/arsip/detail.css",
+    "/css/newlplpo/rekap/index.css": "/css/newlplpo/rekap/index.css"
 }
