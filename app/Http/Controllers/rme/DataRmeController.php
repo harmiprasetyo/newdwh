@@ -946,110 +946,271 @@ if (($prosedur['total'] ?? 0) > 0) {
 //KOHORT
 
 
-    $eCare = Http::withToken($token)->get($server.'EpisodeOfCare?patient='.$dt['PATIENTID']['patient_id']);
-       $eRes = $eCare->json();
-       $year = date("Y");
+// =========================================================
+// KOHORT
+// =========================================================
 
+$eCare = Http::withToken($token)->get(
+    $server . 'EpisodeOfCare',
+    [
+        'patient' => $dt['PATIENTID']['patient_id'],
+    ]
+);
 
+$eRes = $eCare->json();
+$year = date('Y');
 
-       if($eRes['total']>0){
+if (
+    $eCare->successful() &&
+    isset($eRes['total']) &&
+    $eRes['total'] > 0 &&
+    isset($eRes['entry']) &&
+    is_array($eRes['entry'])
+) {
 
+    $dt['label']['bln'] = [
+        "01" => "Jan",
+        "02" => "Feb",
+        "03" => "Mar",
+        "04" => "Apr",
+        "05" => "Mei",
+        "06" => "Jun",
+        "07" => "Jul",
+        "08" => "Agt",
+        "09" => "Sep",
+        "10" => "Okt",
+        "11" => "Nop",
+        "12" => "Des"
+    ];
 
-       $dt['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
+    foreach ($eRes['entry'] as $key => $nilai) {
 
-       foreach($eRes['entry'] as $key=>$nilai){
-        if(is_array($nilai)){
-            foreach($nilai as $k1=>$val1){
-
-            if(isset($val1['id'])){
-                $visits = Http::withToken($token)->get($server.'/Encounter?patient='.$dt['PATIENTID']['patient_id'].'&episode-of-care='.$val1['id']);
-                $vis = $visits->json();
-                if($vis['total']>0){
-                foreach($vis['entry'] as $kvis=>$nvis){
-                    $dt['KOHORT'][$key]['anc_jenis_kunjungan'] = $nvis['resource']['identifier'][0]['value'];
-
-                 $ids = $nvis['resource']['id'];
-
-        $KHobserv= Http::withToken($token)->get($server."Observation?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
-        $KOB = $KHobserv->json();
-       if(isset($KOB['total']) && $KOB['total']>0){
-            foreach($KOB['entry'] as $kb=>$nnb){
-
-            if(isset($nnb['resource']['code']['coding']['0']['code'])){
-
-            if($nnb['resource']['code']['coding']['0']['code']=='29463-7'){
-                $dt['KOHORT'][$key]['anc_body_weight'] = $nnb['resource']['valueQuantity']['value']." ".$nnb['resource']['valueQuantity']['unit'];
-            }
-
-             if($nnb['resource']['code']['coding']['0']['code']=='11881-0'){
-                $dt['KOHORT'][$key]['anc_tinggi_fundus'] = $nnb['resource']['valueQuantity']['value']." ".$nnb['resource']['valueQuantity']['unit'];
-            }
-
-             if($nnb['resource']['code']['coding']['0']['code']=='55283-6'){
-                $dt['KOHORT'][$key]['anc_djj'] = $nnb['resource']['valueQuantity']['value']." ".$nnb['resource']['valueQuantity']['unit'];
-            }
-
-            if($nnb['resource']['code']['coding']['0']['code']=='89087-1'){
-                $dt['KOHORT'][$key]['anc_tbj'] = $nnb['resource']['valueQuantity']['value']." ".$nnb['resource']['valueQuantity']['unit'];
-            }
-
-              if($nnb['resource']['code']['coding']['0']['code']=='72155-5'){
-                $dt['KOHORT'][$key]['anc_presentasi'] = $nnb['resource']['valueCodeableConcept']['coding'][0]['display'];
-            }
-
-            if($nnb['resource']['code']['coding']['0']['code']=='249111004'){
-                $dt['KOHORT'][$key]['anc_posisi_kepala'] = $nnb['resource']['valueCodeableConcept']['coding'][0]['display'];
-            }
-
-
-
-            }
-
-
-            }
+        if (!is_array($nilai)) {
+            continue;
         }
 
-                }
+        foreach ($nilai as $k1 => $val1) {
 
-
-
-                }
-
+            if (!is_array($val1)) {
+                continue;
             }
 
+            if (!isset($val1['id'])) {
+                continue;
+            }
 
+            $episodeId = $val1['id'];
 
+            // =================================================
+            // ENCOUNTER BERDASARKAN EPISODE OF CARE
+            // =================================================
 
+            $visits = Http::withToken($token)->get(
+                $server . 'Encounter',
+                [
+                    'patient' => $dt['PATIENTID']['patient_id'],
+                    'episode-of-care' => $episodeId,
+                ]
+            );
 
+            $vis = $visits->json();
 
-                if(isset($val1['type'][0]['coding'][0]['code']) && $val1['type'][0]['coding'][0]['code']=='ANC'){
+            if (
+                !$visits->successful() ||
+                !isset($vis['total']) ||
+                $vis['total'] <= 0 ||
+                !isset($vis['entry']) ||
+                !is_array($vis['entry'])
+            ) {
+                continue;
+            }
 
-                if(isset($val1['period'])){
+            foreach ($vis['entry'] as $kvis => $nvis) {
 
-                $dt['KOHORT'][$key]['anc_bulan'] = Carbon::parse($val1['period']['start'])->format('m');
-                $dt['KOHORT'][$key]['anc_kunjungan']=$val1['period']['start'];
+                $resource = $nvis['resource'] ?? [];
 
-                }else{
-                    $dt['KOHORT'][$key]['anc_bulan'] ="-";
-                    $dt['KOHORT'][$key]['anc_kunjungan']="-";
-
+                if (empty($resource)) {
+                    continue;
                 }
-                }else{
-                     $dt['KOHORT'][$key]['anc_bulan'] ="-";
-                    $dt['KOHORT'][$key]['anc_kunjungan']="-";
+
+                $dt['KOHORT'][$key]['anc_jenis_kunjungan'] =
+                    data_get(
+                        $resource,
+                        'identifier.0.value',
+                        '-'
+                    );
+
+                $ids = $resource['id'] ?? null;
+
+                // =================================================
+                // OBSERVATION
+                // =================================================
+
+                $KHobserv = Http::withToken($token)->get(
+                    $server . 'Observation',
+                    [
+                        'patient' => $dt['PATIENTID']['patient_id'],
+                        'encounter' => $encounterId,
+                    ]
+                );
+
+                $KOB = $KHobserv->json();
+
+                if (
+                    !$KHobserv->successful() ||
+                    !isset($KOB['total']) ||
+                    $KOB['total'] <= 0 ||
+                    !isset($KOB['entry']) ||
+                    !is_array($KOB['entry'])
+                ) {
+                    continue;
                 }
 
-               // $dt['KOHORT'][$key]['anc_kunjungan']=$val1['period']['start'];
+                foreach ($KOB['entry'] as $kb => $nnb) {
+
+                    $obsResource = $nnb['resource'] ?? [];
+
+                    $code = data_get(
+                        $obsResource,
+                        'code.coding.0.code'
+                    );
+
+                    if (!$code) {
+                        continue;
+                    }
+
+                    if ($code === '29463-7') {
+                        $dt['KOHORT'][$key]['anc_body_weight'] =
+                            data_get(
+                                $obsResource,
+                                'valueQuantity.value',
+                                '-'
+                            )
+                            . ' ' .
+                            data_get(
+                                $obsResource,
+                                'valueQuantity.unit',
+                                ''
+                            );
+                    }
+
+                    if ($code === '11881-0') {
+                        $dt['KOHORT'][$key]['anc_tinggi_fundus'] =
+                            data_get(
+                                $obsResource,
+                                'valueQuantity.value',
+                                '-'
+                            )
+                            . ' ' .
+                            data_get(
+                                $obsResource,
+                                'valueQuantity.unit',
+                                ''
+                            );
+                    }
+
+                    if ($code === '55283-6') {
+                        $dt['KOHORT'][$key]['anc_djj'] =
+                            data_get(
+                                $obsResource,
+                                'valueQuantity.value',
+                                '-'
+                            )
+                            . ' ' .
+                            data_get(
+                                $obsResource,
+                                'valueQuantity.unit',
+                                ''
+                            );
+                    }
+
+                    if ($code === '89087-1') {
+                        $dt['KOHORT'][$key]['anc_tbj'] =
+                            data_get(
+                                $obsResource,
+                                'valueQuantity.value',
+                                '-'
+                            )
+                            . ' ' .
+                            data_get(
+                                $obsResource,
+                                'valueQuantity.unit',
+                                ''
+                            );
+                    }
+
+                    if ($code === '72155-5') {
+                        $dt['KOHORT'][$key]['anc_presentasi'] =
+                            data_get(
+                                $obsResource,
+                                'valueCodeableConcept.coding.0.display',
+                                '-'
+                            );
+                    }
+
+                    if ($code === '249111004') {
+                        $dt['KOHORT'][$key]['anc_posisi_kepala'] =
+                            data_get(
+                                $obsResource,
+                                'valueCodeableConcept.coding.0.display',
+                                '-'
+                            );
+                    }
+                }
+            }
+
+            // =================================================
+            // DATA EPISODE
+            // =================================================
+
+            if (
+                isset($val1['type'][0]['coding'][0]['code']) &&
+                $val1['type'][0]['coding'][0]['code'] === 'ANC'
+            ) {
+
+                if (isset($val1['period']['start'])) {
+
+                    $dt['KOHORT'][$key]['anc_bulan'] =
+                        Carbon::parse(
+                            $val1['period']['start']
+                        )->format('m');
+
+                    $dt['KOHORT'][$key]['anc_kunjungan'] =
+                        $val1['period']['start'];
+
+                } else {
+
+                    $dt['KOHORT'][$key]['anc_bulan'] = '-';
+                    $dt['KOHORT'][$key]['anc_kunjungan'] = '-';
+                }
+
+            } else {
+
+                $dt['KOHORT'][$key]['anc_bulan'] = '-';
+                $dt['KOHORT'][$key]['anc_kunjungan'] = '-';
             }
         }
+    }
+
+} else {
+
+    $dt['label']['bln'] = [
+        "01" => "Jan",
+        "02" => "Feb",
+        "03" => "Mar",
+        "04" => "Apr",
+        "05" => "Mei",
+        "06" => "Jun",
+        "07" => "Jul",
+        "08" => "Agt",
+        "09" => "Sep",
+        "10" => "Okt",
+        "11" => "Nop",
+        "12" => "Des"
+    ];
+}
 
 
-        }
-
-
-       }else{
-          $dt['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
-       }
 
 
 
