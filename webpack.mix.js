@@ -87,6 +87,7 @@ mix.js(
     'resources/js/newlplpo/item.js',
     'public/js/newlplpo'
 )
+.js( 'resources/js/datarme/search.js', 'public/js/datarme' )
 
 .postCss(
     'resources/css/app.css',

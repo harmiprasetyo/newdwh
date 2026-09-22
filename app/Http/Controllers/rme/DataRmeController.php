@@ -20,6 +20,9 @@ use App\Services\Fhir\EncounterService;
 use App\Services\Fhir\ImmunizationService;
 use App\Services\Fhir\ObservationParserService;
 use App\Services\Fhir\ObservationMapper;
+use App\Models\Rme\Patient;
+
+
 
 
 
@@ -97,51 +100,255 @@ class DataRmeController extends Controller
 
 
 
-    public function checkdata(Request $request){
-        $token = env('FHIR_API_TOKEN');
-        $server = env('FHIR_API_URL');
-        $nik = $request->nik;
 
-        $data = $this->patientService->searchByNik($nik);
+public function checkdata(Request $request)
+{
+    $request->validate([
+        'nik' => [
+            'required',
+            'string',
+            'max:30'
+        ],
 
-       if(!$data){
+        'search_type' => [
+            'required',
+            'in:nik,nik_ibu'
+        ]
+    ]);
+
+
+    $identifier = $request->nik;
+
+    $searchType = $request->search_type;
+
+
+    // =========================================================
+    // SEARCH PATIENT
+    // =========================================================
+
+    $patients = $this->patientService
+        ->searchByIdentifier(
+            $identifier,
+            $searchType
+        );
+
+
+    // =========================================================
+    // NOT FOUND
+    // =========================================================
+
+    if ($patients->isEmpty()) {
+
         return response()->json([
             'status' => 'not_found',
             'total' => 0,
-            'data' => null
+            'data' => []
         ]);
-       }
+    }
 
-        return response()->json([
+
+    // =========================================================
+    // RESPONSE
+    // =========================================================
+
+    return response()->json([
+
         'status' => 'success',
-        'total' => 1,
-        'data' => $data,
-         'nik' => $data->nik,
-        'name' => $data->name,
-        'phone' => $data->phone
+
+        'total' => $patients->count(),
+
+        'search_type' => $searchType,
+
+        'data' => $patients->map(function ($patient) {
+
+            return [
+                'patient_id' => $patient->patient_id,
+
+                'ihs_number' => $patient->ihs_number,
+
+                'nik' => $patient->nik,
+
+                'nik_ibu' => $patient->nik_ibu,
+
+                'bpjs' => $patient->bpjs,
+
+                'name' => $patient->name,
+
+                'phone' => $patient->phone,
+
+                'email' => $patient->email,
+
+                'gender' => $patient->gender,
+
+                'birth_date' => $patient->birth_date,
+
+                'address' => $patient->address,
+
+                'kode_propinsi' =>
+                    $patient->kode_propinsi,
+
+                'kode_kota' =>
+                    $patient->kode_kota,
+
+                'kode_kecamatan' =>
+                    $patient->kode_kecamatan,
+            ];
+
+        })->values()
+
     ]);
-
-       }
-
+}
 
 
 
-    public function dataPasien(Request $request){
-        $token = env('FHIR_API_TOKEN');
-        $server = env('FHIR_API_URL');
-        $nik = $request->nik;
-        $encounterId = $request->idencounter;
-
-  $patient = $this->patientService->searchByNik($nik);
-   $dt['PATIENTID'] = $patient->toArray();
-    $encounters = $this->encounterService->getByID($encounterId);
-    $dt['ENCOUNTER'] = $encounters->toArray();
-
-    $dt['IMMUNO'] = $this->immunizationService
-    ->getByPatient($patient->patient_id)
-    ->toArray();
 
 
+
+
+public function dataPasien(Request $request)
+{
+    $token = env('FHIR_API_TOKEN');
+    $server = env('FHIR_API_URL');
+
+    /*
+    |--------------------------------------------------------------------------
+    | PARAMETER
+    |--------------------------------------------------------------------------
+    */
+    $patientId  = $request->patient_id;
+    $nik        = $request->nik;
+    $nikIbu     = $request->nik_ibu;
+    $searchType = $request->search_type;
+    $encounterId = $request->idencounter;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DEBUG SEMENTARA
+    |--------------------------------------------------------------------------
+    | Jika ingin memastikan parameter yang dikirim dari halaman datapasien,
+    | buka URL /datarme/detail dan cek hasilnya.
+    |--------------------------------------------------------------------------
+    */
+    // dd($request->all());
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | 1. CARI PASIEN BERDASARKAN patient_id
+    |--------------------------------------------------------------------------
+    */
+    $patient = null;
+
+    if (!empty($patientId)) {
+
+        $patient = Patient::where(
+            'patient_id',
+            $patientId
+        )->first();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | 2. FALLBACK BERDASARKAN NIK / NIK IBU
+    |--------------------------------------------------------------------------
+    */
+    if (!$patient) {
+
+        if (!$searchType) {
+            $searchType = !empty($nikIbu)
+                ? 'nik_ibu'
+                : 'nik';
+        }
+
+        $identifier = $searchType === 'nik_ibu'
+            ? $nikIbu
+            : $nik;
+
+
+        if (!empty($identifier)) {
+
+            $patients = $this->patientService
+                ->searchByIdentifier(
+                    $identifier,
+                    $searchType
+                );
+
+
+            if ($patients && $patients->count() === 1) {
+
+                $patient = $patients->first();
+
+            } elseif ($patients && $patients->count() > 1) {
+
+                abort(
+                    400,
+                    'Ditemukan lebih dari satu pasien. Silakan pilih pasien terlebih dahulu.'
+                );
+            }
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | 3. PASIEN TIDAK DITEMUKAN
+    |--------------------------------------------------------------------------
+    | Jangan redirect back karena akan terlihat seperti kembali ke halaman
+    | yang sama dan sulit mengetahui penyebabnya.
+    |--------------------------------------------------------------------------
+    */
+    if (!$patient) {
+
+        abort(
+            404,
+            'Pasien tidak ditemukan. patient_id yang diterima: ' .
+            ($patientId ?: '-')
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | 4. DATA PASIEN
+    |--------------------------------------------------------------------------
+    */
+    $dt['PATIENTID'] = $patient->toArray();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | 5. ENCOUNTER
+    |--------------------------------------------------------------------------
+    */
+    $encounters = $this->encounterService
+        ->getByID($encounterId);
+
+
+    $dt['ENCOUNTER'] = $encounters
+        ? $encounters->toArray()
+        : [];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | 6. IMMUNIZATION
+    |--------------------------------------------------------------------------
+    */
+    $immunizations = $this->immunizationService
+        ->getByPatient($patient->patient_id);
+
+
+    $dt['IMMUNO'] = $immunizations
+        ? $immunizations->toArray()
+        : [];
+
+
+
+
+
+//sampai sini
       $newENC = Http::withToken($token)->get($server."Encounter/".$encounterId);
         $encResult = $newENC->json();
 
@@ -1433,42 +1640,175 @@ if (!empty($resAnamnese['entry'])) {
     }
 
 
-    public function searchpasien(Request $request){
 
-        $token = env('FHIR_API_TOKEN');
-        $server = env('FHIR_API_URL');
-        $nik = $request->nik;
+public function searchpasien(Request $request)
+{
+    $patientId = $request->patient_id;
+    $nik = $request->nik;
+    $nikIbu = $request->nik_ibu;
+    $searchType = $request->search_type;
 
-   $patient = $this->patientService->searchByNik($nik);
-   $dt['PATIENTID'] = $patient->toArray();
-    $encounters = $this->encounterService->getByPatient($dt['PATIENTID']['patient_id']);
+    /*
+    |--------------------------------------------------------------------------
+    | 1. Cari pasien berdasarkan patient_id terlebih dahulu
+    |--------------------------------------------------------------------------
+    | patient_id adalah identitas utama pasien.
+    | Ini penting karena NIK bisa NULL dan NIK-IBU bisa dimiliki
+    | oleh lebih dari satu pasien.
+    |--------------------------------------------------------------------------
+    */
+    $patient = null;
 
-    $dt['ENCOUNTER'] = $encounters->toArray();
-   // dd($dt['PATIENTID']['patient_id']);
-
-   foreach ($dt['ENCOUNTER'] as $k => $v) {
-
-    $identifiers = is_string($v['identifiers'])
-        ? json_decode($v['identifiers'], true)
-        : $v['identifiers'];
-
-    $anc = collect($identifiers ?? [])
-        ->first(function ($item) {
-            return str_contains($item['system'] ?? '', 'ANC');
-        });
-
-    if ($anc) {
-        $dt['SUBENC'][$k]['jeniskunjungan_name'] = 'ANC';
-        $dt['SUBENC'][$k]['kunjunganANC'] = $anc['value'] ?? '-';
-    } else {
-        $dt['SUBENC'][$k]['jeniskunjungan_name'] = "Lainnya";
-        $dt['SUBENC'][$k]['kunjunganANC'] = "-";
+    if ($patientId) {
+        $patient = Patient::where('patient_id', $patientId)->first();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 2. Fallback jika patient_id tidak dikirim
+    |--------------------------------------------------------------------------
+    */
+    if (!$patient) {
+
+        if (!$searchType) {
+            $searchType = $nikIbu ? 'nik_ibu' : 'nik';
+        }
+
+        $identifier = $searchType === 'nik_ibu'
+            ? $nikIbu
+            : $nik;
+
+        if ($identifier) {
+
+            $patients = $this->patientService
+                ->searchByIdentifier(
+                    $identifier,
+                    $searchType
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Hanya boleh otomatis memilih jika hasilnya tepat satu pasien.
+            |--------------------------------------------------------------------------
+            */
+            if ($patients && $patients->count() === 1) {
+
+                $patient = $patients->first();
+
+            } elseif ($patients && $patients->count() > 1) {
+
+                abort(
+                    400,
+                    'Ditemukan lebih dari satu pasien. Silakan pilih pasien terlebih dahulu.'
+                );
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 3. Jika pasien tetap tidak ditemukan
+    |--------------------------------------------------------------------------
+    */
+    if (!$patient) {
+        return redirect()
+            ->back()
+            ->with(
+                'error',
+                'Data pasien tidak ditemukan.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 4. Data pasien
+    |--------------------------------------------------------------------------
+    */
+    $dt['PATIENTID'] = $patient->toArray();
+
+    /*
+    |--------------------------------------------------------------------------
+    | 5. Ambil encounter berdasarkan patient_id
+    |--------------------------------------------------------------------------
+    */
+    $encounters = $this->encounterService
+        ->getByPatient($patient->patient_id);
+
+    $dt['ENCOUNTER'] = $encounters
+        ? $encounters->toArray()
+        : [];
+
+    /*
+    |--------------------------------------------------------------------------
+    | 6. Mapping Sub Encounter / ANC
+    |--------------------------------------------------------------------------
+    */
+    $dt['SUBENC'] = [];
+
+    foreach ($dt['ENCOUNTER'] as $k => $v) {
+
+        $identifiers = $v['identifiers'] ?? [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | identifiers kadang berupa JSON string dari database
+        |--------------------------------------------------------------------------
+        */
+        if (is_string($identifiers)) {
+            $identifiers = json_decode(
+                $identifiers,
+                true
+            );
+        }
+
+        $identifiers = is_array($identifiers)
+            ? $identifiers
+            : [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cari identifier ANC
+        |--------------------------------------------------------------------------
+        */
+        $anc = collect($identifiers)
+            ->first(function ($item) {
+
+                return str_contains(
+                    $item['system'] ?? '',
+                    'ANC'
+                );
+            });
+
+        if ($anc) {
+
+            $dt['SUBENC'][$k] = [
+                'jeniskunjungan_name' => 'ANC',
+                'kunjunganANC' => $anc['value'] ?? '-',
+            ];
+
+        } else {
+
+            $dt['SUBENC'][$k] = [
+                'jeniskunjungan_name' => 'Lainnya',
+                'kunjunganANC' => '-',
+            ];
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 7. Tampilkan halaman data pasien
+    |--------------------------------------------------------------------------
+    */
+    return view(
+        'rme.datapasien',
+        [
+            'dt' => $dt
+        ]
+    );
 }
 
- return view('rme.datapasien',["dt"=>$dt]);
 
-}
 
 
 }

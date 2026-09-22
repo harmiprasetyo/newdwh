@@ -14,5 +14,8 @@
     "/js/adminpanel/posyandu/edit.js": "/js/adminpanel/posyandu/edit.js",
     "/js/adminpanel/wilayahkerja/posyandu.js": "/js/adminpanel/wilayahkerja/posyandu.js",
     "/js/newlplpo/stokesensial.js": "/js/newlplpo/stokesensial.js",
+    "/js/newlplpo/buatlplpo.js": "/js/newlplpo/buatlplpo.js",
+    "/js/newlplpo/item.js": "/js/newlplpo/item.js",
+    "/js/datarme/search.js": "/js/datarme/search.js",
     "/css/app.css": "/css/app.css"
 }
