@@ -133,7 +133,7 @@
     <TD>{{ $encount['location_name'] }}</TD>
     <TD>{{ $dt['SUBENC'][$k]['jeniskunjungan_name'] }} ( {{ $dt['SUBENC'][$k]['kunjunganANC'] }})</TD>
     <TD>{{ $encount['practitioner_name'] }} </TD>
-    <td><button class="btn btn-secondary btn-outline-light btn-sm" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="getDetail('{{ $dt['PATIENTID']['nik'] }}','{{ $encount['encounter_id'] }}')">Detail</button></td>
+    <td> <button type="button" class="btn btn-secondary btn-outline-light btn-sm" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="getDetail( '{{ $dt['PATIENTID']['patient_id'] }}', '{{ $encount['encounter_id'] }}' )"> Detail </button> </td>
 </TR>
 
 @endforeach
@@ -193,11 +193,18 @@
 
 <script>
 
-    function getDetail(nik,id){
 
-        window.location.href= '/datarme/detail?nik='+nik+'&idencounter='+id
+function getDetail(patientId, idEncounter) {
 
-    }
+    const params = new URLSearchParams();
+
+    params.set('patient_id', patientId);
+    params.set('idencounter', idEncounter);
+
+    window.location.href = '/datarme/detail?' + params.toString();
+}
+
+
     $('document').ready(function(){
       /*  Swal.fire({
   title: 'Error!',
