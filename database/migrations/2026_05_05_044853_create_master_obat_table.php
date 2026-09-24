@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('kode_obat')->unique();
             $table->string('nama_obat');
             $table->string('satuan');
-            $table->string('kelompok_obat');
-            $table->string('golongan_obat');
-            $table->string('kategori_obat');
+            $table->string('kelompok_obat')->nullable();
+            $table->string('golongan_obat')->nullable();
+            $table->string('kategori_obat')->nullable();
             $table->timestamps();
         });
     }
