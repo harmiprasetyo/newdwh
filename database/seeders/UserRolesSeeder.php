@@ -15,26 +15,26 @@ Class UserRolesSeeder extends Seeder
 
         $data = [
             [
-                'role_id' => 1,
+                'id' => 1,
                 'role_name' => 'Super Admin'
             ],
             [
-                'role_id' => 2,
+                'id' => 2,
                 'role_name' => 'Admin Faskes'
             ],
             [
-                'role_id' => 3,
+                'id' => 3,
                 'role_name' => 'Program Puskesmas'
             ],
             [
-                'role_id' => 4,
+                'id' => 4,
                 'role_name' => 'Program Rumah Sakit'
             ],
         ];
 
         foreach ($data as $row) {
             DB::table('user_roles')->updateOrInsert(
-                ['role_id' => $row['role_id']],
+                ['id' => $row['id']],
                 [
                     'role_name' => $row['role_name']
                 ]

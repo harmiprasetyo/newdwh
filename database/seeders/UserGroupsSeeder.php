@@ -38,7 +38,7 @@ Class UserGroupsSeeder extends Seeder
         ];
 
         foreach ($data as $row) {
-            DB::table('user_groups')->updateOrInsert(
+            DB::table('usergroups')->updateOrInsert(
                 ['group_id' => $row['group_id']],
                 [
                     'group_name' => $row['group_name']
