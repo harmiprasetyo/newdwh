@@ -13,6 +13,7 @@ class NewLplpoProgramListSeeder extends Seeder
     public function run(): void
     {
         $programs = [
+            'NON PROGRAM',
             'PROGRAM KUSTA',
             'PROGRAM FILARIASIS',
             'PROGRAM HIV',
