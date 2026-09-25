@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::table('lplpo_temp', function (Blueprint $table) {
-    $table->foreignId('header_id')
-        ->after('id')
-        ->constrained('lplpo_header_report')
-        ->cascadeOnDelete();
-});
+        Schema::table('patients', function (Blueprint $table) {
+            //
+            $table->string('nik_ibu')->nullable()->index();
+        });
     }
 
     /**
@@ -24,9 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('lplpo_temp', function (Blueprint $table) {
-            $table->dropForeign(['header_id']);
-            $table->dropColumn('header_id');
+        Schema::table('patients', function (Blueprint $table) {
+            //
         });
     }
 };

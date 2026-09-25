@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
 {
     public function run()
     {
+         $this->call([
+            ListTypeFaskesSeeder::class,
+        ]);
 
     $this->call([
             NewLplpoKategoriSeeder::class,
@@ -31,14 +34,16 @@ class DatabaseSeeder extends Seeder
     MasterObatSeeder::class,
 ]);
 
-        $this->call([
-            UsersAppSeeder::class,
-        ]);
+ $this->call([
+    MasterObatBHPSeeder::class,
+]);
+
     /**
          * =========================
          * USER GROUPS
          * =========================
          */
+        /*
         UserGroups::upsert([
 
             [
@@ -58,10 +63,10 @@ class DatabaseSeeder extends Seeder
                 ["group_id"=>"6",
                 "group_name"=>"TPMB"],
         ], ['group_id'], ['group_name']);
+*/
 
 
-
-
+/*
    UserRoles::upsert([[
     'id' => 1,
         'role_name' => 'Super Admin',
@@ -109,10 +114,10 @@ class DatabaseSeeder extends Seeder
         ]
     ],['id'],['role_name','groupId']);
 
-
+*/
 
     UsersApp::updateOrCreate(
-    ['username' => 'administrator'],
+    ['username' => 'admin'],
     [
         'email' => 'admin@dinkes.go.id',
         'namalengkap' => 'Administrator',
@@ -125,11 +130,19 @@ class DatabaseSeeder extends Seeder
         'kodePropinsi' => null,
         'kodeKota' => null,
         'kodeKecamatan' => null,
-        'password' => Hash::make('Admin@123456'),
+        'password' => Hash::make('123456'),
     ]
 );
 
-
+ $this->call([
+            UserRolesSeeder::class,
+        ]);
+ $this->call([
+            UserGroupsSeeder::class,
+        ]);
+$this->call([
+            UsersAppSeeder::class,
+        ]);
         /**
          * =========================
          * TYPE FASKES
