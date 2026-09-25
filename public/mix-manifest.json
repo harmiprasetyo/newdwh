@@ -16,11 +16,6 @@
     "/js/newlplpo/stokesensial.js": "/js/newlplpo/stokesensial.js",
     "/js/newlplpo/buatlplpo.js": "/js/newlplpo/buatlplpo.js",
     "/js/newlplpo/item.js": "/js/newlplpo/item.js",
-    "/js/newlplpo/report_monitoring.js": "/js/newlplpo/report_monitoring.js",
-    "/js/newlplpo/kategoriobat.js": "/js/newlplpo/kategoriobat.js",
-    "/js/newlplpo/stokesensial_monitoring.js": "/js/newlplpo/stokesensial_monitoring.js",
-    "/js/newlplpo/kunjungan.js": "/js/newlplpo/kunjungan.js",
-    "/js/newlplpo/infokapus.js": "/js/newlplpo/infokapus.js",
-    "/js/dashboard/index.js": "/js/dashboard/index.js",
+    "/js/datarme/search.js": "/js/datarme/search.js",
     "/css/app.css": "/css/app.css"
 }

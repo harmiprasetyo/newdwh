@@ -1,5 +1,6 @@
 .env
 .env.*
 /node_modules
-docker-compose.yml
+docker-compose*.yml
+/vendor
 

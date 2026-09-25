@@ -63,6 +63,7 @@ protected $fillable = [
         'patient_id',
         'ihs_number',
         'nik',
+        'nik_ibu',
         'bpjs',
         'name',
         'phone',

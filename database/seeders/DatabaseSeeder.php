@@ -19,100 +19,47 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 
-    $this->call([
-            NewLplpoKategoriSeeder::class,
+     $this->call([
+            \Laravolt\Indonesia\Seeds\DatabaseSeeder::class,
         ]);
+
+    $this->call([
+            ListTypeFaskesSeeder::class,
+        ]);
+
+
 
           $this->call([
             MasterFaskesSeeder::class,
         ]);
 
+          $this->call([
+            NewLplpoProgramListSeeder::class,
+        ]);
+
+            $this->call([
+            NewLplpoKategoriSeeder::class,
+        ]);
          $this->call([
-    MasterObatSeeder::class,
+    MasterObatBHPSeeder::class,
 ]);
 
-        $this->call([
-            UsersAppSeeder::class,
+         $this->call([
+            MasterObatSeeder::class,
+            ]);
+
+
+
+
+ $this->call([
+            UserRolesSeeder::class,
         ]);
-    /**
-         * =========================
-         * USER GROUPS
-         * =========================
-         */
-        UserGroups::upsert([
-
-            [
-            "group_id"=>"1",
-            "group_name"=>"Administrator"
-                ],
-            [
-            "group_id"=>"2",
-            "group_name"=>"Dinas Kesehatan"],
-            [
-            "group_id"=>"3",
-            "group_name"=>"Admin Faskes"],
-            ["group_id"=>"4",
-                "group_name"=>"Program Puskesmas"],
-                ["group_id"=>"5",
-                "group_name"=>"Farmasi Puskesmas"],
-                ["group_id"=>"6",
-                "group_name"=>"TPMB"],
-        ], ['group_id'], ['group_name']);
-
-
-
-
-   UserRoles::upsert([[
-    'id' => 1,
-        'role_name' => 'Super Admin',
-        'groupId' => 1
-    ],
-    [
-        'id' => 2,
-        'role_name' => 'program',
-        'groupId' => 2
-    ],
-     [
-        'id' => 3,
-        'role_name' => 'farmasi',
-        'groupId' => 2
-    ],
-    [
-        'id' => 4,
-        'role_name' => 'program',
-        'groupId' => 3
-    ],
-    [
-        'id' => 5,
-        'role_name' => 'farmasi',
-        'groupId' => 3
-    ],
-    [
-        'id' => 6,
-        'role_name' => 'Dokter',
-        'groupId' => 4
-    ],
-    [
-        'id' => 7,
-        'role_name' => 'Perawat',
-        'groupId' => 4
-    ],
-    [
-        'id' => 8,
-        'role_name' => 'Bidan',
-        'groupId' => 4
-     ],
-        [
-            'id' => 9,
-            'role_name' => 'Tenaga Kesehatan Lain',
-            'groupId' => 4
-        ]
-    ],['id'],['role_name','groupId']);
-
-
+ $this->call([
+            UserGroupsSeeder::class,
+        ]);
 
     UsersApp::updateOrCreate(
-    ['username' => 'administrator'],
+    ['username' => 'admin'],
     [
         'email' => 'admin@dinkes.go.id',
         'namalengkap' => 'Administrator',
@@ -125,21 +72,15 @@ class DatabaseSeeder extends Seeder
         'kodePropinsi' => null,
         'kodeKota' => null,
         'kodeKecamatan' => null,
-        'password' => Hash::make('Admin@123456'),
+        'password' => Hash::make('123456'),
     ]
 );
 
 
-        /**
-         * =========================
-         * TYPE FASKES
-         * =========================
-         */
-        ListTypeFaskes::upsert([
-            ["id" => 1, "typeFaskes" => "Puskesmas"],
-            ["id" => 2, "typeFaskes" => "Rumah Sakit"],
-            ["id" => 3, "typeFaskes" => "Klinik"]
-        ], ['id'], ['typeFaskes']);
+$this->call([
+            UsersAppSeeder::class,
+        ]);
+
 
 
 

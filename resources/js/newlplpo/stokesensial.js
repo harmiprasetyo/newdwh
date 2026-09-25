@@ -29,6 +29,7 @@ $(function () {
         config.kategoriUrl || '';
 
    const obatUrl = config.obatUrl || '';
+   const duplicateUrl = config.duplicateUrl || '';
 
 
     // =========================================================
@@ -38,7 +39,7 @@ $(function () {
     let table = null;
 
     let currentEditId = 0;
-    
+
 
 
     // =========================================================
@@ -76,7 +77,15 @@ $(function () {
 // SELECT2 OBAT
 // =========================================================
 
+
 const kodeObat = $('#kode_obat');
+function escapeHtml(value) {
+
+    return $('<div>')
+        .text(value ?? '')
+        .html();
+
+}
 
 kodeObat.select2({
 
@@ -86,9 +95,11 @@ kodeObat.select2({
 
     width: '100%',
 
-    placeholder: 'Pilih Obat',
+    placeholder: 'Cari / pilih obat...',
 
     allowClear: true,
+
+    minimumInputLength: 0,
 
     ajax: {
 
@@ -98,7 +109,7 @@ kodeObat.select2({
 
         dataType: 'json',
 
-        delay: 250,
+        delay: 300,
 
         data: function (params) {
 
@@ -135,7 +146,16 @@ kodeObat.select2({
                             text:
                                 item.kode_obat +
                                 ' — ' +
-                                item.nama_obat
+                                item.nama_obat,
+
+                            kode_obat:
+                                item.kode_obat,
+
+                            nama_obat:
+                                item.nama_obat,
+
+                            satuan:
+                                item.satuan
 
                         };
 
@@ -146,6 +166,45 @@ kodeObat.select2({
         },
 
         cache: true
+
+    },
+
+    templateResult: function (item) {
+
+        if (!item.id) {
+            return item.text;
+        }
+
+        return $(`
+            <div class="obat-option">
+
+                <div class="fw-semibold">
+                    ${escapeHtml(item.nama_obat || '')}
+                </div>
+
+                <div class="small text-muted">
+                    ${escapeHtml(item.kode_obat || '')}
+                    ${item.satuan
+                        ? ' • ' + escapeHtml(item.satuan)
+                        : ''}
+                </div>
+
+            </div>
+        `);
+
+    },
+
+    templateSelection: function (item) {
+
+        if (!item.id) {
+            return item.text;
+        }
+
+        return (
+            item.kode_obat +
+            ' — ' +
+            item.nama_obat
+        );
 
     }
 
@@ -579,6 +638,618 @@ kodeObat.select2({
 
             }
         );
+
+
+
+// =========================================================
+// DUPLIKASI TAHUN
+// =========================================================
+
+$('#btnDuplikasi').on(
+    'click',
+    function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL TAHUN DARI FILTER DATATABLE
+        |--------------------------------------------------------------------------
+        */
+
+        const filterTahun =
+            $('#filterTahun').val();
+
+        if (filterTahun) {
+
+            $('#duplikat_dari_tahun')
+                .val(filterTahun);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DEFAULT TAHUN TUJUAN
+        |--------------------------------------------------------------------------
+        */
+
+        const dariTahun =
+            parseInt(
+                $('#duplikat_dari_tahun').val(),
+                10
+            );
+
+        if (!isNaN(dariTahun)) {
+
+            const currentKeTahun =
+                parseInt(
+                    $('#duplikat_ke_tahun').val(),
+                    10
+                );
+
+            /*
+            | Kalau tujuan sama dengan sumber,
+            | otomatis pilih tahun berikutnya.
+            */
+
+            if (
+                !currentKeTahun ||
+                currentKeTahun === dariTahun
+            ) {
+
+                $('#duplikat_ke_tahun')
+                    .val(dariTahun + 1);
+
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET WARNING
+        |--------------------------------------------------------------------------
+        */
+
+        $('#duplikasiWarning')
+            .addClass('d-none');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET BUTTON
+        |--------------------------------------------------------------------------
+        */
+
+        $('#btnConfirmDuplikasi')
+            .prop('disabled', false);
+
+        $('#duplicateSpinner')
+            .addClass('d-none');
+
+        $('#duplicateIcon')
+            .removeClass('d-none');
+
+        $('#duplicateText')
+            .text('Duplikasi');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SHOW MODAL
+        |--------------------------------------------------------------------------
+        */
+
+        $('#modalDuplikasi')
+            .modal('show');
+
+    }
+);
+
+
+// =========================================================
+// VALIDASI TAHUN DUPLIKASI
+// =========================================================
+
+$('#duplikat_dari_tahun, #duplikat_ke_tahun')
+    .on(
+        'change',
+        function () {
+
+            const dariTahun =
+                parseInt(
+                    $('#duplikat_dari_tahun').val(),
+                    10
+                );
+
+            const keTahun =
+                parseInt(
+                    $('#duplikat_ke_tahun').val(),
+                    10
+                );
+
+
+            if (
+                dariTahun &&
+                keTahun &&
+                dariTahun === keTahun
+            ) {
+
+                $('#duplikasiWarning')
+                    .removeClass('d-none');
+
+                $('#btnConfirmDuplikasi')
+                    .prop('disabled', true);
+
+            } else {
+
+                $('#duplikasiWarning')
+                    .addClass('d-none');
+
+                $('#btnConfirmDuplikasi')
+                    .prop('disabled', false);
+
+            }
+
+        }
+    );
+
+
+// =========================================================
+// CONFIRM DUPLIKASI
+// =========================================================
+
+$('#btnConfirmDuplikasi').on(
+    'click',
+    function () {
+
+        const button =
+            $(this);
+
+
+        const dariTahun =
+            parseInt(
+                $('#duplikat_dari_tahun').val(),
+                10
+            );
+
+
+        const keTahun =
+            parseInt(
+                $('#duplikat_ke_tahun').val(),
+                10
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !dariTahun ||
+            !keTahun
+        ) {
+
+            Swal.fire({
+
+                icon: 'warning',
+
+                title: 'Data belum lengkap',
+
+                text:
+                    'Tahun sumber dan tahun tujuan harus dipilih.'
+
+            });
+
+            return;
+
+        }
+
+
+        if (
+            dariTahun === keTahun
+        ) {
+
+            $('#duplikasiWarning')
+                .removeClass('d-none');
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FASKES
+        |--------------------------------------------------------------------------
+        |
+        | Controller sudah menentukan:
+        |
+        | Group 3/5 = otomatis faskes user
+        | Admin      = membutuhkan kodeFaskes
+        |
+        */
+
+        let kodeFaskes =
+            $kodeFaskes.val();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Untuk admin
+        |--------------------------------------------------------------------------
+        |
+        | Gunakan faskes dari filter halaman.
+        |
+        */
+
+        if (
+            isAdmin
+        ) {
+
+            kodeFaskes =
+                $('#filterFaskes').val() ||
+                $kodeFaskes.val();
+
+        } else {
+
+            kodeFaskes =
+                userKodeFaskes;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI FASKES
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !kodeFaskes
+        ) {
+
+            Swal.fire({
+
+                icon: 'warning',
+
+                title: 'Faskes belum dipilih',
+
+                text:
+                    'Silakan pilih faskes terlebih dahulu.'
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KONFIRMASI
+        |--------------------------------------------------------------------------
+        */
+
+        Swal.fire({
+
+            icon: 'question',
+
+            title: 'Duplikasi Stok & Esensial?',
+
+            html:
+                'Konfigurasi obat tahun ' +
+                '<strong>' +
+                dariTahun +
+                '</strong>' +
+                ' akan disalin ke tahun ' +
+                '<strong>' +
+                keTahun +
+                '</strong>.' +
+                '<br><br>' +
+                'Data yang sudah ada di tahun tujuan akan diperbarui.',
+
+            showCancelButton: true,
+
+            confirmButtonText:
+                '<i class="bi bi-copy me-1"></i> Ya, Duplikasi',
+
+            cancelButtonText:
+                'Batal',
+
+            reverseButtons: true
+
+        }).then(
+            function (result) {
+
+                if (
+                    !result.isConfirmed
+                ) {
+
+                    return;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | LOADING BUTTON
+                |--------------------------------------------------------------------------
+                */
+
+                button
+                    .prop('disabled', true);
+
+
+                $('#duplicateSpinner')
+                    .removeClass('d-none');
+
+
+                $('#duplicateIcon')
+                    .addClass('d-none');
+
+
+                $('#duplicateText')
+                    .text('Memproses...');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | AJAX
+                |--------------------------------------------------------------------------
+                */
+
+                $.ajax({
+
+                    url:
+                        duplicateUrl,
+
+                    type:
+                        'POST',
+
+                    data: {
+
+                        _token:
+                            $('meta[name="csrf-token"]')
+                                .attr('content'),
+
+                        dari_tahun:
+                            dariTahun,
+
+                        ke_tahun:
+                            keTahun,
+
+                        kodeFaskes:
+                            kodeFaskes
+
+                    },
+
+
+                    success:
+                        function (response) {
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | TUTUP MODAL
+                            |--------------------------------------------------------------------------
+                            */
+
+                            $('#modalDuplikasi')
+                                .modal('hide');
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | RELOAD DATATABLE
+                            |--------------------------------------------------------------------------
+                            */
+
+                            table.ajax.reload(
+                                null,
+                                false
+                            );
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | HASIL
+                            |--------------------------------------------------------------------------
+                            */
+
+                            let detail =
+                                '<div class="text-start">' +
+
+                                '<div class="mb-2">' +
+                                escapeHtml(
+                                    response.message ||
+                                    'Duplikasi berhasil.'
+                                ) +
+                                '</div>' +
+
+                                '<hr>' +
+
+                                '<div>' +
+                                '<strong>Ringkasan:</strong>' +
+                                '</div>' +
+
+                                '<ul class="mb-0">' +
+
+                                '<li>' +
+                                'Ditambahkan: <strong>' +
+                                (response.inserted || 0) +
+                                '</strong>' +
+                                '</li>' +
+
+                                '<li>' +
+                                'Diperbarui: <strong>' +
+                                (response.updated || 0) +
+                                '</strong>' +
+                                '</li>' +
+
+                                '<li>' +
+                                'Dilewati: <strong>' +
+                                (response.skipped || 0) +
+                                '</strong>' +
+                                '</li>' +
+
+                                '</ul>' +
+
+                                '</div>';
+
+
+                            Swal.fire({
+
+                                icon:
+                                    'success',
+
+                                title:
+                                    'Duplikasi Berhasil',
+
+                                html:
+                                    detail,
+
+                                confirmButtonText:
+                                    'OK'
+
+                            });
+
+                        },
+
+
+                    error:
+                        function (xhr) {
+
+                            let message =
+                                'Duplikasi gagal.';
+
+
+                            if (
+                                xhr.responseJSON?.message
+                            ) {
+
+                                message =
+                                    xhr.responseJSON.message;
+
+                            }
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | VALIDATION ERRORS
+                            |--------------------------------------------------------------------------
+                            */
+
+                            if (
+                                xhr.responseJSON?.errors
+                            ) {
+
+                                const errors =
+                                    xhr.responseJSON.errors;
+
+                                let errorList =
+                                    '';
+
+                                Object.keys(errors)
+                                    .forEach(
+                                        function (key) {
+
+                                            if (
+                                                Array.isArray(
+                                                    errors[key]
+                                                )
+                                            ) {
+
+                                                errors[key]
+                                                    .forEach(
+                                                        function (error) {
+
+                                                            errorList +=
+                                                                '<li>' +
+                                                                escapeHtml(error) +
+                                                                '</li>';
+
+                                                        }
+                                                    );
+
+                                            }
+
+                                        }
+                                    );
+
+
+                                if (
+                                    errorList
+                                ) {
+
+                                    message +=
+                                        '<br>' +
+
+                                        '<ul class="text-start">' +
+
+                                        errorList +
+
+                                        '</ul>';
+
+                                }
+
+                            }
+
+
+                            Swal.fire({
+
+                                icon:
+                                    'error',
+
+                                title:
+                                    'Duplikasi Gagal',
+
+                                html:
+                                    message
+
+                            });
+
+                        },
+
+
+                    complete:
+                        function () {
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | RESET BUTTON
+                            |--------------------------------------------------------------------------
+                            */
+
+                            button
+                                .prop(
+                                    'disabled',
+                                    false
+                                );
+
+
+                            $('#duplicateSpinner')
+                                .addClass('d-none');
+
+
+                            $('#duplicateIcon')
+                                .removeClass('d-none');
+
+
+                            $('#duplicateText')
+                                .text(
+                                    'Duplikasi'
+                                );
+
+                        }
+
+                });
+
+            }
+        );
+
+    }
+);
 
 
     // =========================================================
@@ -1133,6 +1804,10 @@ kodeObat.select2({
 
         }
     );
+
+
+
+
 
 });
 
