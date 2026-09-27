@@ -88,51 +88,6 @@ mix.js(
     'public/js/newlplpo'
 )
 .js( 'resources/js/datarme/search.js', 'public/js/datarme' )
-<<<<<<< HEAD
-
-.js(
-    'resources/js/newlplpo/report_monitoring.js',
-    'public/js/newlplpo'
-)
-.js( 'resources/js/newlplpo/kategoriobat.js', 'public/js/newlplpo' )
-.js(
-    'resources/js/newlplpo/stokesensial_monitoring.js',
-    'public/js/newlplpo'
-)
-.js(
-    'resources/js/newlplpo/kunjungan.js',
-    'public/js/newlplpo'
-)
-.js(
-    'resources/js/newlplpo/infokapus.js',
-    'public/js/newlplpo'
-)
-
-  .js(
-        'resources/js/dashboard/index.js',
-        'public/js/dashboard'
-    )
-
-.js(
-    'resources/js/newlplpo/arsip/detail.js',
-    'public/js/newlplpo/arsip'
-)
-.js(
-    'resources/js/newlplpo/rekap/index.js',
-    'public/js/newlplpo/rekap'
-)
-
-.postCss(
-    'resources/css/newlplpo/rekap/index.css',
-    'public/css/newlplpo/rekap'
-)
-.postCss(
-    'resources/css/newlplpo/arsip/detail.css',
-    'public/css/newlplpo/arsip'
-)
-
-
-=======
 .js(
     'resources/js/rme/datapasien.js',
     'public/js/rme'
@@ -149,7 +104,6 @@ mix.js(
     'resources/css/rme/detailpasien.css',
     'public/css/rme'
 )
->>>>>>> origin/modul/rme
 .postCss(
     'resources/css/app.css',
     'public/css',
@@ -157,5 +111,4 @@ mix.js(
         //
     ]
 );
-
 
