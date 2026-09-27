@@ -1,0 +1,77 @@
+/* ==========================================================
+   DETAIL LPLPO
+   ========================================================== */
+
+#tableDetailLplpo {
+    font-size: 13px;
+}
+
+#tableDetailLplpo th,
+#tableDetailLplpo td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   TABLE HEADER
+   ========================================================== */
+
+#tableDetailLplpo thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+/* ==========================================================
+   PROGRAM SEPARATOR
+   ========================================================== */
+
+#tableDetailLplpo tr.table-primary td {
+    background-color: #cfe2ff !important;
+}
+
+/* ==========================================================
+   NAPZA ROW
+   ========================================================== */
+
+#tableDetailLplpo tr.table-napza td {
+    background-color: #f8d7da !important;
+}
+
+#tableDetailLplpo tr.table-napza:hover td {
+    background-color: #f1bfc4 !important;
+}
+
+/* ==========================================================
+   NAPZA LEGEND
+   ========================================================== */
+
+.napza-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-color: #f8d7da;
+    border: 1px solid #e5aeb3;
+    border-radius: 3px;
+}
+
+/* ==========================================================
+   LEGEND
+   ========================================================== */
+
+.detail-lplpo-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-lplpo-legend .badge {
+    font-size: 12px;
+}

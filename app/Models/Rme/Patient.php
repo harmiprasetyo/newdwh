@@ -60,18 +60,36 @@ public function immunizations()
     );
 }
 protected $fillable = [
-        'patient_id',
-        'ihs_number',
-        'nik',
-        'bpjs',
-        'name',
-        'phone',
-        'email',
-        'gender',
-        'birth_date',
-        'address',
-        'kode_propinsi',
-        'kode_kota',
-        'kode_kecamatan'
-    ];
+    'patient_id',
+    'ihs_number',
+    'nik',
+    'bpjs',
+    'name',
+    'phone',
+    'email',
+    'gender',
+    'birth_date',
+    'address',
+    'kode_propinsi',
+    'kode_kota',
+    'kode_kecamatan',
+    'nik_ibu',
+
+    // FHIR
+    'resource_type',
+    'fhir_version',
+    'fhir_last_updated',
+    'fhir_last_sync_at',
+    'fhir_etag',
+    'fhir_meta',
+    'fhir_resource',
+];
+
+protected $casts = [
+    'birth_date' => 'date',
+    'fhir_last_updated' => 'datetime',
+    'fhir_last_sync_at' => 'datetime',
+    'fhir_meta' => 'array',
+    'fhir_resource' => 'array',
+];
 }

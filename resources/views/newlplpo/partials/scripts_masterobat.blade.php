@@ -75,120 +75,57 @@ $(function () {
     /* ==================================================
        DATATABLE MASTER OBAT
     ================================================== */
+$('#tblMasterObat').DataTable({
+    processing: true,
+    serverSide: true,
 
-    let tableObat = $('#tblMasterObat').DataTable({
+    ajax: {
+       url: "{{ route('newlplpo.masterdataobat.datatableforcanvas') }}",
+        type: "GET"
+    },
 
-        processing: true,
-
-        serverSide: true,
-
-        searching: true,
-
-        ordering: true,
-
-        responsive: true,
-
-        ajax: {
-
-            url: "{{ route('newlplpo.masterdataobat.datatableforcanvas') }}",
-
-            data: function (d) {
-
-                d.tahun =
-                    $('#tahunCanvas').val();
-
-                d.kodeFaskes =
-                    $('#kodeFaskes').val() || '';
-
-            }
-
+    columns: [
+        {
+            data: 'kode_obat',
+            name: 'kode_obat'
         },
+        {
+            data: 'nama_obat',
+            name: 'nama_obat'
+        },
+        {
+            data: 'satuan',
+            name: 'satuan'
+        }
+    ],
 
-        columns: [
+    createdRow: function (row, data, dataIndex) {
 
-            {
-                data: 'kode_obat',
-                name: 'master_obat.kode_obat'
-            },
+        // Simpan seluruh data obat pada <tr>
+        $(row).attr('data-id', data.id);
+        $(row).attr('data-kode', data.kode_obat);
+        $(row).attr('data-nama', data.nama_obat);
+        $(row).attr('data-satuan', data.satuan);
 
-            {
-                data: 'nama_obat',
-                name: 'master_obat.nama_obat',
+        $(row).attr('data-min', data.stok_minimal ?? 0);
+        $(row).attr('data-opt', data.stok_optimum ?? 0);
 
-                render: function (data, type, row) {
+        $(row).attr(
+            'data-napza',
+            data.obat_napza ?? 'tidak'
+        );
 
-                    if (row.obat_napza === 'ya') {
+        $(row).attr(
+            'data-esensial',
+            data.obat_esensial ?? 'tidak'
+        );
 
-                        return `
-                            <span class="text-danger fw-bold">
-                                ${data}
-                                <span class="badge bg-danger ms-1">
-                                    NAPZA
-                                </span>
-                            </span>
-                        `;
-
-                    }
-
-                    return data;
-
-                }
-
-            },
-
-            {
-                data: 'satuan',
-                name: 'master_obat.satuan'
-            },
-
-            {
-                data: null,
-
-                orderable: false,
-
-                searchable: false,
-
-                className: 'text-center',
-
-                render: function (data) {
-
-                    return `
-                        <button
-                            type="button"
-                            class="btn btn-success btn-sm pilih-obat"
-
-                            data-id="${data.id}"
-
-                            data-kode="${data.kode_obat}"
-
-                            data-nama="${data.nama_obat}"
-
-                            data-satuan="${data.satuan}"
-
-                            data-min="${data.stok_minimal ?? 0}"
-
-                            data-opt="${data.stok_optimum ?? 0}"
-
-                            data-napza="${data.obat_napza ?? 'tidak'}"
-
-                            data-esensial="${data.obat_esensial ?? 'tidak'}"
-
-                            data-formularium="${data.obat_formularium_puskesmas ?? 'tidak'}"
-                        >
-
-                            <i class="bi bi-check-circle me-1"></i>
-                            Pilih
-
-                        </button>
-                    `;
-
-                }
-
-            }
-
-        ]
-
-    });
+        $(row).attr(
+            'data-formularium',
+            data.obat_formularium_puskesmas ?? 'tidak'
+        );
+    }
+});
 
 
     /* ==================================================
@@ -483,6 +420,49 @@ $(function () {
         }
     );
 
+
+
+
+    $(document).on(
+    'click',
+    '#tblMasterObat tbody tr',
+    function () {
+
+        const row = $(this);
+
+        const id = row.attr('data-id');
+        const kode = row.attr('data-kode');
+        const nama = row.attr('data-nama');
+        const satuan = row.attr('data-satuan');
+
+        const min = row.attr('data-min');
+        const opt = row.attr('data-opt');
+
+        // Isi form item
+        $('#kode_obat').val(kode);
+        $('#nama_obat').val(nama);
+        $('#satuan').val(satuan);
+
+        $('#stok_minimum').val(min || 0);
+        $('#stok_optimum').val(opt || 0);
+
+        // Preview
+        $('#previewKode').text(kode);
+        $('#previewNama').text(nama);
+
+        // Simpan ID master obat
+        $('#frmItem').attr(
+            'data-master-obat-id',
+            id
+        );
+
+        // Highlight baris
+        $('#tblMasterObat tbody tr')
+            .removeClass('table-primary');
+
+        row.addClass('table-primary');
+    }
+);
 
     /* ==================================================
        PROGRAM CHANGE

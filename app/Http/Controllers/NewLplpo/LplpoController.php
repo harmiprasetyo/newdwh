@@ -285,7 +285,7 @@ class LplpoController extends Controller
 
         $programs =
             Program::orderBy(
-                'program_name'
+                'id'
             )->get();
 
 

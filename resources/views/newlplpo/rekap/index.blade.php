@@ -4,1912 +4,587 @@
 
 <div class="container-fluid">
 
-    {{-- ==========================================================
-         HEADER
-    =========================================================== --}}
+```
+{{-- ==========================================================
+     HEADER
+=========================================================== --}}
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3">
 
-        <div>
+    <div>
 
-            <h4 class="fw-bold mb-1">
+        <h4 class="fw-bold mb-1">
+            <i class="bi bi-clipboard-data me-2"></i>
+            Rekap Laporan LPLPO
+        </h4>
 
-                <i class="bi bi-clipboard-data me-2"></i>
-
-                Rekap Laporan LPLPO
-
-            </h4>
-
-            <div class="text-muted">
-
-                Rekapitulasi LPLPO FINAL berdasarkan periode
-
-            </div>
-
+        <div class="text-muted">
+            Rekapitulasi LPLPO FINAL berdasarkan periode
         </div>
-
-    </div>
-
-
-    {{-- ==========================================================
-         FILTER PERIODE
-    =========================================================== --}}
-
-    <div class="card border-0 shadow-sm mb-3">
-
-        <div class="card-header bg-success text-white">
-
-            <strong>
-
-                <i class="bi bi-calendar-range me-1"></i>
-
-                Filter Periode Rekap
-
-            </strong>
-
-        </div>
-
-
-        <div class="card-body">
-
-            <div class="row g-3 align-items-end">
-
-
-                {{-- PERIODE MULAI --}}
-
-                <div class="col-lg-3 col-md-6">
-
-                    <label class="form-label fw-semibold">
-
-                        Periode Mulai
-
-                    </label>
-
-
-                    <div class="input-group">
-
-                        <select
-                            id="bulan_mulai"
-                            class="form-select">
-
-                            @foreach(range(1,12) as $i)
-
-                                <option
-                                    value="{{ $i }}"
-                                    {{ (int)$bulanMulai === $i ? 'selected' : '' }}>
-
-                                    {{ \Carbon\Carbon::create()
-                                        ->month($i)
-                                        ->translatedFormat('F') }}
-
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-
-                        <select
-                            id="tahun_mulai"
-                            class="form-select">
-
-                            @for(
-                                $y = now()->year - 5;
-                                $y <= now()->year + 1;
-                                $y++
-                            )
-
-                                <option
-                                    value="{{ $y }}"
-                                    {{ (int)$tahunMulai === $y ? 'selected' : '' }}>
-
-                                    {{ $y }}
-
-                                </option>
-
-                            @endfor
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                {{-- PERIODE SAMPAI --}}
-
-                <div class="col-lg-3 col-md-6">
-
-                    <label class="form-label fw-semibold">
-
-                        Periode Sampai
-
-                    </label>
-
-
-                    <div class="input-group">
-
-                        <select
-                            id="bulan_sampai"
-                            class="form-select">
-
-                            @foreach(range(1,12) as $i)
-
-                                <option
-                                    value="{{ $i }}"
-                                    {{ (int)$bulanSampai === $i ? 'selected' : '' }}>
-
-                                    {{ \Carbon\Carbon::create()
-                                        ->month($i)
-                                        ->translatedFormat('F') }}
-
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-
-                        <select
-                            id="tahun_sampai"
-                            class="form-select">
-
-                            @for(
-                                $y = now()->year - 5;
-                                $y <= now()->year + 1;
-                                $y++
-                            )
-
-                                <option
-                                    value="{{ $y }}"
-                                    {{ (int)$tahunSampai === $y ? 'selected' : '' }}>
-
-                                    {{ $y }}
-
-                                </option>
-
-                            @endfor
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                {{-- FASKES --}}
-
-                @if($groupId == 2)
-
-                    <div class="col-lg-4 col-md-6">
-
-                        <label class="form-label fw-semibold">
-
-                            Faskes
-
-                        </label>
-
-
-                        <select
-                            id="kode_faskes"
-                            class="form-select">
-
-                            <option value="">
-
-                                Semua Faskes
-
-                            </option>
-
-
-                            @foreach($faskes as $f)
-
-                                <option
-                                    value="{{ $f->kodeFaskes }}">
-
-                                    {{ $f->kodeFaskes }}
-                                    -
-                                    {{ $f->namaFaskes }}
-
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                    </div>
-
-                @endif
-
-
-                {{-- BUTTON --}}
-
-                <div class="col-lg-2 col-md-6">
-
-                    <button
-                        type="button"
-                        class="btn btn-success w-100"
-                        id="btnFilter">
-
-                        <i class="bi bi-search me-1"></i>
-
-                        Tampilkan
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- ==========================================================
-         INFO PERIODE
-    =========================================================== --}}
-
-    <div class="card border-0 shadow-sm mb-3">
-
-        <div class="card-header bg-success text-white">
-
-            <div class="d-flex justify-content-between align-items-center">
-
-                <strong>
-
-                    <i class="bi bi-file-earmark-bar-graph me-1"></i>
-
-                    Rekap Laporan LPLPO
-
-                </strong>
-
-
-                <span class="badge bg-light text-success">
-
-                    FINAL
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="card-body">
-
-            <div class="row g-3">
-
-                <div class="col-md-4">
-
-                    <div class="text-muted small">
-
-                        PERIODE
-
-                    </div>
-
-
-                    <div
-                        class="fw-bold fs-5"
-                        id="infoPeriode">
-
-                        -
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="text-muted small">
-
-                        JUMLAH LAPORAN
-
-                    </div>
-
-
-                    <div
-                        class="fw-bold fs-5"
-                        id="infoJumlahLaporan">
-
-                        -
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="text-muted small">
-
-                        JUMLAH ITEM
-
-                    </div>
-
-
-                    <div
-                        class="fw-bold fs-5"
-                        id="infoJumlahItem">
-
-                        -
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- ==========================================================
-         LEGEND
-    =========================================================== --}}
-
-    <div class="card border-0 shadow-sm mb-3">
-
-        <div class="card-body py-2">
-
-            <div class="d-flex flex-wrap gap-3 align-items-center small">
-
-                <div>
-
-                    <span class="badge bg-success">
-                        OE
-                    </span>
-
-                    Obat Esensial
-
-                </div>
-
-
-                <div>
-
-                    <span class="badge bg-secondary">
-                        NOE
-                    </span>
-
-                    Non Obat Esensial
-
-                </div>
-
-
-                <div>
-
-                    <span class="badge bg-primary">
-                        Ya
-                    </span>
-
-                    Formularium PKM
-
-                </div>
-
-
-                <div>
-
-                    <span
-                        class="badge bg-danger">
-                        NAPZA
-                    </span>
-
-                    Obat NAPZA
-
-                </div>
-
-
-                <div class="napza-legend">
-
-                    <span class="legend-box"></span>
-
-                    Baris obat NAPZA
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- ==========================================================
-         DETAIL ITEM
-    =========================================================== --}}
-
-    <div class="card border-0 shadow-sm">
-
-        <div class="card-header bg-success text-white">
-
-            <div class="d-flex justify-content-between align-items-center">
-
-                <strong>
-
-                    <i class="bi bi-capsule me-1"></i>
-
-                    Detail Rekap Item Obat
-
-                </strong>
-
-
-                <span
-                    class="badge bg-light text-dark"
-                    id="jumlahItem">
-
-                    0 Item
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="card-body p-0">
-
-            <div class="table-responsive">
-
-                <table
-                    class="table table-bordered table-hover table-sm align-middle mb-0"
-                    id="tableRekap">
-
-                    <thead class="table-success text-center align-middle">
-
-                        <tr>
-
-                            <th rowspan="2">
-                                No
-                            </th>
-
-                            <th rowspan="2">
-                                Kode
-                            </th>
-
-                            <th rowspan="2">
-                                Nama Obat
-                            </th>
-
-                            <th rowspan="2">
-                                Sat
-                            </th>
-
-                            <th rowspan="2">
-                                Esensial
-                            </th>
-
-                            <th rowspan="2">
-                                Formularium PKM
-                            </th>
-
-                            <th colspan="2">
-                                Stok Awal
-                            </th>
-
-                            <th colspan="2">
-                                Penerimaan
-                            </th>
-
-                            <th colspan="2">
-                                Persediaan
-                            </th>
-
-                            <th colspan="2">
-                                Pemakaian
-                            </th>
-
-                            <th colspan="2">
-                                Expired
-                            </th>
-
-                            <th colspan="2">
-                                Stok Akhir
-                            </th>
-
-                            <th rowspan="2">
-                                Permintaan
-                            </th>
-
-                            <th colspan="2">
-                                Pemberian
-                            </th>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>PKD</th>
-                            <th>JKN</th>
-
-                            <th>PKD</th>
-                            <th>JKN</th>
-
-                            <th>PKD</th>
-                            <th>JKN</th>
-
-                            <th>PKD</th>
-                            <th>JKN</th>
-
-                            <th>PKD</th>
-                            <th>JKN</th>
-
-                            <th>PKD</th>
-                            <th>JKN</th>
-
-                            <th>PKD</th>
-                            <th>JKN</th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        <tr>
-
-                            <td
-                                colspan="21"
-                                class="text-center text-muted py-5">
-
-                                <i
-                                    class="bi bi-hourglass-split fs-3 d-block mb-2">
-                                </i>
-
-                                Memuat data...
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- ==========================================================
-         FOOTER
-    =========================================================== --}}
-
-    <div class="mt-3 text-end">
-
-        <button
-            type="button"
-            class="btn btn-secondary"
-            onclick="window.history.back()">
-
-            <i class="bi bi-arrow-left me-1"></i>
-
-            Kembali
-
-        </button>
-
-
-        <button
-            type="button"
-            class="btn btn-success"
-            onclick="window.print()">
-
-            <i class="bi bi-printer me-1"></i>
-
-            Cetak
-
-        </button>
 
     </div>
 
 </div>
 
-@endsection
 
+{{-- ==========================================================
+     FILTER PERIODE
+=========================================================== --}}
 
-{{-- ==============================================================
-     STYLE
-=============================================================== --}}
+<div class="card border-0 shadow-sm mb-3">
 
-@push('styles')
+    <div class="card-header bg-success text-white">
 
-<style>
+        <strong>
+            <i class="bi bi-calendar-range me-1"></i>
+            Filter Periode Rekap
+        </strong>
 
-/*
-|--------------------------------------------------------------------------
-| TABLE
-|--------------------------------------------------------------------------
-*/
+    </div>
 
-#tableRekap {
+    <div class="card-body">
 
-    font-size: 13px;
+        <div class="row g-3 align-items-end">
 
-}
+            {{-- PERIODE MULAI --}}
 
+            <div class="col-lg-3 col-md-6">
 
-#tableRekap th {
+                <label class="form-label fw-semibold">
+                    Periode Mulai
+                </label>
 
-    white-space: nowrap;
+                <div class="input-group">
 
-    vertical-align: middle;
+                    <select
+                        id="bulan_mulai"
+                        class="form-select"
+                    >
 
-}
+                        @foreach(range(1, 12) as $i)
 
+                            <option
+                                value="{{ $i }}"
+                                {{ (int) $bulanMulai === $i ? 'selected' : '' }}
+                            >
+                                {{ \Carbon\Carbon::create()
+                                    ->month($i)
+                                    ->translatedFormat('F') }}
+                            </option>
 
-#tableRekap td {
+                        @endforeach
 
-    white-space: nowrap;
+                    </select>
 
-    vertical-align: middle;
+                    <select
+                        id="tahun_mulai"
+                        class="form-select"
+                    >
 
-}
+                        @for(
+                            $y = now()->year - 5;
+                            $y <= now()->year + 1;
+                            $y++
+                        )
 
+                            <option
+                                value="{{ $y }}"
+                                {{ (int) $tahunMulai === $y ? 'selected' : '' }}
+                            >
+                                {{ $y }}
+                            </option>
 
-#tableRekap thead th {
+                        @endfor
 
-    position: sticky;
+                    </select>
 
-    top: 0;
+                </div>
 
-    z-index: 2;
+            </div>
 
-}
 
+            {{-- PERIODE SAMPAI --}}
 
-/*
-|--------------------------------------------------------------------------
-| PROGRAM SUBTITLE
-|--------------------------------------------------------------------------
-*/
+            <div class="col-lg-3 col-md-6">
 
-#tableRekap tr.table-primary td {
+                <label class="form-label fw-semibold">
+                    Periode Sampai
+                </label>
 
-    background-color: #cfe2ff !important;
+                <div class="input-group">
 
-}
+                    <select
+                        id="bulan_sampai"
+                        class="form-select"
+                    >
 
+                        @foreach(range(1, 12) as $i)
 
-/*
-|--------------------------------------------------------------------------
-| NAPZA
-|--------------------------------------------------------------------------
-*/
+                            <option
+                                value="{{ $i }}"
+                                {{ (int) $bulanSampai === $i ? 'selected' : '' }}
+                            >
+                                {{ \Carbon\Carbon::create()
+                                    ->month($i)
+                                    ->translatedFormat('F') }}
+                            </option>
 
-#tableRekap tr.table-napza td {
+                        @endforeach
 
-    background-color: #f8d7da !important;
+                    </select>
 
-}
+                    <select
+                        id="tahun_sampai"
+                        class="form-select"
+                    >
 
+                        @for(
+                            $y = now()->year - 5;
+                            $y <= now()->year + 1;
+                            $y++
+                        )
 
-#tableRekap tr.table-napza:hover td {
+                            <option
+                                value="{{ $y }}"
+                                {{ (int) $tahunSampai === $y ? 'selected' : '' }}
+                            >
+                                {{ $y }}
+                            </option>
 
-    background-color: #f1bfc4 !important;
+                        @endfor
 
-}
+                    </select>
 
+                </div>
 
-/*
-|--------------------------------------------------------------------------
-| LEGEND NAPZA
-|--------------------------------------------------------------------------
-*/
+            </div>
 
-.napza-legend {
 
-    display: inline-flex;
+            {{-- FASKES --}}
 
-    align-items: center;
+            @if($groupId == 2)
 
-    gap: 5px;
+                <div class="col-lg-4 col-md-6">
 
-}
+                    <label class="form-label fw-semibold">
+                        Faskes
+                    </label>
 
+                    <select
+                        id="kode_faskes"
+                        class="form-select"
+                    >
 
-.legend-box {
+                        <option value="">
+                            Semua Faskes
+                        </option>
 
-    display: inline-block;
+                        @foreach($faskes as $f)
 
-    width: 18px;
+                            <option value="{{ $f->kodeFaskes }}">
+                                {{ $f->kodeFaskes }}
+                                -
+                                {{ $f->namaFaskes }}
+                            </option>
 
-    height: 18px;
+                        @endforeach
 
-    background-color: #f8d7da;
+                    </select>
 
-    border: 1px solid #e5aeb3;
+                </div>
 
-    border-radius: 3px;
+            @endif
 
-}
 
+            {{-- BUTTON --}}
 
-/*
-|--------------------------------------------------------------------------
-| LOADING
-|--------------------------------------------------------------------------
-*/
+            <div class="col-lg-2 col-md-6">
 
-.rekap-loading {
-
-    opacity: .6;
-
-    pointer-events: none;
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| PRINT
-|--------------------------------------------------------------------------
-*/
-
-@media print {
-
-    .sidebar,
-    .navbar,
-    #btnFilter,
-    .btn,
-    .card-header .badge {
-
-        display: none !important;
-
-    }
-
-
-    .card {
-
-        box-shadow: none !important;
-
-        border: 1px solid #ddd !important;
-
-    }
-
-
-    #tableRekap {
-
-        font-size: 9px;
-
-    }
-
-
-    #tableRekap th,
-    #tableRekap td {
-
-        padding: 3px !important;
-
-    }
-
-}
-
-</style>
-
-@endpush
-
-
-{{-- ==============================================================
-     SCRIPT
-=============================================================== --}}
-
-@push('script')
-
-<script>
-
-$(function () {
-
-    const dataUrl =
-        "{{ route('newlplpo.rekap.data') }}";
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | STATUS REQUEST
-    |--------------------------------------------------------------------------
-    */
-
-    let currentRequest = null;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | AMBIL FILTER
-    |--------------------------------------------------------------------------
-    */
-
-    function getFilter()
-    {
-
-        return {
-
-            bulan_mulai:
-                parseInt(
-                    $('#bulan_mulai').val(),
-                    10
-                ),
-
-            tahun_mulai:
-                parseInt(
-                    $('#tahun_mulai').val(),
-                    10
-                ),
-
-            bulan_sampai:
-                parseInt(
-                    $('#bulan_sampai').val(),
-                    10
-                ),
-
-            tahun_sampai:
-                parseInt(
-                    $('#tahun_sampai').val(),
-                    10
-                ),
-
-            kode_faskes:
-                $('#kode_faskes').length
-                    ? $('#kode_faskes').val()
-                    : ''
-
-        };
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDASI PERIODE
-    |--------------------------------------------------------------------------
-    */
-
-    function validatePeriod(filter)
-    {
-
-        const periodeMulai =
-            (filter.tahun_mulai * 100) +
-            filter.bulan_mulai;
-
-
-        const periodeSampai =
-            (filter.tahun_sampai * 100) +
-            filter.bulan_sampai;
-
-
-        if (
-            periodeMulai >
-            periodeSampai
-        ) {
-
-            Swal.fire({
-
-                icon: 'warning',
-
-                title: 'Periode Tidak Valid',
-
-                text:
-                    'Periode mulai tidak boleh lebih besar dari periode sampai.'
-
-            });
-
-            return false;
-
-        }
-
-
-        return true;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOADING
-    |--------------------------------------------------------------------------
-    */
-
-    function setLoading(status)
-    {
-
-        const button =
-            $('#btnFilter');
-
-
-        if (status) {
-
-            button
-                .prop(
-                    'disabled',
-                    true
-                )
-                .html(`
-                    <span
-                        class="spinner-border spinner-border-sm me-1">
-                    </span>
-
-                    Memuat...
-                `);
-
-
-            $('#tableRekap')
-                .addClass(
-                    'rekap-loading'
-                );
-
-        }
-        else {
-
-            button
-                .prop(
-                    'disabled',
-                    false
-                )
-                .html(`
+                <button
+                    type="button"
+                    class="btn btn-success w-100"
+                    id="btnFilter"
+                >
                     <i class="bi bi-search me-1"></i>
                     Tampilkan
-                `);
+                </button>
 
+            </div>
 
-            $('#tableRekap')
-                .removeClass(
-                    'rekap-loading'
-                );
+        </div>
 
-        }
+    </div>
 
-    }
+</div>
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD DATA
-    |--------------------------------------------------------------------------
-    */
+{{-- ==========================================================
+     INFO PERIODE
+=========================================================== --}}
 
-    function loadData()
-    {
+<div class="card border-0 shadow-sm mb-3">
 
-        const filter =
-            getFilter();
+    <div class="card-header bg-success text-white">
 
+        <div class="d-flex justify-content-between align-items-center">
 
-        console.log(
-            'FILTER REKAP LPLPO:',
-            filter
-        );
+            <strong>
+                <i class="bi bi-file-earmark-bar-graph me-1"></i>
+                Rekap Laporan LPLPO
+            </strong>
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !validatePeriod(filter)
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ABORT REQUEST LAMA
-        |--------------------------------------------------------------------------
-        */
-
-        if (currentRequest) {
-
-            currentRequest.abort();
-
-        }
-
-
-        setLoading(true);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | LOADING TABLE
-        |--------------------------------------------------------------------------
-        */
-
-        $('#tableRekap tbody').html(`
-
-            <tr>
-
-                <td
-                    colspan="21"
-                    class="text-center py-5 text-muted">
-
-                    <div
-                        class="spinner-border text-success mb-2">
-                    </div>
-
-                    <div>
-                        Mengambil data rekap...
-                    </div>
-
-                </td>
-
-            </tr>
-
-        `);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | AJAX
-        |--------------------------------------------------------------------------
-        */
-
-        currentRequest = $.ajax({
-
-            url: dataUrl,
-
-            method: 'GET',
-
-            data: {
-
-                bulan_mulai:
-                    filter.bulan_mulai,
-
-                tahun_mulai:
-                    filter.tahun_mulai,
-
-                bulan_sampai:
-                    filter.bulan_sampai,
-
-                tahun_sampai:
-                    filter.tahun_sampai,
-
-                kode_faskes:
-                    filter.kode_faskes,
-
-                _:
-                    new Date().getTime()
-
-            },
-
-            cache: false,
-
-            dataType: 'json',
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SUCCESS
-            |--------------------------------------------------------------------------
-            */
-
-            success: function (response) {
-
-                console.log(
-                    'RESPONSE REKAP LPLPO:',
-                    response
-                );
-
-
-                if (
-                    !response.success
-                ) {
-
-                    showError(
-                        response.message ??
-                        'Data tidak dapat diproses.'
-                    );
-
-                    return;
-
-                }
-
-
-                renderHeader(
-                    response
-                );
-
-
-                renderTable(
-                    response.items ?? []
-                );
-
-            },
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ERROR
-            |--------------------------------------------------------------------------
-            */
-
-            error: function (
-                xhr,
-                status
-            ) {
-
-                if (
-                    status === 'abort'
-                ) {
-
-                    return;
-
-                }
-
-
-                console.error(
-                    'ERROR REKAP:',
-                    xhr.responseText
-                );
-
-
-                let message =
-                    'Gagal mengambil data rekap LPLPO.';
-
-
-                if (
-                    xhr.responseJSON &&
-                    xhr.responseJSON.message
-                ) {
-
-                    message =
-                        xhr.responseJSON.message;
-
-                }
-
-
-                showError(
-                    message
-                );
-
-            },
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | COMPLETE
-            |--------------------------------------------------------------------------
-            */
-
-            complete: function () {
-
-                setLoading(false);
-
-                currentRequest = null;
-
-            }
-
-        });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | HEADER INFO
-    |--------------------------------------------------------------------------
-    */
-
-    function renderHeader(response)
-    {
-
-        const bulanMulaiText =
-            $('#bulan_mulai option:selected')
-                .text()
-                .trim();
-
-
-        const tahunMulai =
-            $('#tahun_mulai')
-                .val();
-
-
-        const bulanSampaiText =
-            $('#bulan_sampai option:selected')
-                .text()
-                .trim();
-
-
-        const tahunSampai =
-            $('#tahun_sampai')
-                .val();
-
-
-        $('#infoPeriode').html(`
-
-            ${escapeHtml(
-                bulanMulaiText
-            )}
-
-            ${escapeHtml(
-                tahunMulai
-            )}
-
-            <span class="mx-2 text-muted">
-                s/d
+            <span class="badge bg-light text-success">
+                FINAL
             </span>
 
-            ${escapeHtml(
-                bulanSampaiText
-            )}
+        </div>
 
-            ${escapeHtml(
-                tahunSampai
-            )}
+    </div>
 
-        `);
+    <div class="card-body">
 
+        <div class="row g-3">
 
-        $('#infoJumlahLaporan')
-            .text(
-                number(
-                    response.jumlah_laporan
-                )
-            );
+            <div class="col-md-4">
 
+                <div class="text-muted small">
+                    PERIODE
+                </div>
 
-        $('#infoJumlahItem')
-            .text(
-                number(
-                    response.jumlah_item
-                )
-            );
+                <div
+                    class="fw-bold fs-5"
+                    id="infoPeriode"
+                >
+                    -
+                </div>
 
+            </div>
 
-        $('#jumlahItem')
-            .text(
-                number(
-                    response.jumlah_item
-                ) +
-                ' Item'
-            );
+            <div class="col-md-4">
 
-    }
+                <div class="text-muted small">
+                    JUMLAH LAPORAN
+                </div>
 
+                <div
+                    class="fw-bold fs-5"
+                    id="infoJumlahLaporan"
+                >
+                    -
+                </div>
 
-    /*
-    |--------------------------------------------------------------------------
-    | RENDER TABLE
-    |--------------------------------------------------------------------------
-    */
+            </div>
 
-    function renderTable(items)
-    {
+            <div class="col-md-4">
 
-        const tbody =
-            $('#tableRekap tbody');
+                <div class="text-muted small">
+                    JUMLAH ITEM
+                </div>
 
+                <div
+                    class="fw-bold fs-5"
+                    id="infoJumlahItem"
+                >
+                    -
+                </div>
 
-        tbody.empty();
+            </div>
 
+        </div>
 
-        /*
-        |--------------------------------------------------------------------------
-        | EMPTY
-        |--------------------------------------------------------------------------
-        */
+    </div>
 
-        if (
-            !items ||
-            !items.length
-        ) {
-
-            tbody.html(`
-
-                <tr>
-
-                    <td
-                        colspan="21"
-                        class="text-center text-muted py-5">
-
-                        <i
-                            class="bi bi-inbox fs-1 d-block mb-2">
-                        </i>
-
-                        <strong>
-                            Tidak ada data
-                        </strong>
-
-                        <div class="small mt-1">
-
-                            Tidak ditemukan LPLPO FINAL
-                            pada periode yang dipilih.
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            `);
-
-            return;
-
-        }
+</div>
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | NOMOR
-        |--------------------------------------------------------------------------
-        */
+{{-- ==========================================================
+     LEGEND
+=========================================================== --}}
 
-        let no = 1;
+<div class="card border-0 shadow-sm mb-3">
 
-        let lastProgram = null;
+    <div class="card-body py-2">
+
+        <div class="d-flex flex-wrap gap-3 align-items-center small">
+
+            <div>
+                <span class="badge bg-success">
+                    OE
+                </span>
+                Obat Esensial
+            </div>
+
+            <div>
+                <span class="badge bg-secondary">
+                    NOE
+                </span>
+                Non Obat Esensial
+            </div>
+
+            <div>
+                <span class="badge bg-primary">
+                    Ya
+                </span>
+                Formularium PKM
+            </div>
+
+            <div>
+                <span class="badge bg-danger">
+                    NAPZA
+                </span>
+                Obat NAPZA
+            </div>
+
+            <div class="napza-legend">
+
+                <span class="legend-box"></span>
+
+                Baris obat NAPZA
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LOOP
-        |--------------------------------------------------------------------------
-        */
+{{-- ==========================================================
+     DETAIL ITEM
+=========================================================== --}}
 
-        items.forEach(function (item) {
+<div class="card border-0 shadow-sm">
 
-            const program =
-                item.program_name ??
-                'Non Program';
+    <div class="card-header bg-success text-white">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <strong>
+                <i class="bi bi-capsule me-1"></i>
+                Detail Rekap Item Obat
+            </strong>
+
+            <div class="d-flex align-items-center gap-2">
+
+                <button
+                    type="button"
+                    class="btn btn-light btn-sm"
+                    id="btnExportExcel"
+                >
+                    <i class="bi bi-file-earmark-excel me-1"></i>
+                    Excel
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-light btn-sm"
+                    id="btnExportPdf"
+                >
+                    <i class="bi bi-file-earmark-pdf me-1"></i>
+                    PDF
+                </button>
+
+                <span
+                    class="badge bg-light text-dark"
+                    id="jumlahItem"
+                >
+                    0 Item
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table
+                class="table table-bordered table-hover table-sm align-middle mb-0"
+                id="tableRekap"
+            >
+
+                <thead class="table-success text-center align-middle">
+
+                    <tr>
+
+                        <th rowspan="2">
+                            No
+                        </th>
+
+                        <th rowspan="2">
+                            Kode
+                        </th>
+
+                        <th rowspan="2">
+                            Nama Obat
+                        </th>
+
+                        <th rowspan="2">
+                            Sat
+                        </th>
+
+                        <th rowspan="2">
+                            Esensial
+                        </th>
+
+                        <th rowspan="2">
+                            Formularium PKM
+                        </th>
+
+                        <th colspan="2">
+                            Stok Awal
+                        </th>
+
+                        <th colspan="2">
+                            Penerimaan
+                        </th>
+
+                        <th colspan="2">
+                            Persediaan
+                        </th>
+
+                        <th colspan="2">
+                            Pemakaian
+                        </th>
+
+                        <th colspan="2">
+                            Expired
+                        </th>
+
+                        <th colspan="2">
+                            Stok Akhir
+                        </th>
+
+                        <th rowspan="2">
+                            Permintaan
+                        </th>
+
+                        <th rowspan="2">
+                            Pemberian
+                        </th>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>PKD</th>
+                        <th>JKN</th>
+
+                        <th>PKD</th>
+                        <th>JKN</th>
+
+                        <th>PKD</th>
+                        <th>JKN</th>
+
+                        <th>PKD</th>
+                        <th>JKN</th>
+
+                        <th>PKD</th>
+                        <th>JKN</th>
+
+                        <th>PKD</th>
+                        <th>JKN</th>
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | PROGRAM SUBTITLE
-            |--------------------------------------------------------------------------
-            */
 
-            if (
-                lastProgram !== program
-            ) {
+                    </tr>
 
-                tbody.append(`
+                </thead>
 
-                    <tr class="table-primary">
+                <tbody>
+
+                    <tr>
 
                         <td
-                            colspan="21"
-                            class="fw-bold">
+                            colspan="20"
+                            class="text-center text-muted py-5"
+                        >
 
                             <i
-                                class="bi bi-folder2-open me-1">
-                            </i>
+                                class="bi bi-hourglass-split fs-3 d-block mb-2"
+                            ></i>
 
-                            ${escapeHtml(
-                                program
-                            )}
+                            Memuat data...
 
                         </td>
 
                     </tr>
 
-                `);
+                </tbody>
 
+            </table>
 
-                lastProgram =
-                    program;
+        </div>
 
-            }
+    </div>
 
+</div>
 
-            /*
-            |--------------------------------------------------------------------------
-            | NAPZA
-            |--------------------------------------------------------------------------
-            */
 
-            const isNapza =
-                String(
-                    item.obat_napza ??
-                    'tidak'
-                )
-                .toLowerCase() === 'ya';
+{{-- ==========================================================
+     FOOTER
+=========================================================== --}}
 
+<div class="mt-3 text-end">
 
-            const rowClass =
-                isNapza
-                    ? 'table-napza'
-                    : '';
+    <button
+        type="button"
+        class="btn btn-secondary"
+        onclick="window.history.back()"
+    >
+        <i class="bi bi-arrow-left me-1"></i>
+        Kembali
+    </button>
 
+    <button
+        type="button"
+        class="btn btn-success"
+        onclick="window.print()"
+    >
+        <i class="bi bi-printer me-1"></i>
+        Cetak
+    </button>
 
-            /*
-            |--------------------------------------------------------------------------
-            | ESENSIAL
-            |--------------------------------------------------------------------------
-            */
+</div>
+```
 
-            const essentialValue =
-                String(
-                    item.obat_esensial ??
-                    'noe'
-                )
-                .toLowerCase();
+</div>
 
+@endsection
 
-            let essentialHtml;
+{{-- ==============================================================
+ASSET CSS
+=============================================================== --}}
 
+@push('styles')
 
-            if (
-                essentialValue === 'oe'
-            ) {
+<link
+    rel="stylesheet"
+    href="{{ asset('css/newlplpo/rekap/index.css') }}"
+>
 
-                essentialHtml = `
-                    <span class="badge bg-success">
-                        OE
-                    </span>
-                `;
+@endpush
 
-            }
-            else if (
-                essentialValue === 'noe'
-            ) {
+{{-- ==============================================================
+JAVASCRIPT CONFIG
+=============================================================== --}}
 
-                essentialHtml = `
-                    <span class="badge bg-secondary">
-                        NOE
-                    </span>
-                `;
+@push('script')
 
-            }
-            else {
-
-                essentialHtml = `
-                    <span class="badge bg-warning text-dark">
-                        ${escapeHtml(
-                            item.obat_esensial
-                        )}
-                    </span>
-                `;
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | FORMULARIUM PKM
-            |--------------------------------------------------------------------------
-            */
-
-            const formulariumValue =
-                String(
-                    item.obat_formularium_puskesmas ??
-                    'false'
-                )
-                .toLowerCase();
-
-
-            let formulariumHtml;
-
-
-            if (
-                formulariumValue === 'true'
-            ) {
-
-                formulariumHtml = `
-                    <span class="badge bg-primary">
-                        Ya
-                    </span>
-                `;
-
-            }
-            else if (
-                formulariumValue === 'false'
-            ) {
-
-                formulariumHtml = `
-                    <span class="badge bg-secondary">
-                        Tidak
-                    </span>
-                `;
-
-            }
-            else {
-
-                formulariumHtml = `
-                    <span class="badge bg-warning text-dark">
-                        ${escapeHtml(
-                            item.obat_formularium_puskesmas
-                        )}
-                    </span>
-                `;
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ROW
-            |--------------------------------------------------------------------------
-            */
-
-            tbody.append(`
-
-                <tr class="${rowClass}">
-
-
-                    <!-- NO -->
-
-                    <td
-                        class="text-center fw-semibold">
-
-                        ${no++}
-
-                    </td>
-
-
-                    <!-- KODE -->
-
-                    <td>
-
-                        ${escapeHtml(
-                            item.kode_obat ??
-                            '-'
-                        )}
-
-                    </td>
-
-
-                    <!-- NAMA OBAT -->
-
-                    <td>
-
-                        ${escapeHtml(
-                            item.nama_obat ??
-                            '-'
-                        )}
-
-                        ${
-                            isNapza
-                                ? `
-                                    <span
-                                        class="badge bg-danger ms-1">
-
-                                        NAPZA
-
-                                    </span>
-                                `
-                                : ''
-                        }
-
-                    </td>
-
-
-                    <!-- SATUAN -->
-
-                    <td class="text-center">
-
-                        ${escapeHtml(
-                            item.satuan ??
-                            '-'
-                        )}
-
-                    </td>
-
-
-                    <!-- ESENSIAL -->
-
-                    <td class="text-center">
-
-                        ${essentialHtml}
-
-                    </td>
-
-
-                    <!-- FORMULARIUM -->
-
-                    <td class="text-center">
-
-                        ${formulariumHtml}
-
-                    </td>
-
-
-                    <!-- STOK AWAL -->
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.stok_awal_program_pkd
-                        )}
-
-                    </td>
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.stok_awal_jkn
-                        )}
-
-                    </td>
-
-
-                    <!-- PENERIMAAN -->
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.penerimaan_program_pkd
-                        )}
-
-                    </td>
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.penerimaan_jkn
-                        )}
-
-                    </td>
-
-
-                    <!-- PERSEDIAAN -->
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.persediaan_program_pkd
-                        )}
-
-                    </td>
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.persediaan_jkn
-                        )}
-
-                    </td>
-
-
-                    <!-- PEMAKAIAN -->
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.pemakaian_program_pkd
-                        )}
-
-                    </td>
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.pemakaian_jkn
-                        )}
-
-                    </td>
-
-
-                    <!-- EXPIRED -->
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.item_expired_pkd
-                        )}
-
-                    </td>
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.item_expired_jkn
-                        )}
-
-                    </td>
-
-
-                    <!-- STOK AKHIR -->
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.stok_akhir_program_pkd
-                        )}
-
-                    </td>
-
-                    <td class="text-end">
-
-                        ${number(
-                            item.stok_akhir_jkn
-                        )}
-
-                    </td>
-
-
-                    <!-- PERMINTAAN -->
-
-                    <td
-                        class="text-end fw-semibold">
-
-                        ${number(
-                            item.permintaan
-                        )}
-
-                    </td>
-
-
-                    <!-- PEMBERIAN -->
-
-                    <td
-                        class="text-end fw-semibold">
-
-                        ${number(
-                            item.pemberian_program_pkd
-                        )}
-
-                    </td>
-
-                    <td
-                        class="text-end fw-semibold">
-
-                        ${number(
-                            item.pemberian_jkn
-                        )}
-
-                    </td>
-
-                </tr>
-
-            `);
-
-        });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FILTER BUTTON
-    |--------------------------------------------------------------------------
-    */
-
-    $('#btnFilter').on(
-        'click',
-        function () {
-
-            loadData();
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SELECT CHANGE
-    |--------------------------------------------------------------------------
-    |
-    | Tidak otomatis load.
-    |
-    */
-
-    $(
-        '#bulan_mulai, ' +
-        '#tahun_mulai, ' +
-        '#bulan_sampai, ' +
-        '#tahun_sampai, ' +
-        '#kode_faskes'
-    )
-        .on(
-            'change',
-            function () {
-
-                // User harus klik Tampilkan.
-
-            }
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | NUMBER FORMAT
-    |--------------------------------------------------------------------------
-    */
-
-    function number(value)
-    {
-
-        const numeric =
-            Number(
-                value ?? 0
-            );
-
-
-        if (
-            isNaN(numeric)
-        ) {
-
-            return '0';
-
-        }
-
-
-        return new Intl.NumberFormat(
-            'id-ID'
-        ).format(
-            numeric
-        );
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ESCAPE HTML
-    |--------------------------------------------------------------------------
-    */
-
-    function escapeHtml(value)
-    {
-
-        return $('<div>')
-            .text(
-                value ?? ''
-            )
-            .html();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ERROR
-    |--------------------------------------------------------------------------
-    */
-
-    function showError(message)
-    {
-
-        $('#tableRekap tbody').html(`
-
-            <tr>
-
-                <td
-                    colspan="21"
-                    class="text-center text-danger py-5">
-
-                    <i
-                        class="bi bi-exclamation-triangle fs-2 d-block mb-2">
-                    </i>
-
-                    ${escapeHtml(
-                        message
-                    )}
-
-                </td>
-
-            </tr>
-
-        `);
-
-
-        Swal.fire({
-
-            icon: 'error',
-
-            title: 'Gagal',
-
-            text: message
-
-        });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIAL LOAD
-    |--------------------------------------------------------------------------
-    */
-
-    loadData();
-
-});
-
+<script>
+    window.lplpoRekap = {
+        dataUrl: @json(route('newlplpo.rekap.data')),
+        exportExcelUrl: @json(route('newlplpo.rekap.export.excel')),
+        exportPdfUrl: @json(route('newlplpo.rekap.export.pdf'))
+    };
 </script>
+
+<script
+    src="{{ asset('js/newlplpo/rekap/index.js') }}"
+></script>
 
 @endpush

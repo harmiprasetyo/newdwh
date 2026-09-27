@@ -77,7 +77,7 @@ Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::get('/ssologin', [AuthController::class, 'loginsso'])->name('ssologin');
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:login');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/logout', [AuthController::class, 'logout'])->name('custom.logout');
 
 
 Route::post('/send-otp', [OtpController::class, 'sendOtp']);
@@ -1032,6 +1032,16 @@ Route::prefix('stok-esensial')
             [LplpoRekapController::class, 'data']
         )->name('rekap.data');
 
+         Route::get(
+            '/rekap/export/excel',
+            [LplpoRekapController::class, 'exportExcel']
+        )->name('rekap.export.excel');
+
+        Route::get(
+            '/rekap/export/pdf',
+            [LplpoRekapController::class, 'exportPdf']
+        )->name('rekap.export.pdf');
+
 
 
 Route::prefix('masterdataobat')
@@ -1112,20 +1122,25 @@ Route::prefix('program')
             });
 
 
-    Route::prefix('arsip')->name('arsip.')->group(function () {
+   Route::prefix('arsip')->name('arsip.')->group(function () {
 
-    Route::get('/', [LplpoArsipController::class,'index'])
+    Route::get('/', [LplpoArsipController::class, 'index'])
         ->name('index');
 
-    Route::get('/datatable', [LplpoArsipController::class,'datatable'])
+    Route::get('/datatable', [LplpoArsipController::class, 'datatable'])
         ->name('datatable');
 
-    Route::get('/{id}', [LplpoArsipController::class,'detail'])
-        ->name('detail');
-
-    Route::get('/{id}/print', [LplpoArsipController::class,'print'])
+    Route::get('/{id}/print', [LplpoArsipController::class, 'print'])
         ->name('print');
 
+    Route::get('/{id}/export/excel', [LplpoArsipController::class, 'exportExcel'])
+        ->name('export.excel');
+
+    Route::get('/{id}/export/pdf', [LplpoArsipController::class, 'exportPdf'])
+        ->name('export.pdf');
+
+    Route::get('/{id}', [LplpoArsipController::class, 'detail'])
+        ->name('detail');
 });
 
 
@@ -1188,12 +1203,13 @@ Route::prefix('program')
 
 
 Route::get('/get-kabupaten/{province_code}', [LabelLplpoController::class, 'getKabupaten']);
-Route::prefix('dashboard')->name('dashboard')->group(function () {
+Route::prefix('dashboard')->group(function () {
 
+    Route::get('/', [DashboardPageController::class, 'index'])
+        ->name('dashboard');
 
-Route::get('/', [DashboardPageController::class, 'index']);
-Route::get('/realtime', [DashboardPageController::class, 'realtime']);
-
+    Route::get('/realtime', [DashboardPageController::class, 'realtime'])
+        ->name('dashboard.realtime');
 
 });
 Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
