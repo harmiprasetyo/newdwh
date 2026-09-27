@@ -919,7 +919,8 @@ if (($prosedur['total'] ?? 0) > 0) {
 
 
 
-       if($eRes['total']>0){
+      if(($eRes['total'] ?? 0) > 0){
+
 
 
        $dt['label']['bln'] = array("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"Mei","06"=>"Jun","07"=>"Jul","08"=>"Agt","09"=>"Sep","10"=>"Okt","11"=>"Nop","12"=>"Des");
@@ -931,7 +932,8 @@ if (($prosedur['total'] ?? 0) > 0) {
             if(isset($val1['id'])){
                 $visits = Http::withToken($token)->get($server.'/Encounter?patient='.$dt['PATIENTID']['patient_id'].'&episode-of-care='.$val1['id']);
                 $vis = $visits->json();
-                if($vis['total']>0){
+               if(($vis['total'] ?? 0) > 0){
+
                 foreach($vis['entry'] as $kvis=>$nvis){
                     $dt['KOHORT'][$key]['anc_jenis_kunjungan'] = $nvis['resource']['identifier'][0]['value'];
 
@@ -939,7 +941,7 @@ if (($prosedur['total'] ?? 0) > 0) {
 
         $KHobserv= Http::withToken($token)->get($server."Observation?patient=".$dt['PATIENTID']['patient_id']."&encounter=".$encounterId);
         $KOB = $KHobserv->json();
-       if(isset($KOB['total']) && $KOB['total']>0){
+       if(isset($KOB['total']) && ($KOB['total'] ?? 0) > 0){
             foreach($KOB['entry'] as $kb=>$nnb){
 
             if(isset($nnb['resource']['code']['coding']['0']['code'])){
@@ -1705,26 +1707,37 @@ public function searchpasien(Request $request)
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | 3. Jika pasien tetap tidak ditemukan
-    |--------------------------------------------------------------------------
-    */
-    if (!$patient) {
-        return redirect()
-            ->back()
-            ->with(
-                'error',
-                'Data pasien tidak ditemukan.'
-            );
-    }
+   /*
+|--------------------------------------------------------------------------
+| 3. Jika pasien tetap tidak ditemukan
+|--------------------------------------------------------------------------
+*/
+if (!$patient) {
+    return redirect()
+        ->back()
+        ->with(
+            'error',
+            'Data pasien tidak ditemukan.'
+        );
+}
 
-    /*
-    |--------------------------------------------------------------------------
-    | 4. Data pasien
-    |--------------------------------------------------------------------------
-    */
-    $dt['PATIENTID'] = $patient->toArray();
+/*
+|--------------------------------------------------------------------------
+| 4. Load data wilayah
+|--------------------------------------------------------------------------
+*/
+$patient->load([
+    'province',
+    'city',
+    'district',
+]);
+
+/*
+|--------------------------------------------------------------------------
+| 5. Data pasien
+|--------------------------------------------------------------------------
+*/
+$dt['PATIENTID'] = $patient->toArray();
 
     /*
     |--------------------------------------------------------------------------

@@ -88,7 +88,22 @@ mix.js(
     'public/js/newlplpo'
 )
 .js( 'resources/js/datarme/search.js', 'public/js/datarme' )
-
+.js(
+    'resources/js/rme/datapasien.js',
+    'public/js/rme'
+)
+.css(
+    'resources/css/rme/datapasien.css',
+    'public/css/rme'
+)
+.js(
+    'resources/js/rme/detailpasien.js',
+    'public/js/rme'
+)
+.css(
+    'resources/css/rme/detailpasien.css',
+    'public/css/rme'
+)
 .postCss(
     'resources/css/app.css',
     'public/css',

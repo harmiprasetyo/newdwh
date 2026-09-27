@@ -1,0 +1,1095 @@
+/*
+|--------------------------------------------------------------------------
+| RME - Sidebar
+|--------------------------------------------------------------------------
+*/
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f5f7fb;
+}
+
+
+/* Sidebar utama */
+.rme-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: 250px;
+
+    background: #198754;
+    color: #ffffff;
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 1030;
+
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.08);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar Brand
+|--------------------------------------------------------------------------
+*/
+
+.rme-sidebar-brand {
+    min-height: 75px;
+
+    padding: 16px 20px;
+
+    display: flex;
+    align-items: center;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+
+.rme-brand-icon {
+    width: 42px;
+    height: 42px;
+
+    margin-right: 12px;
+
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    font-size: 22px;
+}
+
+
+.rme-brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.rme-brand-title {
+    font-size: 20px;
+    font-weight: 700;
+
+    line-height: 1.2;
+}
+
+
+.rme-brand-subtitle {
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    opacity: 0.8;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar Navigation
+|--------------------------------------------------------------------------
+*/
+
+.rme-sidebar-nav {
+    flex: 1;
+
+    padding: 20px 12px;
+}
+
+
+.rme-menu-label {
+    padding: 0 12px 10px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    letter-spacing: 0.08em;
+
+    color: rgba(255, 255, 255, 0.65);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar Link
+|--------------------------------------------------------------------------
+*/
+
+.rme-sidebar-link {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 14px;
+
+    margin-bottom: 5px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: rgba(255, 255, 255, 0.88);
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+
+    cursor: pointer;
+}
+
+
+.rme-sidebar-link:hover {
+    color: #ffffff;
+
+    background: rgba(255, 255, 255, 0.12);
+
+    text-decoration: none;
+
+    transform: translateX(2px);
+}
+
+
+/* Menu aktif */
+.rme-sidebar-link.active {
+    color: #198754;
+
+    background: #ffffff;
+
+    font-weight: 600;
+
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+.rme-sidebar-link.active:hover {
+    color: #198754;
+
+    background: #ffffff;
+
+    transform: none;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar Icon
+|--------------------------------------------------------------------------
+*/
+
+.rme-sidebar-icon {
+    width: 30px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-right: 8px;
+
+    font-size: 17px;
+}
+
+
+.rme-sidebar-text {
+    white-space: nowrap;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Sidebar Footer
+|--------------------------------------------------------------------------
+*/
+
+.rme-sidebar-footer {
+    padding: 12px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+
+.rme-logout {
+    text-align: left;
+}
+
+
+.rme-logout:hover {
+    background: rgba(220, 53, 69, 0.18);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Main Content
+|--------------------------------------------------------------------------
+*/
+
+.rme-main {
+    min-height: 100vh;
+
+    margin-left: 250px;
+
+    padding: 30px;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Patient Profile
+|--------------------------------------------------------------------------
+*/
+
+.patient-card {
+    margin-bottom: 25px;
+
+    border: 0;
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+
+    overflow: hidden;
+}
+
+
+.patient-header {
+    padding: 22px 25px;
+
+    display: flex;
+    align-items: center;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+
+.patient-avatar {
+    width: 60px;
+    height: 60px;
+
+    margin-right: 16px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e8f5ee;
+
+    color: #198754;
+
+    font-size: 26px;
+
+    flex-shrink: 0;
+}
+
+
+.patient-name {
+    margin: 0;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    color: #212529;
+}
+
+
+.patient-id {
+    margin-top: 4px;
+
+    color: #6c757d;
+
+    font-size: 13px;
+}
+
+
+.patient-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 22px 26px;
+}
+
+.patient-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.patient-column:first-child {
+    padding-right: 28px;
+    border-right: 1px solid #e9efec;
+}
+
+.patient-column:last-child {
+    padding-left: 28px;
+}
+
+.patient-info-item {
+    padding: 13px 0;
+}
+
+.patient-info-item + .patient-info-item {
+    border-top: 1px solid #f0f3f1;
+}
+
+.patient-info-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 5px;
+    color: #7a8a83;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.patient-info-label i {
+    color: #198754;
+    font-size: 14px;
+}
+
+.patient-info-value {
+    color: #26352e;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/*
+|--------------------------------------------------------------------------
+| RME Content Card
+|--------------------------------------------------------------------------
+*/
+
+.rme-content-card {
+    margin-bottom: 25px;
+
+    border: 0;
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+
+    overflow: hidden;
+}
+
+
+.rme-content-header {
+    min-height: 75px;
+
+    padding: 18px 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+
+.rme-content-title {
+    margin: 0;
+
+    color: #212529;
+
+    font-size: 18px;
+    font-weight: 600;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Riwayat Kunjungan
+|--------------------------------------------------------------------------
+*/
+
+#history {
+    width: 100%;
+}
+
+
+#riwayatKunjungan {
+    width: 100% !important;
+
+    margin: 0 !important;
+
+    border-collapse: collapse;
+}
+
+
+#riwayatKunjungan thead th {
+    padding: 12px 10px;
+
+    background-color: #f8f9fa;
+
+    color: #495057;
+
+    border-bottom: 1px solid #dee2e6;
+
+    white-space: nowrap;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+#riwayatKunjungan tbody td {
+    padding: 12px 10px;
+
+    color: #495057;
+
+    vertical-align: middle;
+
+    font-size: 13px;
+}
+
+
+#riwayatKunjungan tbody tr:hover {
+    background-color: #f8faf9;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Detail Button
+|--------------------------------------------------------------------------
+*/
+
+.btn-detail {
+    white-space: nowrap;
+}
+
+
+.btn-detail i {
+    margin-right: 3px;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| DataTables
+|--------------------------------------------------------------------------
+*/
+
+#riwayatKunjungan_wrapper {
+    padding: 20px;
+}
+
+
+#riwayatKunjungan_wrapper .dt-layout-row {
+    margin-bottom: 15px;
+}
+
+
+#riwayatKunjungan_wrapper .dt-search input {
+    min-width: 220px;
+
+    margin-left: 8px;
+
+    padding: 7px 10px;
+
+    border: 1px solid #dee2e6;
+
+    border-radius: 7px;
+
+    outline: none;
+}
+
+
+#riwayatKunjungan_wrapper .dt-search input:focus {
+    border-color: #198754;
+
+    box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.15);
+}
+
+
+#riwayatKunjungan_wrapper .dt-length select {
+    margin: 0 5px;
+
+    padding: 5px 25px 5px 8px;
+
+    border: 1px solid #dee2e6;
+
+    border-radius: 7px;
+
+    outline: none;
+}
+
+
+#riwayatKunjungan_wrapper .dt-paging {
+    margin-top: 10px;
+}
+
+
+#riwayatKunjungan_wrapper .dt-paging-button {
+    border-radius: 6px !important;
+}
+
+
+#riwayatKunjungan_wrapper .dt-paging-button.current {
+    background: #198754 !important;
+
+    border-color: #198754 !important;
+
+    color: #ffffff !important;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| ANC Summary
+|--------------------------------------------------------------------------
+*/
+
+.anc-summary {
+    padding: 25px;
+}
+
+
+.anc-summary-item {
+    min-height: 100px;
+
+    padding: 18px;
+
+    margin-bottom: 15px;
+
+    border: 1px solid #e9ecef;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+}
+
+
+.anc-summary-label {
+    margin-bottom: 8px;
+
+    color: #6c757d;
+
+    font-size: 13px;
+}
+
+
+.anc-summary-value {
+    color: #198754;
+
+    font-size: 24px;
+    font-weight: 700;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Responsive - Tablet
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 991.98px) {
+
+    .rme-sidebar {
+        width: 220px;
+    }
+
+
+    .rme-main {
+        margin-left: 220px;
+
+        padding: 20px;
+    }
+
+
+    .patient-name {
+        font-size: 20px;
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Responsive - Mobile
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 767.98px) {
+
+    .rme-sidebar {
+        position: relative;
+
+        width: 100%;
+
+        min-height: auto;
+    }
+
+
+    .rme-sidebar-brand {
+        min-height: 65px;
+    }
+
+
+    .rme-sidebar-nav {
+        padding: 10px 12px;
+    }
+
+
+    .rme-sidebar-footer {
+        display: none;
+    }
+
+
+    .rme-main {
+        margin-left: 0;
+
+        padding: 15px;
+    }
+
+
+    .patient-header {
+        padding: 18px;
+    }
+
+
+    .patient-body {
+        padding: 18px;
+    }
+
+
+    .patient-name {
+        font-size: 18px;
+    }
+
+
+    .rme-content-header {
+        padding: 16px;
+    }
+
+
+    #riwayatKunjungan_wrapper {
+        padding: 10px;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Table responsive
+    |--------------------------------------------------------------------------
+    */
+
+    #riwayatKunjungan_wrapper {
+        overflow-x: auto;
+    }
+
+
+    #riwayatKunjungan {
+        min-width: 900px;
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Small Mobile
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 575.98px) {
+
+    .patient-header {
+        align-items: flex-start;
+    }
+
+
+    .patient-avatar {
+        width: 50px;
+        height: 50px;
+
+        font-size: 21px;
+    }
+
+
+    .patient-name {
+        font-size: 17px;
+    }
+
+
+    .patient-id {
+        font-size: 12px;
+    }
+
+}
+
+/* =========================================================
+   RME PAGE
+========================================================= */
+
+.rme-page {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   CONTENT SUBTITLE
+========================================================= */
+
+.rme-content-subtitle {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #7a8a83;
+}
+
+.rme-content-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f0f8f4;
+    color: #198754;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.rme-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 0 22px;
+    border-bottom: 1px solid #e9efec;
+    background: #fff;
+}
+
+.rme-tab {
+    position: relative;
+    border: 0;
+    background: transparent;
+    padding: 15px 18px;
+    color: #7a8a83;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rme-tab i {
+    margin-right: 6px;
+}
+
+.rme-tab:hover {
+    color: #198754;
+}
+
+.rme-tab.active {
+    color: #198754;
+}
+
+.rme-tab.active::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: #198754;
+}
+
+.rme-tab-content {
+    padding: 22px;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.rme-data-table {
+    margin-bottom: 0 !important;
+}
+
+.rme-data-table thead th {
+    white-space: nowrap;
+}
+
+.rme-data-table tbody td {
+    vertical-align: middle;
+}
+
+.visit-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.visit-date i {
+    color: #198754;
+}
+
+.table-main-text {
+    font-weight: 500;
+    color: #34423c;
+}
+
+.service-name {
+    font-weight: 600;
+    color: #34423c;
+}
+
+.service-subname {
+    margin-top: 3px;
+    font-size: 12px;
+    color: #7a8a83;
+}
+
+.doctor-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.doctor-name i {
+    color: #198754;
+}
+
+
+/* =========================================================
+   VISIT BADGE
+========================================================= */
+
+.visit-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.visit-outpatient {
+    background: #eaf7f0;
+    color: #198754;
+}
+
+.visit-inpatient {
+    background: #edf2f7;
+    color: #52616b;
+}
+
+
+/* =========================================================
+   DETAIL BUTTON
+========================================================= */
+
+.btn-detail {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: 1px solid #198754;
+    border-radius: 6px;
+    background: #fff;
+    color: #198754;
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-detail:hover {
+    background: #198754;
+    color: #fff;
+}
+
+
+/* =========================================================
+   ANC
+========================================================= */
+
+.anc-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.anc-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    border: 1px solid #e8efeb;
+    border-radius: 10px;
+    background: #fbfdfc;
+}
+
+.anc-summary-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #eaf7f0;
+    color: #198754;
+    font-size: 20px;
+}
+
+.anc-summary-label {
+    margin-bottom: 4px;
+    color: #6d7d76;
+    font-size: 13px;
+}
+
+.anc-summary-value {
+    color: #26352e;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.anc-summary-value span {
+    margin-left: 3px;
+    color: #7a8a83;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 992px) {
+
+    .rme-sidebar {
+        width: 220px;
+    }
+
+    .rme-main {
+        margin-left: 220px;
+    }
+
+    .anc-summary {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    .rme-sidebar {
+        width: 72px;
+    }
+
+    .rme-brand-text,
+    .rme-menu-label,
+    .rme-sidebar-text {
+        display: none;
+    }
+
+    .rme-sidebar-brand {
+        justify-content: center;
+    }
+
+    .rme-sidebar-link {
+        justify-content: center;
+    }
+
+    .rme-sidebar-icon {
+        margin: 0;
+    }
+
+    .rme-main {
+        margin-left: 72px;
+        padding: 20px 15px;
+    }
+
+      .patient-body {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-column:first-child {
+        padding-right: 0;
+        border-right: 0;
+    }
+
+    .patient-column:last-child {
+        padding-left: 0;
+        border-top: 1px solid #e9efec;
+        margin-top: 8px;
+        padding-top: 8px;
+    }
+
+    .patient-info-wide {
+        grid-column: auto;
+    }
+
+    .rme-content-header {
+        align-items: flex-start;
+    }
+
+    .rme-content-badge {
+        display: none;
+    }
+
+    .rme-tabs {
+        padding: 0 12px;
+        overflow-x: auto;
+    }
+
+    .rme-tab {
+        white-space: nowrap;
+        padding: 13px 12px;
+    }
+
+}
+
+
+@media (max-width: 576px) {
+
+    .rme-main {
+        padding: 15px 10px;
+    }
+
+    .patient-header {
+        padding: 18px;
+    }
+
+    .patient-body {
+        padding: 16px;
+    }
+
+    .rme-content-header {
+        padding: 18px;
+    }
+
+    .rme-tab-content {
+        padding: 15px;
+    }
+
+}

@@ -17,5 +17,9 @@
     "/js/newlplpo/buatlplpo.js": "/js/newlplpo/buatlplpo.js",
     "/js/newlplpo/item.js": "/js/newlplpo/item.js",
     "/js/datarme/search.js": "/js/datarme/search.js",
-    "/css/app.css": "/css/app.css"
+    "/js/rme/datapasien.js": "/js/rme/datapasien.js",
+    "/js/rme/detailpasien.js": "/js/rme/detailpasien.js",
+    "/css/app.css": "/css/app.css",
+    "/css/rme/detailpasien.css": "/css/rme/detailpasien.css",
+    "/css/rme/datapasien.css": "/css/rme/datapasien.css"
 }
