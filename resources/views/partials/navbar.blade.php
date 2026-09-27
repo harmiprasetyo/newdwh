@@ -1,44 +1,99 @@
-<nav class="navbar navbar-expand-md navbar-dark sticky-top bg-success">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">MNCH Dashboard</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page"  id="home" href="/homepage">Beranda</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link"  id="anak" href="/dashboard">Dashboard</a>
-        </li>
+<aside class="rme-sidebar">
 
-         <li class="nav-item">
-          <a class="nav-link"  id="rme" href="/datarme">Lihat Data RME</a>
-        </li>
+    {{-- Brand --}}
+    <div class="rme-sidebar-brand">
 
-        <li class="nav-item">
-          <a class="btn btn-success"  id="rme" href="#" id="btnlogout" onclick="logoutpage()">Logout</a>
-        </li>
+        <div class="rme-brand-icon">
+            <i class="bi bi-heart-pulse"></i>
+        </div>
 
-      </ul>
+        <div class="rme-brand-text">
+            <div class="rme-brand-title">
+                MNCH
+            </div>
+
+            <div class="rme-brand-subtitle">
+                Dashboard RME
+            </div>
+        </div>
 
     </div>
-  </div>
-</nav>
 
-<script>
 
-    function logoutpage(){
-        $.ajax({
-    url: "/logout",
-    type: "POST",
-    data: {
-        _token: $('meta[name="csrf-token"]').attr('content')
-    },
-    success: function(){
-        window.location.href = "/login";
-    }
-});
-    }
-    </script>
+    {{-- Navigation --}}
+    <nav class="rme-sidebar-nav">
+
+        <div class="rme-menu-label">
+            MENU UTAMA
+        </div>
+
+
+        <a
+            href="/homepage"
+            id="home"
+            class="rme-sidebar-link"
+        >
+            <span class="rme-sidebar-icon">
+                <i class="bi bi-house"></i>
+            </span>
+
+            <span class="rme-sidebar-text">
+                Beranda
+            </span>
+        </a>
+
+
+        <a
+            href="/dashboard"
+            id="anak"
+            class="rme-sidebar-link"
+        >
+            <span class="rme-sidebar-icon">
+                <i class="bi bi-grid"></i>
+            </span>
+
+            <span class="rme-sidebar-text">
+                Dashboard
+            </span>
+        </a>
+
+
+        <a
+            href="/datarme"
+            id="rme"
+            class="rme-sidebar-link active"
+        >
+            <span class="rme-sidebar-icon">
+                <i class="bi bi-file-medical"></i>
+            </span>
+
+            <span class="rme-sidebar-text">
+                Lihat Data RME
+            </span>
+        </a>
+
+    </nav>
+
+
+    {{-- Logout --}}
+    <div class="rme-sidebar-footer">
+
+        <button
+            type="button"
+            id="btnlogout"
+            class="rme-sidebar-link rme-logout"
+        >
+
+            <span class="rme-sidebar-icon">
+                <i class="bi bi-box-arrow-right"></i>
+            </span>
+
+            <span class="rme-sidebar-text">
+                Logout
+            </span>
+
+        </button>
+
+    </div>
+
+</aside>
