@@ -1,251 +1,449 @@
 @extends('layouts.mainrme')
+
 @section('container')
 
-<div class="container overflow-hidden mt-4">
-  <div class="row gx-5 mt-4 mb-2">
-    <div class="col">
-        <div class="card mt-4">
-        <div class="card-body">
+<div class="rme-page">
 
-             <table class="table">
-        <thead>
-            <tr>
+    {{-- =========================================================
+        PATIENT PROFILE
+    ========================================================== --}}
+    <section class="patient-card">
 
-                <th>ID</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['patient_id'] }}</th>
-            </tr>
-            <tr>
-                <th>Nama Pasien</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['name'] }}</th>
-            <tr>
-                  <tr>
-                <th>NIK</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['nik'] }}</th>
-            <tr>
+        <div class="patient-header">
+            <div class="patient-avatar">
+                <i class="bi bi-person-fill"></i>
+            </div>
 
-                  <tr>
-                <th>Tgl Lahir</th>
-                <th>:</th>
-                <th>{{ \Carbon\Carbon::parse($dt['PATIENTID']['birth_date'])->format('d M Y') }}</th>
-            <tr>
-                  <tr>
-                <th>Jenis Kelamin</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['gender'] }}</th>
-            <tr>
+            <div class="patient-heading">
+                <div class="patient-name">
+                    {{ $dt['PATIENTID']['name'] ?? '-' }}
+                </div>
 
-                <tr>
-                <th>No. Telp</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['phone'] }}</th>
-            <tr>
-
-
-                <tr>
-                  <tr>
-                <th>Alamat</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['address'] }}</th>
-            <tr>
-
-                <tr>
-                  <tr>
-                <th>Kecamatan</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['district']['name'] ?? '-' }}</th>
-            <tr>
-
-                 <tr>
-                  <tr>
-                <th>Kab/Kota</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['city']['name'] ?? '-' }}</th>
-            <tr>
-
-                 <tr>
-                  <tr>
-                <th>Propinsi</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['province']['name'] ?? '-' }}</th>
-            <tr>
-
-        </thead>
-        </table>
-
-        </div>
+                <div class="patient-id">
+                    ID Pasien:
+                    <strong>{{ $dt['PATIENTID']['patient_id'] ?? '-' }}</strong>
+                </div>
+            </div>
         </div>
 
+        <div class="patient-body">
 
-     </div>
+    {{-- KOLOM KIRI --}}
+    <div class="patient-column">
+
+        <div class="patient-info-item">
+            <div class="patient-info-label">
+                <i class="bi bi-person-vcard"></i>
+                NIK
+            </div>
+            <div class="patient-info-value">
+                {{ $dt['PATIENTID']['nik'] ?? '-' }}
+            </div>
+        </div>
+
+        <div class="patient-info-item">
+            <div class="patient-info-label">
+                <i class="bi bi-calendar3"></i>
+                Tanggal Lahir
+            </div>
+            <div class="patient-info-value">
+                @if(!empty($dt['PATIENTID']['birth_date']))
+                    {{ \Carbon\Carbon::parse($dt['PATIENTID']['birth_date'])->format('d M Y') }}
+                @else
+                    -
+                @endif
+            </div>
+        </div>
+
+        <div class="patient-info-item">
+            <div class="patient-info-label">
+                <i class="bi bi-gender-ambiguous"></i>
+                Jenis Kelamin
+            </div>
+            <div class="patient-info-value">
+                @if(($dt['PATIENTID']['gender'] ?? '') === 'female')
+                    Perempuan
+                @elseif(($dt['PATIENTID']['gender'] ?? '') === 'male')
+                    Laki-laki
+                @else
+                    {{ $dt['PATIENTID']['gender'] ?? '-' }}
+                @endif
+            </div>
+        </div>
+
+        <div class="patient-info-item">
+            <div class="patient-info-label">
+                <i class="bi bi-telephone"></i>
+                No. Telepon
+            </div>
+            <div class="patient-info-value">
+                {{ $dt['PATIENTID']['phone'] ?? '-' }}
+            </div>
+        </div>
+
     </div>
 
 
-<!-- Start Tab Menu -->
-<ul class="nav nav-tabs">
-  <li class="nav-item">
-    <a class="nav-link active"  id="tab1" aria-current="page" >Riwayat Kunjungan</a>
-  </li>
-  @if($dt['PATIENTID']['gender']=="female")
-  <li class="nav-item">
-    <a class="nav-link" id="tab2" >Resume Layanan ANC</a>
-  </li>
-  @endif
-</ul>
-<!-- end Tab Menu -->
+    {{-- KOLOM KANAN --}}
+    <div class="patient-column">
 
+        <div class="patient-info-item">
+            <div class="patient-info-label">
+                <i class="bi bi-geo-alt"></i>
+                Alamat
+            </div>
+            <div class="patient-info-value">
+                {{ $dt['PATIENTID']['address'] ?? '-' }}
+            </div>
+        </div>
 
-<!--- Tab History kunjungan -->
-    <div id="history">
+        <div class="patient-info-item">
+            <div class="patient-info-label">
+                <i class="bi bi-pin-map"></i>
+                Kecamatan
+            </div>
+            <div class="patient-info-value">
+                {{ $dt['PATIENTID']['district']['name'] ?? '-' }}
+            </div>
+        </div>
 
+        <div class="patient-info-item">
+            <div class="patient-info-label">
+                <i class="bi bi-buildings"></i>
+                Kab/Kota
+            </div>
+            <div class="patient-info-value">
+                {{ $dt['PATIENTID']['city']['name'] ?? '-' }}
+            </div>
+        </div>
 
-        <table class="table table-dark" id="riwayatKunjungan">
-         <!--   <thead>
-                   <tr><td colspan="8"><pre>
-
-
-                    </pre></td></tr>
-            </thead> -->
-
-            <thead class="text-center align-top">
-                <tr><th>ID</th>
-                    <th>Tanggal Kunjungan</th>
-                    <th>Jenis Kunjungan</th>
-
-                    <th>Fasilitas Kesehatan</th>
-                     <th>Unit/Poli</th>
-                     <th>Jenis Layanan</th>
-                     <th>Dokter</th>
-                     <th>&nbsp;</th>
-                </tr>
-            </thead>
-
-                <tbody class="text-center align-top">
-
-@if(isset($dt['ENCOUNTER']))
-@foreach ($dt['ENCOUNTER'] as $k=>$encount )
-<TR><TD>{{ $loop->index+1 }}</TD>
-    <TD>{{ $encount['start'] }}</TD>
-    <TD>@if($encount['class_code']=="AMB") Rawat Jalan @else Rawat Inap @endif</TD>
-    <TD>{{ $encount['service_provider_name'] }}</TD>
-    <TD>{{ $encount['location_name'] }}</TD>
-    <TD>{{ $dt['SUBENC'][$k]['jeniskunjungan_name'] }} ( {{ $dt['SUBENC'][$k]['kunjunganANC'] }})</TD>
-    <TD>{{ $encount['practitioner_name'] }} </TD>
-    <td> <button type="button" class="btn btn-secondary btn-outline-light btn-sm" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="getDetail( '{{ $dt['PATIENTID']['patient_id'] }}', '{{ $encount['encounter_id'] }}' )"> Detail </button> </td>
-</TR>
-
-@endforeach
-@endif
-                   <tfoot>
-                    <tr>
-                        <th colspan="8">&nbsp;</th>
-
-                    </tr>
-                   </tfoot>
-
-
-
-
-
-                </tbody>
-
-        </table>
-
+        <div class="patient-info-item">
+            <div class="patient-info-label">
+                <i class="bi bi-map"></i>
+                Provinsi
+            </div>
+            <div class="patient-info-value">
+                {{ $dt['PATIENTID']['province']['name'] ?? '-' }}
+            </div>
+        </div>
 
     </div>
 
-    <!-- END of History Kunjungan -->
+</div>
+    </section>
 
 
-<!-- Start Resume Kunjungan ANC -->
+    {{-- =========================================================
+        CONTENT
+    ========================================================== --}}
+    <section class="rme-content-card">
 
-<div id="kunjunganANC" style="display: none">
+        <div class="rme-content-header">
 
-      <table class="table table-light" id="riwayatKunjungan">
-        <thead>
-            <tr>
-                <th>Jumlah Kunjungan Trimester Pertama </th><th> @if(isset($dt['trimester1'])) {{ $dt['trimester1'] }} @endif kali</th>
-            </tr>
-            <tr>
-                <th>Jumlah Kunjungan Trimester Kedua </th><th> @if(isset($dt['trimester2'])) {{ $dt['trimester2'] }} @endif kali</th>
-            </tr>
-            <tr>
-                <th>Jumlah Kunjungan Trimester Ketiga </th><th> @if(isset($dt['trimester3'])) {{ $dt['trimester3'] }} @endif kali</th>
-            </tr>
-            <tr>
-                <th>Pemeriksaan USG oleh dr/dr. SPOG pada Trimester pertama </th><th>  kali</th>
-            </tr>
-             <tr>
-                <th>Pemeriksaan USG oleh dr/dr. SPOG pada Trimester kedua </th><th>  kali</th>
-            </tr>
-        </thead>
-      </table>
+            <div>
+                <div class="rme-content-title">
+                    <i class="bi bi-clipboard2-pulse"></i>
+                    Riwayat Rekam Medis
+                </div>
+
+                <div class="rme-content-subtitle">
+                    Daftar riwayat kunjungan dan layanan pasien
+                </div>
+            </div>
+
+            <div class="rme-content-badge">
+                <i class="bi bi-clock-history"></i>
+                Riwayat Kunjungan
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+            TAB
+        ====================================================== --}}
+        <div class="rme-tabs">
+
+            <button
+                type="button"
+                class="rme-tab active"
+                id="tab1"
+                data-target="history">
+                <i class="bi bi-calendar2-week"></i>
+                Riwayat Kunjungan
+            </button>
+
+            @if(($dt['PATIENTID']['gender'] ?? '') === 'female')
+                <button
+                    type="button"
+                    class="rme-tab"
+                    id="tab2"
+                    data-target="kunjunganANC">
+                    <i class="bi bi-heart-pulse"></i>
+                    Resume Layanan ANC
+                </button>
+            @endif
+
+        </div>
+
+
+        {{-- =====================================================
+            HISTORY
+        ====================================================== --}}
+        <div id="history" class="rme-tab-content">
+
+            <div class="table-responsive">
+
+                <table
+                    class="table rme-data-table"
+                    id="riwayatKunjungan">
+
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Tanggal Kunjungan</th>
+                            <th>Jenis Kunjungan</th>
+                            <th>Fasilitas Kesehatan</th>
+                            <th>Unit / Poli</th>
+                            <th>Jenis Layanan</th>
+                            <th>Dokter</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    @if(isset($dt['ENCOUNTER']) && count($dt['ENCOUNTER']) > 0)
+
+                        @foreach($dt['ENCOUNTER'] as $k => $encount)
+
+                            <tr>
+
+                                <td>
+                                    {{ $loop->iteration }}
+                                </td>
+
+                                <td>
+                                    <div class="visit-date">
+                                        <i class="bi bi-calendar-event"></i>
+                                        {{ $encount['start'] ?? '-' }}
+                                    </div>
+                                </td>
+
+                                <td>
+
+                                    @if(($encount['class_code'] ?? '') === 'AMB')
+
+                                        <span class="visit-badge visit-outpatient">
+                                            <i class="bi bi-person-walking"></i>
+                                            Rawat Jalan
+                                        </span>
+
+                                    @else
+
+                                        <span class="visit-badge visit-inpatient">
+                                            <i class="bi bi-hospital"></i>
+                                            Rawat Inap
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+                                <td>
+                                    <div class="table-main-text">
+                                        {{ $encount['service_provider_name'] ?? '-' }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="table-main-text">
+                                        {{ $encount['location_name'] ?? '-' }}
+                                    </div>
+                                </td>
+
+                                <td>
+
+                                    <div class="service-name">
+                                        {{ $dt['SUBENC'][$k]['jeniskunjungan_name'] ?? '-' }}
+                                    </div>
+
+                                    @if(!empty($dt['SUBENC'][$k]['kunjunganANC']))
+
+                                        <div class="service-subname">
+                                            {{ $dt['SUBENC'][$k]['kunjunganANC'] }}
+                                        </div>
+
+                                    @endif
+
+                                </td>
+
+                                <td>
+                                    <div class="doctor-name">
+                                        <i class="bi bi-person-badge"></i>
+                                        {{ $encount['practitioner_name'] ?? '-' }}
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+
+                                    <button
+                                        type="button"
+                                        class="btn-detail"
+                                        data-patient-id="{{ $dt['PATIENTID']['patient_id'] ?? '' }}"
+                                        data-encounter-id="{{ $encount['encounter_id'] ?? '' }}">
+
+                                        <i class="bi bi-eye"></i>
+                                        Detail
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                    @endif
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+            ANC
+        ====================================================== --}}
+        @if(($dt['PATIENTID']['gender'] ?? '') === 'female')
+
+            <div
+                id="kunjunganANC"
+                class="rme-tab-content"
+                style="display: none;">
+
+                <div class="anc-summary">
+
+                    <div class="anc-summary-item">
+
+                        <div class="anc-summary-icon">
+                            <i class="bi bi-1-circle"></i>
+                        </div>
+
+                        <div class="anc-summary-content">
+
+                            <div class="anc-summary-label">
+                                Kunjungan Trimester Pertama
+                            </div>
+
+                            <div class="anc-summary-value">
+                                {{ $dt['trimester1'] ?? 0 }}
+                                <span>kali</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="anc-summary-item">
+
+                        <div class="anc-summary-icon">
+                            <i class="bi bi-2-circle"></i>
+                        </div>
+
+                        <div class="anc-summary-content">
+
+                            <div class="anc-summary-label">
+                                Kunjungan Trimester Kedua
+                            </div>
+
+                            <div class="anc-summary-value">
+                                {{ $dt['trimester2'] ?? 0 }}
+                                <span>kali</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="anc-summary-item">
+
+                        <div class="anc-summary-icon">
+                            <i class="bi bi-3-circle"></i>
+                        </div>
+
+                        <div class="anc-summary-content">
+
+                            <div class="anc-summary-label">
+                                Kunjungan Trimester Ketiga
+                            </div>
+
+                            <div class="anc-summary-value">
+                                {{ $dt['trimester3'] ?? 0 }}
+                                <span>kali</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="anc-summary-item">
+
+                        <div class="anc-summary-icon">
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+
+                        <div class="anc-summary-content">
+
+                            <div class="anc-summary-label">
+                                Pemeriksaan USG Trimester Pertama
+                            </div>
+
+                            <div class="anc-summary-value">
+                                0
+                                <span>kali</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="anc-summary-item">
+
+                        <div class="anc-summary-icon">
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+
+                        <div class="anc-summary-content">
+
+                            <div class="anc-summary-label">
+                                Pemeriksaan USG Trimester Kedua
+                            </div>
+
+                            <div class="anc-summary-value">
+                                0
+                                <span>kali</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @endif
+
+    </section>
 
 </div>
-<!-- End Kunjungan ANC -->
 
-
-  </div>
-</div>
-
-
-<script>
-
-
-function getDetail(patientId, idEncounter) {
-
-    const params = new URLSearchParams();
-
-    params.set('patient_id', patientId);
-    params.set('idencounter', idEncounter);
-
-    window.location.href = '/datarme/detail?' + params.toString();
-}
-
-
-    $('document').ready(function(){
-      /*  Swal.fire({
-  title: 'Error!',
-  text: 'Do you want to continue',
-  icon: 'error',
-  confirmButtonText: 'Cool'
-})*/
-$('#home').removeClass('active');
-$('#rme').addClass('active');
-
-
-
- $('#tab2').on('click',function(){
-            $('#tab2').addClass('active');
-            $('#tab1').removeClass('active');
-
-               $('#kunjunganANC').show();
-                $('#history').hide();
-
-        })
-
-         $('#tab1').on('click',function(){
-
-
-
-               $('#history').show();
-
-
-            $('#tab1').addClass('active');
-            $('#tab2').removeClass('active');
-            $('#kunjunganANC').hide();
-
-
-
-        })
-
-
-
-//$('#tbid').DataTable();
-
-
-})
-    </script>
-@endsection()
+@endsection

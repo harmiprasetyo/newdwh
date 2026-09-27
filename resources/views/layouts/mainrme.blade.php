@@ -1,15 +1,22 @@
+<!DOCTYPE html>
+<html lang="id">
 
 @include('partials.headsection')
-@include('partials.navbar')
 
-<body class="container mt-4">
-    @yield('container')
+<body>
+
+    @include('partials.navbar')
+
+    <main class="rme-main">
+
+        @yield('container')
+
+    </main>
+
+
+    @stack('styles');
+@stack('scripts')
 
 </body>
 
-
-
-
-
-
-
+</html>

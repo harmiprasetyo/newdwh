@@ -88,6 +88,7 @@ mix.js(
     'public/js/newlplpo'
 )
 .js( 'resources/js/datarme/search.js', 'public/js/datarme' )
+<<<<<<< HEAD
 
 .js(
     'resources/js/newlplpo/report_monitoring.js',
@@ -131,6 +132,24 @@ mix.js(
 )
 
 
+=======
+.js(
+    'resources/js/rme/datapasien.js',
+    'public/js/rme'
+)
+.css(
+    'resources/css/rme/datapasien.css',
+    'public/css/rme'
+)
+.js(
+    'resources/js/rme/detailpasien.js',
+    'public/js/rme'
+)
+.css(
+    'resources/css/rme/detailpasien.css',
+    'public/css/rme'
+)
+>>>>>>> origin/modul/rme
 .postCss(
     'resources/css/app.css',
     'public/css',

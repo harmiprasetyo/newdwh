@@ -1,230 +1,256 @@
 @extends('layouts.mainrme')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/rme/detailpasien.css') }}">
+@endpush
 @section('container')
 
+<div class="rme-page">
 
+    {{-- =========================================================
+         PATIENT PROFILE
+    ========================================================== --}}
+    <div class="patient-card">
 
-<div class="container overflow-hidden mt-4">
-  <div class="row gx-5 mt-4">
-    <div class="col">
-        <div class="card mt-4">
-        <div class="card-body">
+        <div class="patient-header">
 
+            <div class="patient-avatar">
+                <i class="bi bi-person-vcard"></i>
+            </div>
 
-             <table class="table">
-        <thead>
-            <tr>
+            <div>
+                <h2 class="patient-name">
+                    {{ $dt['PATIENTID']['name'] }}
+                </h2>
 
-                <th>ID</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['patient_id'] }}</th>
-            </tr>
-            <tr>
-                <th>Nama Pasien</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['name'] }}</th>
-            </tr>
-                  <tr>
-                <th>NIK</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['nik'] }}</th>
-                  </tr>
-
-                  <tr>
-                <th>No. Telp</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['phone'] }}</th>
-            <tr>
-
-
-                  <tr>
-                <th>Tgl Lahir</th>
-                <th>:</th>
-                <th>{{ \Carbon\Carbon::parse($dt['PATIENTID']['birth_date'])->format('d M Y') }}</th>
-                  </tr>
-                  <tr>
-                <th>Jenis Kelamin</th>
-                <th>:</th>
-                <th>{{ $dt['PATIENTID']['gender'] }}</th>
-                  </tr>
-
-                  <tr>
-                <th>Tanggal Kunjungan</th>
-                <th>:</th>
-                <th>{{ $dt['ENCOUNTER'][0]['start'] }}</th>
-                  </tr>
-
-                   <tr>
-                <th>Fasilitas Kesehatan</th>
-                <th>:</th>
-                <th>{{ $dt['ENCOUNTER'][0]['service_provider_name'] }}</th>
-                  </tr>
-                  <tr>
-                    <th>Status G/P/A</th>
-                    <th>: </th>
-                    <th> G : {{ $dt['ANC']['gravida'] }} &nbsp; P : {{ $dt['ANC']['parity'] }} A: {{ $dt['ANC']['abortions'] }}</th>
-                  </tr>
-
-
-        </thead>
-        </table>
+                <div class="patient-id">
+                    ID Pasien :
+                    <strong>{{ $dt['PATIENTID']['patient_id'] }}</strong>
+                </div>
+            </div>
 
         </div>
+
+
+        <div class="patient-body">
+
+            {{-- Kolom kiri --}}
+            <div class="patient-column">
+
+                <div class="patient-info-item">
+
+                    <div class="patient-info-label">
+                        <i class="bi bi-person"></i>
+                        Nama Pasien
+                    </div>
+
+                    <div class="patient-info-value">
+                        {{ $dt['PATIENTID']['name'] }}
+                    </div>
+
+                </div>
+
+
+                <div class="patient-info-item">
+
+                    <div class="patient-info-label">
+                        <i class="bi bi-card-text"></i>
+                        NIK
+                    </div>
+
+                    <div class="patient-info-value">
+                        {{ $dt['PATIENTID']['nik'] }}
+                    </div>
+
+                </div>
+
+
+                <div class="patient-info-item">
+
+                    <div class="patient-info-label">
+                        <i class="bi bi-calendar3"></i>
+                        Tanggal Lahir
+                    </div>
+
+                    <div class="patient-info-value">
+                        {{ \Carbon\Carbon::parse($dt['PATIENTID']['birth_date'])->format('d M Y') }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- Kolom kanan --}}
+            <div class="patient-column">
+
+                <div class="patient-info-item">
+
+                    <div class="patient-info-label">
+                        <i class="bi bi-gender-ambiguous"></i>
+                        Jenis Kelamin
+                    </div>
+
+                    <div class="patient-info-value">
+                        {{ $dt['PATIENTID']['gender'] }}
+                    </div>
+
+                </div>
+
+
+                <div class="patient-info-item">
+
+                    <div class="patient-info-label">
+                        <i class="bi bi-telephone"></i>
+                        No. Telp
+                    </div>
+
+                    <div class="patient-info-value">
+                        {{ $dt['PATIENTID']['phone'] }}
+                    </div>
+
+                </div>
+
+
+                <div class="patient-info-item">
+
+                    <div class="patient-info-label">
+                        <i class="bi bi-hospital"></i>
+                        Fasilitas Kesehatan
+                    </div>
+
+                    <div class="patient-info-value">
+                        {{ $dt['ENCOUNTER'][0]['service_provider_name'] }}
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
 
-     </div>
+        {{-- Informasi kunjungan --}}
+        <div class="patient-body">
+
+            <div class="patient-column">
+
+                <div class="patient-info-item">
+
+                    <div class="patient-info-label">
+                        <i class="bi bi-calendar-check"></i>
+                        Tanggal Kunjungan
+                    </div>
+
+                    <div class="patient-info-value">
+                        {{ $dt['ENCOUNTER'][0]['start'] }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="patient-column">
+
+                <div class="patient-info-item">
+
+                    <div class="patient-info-label">
+                        <i class="bi bi-heart-pulse"></i>
+                        Status G/P/A
+                    </div>
+
+                    <div class="patient-info-value">
+
+                        G : {{ $dt['ANC']['gravida'] }}
+
+                        <span class="mx-2">|</span>
+
+                        P : {{ $dt['ANC']['parity'] }}
+
+                        <span class="mx-2">|</span>
+
+                        A : {{ $dt['ANC']['abortions'] }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
 
+    {{-- =========================================================
+         DETAIL RME
+    ========================================================== --}}
+    <div class="rme-content-card">
 
 
-    <div class="row gx-5 mt-4">
+        {{-- Header --}}
+        <div class="rme-content-header">
 
-          <div class="container">
-    <div class="col">
-       <div class="card">
-         @include('partials.tabpasien')
-        <div class="card-body" id="maincard">
-              @if(!isset($dt['OBS']))
-                Data Pemeriksaan Vital Sign Tidak ditemukan
-                @else
-                <table class="table">
-                    <thead>
-                        <tr>
-                            @if(isset($dt['OBS']))
+            <div>
 
-                            @foreach ($dt['OBS'] as $n)
-                            <th>{{ $n['param_name'] }}</th>
-                            @endforeach
-                            @endif
+                <h3 class="rme-content-title">
+                    Detail Rekam Medis Elektronik
+                </h3>
 
-                        </tr>
-                        <tr>  @if(isset($dt['OBS']))
-                             @foreach ($dt['OBS'] as $ndata)
-                            <td>{{ $ndata['valueQty'] }} {{ $ndata['valueUnit'] }}</td>
-                            @endforeach
-                             @endif
-                        </tr>
-                    </thead>
-                </table>
-            @endif
+                <div class="rme-content-subtitle">
+                    Informasi pelayanan dan pemeriksaan pasien
+                </div>
+
+            </div>
 
 
+            <div class="rme-content-badge">
+
+                <i class="bi bi-file-medical"></i>
+
+                RME Pasien
+
+            </div>
 
         </div>
 
 
-         <div class="card-body" id="layananUmum">
-            @if (!isset($dt['INFO']['total']))
-                Data  Tidak ditemukan
-                @else
-                <table class="table" style="width: 1200px">
-                    <thead>
-                       <tr>
-                        <th>Tekanan Darah</th>
-                        <th>Suhu</th>
-                        <th>Nadi</th>
-                        <th>Pernapasan</th>
-                        <th>Diagnosis</th>
-                        <th>Tindakan</th>
-                        <th>Laboratorium</th>
-                        <th>Obat</th>
-                        <th>Rencana Tindak Lanjut</th>
-                        <th>Kondisi Saat Pulang</th>
-                       </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>@if(isset($dt['sistole'])) {{ $dt['sistole'] }}  @endif  / @if(isset($dt['diastole'])) {{ $dt['diastole'] }}  @endif</td>
-                            <td>@if(isset($dt['VS'])) {{ $dt['VS']['suhuBadan'] }} @endif</td>
-                            <td>@if(isset($dt['VS'])) {{ $dt['VS']['nadi'] }} @endif</td>
-                            <td>@if(isset($dt['VS'])) {{ $dt['VS']['pernafasan'] }} @endif</td>
-                            <td>
+        {{-- =====================================================
+             TAB NAVIGATION
+        ====================================================== --}}
 
-                                @if(isset($dt['ANAMNESE']))
-                        @foreach($dt['ANAMNESE'] as $diagnose)
+        @include('partials.tabpasien')
 
-                        <li>{{ $diagnose['diagnosa_kode'] }} - {{ $diagnose['diagnosa_display'] }}</li>
+        @include('rme.tabs.vital')
 
-                        @endforeach
+@include('rme.tabs.layanan-umum')
+
+@include('rme.tabs.anc')
+
+@include('rme.tabs.inc')
+
+@include('rme.tabs.pnc')
+
+@include('rme.tabs.neonatus')
+
+@include('rme.tabs.imunisasi')
 
 
 
-                        @endif</td>
-
-                            </td>
-                            <td>
-                                @if(isset($dt['PNCPROC'][0]['procedure']))
-                        @foreach($dt['PNCPROC'][0]['procedure']['coding'] as $proc)
-                        <li>{{ $proc['code'] }} - {{ $proc['display'] }}</li>
-                        @endforeach
-                        @endif
-                            </td>
-                            <td><span>
-
-                                @if (isset($dt['lab']))
 
 
 
-                                  @foreach ($dt['lab'] as $key=>$val )
-                                  {{  $val['label'] }}  : {{  $val['val'] }} </span><br>
-                                @endforeach
-
-                                     @endif
-                            </td>
-                            <td>
 
 
 
-                            </td>
-                            <td></td>
-                            <td>  @if(isset($dt['PLAN'][0]['RTL']))
-                        {{ $dt['PLAN'][0]['RTL'] }}
-
-                        @endif</td>
-                            <td>
-
-                                 @foreach($dt['ANAMNESE'] as $k=>$v)
-                            @if(isset($v['code']) && $v['code']=='359746009')
-                            {{  $v['display'] }}
-                            @endif
-                            @endforeach
-
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            @endif
 
 
 
-        </div>
 
-        <div class="card-body" id="layananAnc">
-            <table class="table">
-            <thead>
-                <tr>
-                    <th>Trimester Ke </th>
-                    <th>:</th>
-                    <th>@if(isset($dt['ANC']['anc_trimester'])){{ $dt['ANC']['anc_trimester'] }} @endif</th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th>Jarak Kehamilan</th>
-                    <th>:</th>
-                    <th>@if(isset($dt['ANC']['anc_jarak_hamil'])){{ $dt['ANC']['anc_jarak_hamil'] }} @endif</th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th>HPL</th>
-                    <th>:</th>
-                    <th>
-                        @if(isset($dt['ANC']['anc_hpl'])){{ $dt['ANC']['anc_hpl'] }} @endif
 
-                </th>
-                    <th></th>
-                </tr>
 
+
+<<<<<<< HEAD
                  <tr>
                     <th>HPHT</th>
                     <th>:</th>
@@ -1751,85 +1777,15 @@
 
      </div>
           </div>
+=======
+>>>>>>> origin/modul/rme
     </div>
-
 
 </div>
 
-
-<script>
-    $(document).ready(function(){
-
-        $('#home').removeClass('active');
-$('#rme').addClass('active');
-
-        $('#layananUmum,#layananAnc, #inc, #imunisasi, #neonatus, #pnc ').hide();
-
-        $('#tab2').on('click',function(){
-            $('#tab2').addClass('active');
-            $('#tab1,#tab3,#tab4,#tab5,#tab6,#tab7').removeClass('active');
-
-               $('#layananUmum').show();
-                $('#maincard,#layananAnc, #inc, #imunisasi, #neonatus, #pnc').hide();
-
-        })
-
-         $('#tab1').on('click',function(){
-
-
-
-               $('#maincard').show();
-
-
-            $('#tab1').addClass('active');
-            $('#tab2,#tab3,#tab4,#tab5,#tab6,#tab7').removeClass('active');
-            $('#layananUmum,#layananAnc, #inc, #imunisasi, #neonatus, #pnc').hide();
-
-
-
-        })
-
-         $('#tab3').on('click',function(){
-            $('#tab3').addClass('active');
-            $('#tab2,#tab1,#tab4,#tab5,#tab6,#tab7').removeClass('active');
-              $('#layananAnc').show();
-            $('#layananUmum,#maincard, #inc, #imunisasi, #neonatus, #pnc').hide();
-
-        })
-
-
-         $('#tab4').on('click',function(){
-            $('#tab4').addClass('active');
-            $('#tab2,#tab1,#tab3,#tab5,#tab6,#tab7').removeClass('active');
-              $('#inc').show();
-            $('#layananUmum,#maincard, #layananANC, #imunisasi, #neonatus, #pnc').hide();
-
-        })
-
-         $('#tab5').on('click',function(){
-            $('#tab5').addClass('active');
-            $('#tab2,#tab1,#tab3,#tab4,#tab6,#tab7').removeClass('active');
-              $('#pnc').show();
-            $('#layananUmum,#maincard, #layananANC, #imunisasi, #neonatus, #inc').hide();
-
-        })
-
-          $('#tab6').on('click',function(){
-            $('#tab6').addClass('active');
-            $('#tab2,#tab1,#tab3,#tab4,#tab5,#tab7').removeClass('active');
-              $('#neonatus').show();
-            $('#layananUmum,#maincard, #layananANC, #imunisasi, #pnc, #inc').hide();
-
-        })
-
-          $('#tab7').on('click',function(){
-            $('#tab7').addClass('active');
-            $('#tab2,#tab1,#tab3,#tab4,#tab5,#tab6').removeClass('active');
-              $('#imunisasi').show();
-            $('#layananUmum,#maincard, #layananANC, #neonatus, #pnc, #inc').hide();
-
-        })
-    })
-    </script>
-
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/rme/detailpasien.js') }}"></script>
+
+@endpush

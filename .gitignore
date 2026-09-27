@@ -1,6 +1,10 @@
 .env
 .env.*
 /node_modules
+<<<<<<< HEAD
 docker-compose*.yml
+=======
+docker-compose*
+>>>>>>> origin/modul/rme
 /vendor
 
