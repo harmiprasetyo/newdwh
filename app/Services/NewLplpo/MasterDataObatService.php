@@ -160,6 +160,11 @@ public function datatableforcanvas(Request $request)
 
     }
 
+     $query->orderBy(
+        'master_obat.nama_obat',
+        'asc'
+    );
+
 
     return $query;
 }

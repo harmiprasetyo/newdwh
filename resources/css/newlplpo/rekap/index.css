@@ -1,0 +1,146 @@
+/* ==========================================================
+   NEW LPLPO - REKAP
+   ========================================================== */
+
+#tableRekap {
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+#tableRekap thead th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+#tableRekap tbody td {
+    vertical-align: middle;
+}
+
+/* Sticky header */
+#tableRekap thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Program separator */
+#tableRekap tr.program-separator td {
+    background-color: #cfe2ff !important;
+    font-weight: 700;
+    text-align: left !important;
+    vertical-align: middle;
+}
+
+/* NAPZA */
+#tableRekap tr.table-napza td {
+    background-color: #f8d7da !important;
+}
+
+/* Badge */
+#tableRekap .badge {
+    font-size: 11px;
+}
+
+/* Loading */
+#loadingRekap {
+    display: none;
+}
+
+#loadingRekap.show {
+    display: block;
+}
+
+/* Legend */
+.rekap-legend {
+    font-size: 13px;
+}
+
+.rekap-legend .legend-item {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 18px;
+    margin-bottom: 6px;
+}
+
+/* Export buttons */
+.rekap-actions .btn {
+    min-width: 100px;
+}
+
+/* Filter */
+.rekap-filter .form-label {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* Table wrapper */
+.rekap-table-wrapper {
+    overflow-x: auto;
+}
+
+/* Empty data */
+.rekap-empty {
+    padding: 30px !important;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* Number cells */
+#tableRekap td.text-end {
+    text-align: right !important;
+}
+
+/* Print */
+@media print {
+
+    .sidebar,
+    .navbar,
+    #btnFilter,
+    .rekap-actions,
+    .btn,
+    .card-header .badge {
+        display: none !important;
+    }
+
+    body {
+        background: #fff !important;
+    }
+
+    .container-fluid {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .card-header {
+        border: none !important;
+    }
+
+    .rekap-table-wrapper {
+        overflow: visible !important;
+    }
+
+    #tableRekap {
+        font-size: 9px;
+    }
+
+    #tableRekap thead {
+        position: static;
+    }
+
+    #tableRekap tr.program-separator td {
+        background-color: #cfe2ff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    #tableRekap tr.table-napza td {
+        background-color: #f8d7da !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

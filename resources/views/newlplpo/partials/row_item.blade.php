@@ -52,9 +52,7 @@
     <td class="text-end">
         {{ number_format(($item->pemberian_program_pkd ?? 0)) }}
     </td>
-    <td class="text-end">
-        {{ number_format(($item->pemberian_jkn ?? 0)) }}
-    </td>
+
 
     <td class="text-center" width="90">
 

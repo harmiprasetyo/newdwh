@@ -82,10 +82,7 @@
                                         Sat
                                     </th>
 
-                                    <th width="80"
-                                        class="text-center">
-                                        Pilih
-                                    </th>
+
 
                                 </tr>
 
@@ -694,15 +691,15 @@
                                                 <ul class="mb-0 mt-2">
 
                                                     <li>
-                                                        Persediaan dihitung otomatis.
+                                                        Persediaan dikoreksi otomatis.
                                                     </li>
 
                                                     <li>
-                                                        Stok Akhir dihitung otomatis.
+                                                        Stok Akhir dikoreksiotomatis.
                                                     </li>
 
                                                     <li>
-                                                        Permintaan dihitung otomatis berdasarkan Stok Optimum.
+                                                        Permintaan dikoreksi otomatis berdasarkan Stok Optimum.
                                                     </li>
 
                                                 </ul>

@@ -30,7 +30,7 @@
 </td>
 
 <td class="text-center">
-   
+
 
     @if($item->obat_formularium_puskesmas === 'true')
 
@@ -82,9 +82,7 @@
         {{ number_format($item->pemberian_program_pkd) }}
     </td>
 
-    <td class="text-end">
-        {{ number_format($item->pemberian_jkn) }}
-    </td>
+
 
     <td class="text-center">
 
