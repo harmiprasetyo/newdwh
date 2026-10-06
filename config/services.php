@@ -35,6 +35,10 @@ return [
     'url' => env('LPLPO_API_URL'),
     'api_key' => env('LPLPO_API_KEY'),
     'cookie' => env('LPLPO_API_COOKIE'),
+
+],
+'etpmb' => [
+    'api_key' => env('ETPMB_API_KEY'),
 ],
 
 ];
