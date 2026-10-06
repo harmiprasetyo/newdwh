@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\BaselineController;
 use App\Http\Controllers\Api\DashboardLplpoController;
 use App\Http\Controllers\Api\EncounterController;
 use App\Http\Controllers\Api\OrganizationController;
+use App\Http\Controllers\Api\EtpmbUserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -184,3 +185,18 @@ Route::get('/api/dashboard-lplpo', [DashboardLplpoController::class, 'index']);
 Route::get('/api/dashboard-lplpo/export', [DashboardLplpoController::class, 'export']);
 Route::get('/encounter/realtime', [EncounterController::class, 'realtime']);
 Route::get('/organizations',[OrganizationController::class,'organization']);
+
+Route::middleware('etpmb.api')
+    ->prefix('etpmb/users')
+    ->group(function () {
+
+        Route::get('/', [EtpmbUserController::class, 'index']);
+
+        Route::post('/', [EtpmbUserController::class, 'store']);
+
+        Route::get('/{userid}', [EtpmbUserController::class, 'show']);
+
+        Route::put('/{userid}', [EtpmbUserController::class, 'update']);
+
+        Route::delete('/{userid}', [EtpmbUserController::class, 'destroy']);
+    });

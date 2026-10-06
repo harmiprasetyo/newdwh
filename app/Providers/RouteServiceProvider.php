@@ -37,16 +37,25 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-        $this->routes(function () {
-            Route::prefix('api')
-                ->middleware('api')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/api.php'));
+      $this->routes(function () {
 
-            Route::middleware('web')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/web.php'));
-        });
+    // API EXISTING
+    Route::prefix('api')
+        ->middleware('api')
+        ->namespace($this->namespace)
+        ->group(base_path('routes/api.php'));
+
+    // API ETPMB
+    Route::prefix('api')
+        ->middleware(['throttle:api', 'etpmb.api'])
+        ->namespace($this->namespace)
+        ->group(base_path('routes/etpmb.php'));
+
+    // WEB
+    Route::middleware('web')
+        ->namespace($this->namespace)
+        ->group(base_path('routes/web.php'));
+});
     }
 
     /**
