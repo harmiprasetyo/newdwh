@@ -75,7 +75,7 @@ $(function () {
     /* ==================================================
        DATATABLE MASTER OBAT
     ================================================== */
-$('#tblMasterObat').DataTable({
+const tableObat = $('#tblMasterObat').DataTable({
     processing: true,
     serverSide: true,
 
