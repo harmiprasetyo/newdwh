@@ -1,5 +1,5 @@
 <?php
-namespace App\Models\fhir;
+namespace App\Models\Fhir;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
