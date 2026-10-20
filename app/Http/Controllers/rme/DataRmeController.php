@@ -22,7 +22,7 @@ use App\Services\Fhir\ObservationParserService;
 use App\Services\Fhir\ObservationMapper;
 use App\Models\Rme\Patient;
 use Illuminate\Support\Facades\DB;
-use App\Models\fhir\FhirPatient;
+use App\Models\Fhir\FhirPatient;
 
 
 
