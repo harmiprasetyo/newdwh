@@ -25,8 +25,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('fhir:import')->everyMinute();
+        $schedule->command('fhir:import')->everyMinute()
+        ->withoutOverlapping()->appendOutputTo(storage_path('logs/fhir-import.log'));
     }
+
 
     /**
      * Register the commands for the application.

@@ -21,7 +21,8 @@ use App\Services\Fhir\ImmunizationService;
 use App\Services\Fhir\ObservationParserService;
 use App\Services\Fhir\ObservationMapper;
 use App\Models\Rme\Patient;
-
+use Illuminate\Support\Facades\DB;
+use App\Models\fhir\FhirPatient;
 
 
 
@@ -2036,6 +2037,300 @@ $dt['PATIENTID'] = $patient->toArray();
             ];
         }
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | 7. RESUME KUNJUNGAN 12T
+    |--------------------------------------------------------------------------
+    | Cocokkan pasien aplikasi dengan tabel fhir_patient berdasarkan
+    | identitas yang tersedia. Gunakan primary key fhir_patient.id untuk
+    | mengambil encounter pasien yang sesuai.
+    */
+
+    $dt['RESUME12T'] = [];
+
+    if (($patient->gender ?? '') === 'female') {
+
+        // Cari pasien FHIR berdasarkan identitas yang tersedia.
+        $fhirPatientQuery = FhirPatient::query();
+
+        $fhirPatient = null;
+
+        if (!empty($patient->ihs_number)) {
+            $fhirPatient = (clone $fhirPatientQuery)
+                ->where('ihs_number', $patient->ihs_number)
+                ->first();
+        }
+
+        if (!$fhirPatient && !empty($patient->nik)) {
+            $fhirPatient = (clone $fhirPatientQuery)
+                ->where('nik', $patient->nik)
+                ->first();
+        }
+
+        if (!$fhirPatient && !empty($patient->nik_ibu)) {
+            $fhirPatient = (clone $fhirPatientQuery)
+                ->where('nik_ibu', $patient->nik_ibu)
+                ->first();
+        }
+
+        if ($fhirPatient) {
+
+            // Agregasi observasi agar satu encounter hanya menghasilkan
+            // satu baris resume.
+            $observasi = DB::table('fhir_observation')
+                ->select('fhir_encounter_id')
+                ->selectRaw("
+                    MAX(CASE WHEN code = '29463-7'
+                        THEN CONCAT_WS(' ', round(value_quantity,0), value_unit)
+                    END) AS berat_badan
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '8302-2'
+                        THEN CONCAT_WS(' ', round(value_quantity,0), value_unit)
+                    END) AS tinggi_badan
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '8480-6'
+                        THEN CONCAT_WS(' ', round(value_quantity,0), value_unit)
+                    END) AS sistole
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '8462-4'
+                        THEN CONCAT_WS(' ', round(value_quantity,0), value_unit)
+                    END) AS diastole
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '11881-0'
+                        THEN CONCAT_WS(' ', round(value_quantity,2), value_unit)
+                    END) AS tinggi_fundus
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '284473002'
+                        THEN CONCAT_WS(' ', round(value_quantity,2), value_unit)
+                    END) AS lila
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '55283-6'
+                        THEN CONCAT_WS(' ', value_quantity, value_unit)
+                    END) AS djj
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '72155-5'
+                        THEN COALESCE(value_display, value_string, value_code)
+                    END) AS presentasi_kepala
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '718-7'
+                        THEN COALESCE(
+                            CONCAT_WS(' ', value_quantity, value_unit),
+                            value_display,
+                            value_string,
+                            value_code
+                        )
+                    END) AS hemoglobin
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '74774-1'
+                        THEN COALESCE(
+                            CONCAT_WS(' ', value_quantity, value_unit),
+                            value_display,
+                            value_string,
+                            value_code
+                        )
+                    END) AS gula_darah
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '883-9'
+                        THEN COALESCE(value_display, value_string, value_code)
+                    END) AS golongan_darah
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code IN ('20508-8', '14904-7')
+                        THEN COALESCE(value_display, value_string, value_code)
+                    END) AS sifilis
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '75410-1'
+                        THEN COALESCE(value_display, value_string, value_code)
+                    END) AS hbsag
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '68961-2'
+                        THEN COALESCE(value_display, value_string, value_code)
+                    END) AS anti_hiv
+                ")
+                ->selectRaw("
+                    MAX(CASE WHEN code = '5804-0'
+                        THEN COALESCE(
+                            CONCAT_WS(' ', value_quantity, value_unit),
+                            value_display,
+                            value_string,
+                            value_code
+                        )
+                    END) AS urinalisis
+                ")
+                ->groupBy('fhir_encounter_id');
+
+            // Agregasi imunisasi tetanus per encounter.
+            $imunisasi = DB::table('fhir_immunizations')
+                ->select('fhir_encounter_id')
+                ->selectRaw("
+                    CASE
+                        WHEN MAX(
+                            CASE
+                                WHEN vaccine_code IN ('VG139', '93006992')
+                                THEN 1 ELSE 0
+                            END
+                        ) = 1 THEN 'Sudah'
+                        ELSE 'Belum'
+                    END AS imunisasi_tetanus
+                ")
+                ->selectRaw("
+                    GROUP_CONCAT(
+                        DISTINCT CASE
+                            WHEN vaccine_code IN ('VG139', '93006992')
+                            THEN vaccine_display
+                        END
+                        ORDER BY vaccine_display
+                        SEPARATOR ', '
+                    ) AS imunisasi_diberikan
+                ")
+                ->groupBy('fhir_encounter_id');
+
+                $procedureAgg = DB::table('fhir_procedures as p')
+    ->join('fhir_encounter as e_proc', 'e_proc.fhir_id', '=', 'p.fhir_encounter_id')
+    ->select('e_proc.id as encounter_id')
+    ->selectRaw("
+        MAX(
+            CASE
+                WHEN JSON_UNQUOTE(JSON_EXTRACT(p.category, '$.code')) = '103693007'
+                     AND p.code = '88.78'
+                THEN 'dilakukan'
+                ELSE NULL
+            END
+        ) AS usg
+    ")
+    ->selectRaw("
+        GROUP_CONCAT(
+            DISTINCT CASE
+                WHEN JSON_UNQUOTE(JSON_EXTRACT(p.category, '$.code')) = '409073007'
+                THEN NULLIF(p.code_display, '')
+                ELSE NULL
+            END
+            ORDER BY p.code_display
+            SEPARATOR ', '
+        ) AS edukasi
+    ")
+    ->groupBy('e_proc.id');
+
+
+            // Agregasi diagnosis primer dan sekunder.
+            $diagnosis = DB::table('fhir_conditions')
+                ->select('fhir_encounter_id')
+                ->selectRaw("
+                    GROUP_CONCAT(
+                        DISTINCT CASE
+                            WHEN category_code = 'encounter-diagnosis'
+                            THEN code_display
+                        END
+                        SEPARATOR '; '
+                    ) AS diagnosis_primer
+                ")
+                ->selectRaw("
+                    GROUP_CONCAT(
+                        DISTINCT CASE
+                            WHEN category_code = 'problem-list-item'
+                            THEN code_display
+                        END
+                        SEPARATOR '; '
+                    ) AS diagnosis_sekunder
+                ")
+                ->groupBy('fhir_encounter_id');
+
+            $rows = DB::table('fhir_encounter as e')
+                ->leftJoinSub($observasi, 'o', function ($join) {
+                    $join->on('o.fhir_encounter_id', '=', 'e.fhir_id');
+                })
+                ->leftJoinSub($imunisasi, 'i', function ($join) {
+                    $join->on('i.fhir_encounter_id', '=', 'e.fhir_id');
+                })
+                ->leftJoinSub($diagnosis, 'd', function ($join) {
+                    $join->on('d.fhir_encounter_id', '=', 'e.fhir_id');
+                })
+                ->leftJoinSub($procedureAgg, 'proc', function ($join) {
+                    $join->on('proc.encounter_id', '=', 'e.id');
+                    })
+                ->where('e.patient_id', $fhirPatient->id)
+                ->select([
+                    'e.encounter_date as tanggal_kunjungan',
+                    'e.fhir_id as fhir_encounter_id',
+                    'o.berat_badan',
+                    'o.tinggi_badan',
+                    'o.sistole',
+                    'o.diastole',
+                    'o.tinggi_fundus',
+                    'o.lila',
+                    'o.djj',
+                    'o.presentasi_kepala',
+                    'o.hemoglobin',
+                    'o.urinalisis',
+                    'o.gula_darah',
+                    'o.golongan_darah',
+                    'o.sifilis',
+                    'o.hbsag',
+                    'o.anti_hiv',
+                    'i.imunisasi_tetanus',
+                    'i.imunisasi_diberikan',
+                    'd.diagnosis_primer',
+                    'd.diagnosis_sekunder',
+                    'proc.usg',
+                    'proc.edukasi',
+                ])
+                ->orderBy('e.encounter_date')
+                ->get();
+
+            $dt['RESUME12T'] = $rows->map(function ($row) {
+
+                return [
+                    'tanggal_kunjungan' => $row->tanggal_kunjungan,
+                    'fhir_encounter_id' => $row->fhir_encounter_id,
+
+                    'berat_badan' => $row->berat_badan,
+                    'tinggi_badan' => $row->tinggi_badan,
+                    'sistole' => $row->sistole,
+                    'diastole' => $row->diastole,
+                    'tinggi_fundus' => $row->tinggi_fundus,
+                    'lila' => $row->lila,
+                    'djj' => $row->djj,
+                    'presentasi_kepala' => $row->presentasi_kepala,
+
+                    'imunisasi_tetanus' => $row->imunisasi_tetanus ?? 'Belum',
+                    'imunisasi_diberikan' => $row->imunisasi_diberikan,
+                    'ttd_mms' => null,
+
+                    'hemoglobin' => $row->hemoglobin ?? 'Tidak dilakukan',
+                    'urinalisis' => $row->urinalisis ?? 'Tidak dilakukan',
+                    'gula_darah' => $row->gula_darah ?? 'Tidak dilakukan',
+                    'golongan_darah' => $row->golongan_darah ?? 'Tidak dilakukan',
+                    'sifilis' => $row->sifilis ?? 'Tidak dilakukan',
+                    'hbsag' => $row->hbsag ?? 'Tidak dilakukan',
+                    'anti_hiv' => $row->anti_hiv ?? 'Tidak dilakukan',
+
+                    'diagnosis_primer' => $row->diagnosis_primer,
+                    'diagnosis_sekunder' => $row->diagnosis_sekunder,
+
+                    // Belum dipetakan karena sumber datanya belum dipastikan.
+                  'usg'     => $row->usg ?? null,
+                  'edukasi' => $row->edukasi ?? null,
+                    'disabilitas' => null,
+                    'kelas_ibu_hamil' => null,
+                ];
+            })->values()->toArray();
+        }
+    }
+
 
     /*
     |--------------------------------------------------------------------------
