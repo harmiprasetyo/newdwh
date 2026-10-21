@@ -313,7 +313,7 @@
                 <tr>
                     <th>HB</th>
                     <th>:</th>
-                    <th>
+                    <th><pre>{{ print_r($dt['lab']) }}</pre>
                         @if(isset($dt['lab_hb']))
                         {{ $dt['lab']['lab_hb']['val'] }}
                     @endif

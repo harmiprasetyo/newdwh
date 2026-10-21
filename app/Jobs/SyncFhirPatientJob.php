@@ -1,57 +1,39 @@
 <?php
 namespace App\Jobs;
 
-use App\Services\Fhir\FhirService;
-use App\Services\PatientService;
-use App\Services\ObservationService;
-use App\Services\ConditionService;
+use App\Services\Fhir\FhirPatientService;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SyncFhirPatientJob implements ShouldQueue
 {
-    use Dispatchable, Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $nik;
+    public int $tries = 3;
 
-    public function __construct($nik)
+    public int $timeout = 120;
+
+    public function backoff(): array
     {
-        $this->nik = $nik;
+        return [30, 60, 120];
     }
 
-    public function handle(
-        FhirService $fhir,
-        PatientService $patientService,
-        ObservationService $obsService,
-        ConditionService $conditionService
-    ) {
+    public function handle(FhirPatientService $service): void
+    {
+        $result = $service->syncNextPage();
 
-        // =========================
-        // 1. EXTRACT PATIENT
-        // =========================
-        $patientData = $fhir->getPatient($this->nik);
+        Log::info('FHIR Patient sync selesai', $result);
+    }
 
-        $patient = $patientService->saveFromFhir($patientData);
-
-        if (!$patient) return;
-
-        $patientId = $patient->patient_id;
-
-        // ⚠️ ambil encounter dari sistem kamu (atau FHIR kalau ada)
-        $encounterId = request()->encounter ?? null;
-
-        // =========================
-        // 2. EXTRACT OBSERVATION
-        // =========================
-        if ($encounterId) {
-            $obsData = $fhir->getObservation($patientId, $encounterId);
-            $obsService->process($obsData, $patientId, $encounterId);
-        }
-
-        // =========================
-        // 3. EXTRACT CONDITION
-        // =========================
-        if ($encounterId) {
-            $condData = $fhir->getCondition($encounterId);
-            $conditionService->process($condData, $patientId, $encounterId);
-        }
+    public function failed(Throwable $exception): void
+    {
+        Log::error('FHIR Patient sync gagal', [
+            'message' => $exception->getMessage(),
+        ]);
     }
 }
