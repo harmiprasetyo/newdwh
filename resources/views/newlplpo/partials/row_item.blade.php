@@ -4,7 +4,24 @@
 
     <td>{{ $item->kode_obat }}</td>
 
-    <td>{{ $item->nama_obat }}</td>
+
+
+<td>
+    <div class="d-flex align-items-center gap-2">
+        <span>{{ $item->nama_obat }} </span>
+
+        @if((string) $item->is_edit === '1')
+            <i
+                class="bi bi-check-circle-fill text-success"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Sudah Diedit"
+                aria-label="Sudah Diedit"
+            ></i>
+        @endif
+    </div>
+</td>
+
 
     <td class="text-center">{{ $item->satuan }}</td>
     <td class="text-center">

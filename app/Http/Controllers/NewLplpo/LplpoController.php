@@ -1070,4 +1070,57 @@ class LplpoController extends Controller
     | Jangan mengubah implementasinya jika saat ini sudah berjalan.
     |
     */
+
+
+
+/**
+ * Batalkan approval LPLPO.
+ */
+public function cancelApproval($id)
+{
+    try {
+
+        $report = Report::findOrFail($id);
+
+        // Pastikan laporan milik faskes yang sedang login.
+        if (
+            (string) $report->kode_faskes !==
+            (string) session('kodeFaskes')
+        ) {
+            abort(403, 'Tidak memiliki akses ke laporan ini.');
+        }
+
+        $report = $this->approvalService->cancel($report);
+
+        return response()->json([
+            'success' => true,
+            'message' =>
+                'Pengajuan approval berhasil dibatalkan. Laporan kembali menjadi Draft.',
+            'data' => [
+                'report_id' => $report->id,
+                'report_status' => $report->report_status,
+                'lplpo_status' => $report->lplpo_status,
+            ],
+        ]);
+
+    } catch (ValidationException $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'errors' => $e->errors(),
+        ], 422);
+
+    } catch (\Throwable $e) {
+
+        report($e);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan saat membatalkan approval.',
+        ], 500);
+    }
+}
+
+
 }

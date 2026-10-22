@@ -1,1 +1,384 @@
-$(document).ready(function(){var a=window.masterDataObatConfig,t=a.dataUrl,e=a.storeUrl,n=!1,o=$("#kode_obat");o.length&&(o.hasClass("select2-hidden-accessible")&&o.select2("destroy"),"input"!==o.prop("tagName").toLowerCase()&&console.error("ERROR: #kode_obat bukan input text."),o.attr("type","text"));var r=$("#datatableObat").DataTable({processing:!0,serverSide:!0,responsive:!0,pageLength:10,ajax:{url:t,type:"GET"},columns:[{data:"DT_RowIndex",name:"DT_RowIndex",orderable:!1,searchable:!1,className:"text-center"},{data:"kode_obat",name:"kode_obat"},{data:"nama_obat",name:"nama_obat"},{data:"satuan",name:"satuan"},{data:"obat_napza",name:"obat_napza",className:"text-center"},{data:"aksi",name:"aksi",orderable:!1,searchable:!1,className:"text-center"}],order:[[2,"asc"]],language:{search:"Cari:",searchPlaceholder:"Cari kode / nama obat...",processing:"Memuat data...",emptyTable:"Belum ada data.",zeroRecords:"Data tidak ditemukan."}});function s(){var a=$("#formObat")[0];a&&a.reset(),$("#obat_id").val(""),$("#kode_obat").val("").removeClass("is-invalid"),$("#obat_napza").val("tidak"),i()}function i(){$("#formObat").find(".is-invalid").removeClass("is-invalid"),$("#formObat").find(".invalid-feedback").text("")}function l(a){var t,e;return null!==(t=null===(e=a.responseJSON)||void 0===e?void 0:e.message)&&void 0!==t?t:"Terjadi kesalahan pada server."}function d(a){$("#btnSimpanObat").prop("disabled",a),a?($("#spinnerObat").removeClass("d-none"),$("#saveIconObat").addClass("d-none"),$("#saveTextObat").text("Menyimpan...")):($("#spinnerObat").addClass("d-none"),$("#saveIconObat").removeClass("d-none"),$("#saveTextObat").text(n?"Update":"Simpan"))}$("#btnTambahObat").on("click",function(){n=!1,s(),$("#modalObatTitle").html('\n                <i class="bi bi-plus-circle me-2"></i>\n                Tambah Obat\n            '),$("#saveTextObat").text("Simpan"),bootstrap.Modal.getOrCreateInstance(document.getElementById("modalObat")).show()}),$("#datatableObat").on("click",".btn-edit-obat",function(){var t=$(this).data("id");n=!0,s(),$("#modalObatTitle").html('\n                <i class="bi bi-pencil-square me-2"></i>\n                Edit Obat\n            '),$("#saveTextObat").text("Update"),$.ajax({url:a.baseUrl+"/"+t,type:"GET",dataType:"json",success:function(a){var t,e=a.data;$("#obat_id").val(e.id),$("#kode_obat").val(e.kode_obat),$("#nama_obat").val(e.nama_obat),$("#satuan").val(e.satuan),$("#obat_napza").val(null!==(t=e.obat_napza)&&void 0!==t?t:"tidak"),bootstrap.Modal.getOrCreateInstance(document.getElementById("modalObat")).show()},error:function(a){Swal.fire("Error",l(a),"error")}})}),$("#datatableObat").on("click",".btn-delete-obat",function(){var t,e=$(this).data("id"),n=$(this).data("nama");Swal.fire({title:"Hapus Obat?",html:"\n                    Data obat\n                    <strong>\n                        ".concat((t=n,$("<div>").text(null!=t?t:"").html()),"\n                    </strong>\n                    akan dihapus.\n                "),icon:"warning",showCancelButton:!0,confirmButtonText:"Ya, Hapus",cancelButtonText:"Batal",confirmButtonColor:"#dc3545"}).then(function(t){t.isConfirmed&&$.ajax({url:a.baseUrl+"/"+e,type:"DELETE",data:{_token:a.csrfToken},success:function(a){Swal.fire({icon:"success",title:"Berhasil",text:a.message,timer:1500,showConfirmButton:!1}),r.ajax.reload(null,!1)},error:function(a){Swal.fire("Tidak dapat dihapus",l(a),"error")}})})}),$("#formObat").on("submit",function(t){t.preventDefault(),i();var o=$("#obat_id").val(),s=e,c="POST";n&&(s=a.baseUrl+"/"+o,c="PUT");var b={kode_obat:$("#kode_obat").val().trim(),nama_obat:$("#nama_obat").val().trim(),satuan:$("#satuan").val().trim(),obat_napza:$("#obat_napza").val(),_token:a.csrfToken};d(!0),$.ajax({url:s,type:c,data:b,dataType:"json",success:function(a){var t=bootstrap.Modal.getInstance(document.getElementById("modalObat"));t&&t.hide(),Swal.fire({icon:"success",title:"Berhasil",text:a.message,timer:1500,showConfirmButton:!1}),r.ajax.reload(null,!1)},error:function(a){!function(a){var t;if(console.error(a.responseText),422===a.status&&null!==(t=a.responseJSON)&&void 0!==t&&t.errors){var e=a.responseJSON.errors;return Object.keys(e).forEach(function(a){$("#"+a).addClass("is-invalid"),$("#"+a+"_error").text(e[a][0])}),void Swal.fire("Validasi","Periksa kembali data yang dimasukkan.","warning")}Swal.fire("Error",l(a),"error")}(a)},complete:function(){d(!1)}})})});
+/******/ (() => { // webpackBootstrap
+/*!*************************************************!*\
+  !*** ./resources/js/newlplpo/masterdataobat.js ***!
+  \*************************************************/
+$(document).ready(function () {
+  /*
+  |--------------------------------------------------------------------------
+  | CONFIG
+  |--------------------------------------------------------------------------
+  */
+
+  var config = window.masterDataObatConfig;
+  var dataUrl = config.dataUrl;
+  var storeUrl = config.storeUrl;
+  var editMode = false;
+
+  /*
+  |--------------------------------------------------------------------------
+  | PASTIKAN KODE OBAT ADALAH INPUT TEXT
+  |--------------------------------------------------------------------------
+  |
+  | Tidak menggunakan Select2.
+  |
+  */
+
+  var kodeObat = $('#kode_obat');
+  if (kodeObat.length) {
+    // Hapus kemungkinan instance Select2 lama
+    if (kodeObat.hasClass('select2-hidden-accessible')) {
+      kodeObat.select2('destroy');
+    }
+
+    // Pastikan elemen benar-benar input
+    if (kodeObat.prop('tagName').toLowerCase() !== 'input') {
+      console.error('ERROR: #kode_obat bukan input text.');
+    }
+    kodeObat.attr('type', 'text');
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | DATATABLE
+  |--------------------------------------------------------------------------
+  */
+
+  var table = $('#datatableObat').DataTable({
+    processing: true,
+    serverSide: true,
+    responsive: true,
+    pageLength: 10,
+    ajax: {
+      url: dataUrl,
+      type: 'GET'
+    },
+    columns: [{
+      data: 'DT_RowIndex',
+      name: 'DT_RowIndex',
+      orderable: false,
+      searchable: false,
+      className: 'text-center'
+    }, {
+      data: 'kode_obat',
+      name: 'kode_obat'
+    }, {
+      data: 'nama_obat',
+      name: 'nama_obat'
+    }, {
+      data: 'satuan',
+      name: 'satuan'
+    }, {
+      data: 'obat_napza',
+      name: 'obat_napza',
+      className: 'text-center'
+    }, {
+      data: 'aksi',
+      name: 'aksi',
+      orderable: false,
+      searchable: false,
+      className: 'text-center'
+    }],
+    order: [[2, 'asc']],
+    language: {
+      search: 'Cari:',
+      searchPlaceholder: 'Cari kode / nama obat...',
+      processing: 'Memuat data...',
+      emptyTable: 'Belum ada data.',
+      zeroRecords: 'Data tidak ditemukan.'
+    }
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | TAMBAH OBAT
+  |--------------------------------------------------------------------------
+  */
+
+  $('#btnTambahObat').on('click', function () {
+    editMode = false;
+    clearForm();
+    $('#modalObatTitle').html("\n                <i class=\"bi bi-plus-circle me-2\"></i>\n                Tambah Obat\n            ");
+    $('#saveTextObat').text('Simpan');
+    var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalObat'));
+    modal.show();
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | EDIT OBAT
+  |--------------------------------------------------------------------------
+  */
+
+  $('#datatableObat').on('click', '.btn-edit-obat', function () {
+    var id = $(this).data('id');
+    editMode = true;
+    clearForm();
+    $('#modalObatTitle').html("\n                <i class=\"bi bi-pencil-square me-2\"></i>\n                Edit Obat\n            ");
+    $('#saveTextObat').text('Update');
+    $.ajax({
+      url: config.baseUrl + '/' + id,
+      type: 'GET',
+      dataType: 'json',
+      success: function success(response) {
+        var _data$obat_napza;
+        var data = response.data;
+        $('#obat_id').val(data.id);
+
+        /*
+        |--------------------------------------------------------------------------
+        | KODE OBAT
+        |--------------------------------------------------------------------------
+        */
+
+        $('#kode_obat').val(data.kode_obat);
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA
+        |--------------------------------------------------------------------------
+        */
+
+        $('#nama_obat').val(data.nama_obat);
+
+        /*
+        |--------------------------------------------------------------------------
+        | SATUAN
+        |--------------------------------------------------------------------------
+        */
+
+        $('#satuan').val(data.satuan);
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAPZA
+        |--------------------------------------------------------------------------
+        */
+
+        $('#obat_napza').val((_data$obat_napza = data.obat_napza) !== null && _data$obat_napza !== void 0 ? _data$obat_napza : 'tidak');
+        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalObat'));
+        modal.show();
+      },
+      error: function error(xhr) {
+        Swal.fire('Error', getErrorMessage(xhr), 'error');
+      }
+    });
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | DELETE
+  |--------------------------------------------------------------------------
+  */
+
+  $('#datatableObat').on('click', '.btn-delete-obat', function () {
+    var id = $(this).data('id');
+    var nama = $(this).data('nama');
+    Swal.fire({
+      title: 'Hapus Obat?',
+      html: "\n                    Data obat\n                    <strong>\n                        ".concat(escapeHtml(nama), "\n                    </strong>\n                    akan dihapus.\n                "),
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Hapus',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#dc3545'
+    }).then(function (result) {
+      if (!result.isConfirmed) {
+        return;
+      }
+      $.ajax({
+        url: config.baseUrl + '/' + id,
+        type: 'DELETE',
+        data: {
+          _token: config.csrfToken
+        },
+        success: function success(response) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: response.message,
+            timer: 1500,
+            showConfirmButton: false
+          });
+          table.ajax.reload(null, false);
+        },
+        error: function error(xhr) {
+          Swal.fire('Tidak dapat dihapus', getErrorMessage(xhr), 'error');
+        }
+      });
+    });
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | SUBMIT FORM
+  |--------------------------------------------------------------------------
+  */
+
+  $('#formObat').on('submit', function (e) {
+    e.preventDefault();
+    clearValidation();
+    var id = $('#obat_id').val();
+    var url = storeUrl;
+    var method = 'POST';
+    if (editMode) {
+      url = config.baseUrl + '/' + id;
+      method = 'PUT';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAYLOAD
+    |--------------------------------------------------------------------------
+    */
+
+    var payload = {
+      kode_obat: $('#kode_obat').val().trim(),
+      nama_obat: $('#nama_obat').val().trim(),
+      satuan: $('#satuan').val().trim(),
+      obat_napza: $('#obat_napza').val(),
+      _token: config.csrfToken
+    };
+    setLoading(true);
+    $.ajax({
+      url: url,
+      type: method,
+      data: payload,
+      dataType: 'json',
+      success: function success(response) {
+        var modal = bootstrap.Modal.getInstance(document.getElementById('modalObat'));
+        if (modal) {
+          modal.hide();
+        }
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: response.message,
+          timer: 1500,
+          showConfirmButton: false
+        });
+        table.ajax.reload(null, false);
+      },
+      error: function error(xhr) {
+        handleError(xhr);
+      },
+      complete: function complete() {
+        setLoading(false);
+      }
+    });
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | CLEAR FORM
+  |--------------------------------------------------------------------------
+  */
+
+  function clearForm() {
+    var form = $('#formObat')[0];
+    if (form) {
+      form.reset();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ID EDIT
+    |--------------------------------------------------------------------------
+    */
+
+    $('#obat_id').val('');
+
+    /*
+    |--------------------------------------------------------------------------
+    | KODE OBAT
+    |--------------------------------------------------------------------------
+    | Input text biasa.
+    |--------------------------------------------------------------------------
+    */
+
+    $('#kode_obat').val('').removeClass('is-invalid');
+
+    /*
+    |--------------------------------------------------------------------------
+    | NAPZA
+    |--------------------------------------------------------------------------
+    */
+
+    $('#obat_napza').val('tidak');
+    clearValidation();
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | CLEAR VALIDATION
+  |--------------------------------------------------------------------------
+  */
+
+  function clearValidation() {
+    $('#formObat').find('.is-invalid').removeClass('is-invalid');
+    $('#formObat').find('.invalid-feedback').text('');
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | HANDLE VALIDATION ERROR
+  |--------------------------------------------------------------------------
+  */
+
+  function handleError(xhr) {
+    var _xhr$responseJSON;
+    console.error(xhr.responseText);
+    if (xhr.status === 422 && (_xhr$responseJSON = xhr.responseJSON) !== null && _xhr$responseJSON !== void 0 && _xhr$responseJSON.errors) {
+      var errors = xhr.responseJSON.errors;
+      Object.keys(errors).forEach(function (field) {
+        var input = $('#' + field);
+        input.addClass('is-invalid');
+        $('#' + field + '_error').text(errors[field][0]);
+      });
+      Swal.fire('Validasi', 'Periksa kembali data yang dimasukkan.', 'warning');
+      return;
+    }
+    Swal.fire('Error', getErrorMessage(xhr), 'error');
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | ERROR MESSAGE
+  |--------------------------------------------------------------------------
+  */
+
+  function getErrorMessage(xhr) {
+    var _xhr$responseJSON$mes, _xhr$responseJSON2;
+    return (_xhr$responseJSON$mes = (_xhr$responseJSON2 = xhr.responseJSON) === null || _xhr$responseJSON2 === void 0 ? void 0 : _xhr$responseJSON2.message) !== null && _xhr$responseJSON$mes !== void 0 ? _xhr$responseJSON$mes : 'Terjadi kesalahan pada server.';
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOADING
+  |--------------------------------------------------------------------------
+  */
+
+  function setLoading(status) {
+    $('#btnSimpanObat').prop('disabled', status);
+    if (status) {
+      $('#spinnerObat').removeClass('d-none');
+      $('#saveIconObat').addClass('d-none');
+      $('#saveTextObat').text('Menyimpan...');
+    } else {
+      $('#spinnerObat').addClass('d-none');
+      $('#saveIconObat').removeClass('d-none');
+      $('#saveTextObat').text(editMode ? 'Update' : 'Simpan');
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | ESCAPE HTML
+  |--------------------------------------------------------------------------
+  */
+
+  function escapeHtml(value) {
+    return $('<div>').text(value !== null && value !== void 0 ? value : '').html();
+  }
+});
+/******/ })()
+;

@@ -419,7 +419,7 @@
 
                                                         name="persediaan_program_pkd"
                                                         id="persediaan_program_pkd"
-                                                        class="form-control bg-light">
+                                                        class="form-control bg-light" readonly>
 
                                                 </td>
 
@@ -431,7 +431,7 @@
 
                                                         name="persediaan_jkn"
                                                         id="persediaan_jkn"
-                                                        class="form-control bg-light">
+                                                        class="form-control bg-light" readonly>
 
                                                 </td>
 
@@ -494,7 +494,7 @@
                                                          value="0"
                                                         name="stok_akhir_program_pkd"
                                                         id="stok_akhir_program_pkd"
-                                                        class="form-control bg-light">
+                                                        class="form-control bg-light" readonly>
 
                                                 </td>
 
@@ -505,7 +505,7 @@
                                                          value="0"
                                                         name="stok_akhir_jkn"
                                                         id="stok_akhir_jkn"
-                                                        class="form-control bg-light">
+                                                        class="form-control bg-light" readonly>
 
                                                 </td>
 

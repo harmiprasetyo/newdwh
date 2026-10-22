@@ -29,16 +29,32 @@
         </div>
 
 
-        <button
-            type="button"
-            class="btn btn-primary"
-            id="btnTambahObat">
 
-            <i class="bi bi-plus-lg me-1"></i>
+<div class="d-flex gap-2">
 
-            Tambah Obat
+    <a
+        href="{{ route('newlplpo.masterdataobat.export') }}"
+        class="btn btn-success">
 
-        </button>
+        <i class="bi bi-file-earmark-excel me-1"></i>
+
+        Export Excel
+
+    </a>
+
+    <button
+        type="button"
+        class="btn btn-primary"
+        id="btnTambahObat">
+
+        <i class="bi bi-plus-lg me-1"></i>
+
+        Tambah Obat
+
+    </button>
+
+</div>
+
 
     </div>
 

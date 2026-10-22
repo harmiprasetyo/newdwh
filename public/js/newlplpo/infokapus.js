@@ -1,1 +1,62 @@
-$(function(){$(".formDelete").on("submit",function(e){confirm("Apakah Anda yakin ingin menghapus data Kepala Puskesmas?")||e.preventDefault()}),$("#btnResetEsign").on("click",function(){var e=$(this),a=e.data("url");confirm("Reset Kode E-Sign?\n\nKode E-Sign lama akan langsung tidak berlaku dan sistem akan mengirim kode baru ke email Kapus.")&&(e.prop("disabled",!0),$.ajax({url:a,type:"POST",headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")},dataType:"json",success:function(a){if(a.success)return alert(a.message),void window.location.reload();alert(a.message||"Kode E-Sign gagal direset."),e.prop("disabled",!1)},error:function(a){console.error(a);var n="Terjadi kesalahan saat reset Kode E-Sign.";a.responseJSON&&a.responseJSON.message&&(n=a.responseJSON.message),alert(n),e.prop("disabled",!1)}}))})});
+/******/ (() => { // webpackBootstrap
+/*!********************************************!*\
+  !*** ./resources/js/newlplpo/infokapus.js ***!
+  \********************************************/
+$(function () {
+  /**
+   * =========================================================
+   * DELETE
+   * =========================================================
+   */
+
+  $('.formDelete').on('submit', function (e) {
+    var confirmed = confirm('Apakah Anda yakin ingin menghapus data Kepala Puskesmas?');
+    if (!confirmed) {
+      e.preventDefault();
+    }
+  });
+
+  /**
+   * =========================================================
+   * RESET E-SIGN
+   * =========================================================
+   */
+
+  $('#btnResetEsign').on('click', function () {
+    var button = $(this);
+    var url = button.data('url');
+    var confirmed = confirm('Reset Kode E-Sign?\n\n' + 'Kode E-Sign lama akan langsung tidak berlaku ' + 'dan sistem akan mengirim kode baru ke email Kapus.');
+    if (!confirmed) {
+      return;
+    }
+    button.prop('disabled', true);
+    $.ajax({
+      url: url,
+      type: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      dataType: 'json',
+      success: function success(response) {
+        if (response.success) {
+          alert(response.message);
+          window.location.reload();
+          return;
+        }
+        alert(response.message || 'Kode E-Sign gagal direset.');
+        button.prop('disabled', false);
+      },
+      error: function error(xhr) {
+        console.error(xhr);
+        var message = 'Terjadi kesalahan saat reset Kode E-Sign.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          message = xhr.responseJSON.message;
+        }
+        alert(message);
+        button.prop('disabled', false);
+      }
+    });
+  });
+});
+/******/ })()
+;
