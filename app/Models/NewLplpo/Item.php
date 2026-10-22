@@ -46,6 +46,7 @@ class Item extends Model
 
         'pemberian_program_pkd',
         'pemberian_jkn',
+        'is_edit',
     ];
 
     protected $casts = [

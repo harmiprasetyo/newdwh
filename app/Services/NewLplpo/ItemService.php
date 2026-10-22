@@ -229,7 +229,6 @@ public function find($id)
 
         ->where('report_id', $reportId)
 
-        ->orderBy('program_id')
         ->orderBy('nama_obat')
 
         ->get()
@@ -271,9 +270,29 @@ public function find($id)
                 $stokMinimal->obat_formularium_puskesmas ?? 'false';
 
 
-            return $item;
+                       return $item;
 
-        });
+        })
+       ->sortBy(function ($item) {
+
+    $namaProgram = trim(
+        (string) ($item->program?->program_name ?? '')
+    );
+
+    $isNonProgram = strcasecmp(
+        $namaProgram,
+        'Non Program'
+    ) === 0;
+
+    return sprintf(
+        '%d|%s|%s',
+        $isNonProgram ? 0 : 1,
+        mb_strtolower($namaProgram),
+        mb_strtolower($item->nama_obat)
+    );
+
+})
+->values();
 }
 
 
@@ -438,6 +457,7 @@ public function find($id)
 
         'pemberian_jkn' =>
             $data['pemberian_jkn'] ?? $item->pemberian_jkn,
+            'is_edit' =>'1'
 
     ]);
 

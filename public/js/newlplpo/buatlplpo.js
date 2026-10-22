@@ -1,1 +1,179 @@
-!function(e){"use strict";var r=window.LplpoConfig||{};function n(e,r){return e.responseJSON&&e.responseJSON.message?e.responseJSON.message:422===e.status&&e.responseJSON&&e.responseJSON.errors?Object.values(e.responseJSON.errors).flat().join("<br>"):r}e(function(){console.log("BUATLPLPO.JS BERHASIL DIMUAT"),e(document).on("click","#btnSubmitLaporan",function(a){a.preventDefault();var t=e(this);t.prop("disabled")||Swal.fire({title:"Submit Laporan?",text:"Setelah disubmit laporan tidak dapat diubah lagi.",icon:"warning",showCancelButton:!0,confirmButtonText:"Ya, Submit",cancelButtonText:"Batal"}).then(function(a){a.isConfirmed&&function(a){var t;if(null!==(t=r.routes)&&void 0!==t&&t.reportUpdate){var o=a.html();e.ajax({url:r.routes.reportUpdate,type:"PUT",data:{_token:r.csrfToken,report_status:"SUBMITED"},beforeSend:function(){a.prop("disabled",!0).html('<span class="spinner-border spinner-border-sm me-1"></span>Mengirim...')},success:function(e){console.log("SUBMIT RESPONSE:",e),Swal.fire({icon:"success",title:"Berhasil",text:e.message||"Laporan berhasil disubmit.",timer:1500,showConfirmButton:!1}).then(function(){window.location.reload()})},error:function(e){console.error("SUBMIT ERROR:",e.responseText),a.prop("disabled",!1).html(o),Swal.fire({icon:"error",title:"Gagal",text:n(e,"Gagal submit laporan.")})}})}else Swal.fire("Error","URL update laporan tidak tersedia.","error")}(t)})}),e(document).on("click","#btnEditHeader",function(r){r.preventDefault();var n=e(this);e('select[name="bulan"]').prop("disabled",!1),e('input[name="tahun"]').prop("readonly",!1),n.removeClass("btn-warning").addClass("btn-success").html('<i class="bi bi-check-circle me-1"></i>Simpan Header').attr("id","btnSaveHeader")}),e(document).on("click","#btnSaveHeader",function(a){a.preventDefault(),function(a){var t;if(null!==(t=r.routes)&&void 0!==t&&t.reportUpdate){var o=e('select[name="bulan"]').val(),s=e('input[name="tahun"]').val(),i=a.html();e.ajax({url:r.routes.reportUpdate,type:"PUT",data:{_token:r.csrfToken,bulan:o,tahun:s},beforeSend:function(){a.prop("disabled",!0).html('<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...')},success:function(r){console.log("HEADER UPDATE:",r),e('select[name="bulan"]').prop("disabled",!0),e('input[name="tahun"]').prop("readonly",!0),a.prop("disabled",!1).removeClass("btn-success").addClass("btn-warning").html('<i class="bi bi-pencil-square me-1"></i>Edit Header').attr("id","btnEditHeader"),Swal.fire({icon:"success",title:"Berhasil",text:r.message||"Header berhasil diperbarui.",timer:1500,showConfirmButton:!1})},error:function(e){console.error("HEADER UPDATE ERROR:",e.responseText),a.prop("disabled",!1).html(i),Swal.fire({icon:"error",title:"Gagal",html:n(e,"Gagal menyimpan perubahan header.")})}})}else Swal.fire("Error","URL update laporan tidak tersedia.","error")}(e(this))})})}(jQuery);
+/******/ (() => { // webpackBootstrap
+/*!********************************************!*\
+  !*** ./resources/js/newlplpo/buatlplpo.js ***!
+  \********************************************/
+(function ($) {
+  'use strict';
+
+  var config = window.LplpoConfig || {};
+
+  /*
+  |--------------------------------------------------------------------------
+  | DOCUMENT READY
+  |--------------------------------------------------------------------------
+  */
+
+  $(function () {
+    console.log('BUATLPLPO.JS BERHASIL DIMUAT');
+    initSubmitLaporan();
+    initHeaderEdit();
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | SUBMIT LAPORAN
+  |--------------------------------------------------------------------------
+  */
+
+  function initSubmitLaporan() {
+    $(document).on('click', '#btnSubmitLaporan', function (e) {
+      e.preventDefault();
+      var button = $(this);
+      if (button.prop('disabled')) {
+        return;
+      }
+      Swal.fire({
+        title: 'Submit Laporan?',
+        text: 'Setelah disubmit laporan tidak dapat diubah lagi.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Submit',
+        cancelButtonText: 'Batal'
+      }).then(function (result) {
+        if (!result.isConfirmed) {
+          return;
+        }
+        submitLaporan(button);
+      });
+    });
+  }
+  function submitLaporan(button) {
+    var _config$routes;
+    if (!((_config$routes = config.routes) !== null && _config$routes !== void 0 && _config$routes.reportUpdate)) {
+      Swal.fire('Error', 'URL update laporan tidak tersedia.', 'error');
+      return;
+    }
+    var originalHtml = button.html();
+    $.ajax({
+      url: config.routes.reportUpdate,
+      type: 'PUT',
+      data: {
+        _token: config.csrfToken,
+        report_status: 'SUBMITED'
+      },
+      beforeSend: function beforeSend() {
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>' + 'Mengirim...');
+      },
+      success: function success(response) {
+        console.log('SUBMIT RESPONSE:', response);
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: response.message || 'Laporan berhasil disubmit.',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(function () {
+          window.location.reload();
+        });
+      },
+      error: function error(xhr) {
+        console.error('SUBMIT ERROR:', xhr.responseText);
+        button.prop('disabled', false).html(originalHtml);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: getErrorMessage(xhr, 'Gagal submit laporan.')
+        });
+      }
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | EDIT HEADER
+  |--------------------------------------------------------------------------
+  */
+
+  function initHeaderEdit() {
+    $(document).on('click', '#btnEditHeader', function (e) {
+      e.preventDefault();
+      var button = $(this);
+      $('select[name="bulan"]').prop('disabled', false);
+      $('input[name="tahun"]').prop('readonly', false);
+      button.removeClass('btn-warning').addClass('btn-success').html('<i class="bi bi-check-circle me-1"></i>' + 'Simpan Header').attr('id', 'btnSaveHeader');
+    });
+    $(document).on('click', '#btnSaveHeader', function (e) {
+      e.preventDefault();
+      saveHeader($(this));
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | SAVE HEADER
+  |--------------------------------------------------------------------------
+  */
+
+  function saveHeader(button) {
+    var _config$routes2;
+    if (!((_config$routes2 = config.routes) !== null && _config$routes2 !== void 0 && _config$routes2.reportUpdate)) {
+      Swal.fire('Error', 'URL update laporan tidak tersedia.', 'error');
+      return;
+    }
+    var bulan = $('select[name="bulan"]').val();
+    var tahun = $('input[name="tahun"]').val();
+    var originalHtml = button.html();
+    $.ajax({
+      url: config.routes.reportUpdate,
+      type: 'PUT',
+      data: {
+        _token: config.csrfToken,
+        bulan: bulan,
+        tahun: tahun
+      },
+      beforeSend: function beforeSend() {
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>' + 'Menyimpan...');
+      },
+      success: function success(response) {
+        console.log('HEADER UPDATE:', response);
+        $('select[name="bulan"]').prop('disabled', true);
+        $('input[name="tahun"]').prop('readonly', true);
+        button.prop('disabled', false).removeClass('btn-success').addClass('btn-warning').html('<i class="bi bi-pencil-square me-1"></i>' + 'Edit Header').attr('id', 'btnEditHeader');
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: response.message || 'Header berhasil diperbarui.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      },
+      error: function error(xhr) {
+        console.error('HEADER UPDATE ERROR:', xhr.responseText);
+        button.prop('disabled', false).html(originalHtml);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          html: getErrorMessage(xhr, 'Gagal menyimpan perubahan header.')
+        });
+      }
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | ERROR MESSAGE
+  |--------------------------------------------------------------------------
+  */
+
+  function getErrorMessage(xhr, fallback) {
+    if (xhr.responseJSON && xhr.responseJSON.message) {
+      return xhr.responseJSON.message;
+    }
+    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+      return Object.values(xhr.responseJSON.errors).flat().join('<br>');
+    }
+    return fallback;
+  }
+})(jQuery);
+/******/ })()
+;

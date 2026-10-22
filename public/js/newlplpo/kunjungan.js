@@ -1,1 +1,63 @@
-!function(n){"use strict";function a(){var a=(parseInt(n("#kunjungan_jkn").val(),10)||0)+(parseInt(n("#kunjungan_tunai").val(),10)||0)+(parseInt(n("#kunjungan_gratis").val(),10)||0),u=(parseInt(n("#kunjungan_anak").val(),10)||0)+(parseInt(n("#kunjungan_dewasa").val(),10)||0);n("#total_kunjungan_perkategori").val(a),n("#total_kunjungan_pergender").val(u),a!==u?(n("#warningTotal").removeClass("d-none"),n("#btnSimpanKunjungan").prop("disabled",!0)):(n("#warningTotal").addClass("d-none"),n("#btnSimpanKunjungan").prop("disabled",!1))}n(document).on("input",".kunjungan-kategori, .kunjungan-gender",function(){a()}),n(document).ready(function(){a()})}(jQuery);
+/******/ (() => { // webpackBootstrap
+/*!********************************************!*\
+  !*** ./resources/js/newlplpo/kunjungan.js ***!
+  \********************************************/
+(function ($) {
+  'use strict';
+
+  /**
+   * ==========================================================
+   * HITUNG KUNJUNGAN
+   * ==========================================================
+   */
+  function hitungKunjungan() {
+    var jkn = parseInt($('#kunjungan_jkn').val(), 10) || 0;
+    var tunai = parseInt($('#kunjungan_tunai').val(), 10) || 0;
+    var gratis = parseInt($('#kunjungan_gratis').val(), 10) || 0;
+    var anak = parseInt($('#kunjungan_anak').val(), 10) || 0;
+    var dewasa = parseInt($('#kunjungan_dewasa').val(), 10) || 0;
+    var totalKategori = jkn + tunai + gratis;
+    var totalGender = anak + dewasa;
+
+    /*
+     * Tampilkan total kategori
+     */
+    $('#total_kunjungan_perkategori').val(totalKategori);
+
+    /*
+     * Tampilkan total gender
+     */
+    $('#total_kunjungan_pergender').val(totalGender);
+
+    /*
+     * Validasi kesamaan total
+     */
+    if (totalKategori !== totalGender) {
+      $('#warningTotal').removeClass('d-none');
+      $('#btnSimpanKunjungan').prop('disabled', true);
+    } else {
+      $('#warningTotal').addClass('d-none');
+      $('#btnSimpanKunjungan').prop('disabled', false);
+    }
+  }
+
+  /**
+   * ==========================================================
+   * EVENT INPUT
+   * ==========================================================
+   */
+  $(document).on('input', '.kunjungan-kategori, .kunjungan-gender', function () {
+    hitungKunjungan();
+  });
+
+  /**
+   * ==========================================================
+   * DOCUMENT READY
+   * ==========================================================
+   */
+  $(document).ready(function () {
+    hitungKunjungan();
+  });
+})(jQuery);
+/******/ })()
+;

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\NewLplpo\MasterDataObatService;
 use Illuminate\Validation\Rule;
+use App\Exports\MasterDataObatExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MasterDataObatController extends Controller
 {
@@ -235,4 +237,14 @@ public function datatableforcanvas(Request $request)
             'message' => 'Data obat berhasil dihapus.'
         ]);
     }
+
+
+    public function export()
+{
+    return Excel::download(
+        new MasterDataObatExport,
+        'master-data-obat.xlsx'
+    );
+}
+
 }

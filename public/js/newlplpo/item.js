@@ -1,1 +1,617 @@
-!function(e){"use strict";var t=window.LplpoConfig||{},a=null;function n(){var t=document.getElementById("frmItem");t&&(t.reset(),a=null,delete t.dataset.editId,e("#program_id").val(null).trigger("change"),e("#kode_obat").val(""),e("#nama_obat").val(""),e("#satuan").val(""))}function o(){var t=e("#btnSaveItem");t.length&&t.prop("disabled",!1).removeAttr("data-mode").html('<i class="bi bi-save me-1"></i>Simpan Item')}function i(e,t){e.prop("disabled",!0).html('<span class="spinner-border spinner-border-sm me-1"></span>'+t)}function r(e,t){e.prop("disabled",!1).html('<i class="bi bi-save me-1"></i>'+t)}function s(e,t){var a=document.getElementById(e);a?a.value=null!=t?t:"":console.warn("Element #".concat(e," tidak ditemukan"))}function m(){var e=document.getElementById("offcanvasObat");if(e){var t=bootstrap.Offcanvas.getInstance(e);t&&t.hide()}}function d(e){Swal.fire({icon:"success",title:"Berhasil",text:e,timer:1200,showConfirmButton:!1})}function l(e){Swal.fire({icon:"error",title:"Gagal",text:e})}function c(e,t){var a,n,o=t;null!==(a=e.responseJSON)&&void 0!==a&&a.message&&(o=e.responseJSON.message),422===e.status&&null!==(n=e.responseJSON)&&void 0!==n&&n.errors&&(o=Object.values(e.responseJSON.errors).flat().join("<br>")),Swal.fire({icon:"error",title:"Gagal",html:o})}e(function(){var u;console.log("ITEM.JS BERHASIL DIMUAT"),e(document).on("click","#btnTambah",function(){n(),a=null;var e=document.getElementById("frmItem");e&&delete e.dataset.editId,o()}),e(document).on("click","#btnSaveItem",function(n){n.preventDefault();var o=e(this),s=document.getElementById("frmItem");null!=s&&s.dataset.editId&&(a=s.dataset.editId),console.log("ITEM SAVE MODE:",a?"UPDATE":"CREATE"),a?function(n){if(a){var o=document.getElementById("frmItem");if(o){var s=e(o).serialize();console.log("UPDATE ITEM ID:",a),console.log("UPDATE DATA:",s);var u="".concat(t.routes.itemUpdateBase,"/").concat(a);e.ajax({url:u,type:"PUT",data:s,headers:{"X-CSRF-TOKEN":t.csrfToken,"X-Requested-With":"XMLHttpRequest"},beforeSend:function(){i(n,"Memperbarui...")},success:function(e){console.log("UPDATE RESPONSE:",e),!1!==e.success?(d(e.message||"Item berhasil diperbarui."),m(),a=null,o&&delete o.dataset.editId,setTimeout(function(){window.location.reload()},800)):l(e.message||"Gagal memperbarui item.")},error:function(e){console.error("UPDATE ERROR:",e.responseText),c(e,"Gagal memperbarui item.")},complete:function(){r(n,"Update Item")}})}else l("Form item tidak ditemukan.")}else l("ID item untuk update tidak ditemukan.")}(o):function(a){var n=document.getElementById("frmItem");if(n){var o=e(n).serialize();console.log("CREATE ITEM:",o),e.ajax({url:t.routes.itemStore,type:"POST",data:o,beforeSend:function(){i(a,"Menyimpan...")},success:function(e){console.log("CREATE RESPONSE:",e),!1!==e.success?(d(e.message||"Item berhasil ditambahkan."),m(),setTimeout(function(){window.location.reload()},800)):l(e.message||"Gagal menambahkan item.")},error:function(e){console.error("CREATE ERROR:",e.responseText),r(a,"Simpan Item"),c(e,"Gagal menambahkan item.")},complete:function(){r(a,"Simpan Item")}})}else l("Form item tidak ditemukan.")}(o)}),e(document).on("click",".btnEditItem",function(n){n.preventDefault();var o=e(this).data("id");o?function(n){console.log("EDIT ITEM ID:",n);var o="".concat(t.routes.itemEditBase,"/").concat(n,"/edit");e.ajax({url:o,type:"GET",headers:{Accept:"application/json","X-Requested-With":"XMLHttpRequest"},beforeSend:function(){console.log("Mengambil data item...")},success:function(t){if(console.log("EDIT RESPONSE:",t),t.success){var n=t.data;a=n.id;var o=document.getElementById("frmItem");o&&(o.dataset.editId=n.id),s("program_id",n.program_id),s("kode_obat",n.kode_obat),s("nama_obat",n.nama_obat),s("satuan",n.satuan),s("stok_awal_progam_pkd",n.stok_awal_progam_pkd),s("stok_awal_jkn",n.stok_awal_jkn),s("penerimaan_program_pkd",n.penerimaan_program_pkd),s("penerimaan_jkn",n.penerimaan_jkn),s("persediaan_program_pkd",n.persediaan_program_pkd),s("persediaan_jkn",n.persediaan_jkn),s("pemakaian_program_pkd",n.pemakaian_program_pkd),s("pemakaian_jkn",n.pemakaian_jkn),s("item_expired_pkd",n.item_expired_pkd),s("item_expired_jkn",n.item_expired_jkn),s("stok_akhir_program_pkd",n.stok_akhir_program_pkd),s("stok_akhir_jkn",n.stok_akhir_jkn),s("stok_minimum",n.stok_minimum),s("stok_optimum",n.stok_optimum),s("permintaan",n.permintaan),s("pemberian_program_pkd",n.pemberian_program_pkd),s("pemberian_jkn",n.pemberian_jkn);var i,r=e("#program_id");r.length&&r.val(null!==(i=n.program_id)&&void 0!==i?i:"").trigger("change"),function(){var t=e("#btnSaveItem");t.length&&t.prop("disabled",!1).attr("data-mode","edit").html('<i class="bi bi-save me-1"></i>Update Item')}(),(m=document.getElementById("offcanvasObat"))?bootstrap.Offcanvas.getOrCreateInstance(m).show():console.error("#offcanvasObat tidak ditemukan.")}else l(t.message||"Data item tidak ditemukan.");var m},error:function(e){console.error("EDIT ITEM ERROR:",e.responseText),c(e,"Gagal mengambil data item.")}})}(o):l("ID item tidak ditemukan.")}),e(document).on("click",".btnDeleteItem, .btn-delete",function(a){a.preventDefault();var n=e(this),o=n.data("id");o?Swal.fire({title:"Hapus Item?",text:"Data item obat akan dihapus.",icon:"warning",showCancelButton:!0,confirmButtonText:"Ya, Hapus",cancelButtonText:"Batal",reverseButtons:!0}).then(function(a){a.isConfirmed&&function(a,n){var o="".concat(t.routes.itemDeleteBase,"/").concat(a);e.ajax({url:o,type:"DELETE",headers:{"X-CSRF-TOKEN":t.csrfToken,"X-Requested-With":"XMLHttpRequest"},beforeSend:function(){n.prop("disabled",!0)},success:function(t){if(console.log("DELETE RESPONSE:",t),!1!==t.success){var a,o=n.closest("tr");o.length&&o.remove(),a=e("#tblItem tbody tr").length,e("#itemCount").text("".concat(a," Item")),Swal.fire({icon:"success",title:"Berhasil",text:t.message||"Item berhasil dihapus.",timer:1200,showConfirmButton:!1})}else l(t.message||"Gagal menghapus item.")},error:function(e){console.error("DELETE ERROR:",e.responseText),c(e,"Gagal menghapus item.")},complete:function(){n.prop("disabled",!1)}})}(o,n)}):l("ID item tidak ditemukan.")}),e(document).on("input","#searchItem",function(){var t=e(this).val().toLowerCase().trim();e("#tblItem tbody tr").each(function(){var a=e(this).text().toLowerCase();e(this).toggle(-1!==a.indexOf(t))})}),(u=document.getElementById("offcanvasObat"))&&u.addEventListener("hidden.bs.offcanvas",function(){n(),o()})})}(jQuery);
+/******/ (() => { // webpackBootstrap
+/*!***************************************!*\
+  !*** ./resources/js/newlplpo/item.js ***!
+  \***************************************/
+(function ($) {
+  'use strict';
+
+  var config = window.LplpoConfig || {};
+  var editId = null;
+
+  /*
+  |--------------------------------------------------------------------------
+  | READY
+  |--------------------------------------------------------------------------
+  */
+
+  $(function () {
+    console.log('ITEM.JS BERHASIL DIMUAT');
+    initTambahItem();
+    initSaveItem();
+    initEditItem();
+    initDeleteItem();
+    initSearchItem();
+    initOffcanvasReset();
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | TAMBAH ITEM
+  |--------------------------------------------------------------------------
+  */
+
+  function initTambahItem() {
+    $(document).on('click', '#btnTambah', function () {
+      resetItemForm();
+      editId = null;
+      var form = document.getElementById('frmItem');
+      if (form) {
+        delete form.dataset.editId;
+      }
+      setSaveButtonCreate();
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | SAVE ITEM
+  |--------------------------------------------------------------------------
+  */
+
+  function initSaveItem() {
+    $(document).on('click', '#btnSaveItem', function (e) {
+      e.preventDefault();
+      var button = $(this);
+
+      /*
+      |--------------------------------------------------------------------------
+      | CEK MODE
+      |--------------------------------------------------------------------------
+      */
+
+      var form = document.getElementById('frmItem');
+      if (form !== null && form !== void 0 && form.dataset.editId) {
+        editId = form.dataset.editId;
+      }
+      console.log('ITEM SAVE MODE:', editId ? 'UPDATE' : 'CREATE');
+      if (editId) {
+        updateItem(button);
+      } else {
+        createItem(button);
+      }
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | CREATE
+  |--------------------------------------------------------------------------
+  */
+
+  function createItem(button) {
+    var form = document.getElementById('frmItem');
+    if (!form) {
+      showError('Form item tidak ditemukan.');
+      return;
+    }
+    var data = $(form).serialize();
+    console.log('CREATE ITEM:', data);
+    $.ajax({
+      url: config.routes.itemStore,
+      type: 'POST',
+      data: data,
+      beforeSend: function beforeSend() {
+        setButtonLoading(button, 'Menyimpan...');
+      },
+      success: function success(response) {
+        console.log('CREATE RESPONSE:', response);
+        if (response.success === false) {
+          showError(response.message || 'Gagal menambahkan item.');
+          return;
+        }
+        showSuccess(response.message || 'Item berhasil ditambahkan.');
+        closeOffcanvas();
+        setTimeout(function () {
+          window.location.reload();
+        }, 800);
+      },
+      error: function error(xhr) {
+        console.error('CREATE ERROR:', xhr.responseText);
+        resetButton(button, 'Simpan Item');
+        showAjaxError(xhr, 'Gagal menambahkan item.');
+      },
+      complete: function complete() {
+        resetButton(button, 'Simpan Item');
+      }
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | EDIT ITEM
+  |--------------------------------------------------------------------------
+  */
+
+  function initEditItem() {
+    $(document).on('click', '.btnEditItem', function (e) {
+      e.preventDefault();
+      var button = $(this);
+      var id = button.data('id');
+      if (!id) {
+        showError('ID item tidak ditemukan.');
+        return;
+      }
+      loadItemForEdit(id);
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD EDIT
+  |--------------------------------------------------------------------------
+  */
+
+  function loadItemForEdit(id) {
+    console.log('EDIT ITEM ID:', id);
+    var url = "".concat(config.routes.itemEditBase, "/").concat(id, "/edit");
+    $.ajax({
+      url: url,
+      type: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      beforeSend: function beforeSend() {
+        console.log('Mengambil data item...');
+      },
+      success: function success(response) {
+        console.log('EDIT RESPONSE:', response);
+        if (!response.success) {
+          showError(response.message || 'Data item tidak ditemukan.');
+          return;
+        }
+        var item = response.data;
+
+        /*
+        |--------------------------------------------------------------------------
+        | SET EDIT STATE
+        |--------------------------------------------------------------------------
+        */
+
+        editId = item.id;
+        var form = document.getElementById('frmItem');
+        if (form) {
+          form.dataset.editId = item.id;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ISI FORM
+        |--------------------------------------------------------------------------
+        */
+
+        setValue('program_id', item.program_id);
+        setValue('kode_obat', item.kode_obat);
+        setValue('nama_obat', item.nama_obat);
+        setValue('satuan', item.satuan);
+        setValue('stok_awal_progam_pkd', item.stok_awal_progam_pkd);
+        setValue('stok_awal_jkn', item.stok_awal_jkn);
+        setValue('penerimaan_program_pkd', item.penerimaan_program_pkd);
+        setValue('penerimaan_jkn', item.penerimaan_jkn);
+        setValue('persediaan_program_pkd', item.persediaan_program_pkd);
+        setValue('persediaan_jkn', item.persediaan_jkn);
+        setValue('pemakaian_program_pkd', item.pemakaian_program_pkd);
+        setValue('pemakaian_jkn', item.pemakaian_jkn);
+        setValue('item_expired_pkd', item.item_expired_pkd);
+        setValue('item_expired_jkn', item.item_expired_jkn);
+        setValue('stok_akhir_program_pkd', item.stok_akhir_program_pkd);
+        setValue('stok_akhir_jkn', item.stok_akhir_jkn);
+        setValue('stok_minimum', item.stok_minimum);
+        setValue('stok_optimum', item.stok_optimum);
+        setValue('permintaan', item.permintaan);
+        setValue('pemberian_program_pkd', item.pemberian_program_pkd);
+        setValue('pemberian_jkn', item.pemberian_jkn);
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROGRAM SELECT
+        |--------------------------------------------------------------------------
+        */
+
+        var program = $('#program_id');
+        if (program.length) {
+          var _item$program_id;
+          program.val((_item$program_id = item.program_id) !== null && _item$program_id !== void 0 ? _item$program_id : '').trigger('change');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUTTON
+        |--------------------------------------------------------------------------
+        */
+
+        setSaveButtonEdit();
+
+        /*
+        |--------------------------------------------------------------------------
+        | SHOW OFFCANVAS
+        |--------------------------------------------------------------------------
+        */
+
+        openOffcanvas();
+      },
+      error: function error(xhr) {
+        console.error('EDIT ITEM ERROR:', xhr.responseText);
+        showAjaxError(xhr, 'Gagal mengambil data item.');
+      }
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | UPDATE
+  |--------------------------------------------------------------------------
+  */
+
+  function updateItem(button) {
+    if (!editId) {
+      showError('ID item untuk update tidak ditemukan.');
+      return;
+    }
+    var form = document.getElementById('frmItem');
+    if (!form) {
+      showError('Form item tidak ditemukan.');
+      return;
+    }
+    var data = $(form).serialize();
+    console.log('UPDATE ITEM ID:', editId);
+    console.log('UPDATE DATA:', data);
+    var url = "".concat(config.routes.itemUpdateBase, "/").concat(editId);
+    $.ajax({
+      url: url,
+      type: 'PUT',
+      data: data,
+      headers: {
+        'X-CSRF-TOKEN': config.csrfToken,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      beforeSend: function beforeSend() {
+        setButtonLoading(button, 'Memperbarui...');
+      },
+      success: function success(response) {
+        console.log('UPDATE RESPONSE:', response);
+        if (response.success === false) {
+          showError(response.message || 'Gagal memperbarui item.');
+          return;
+        }
+        showSuccess(response.message || 'Item berhasil diperbarui.');
+        closeOffcanvas();
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET STATE
+        |--------------------------------------------------------------------------
+        */
+
+        editId = null;
+        if (form) {
+          delete form.dataset.editId;
+        }
+        setTimeout(function () {
+          window.location.reload();
+        }, 800);
+      },
+      error: function error(xhr) {
+        console.error('UPDATE ERROR:', xhr.responseText);
+        showAjaxError(xhr, 'Gagal memperbarui item.');
+      },
+      complete: function complete() {
+        resetButton(button, 'Update Item');
+      }
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | DELETE
+  |--------------------------------------------------------------------------
+  */
+
+  function initDeleteItem() {
+    $(document).on('click', '.btnDeleteItem, .btn-delete', function (e) {
+      e.preventDefault();
+      var button = $(this);
+      var id = button.data('id');
+      if (!id) {
+        showError('ID item tidak ditemukan.');
+        return;
+      }
+      Swal.fire({
+        title: 'Hapus Item?',
+        text: 'Data item obat akan dihapus.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+      }).then(function (result) {
+        if (!result.isConfirmed) {
+          return;
+        }
+        deleteItem(id, button);
+      });
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | DELETE REQUEST
+  |--------------------------------------------------------------------------
+  */
+
+  function deleteItem(id, button) {
+    var url = "".concat(config.routes.itemDeleteBase, "/").concat(id);
+    $.ajax({
+      url: url,
+      type: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': config.csrfToken,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      beforeSend: function beforeSend() {
+        button.prop('disabled', true);
+      },
+      success: function success(response) {
+        console.log('DELETE RESPONSE:', response);
+        if (response.success === false) {
+          showError(response.message || 'Gagal menghapus item.');
+          return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | REMOVE ROW LANGSUNG
+        |--------------------------------------------------------------------------
+        */
+
+        var row = button.closest('tr');
+        if (row.length) {
+          row.remove();
+        }
+        updateItemCount();
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: response.message || 'Item berhasil dihapus.',
+          timer: 1200,
+          showConfirmButton: false
+        });
+      },
+      error: function error(xhr) {
+        console.error('DELETE ERROR:', xhr.responseText);
+        showAjaxError(xhr, 'Gagal menghapus item.');
+      },
+      complete: function complete() {
+        button.prop('disabled', false);
+      }
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | SEARCH ITEM
+  |--------------------------------------------------------------------------
+  */
+
+  function initSearchItem() {
+    $(document).on('input', '#searchItem', function () {
+      var keyword = $(this).val().toLowerCase().trim();
+      $('#tblItem tbody tr').each(function () {
+        var text = $(this).text().toLowerCase();
+        $(this).toggle(text.indexOf(keyword) !== -1);
+      });
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | RESET FORM
+  |--------------------------------------------------------------------------
+  */
+
+  function resetItemForm() {
+    var form = document.getElementById('frmItem');
+    if (!form) {
+      return;
+    }
+    form.reset();
+    editId = null;
+    delete form.dataset.editId;
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESET SELECT2
+    |--------------------------------------------------------------------------
+    */
+
+    $('#program_id').val(null).trigger('change');
+
+    /*
+    |--------------------------------------------------------------------------
+    | CLEAR HIDDEN VALUE
+    |--------------------------------------------------------------------------
+    */
+
+    $('#kode_obat').val('');
+    $('#nama_obat').val('');
+    $('#satuan').val('');
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | OFFCANVAS RESET
+  |--------------------------------------------------------------------------
+  */
+
+  function initOffcanvasReset() {
+    var element = document.getElementById('offcanvasObat');
+    if (!element) {
+      return;
+    }
+    element.addEventListener('hidden.bs.offcanvas', function () {
+      resetItemForm();
+      setSaveButtonCreate();
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | SET BUTTON CREATE
+  |--------------------------------------------------------------------------
+  */
+
+  function setSaveButtonCreate() {
+    var button = $('#btnSaveItem');
+    if (!button.length) {
+      return;
+    }
+    button.prop('disabled', false).removeAttr('data-mode').html('<i class="bi bi-save me-1"></i>' + 'Simpan Item');
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | SET BUTTON EDIT
+  |--------------------------------------------------------------------------
+  */
+
+  function setSaveButtonEdit() {
+    var button = $('#btnSaveItem');
+    if (!button.length) {
+      return;
+    }
+    button.prop('disabled', false).attr('data-mode', 'edit').html('<i class="bi bi-save me-1"></i>' + 'Update Item');
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | SET BUTTON LOADING
+  |--------------------------------------------------------------------------
+  */
+
+  function setButtonLoading(button, text) {
+    button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>' + text);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | RESET BUTTON
+  |--------------------------------------------------------------------------
+  */
+
+  function resetButton(button, text) {
+    button.prop('disabled', false).html('<i class="bi bi-save me-1"></i>' + text);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | SET VALUE
+  |--------------------------------------------------------------------------
+  */
+
+  function setValue(id, value) {
+    var element = document.getElementById(id);
+    if (!element) {
+      console.warn("Element #".concat(id, " tidak ditemukan"));
+      return;
+    }
+    element.value = value !== null && value !== void 0 ? value : '';
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | OPEN OFFCANVAS
+  |--------------------------------------------------------------------------
+  */
+
+  function openOffcanvas() {
+    var element = document.getElementById('offcanvasObat');
+    if (!element) {
+      console.error('#offcanvasObat tidak ditemukan.');
+      return;
+    }
+    var offcanvas = bootstrap.Offcanvas.getOrCreateInstance(element);
+    offcanvas.show();
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | CLOSE OFFCANVAS
+  |--------------------------------------------------------------------------
+  */
+
+  function closeOffcanvas() {
+    var element = document.getElementById('offcanvasObat');
+    if (!element) {
+      return;
+    }
+    var offcanvas = bootstrap.Offcanvas.getInstance(element);
+    if (offcanvas) {
+      offcanvas.hide();
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | UPDATE ITEM COUNT
+  |--------------------------------------------------------------------------
+  */
+
+  function updateItemCount() {
+    var count = $('#tblItem tbody tr').length;
+    $('#itemCount').text("".concat(count, " Item"));
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | SUCCESS
+  |--------------------------------------------------------------------------
+  */
+
+  function showSuccess(message) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil',
+      text: message,
+      timer: 1200,
+      showConfirmButton: false
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | ERROR
+  |--------------------------------------------------------------------------
+  */
+
+  function showError(message) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Gagal',
+      text: message
+    });
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | AJAX ERROR
+  |--------------------------------------------------------------------------
+  */
+
+  function showAjaxError(xhr, fallback) {
+    var _xhr$responseJSON, _xhr$responseJSON2;
+    var message = fallback;
+    if ((_xhr$responseJSON = xhr.responseJSON) !== null && _xhr$responseJSON !== void 0 && _xhr$responseJSON.message) {
+      message = xhr.responseJSON.message;
+    }
+    if (xhr.status === 422 && (_xhr$responseJSON2 = xhr.responseJSON) !== null && _xhr$responseJSON2 !== void 0 && _xhr$responseJSON2.errors) {
+      message = Object.values(xhr.responseJSON.errors).flat().join('<br>');
+    }
+    Swal.fire({
+      icon: 'error',
+      title: 'Gagal',
+      html: message
+    });
+  }
+})(jQuery);
+/******/ })()
+;
