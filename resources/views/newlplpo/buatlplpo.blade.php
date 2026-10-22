@@ -1,4 +1,37 @@
 @extends('newlplpo.layouts.master')
+@push('styles')
+<style>
+
+/* ==========================================
+   GROUP HEADER PROGRAM
+========================================== */
+
+#tblItem tbody tr.row-program td {
+    background-color: #dceee3 !important;
+    color: #17633c !important;
+
+    font-weight: 700;
+    font-size: 13px;
+
+    padding: 12px 16px !important;
+
+    border-top: 2px solid #8abca0 !important;
+    border-bottom: 1px solid #b7d8c5 !important;
+
+    letter-spacing: 0.3px;
+}
+
+#tblItem tbody tr.row-program:hover td {
+    background-color: #dceee3 !important;
+}
+
+#tblItem tbody tr.row-program i {
+    font-size: 16px;
+    color: #198754;
+}
+
+    </style>
+@endpush
 
 @section('title', isset($report) ? 'Edit LPLPO' : 'Membuat LPLPO')
 
@@ -107,17 +140,25 @@
                 | WAITING
                 ============================================== --}}
 
-                @if($report->lplpo_status === 'waiting')
 
-                    <span class="badge bg-warning text-dark p-2">
+@if(
+    $report->report_status === 'DRAFT' &&
+    $report->lplpo_status === 'waiting'
+)
+    <span class="badge bg-warning text-dark p-2 me-2">
+        <i class="bi bi-hourglass-split me-1"></i>
+        Menunggu Approval Kepala Puskesmas
+    </span>
 
-                        <i class="bi bi-hourglass-split me-1"></i>
-
-                        Menunggu Approval Kepala Puskesmas
-
-                    </span>
-
-                @endif
+    <button
+        type="button"
+        class="btn btn-danger"
+        id="btnBatalkanApproval"
+    >
+        <i class="bi bi-x-circle me-1"></i>
+        Batalkan Approval
+    </button>
+@endif
 
 
                 {{-- =============================================
@@ -553,17 +594,75 @@
                     </thead>
 
 
-                    <tbody>
 
-                        @foreach($items as $no => $item)
 
-                            @include(
-                                'newlplpo.partials.row_item'
-                            )
+<tbody>
+    @php
+        $programSebelumnya = null;
+        $nomorItem = 0;
+    @endphp
 
-                        @endforeach
+    @foreach($items as $item)
 
-                    </tbody>
+        @php
+            // Ambil nama program dari relasi program_id
+            // ke tabel new_lplpo_program_list
+            $namaProgram = trim(
+                (string) ($item->program?->program_name ?? '')
+            );
+
+            // Non Program tidak menggunakan header pemisah
+            $isNonProgram = strcasecmp(
+                $namaProgram,
+                'Non Program'
+            ) === 0;
+
+            // Identifikasi pergantian program
+            $keyProgram = (string) $item->program_id;
+
+            $tampilkanHeader =
+                !$isNonProgram &&
+                $keyProgram !== $programSebelumnya;
+
+            // Nomor urut item tetap berlanjut
+            $nomorItem++;
+            $no = $nomorItem - 1;
+        @endphp
+
+        {{-- ==========================================
+             BARIS PEMISAH PROGRAM
+        ========================================== --}}
+        @if($tampilkanHeader)
+            <tr class="row-program">
+                <td colspan="21">
+                    <div class="d-flex align-items-center gap-2">
+
+                        <i class="bi bi-folder2-open"></i>
+
+                        <strong>
+                            {{ strtoupper(
+                                $namaProgram ?: 'PROGRAM TIDAK DIKETAHUI'
+                            ) }}
+                        </strong>
+
+                    </div>
+                </td>
+            </tr>
+        @endif
+
+        {{-- ==========================================
+             BARIS ITEM OBAT
+        ========================================== --}}
+        @include('newlplpo.partials.row_item')
+
+        @php
+            $programSebelumnya = $keyProgram;
+        @endphp
+
+    @endforeach
+</tbody>
+
+
 
                 </table>
 
@@ -1657,6 +1756,73 @@
                 value ?? '';
 
         }
+        document.querySelectorAll(
+    '[data-bs-toggle="tooltip"]'
+).forEach(function (element) {
+    bootstrap.Tooltip.getOrCreateInstance(element);
+});
+
+
+$(document).on('click', '#btnBatalkanApproval', function () {
+
+    const btn = $(this);
+
+    Swal.fire({
+        icon: 'warning',
+        title: 'Batalkan Approval?',
+        text: 'Laporan akan dikembalikan menjadi Draft dan dapat diedit kembali.',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Batalkan Approval',
+        cancelButtonText: 'Tidak',
+        confirmButtonColor: '#dc3545'
+    }).then(function (result) {
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        btn.prop('disabled', true);
+
+        $.ajax({
+            url: "{{ route('newlplpo.cancel-approval', $report->id) }}",
+            type: 'POST',
+
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+
+            success: function (response) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: response.message
+                }).then(function () {
+                    location.reload();
+                });
+
+            },
+
+            error: function (xhr) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Membatalkan Approval',
+                    text: xhr.responseJSON?.message
+                        ?? 'Terjadi kesalahan.'
+                });
+
+            },
+
+            complete: function () {
+                btn.prop('disabled', false);
+            }
+        });
+
+    });
+
+});
+
 
         </script>
 
