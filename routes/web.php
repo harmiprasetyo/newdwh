@@ -1047,6 +1047,12 @@ Route::prefix('stok-esensial')
 Route::prefix('masterdataobat')
     ->name('masterdataobat.')
     ->group(function () {
+Route::get(
+    '/export',
+    [MasterDataObatController::class, 'export']
+)->name('export');
+
+
         Route::get(
     '/datatableforcanvas',
     [MasterDataObatController::class, 'datatableforcanvas']
@@ -1217,6 +1223,9 @@ Route::get('/dashboard-lplpo', fn() => view('dashboard.lplpo'));
 
 
 Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
+    Route::post('/{id}/cancel-approval',
+    [LplpoController::class, 'cancelApproval']
+)->name('cancel-approval');
 
     Route::get('/approval/{token}', [ApprovalController::class, 'show'])
         ->name('approval.show');
@@ -1227,5 +1236,6 @@ Route::prefix('newlplpo')->name('newlplpo.')->group(function () {
     ->name('approval.reject');
     Route::get('/approval-verifikasi/{token}', [ApprovalController::class,'verify'])
     ->name('approval.verify');
+
 
 });

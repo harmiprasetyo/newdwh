@@ -645,7 +645,7 @@ const tableObat = $('#tblMasterObat').DataTable({
     /* ==================================================
        VALIDASI PERHITUNGAN
     ================================================== */
-
+/*
     function validasiPerhitungan() {
 
         let stokAwalPKD =
@@ -717,7 +717,93 @@ const tableObat = $('#tblMasterObat').DataTable({
         );
 
     }
+*/
 
+
+function validasiPerhitungan() {
+
+    let stokAwalPKD = angka('stok_awal_progam_pkd');
+    let stokAwalJKN = angka('stok_awal_jkn');
+
+    let penerimaanPKD = angka('penerimaan_program_pkd');
+    let penerimaanJKN = angka('penerimaan_jkn');
+
+    let pemakaianPKD = angka('pemakaian_program_pkd');
+    let pemakaianJKN = angka('pemakaian_jkn');
+
+    let expiredPKD = angka('item_expired_pkd');
+    let expiredJKN = angka('item_expired_jkn');
+
+    // ==============================
+    // HITUNG PERSEDIAAN
+    // ==============================
+
+    let persediaanPKD =
+        stokAwalPKD + penerimaanPKD;
+
+    let persediaanJKN =
+        stokAwalJKN + penerimaanJKN;
+
+
+    // Tampilkan hasil ke input
+    $('[name="persediaan_program_pkd"]')
+        .val(persediaanPKD);
+
+    $('[name="persediaan_jkn"]')
+        .val(persediaanJKN);
+
+
+    // ==============================
+    // HITUNG STOK AKHIR
+    // ==============================
+
+    let stokAkhirPKD =
+        persediaanPKD -
+        pemakaianPKD -
+        expiredPKD;
+
+    let stokAkhirJKN =
+        persediaanJKN -
+        pemakaianJKN -
+        expiredJKN;
+
+
+    // Tampilkan hasil ke input
+    $('[name="stok_akhir_program_pkd"]')
+        .val(stokAkhirPKD);
+
+    $('[name="stok_akhir_jkn"]')
+        .val(stokAkhirJKN);
+
+
+    // ==============================
+    // VALIDASI
+    // ==============================
+
+    cekPersediaan(
+        '[name="persediaan_program_pkd"]',
+        persediaanPKD,
+        persediaanPKD
+    );
+
+    cekPersediaan(
+        '[name="persediaan_jkn"]',
+        persediaanJKN,
+        persediaanJKN
+    );
+
+    cekPersediaan(
+        '[name="stok_akhir_program_pkd"]',
+        stokAkhirPKD,
+        stokAkhirPKD
+    );
+
+    cekPersediaan(
+        '[name="stok_akhir_jkn"]',
+        stokAkhirJKN,
+        stokAkhirJKN
+    );
+}
 
     /* ==================================================
        CHECK PERSEDIAAN
@@ -1044,6 +1130,9 @@ const tableObat = $('#tblMasterObat').DataTable({
                         'pemberian_jkn',
                         item.pemberian_jkn
                     );
+
+
+                    validasiPerhitungan();
 
 
                     /*
@@ -1665,7 +1754,10 @@ const tableObat = $('#tblMasterObat').DataTable({
         }
     );
 
+    validasiPerhitungan();
+
 });
+
 
 </script>
 

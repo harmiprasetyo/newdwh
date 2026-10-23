@@ -1,2 +1,627 @@
-/*! For license information please see search.js.LICENSE.txt */
-(()=>{function n(){var e,r,a="function"==typeof Symbol?Symbol:{},i=a.iterator||"@@iterator",o=a.toStringTag||"@@toStringTag";function c(n,a,i,o){var c=a&&a.prototype instanceof l?a:l,u=Object.create(c.prototype);return t(u,"_invoke",function(n,t,a){var i,o,c,l=0,u=a||[],f=!1,d={p:0,n:0,v:e,a:p,f:p.bind(e,4),d:function(n,t){return i=n,o=0,c=e,d.n=t,s}};function p(n,t){for(o=n,c=t,r=0;!f&&l&&!a&&r<u.length;r++){var a,i=u[r],p=d.p,h=i[2];n>3?(a=h===t)&&(c=i[(o=i[4])?5:(o=3,3)],i[4]=i[5]=e):i[0]<=p&&((a=n<2&&p<i[1])?(o=0,d.v=t,d.n=i[1]):p<h&&(a=n<3||i[0]>t||t>h)&&(i[4]=n,i[5]=t,d.n=h,o=0))}if(a||n>1)return s;throw f=!0,t}return function(a,u,h){if(l>1)throw TypeError("Generator is already running");for(f&&1===u&&p(u,h),o=u,c=h;(r=o<2?e:c)||!f;){i||(o?o<3?(o>1&&(d.n=-1),p(o,c)):d.n=c:d.v=c);try{if(l=2,i){if(o||(a="next"),r=i[a]){if(!(r=r.call(i,c)))throw TypeError("iterator result is not an object");if(!r.done)return r;c=r.value,o<2&&(o=0)}else 1===o&&(r=i.return)&&r.call(i),o<2&&(c=TypeError("The iterator does not provide a '"+a+"' method"),o=1);i=e}else if((r=(f=d.n<0)?c:n.call(t,d))!==s)break}catch(n){i=e,o=1,c=n}finally{l=1}}return{value:r,done:f}}}(n,i,o),!0),u}var s={};function l(){}function u(){}function f(){}r=Object.getPrototypeOf;var d=[][i]?r(r([][i]())):(t(r={},i,function(){return this}),r),p=f.prototype=l.prototype=Object.create(d);function h(n){return Object.setPrototypeOf?Object.setPrototypeOf(n,f):(n.__proto__=f,t(n,o,"GeneratorFunction")),n.prototype=Object.create(p),n}return u.prototype=f,t(p,"constructor",f),t(f,"constructor",u),u.displayName="GeneratorFunction",t(f,o,"GeneratorFunction"),t(p),t(p,o,"Generator"),t(p,i,function(){return this}),t(p,"toString",function(){return"[object Generator]"}),(n=function(){return{w:c,m:h}})()}function t(n,e,r,a){var i=Object.defineProperty;try{i({},"",{})}catch(n){i=0}t=function(n,e,r,a){function o(e,r){t(n,e,function(n){return this._invoke(e,r,n)})}e?i?i(n,e,{value:r,enumerable:!a,configurable:!a,writable:!a}):n[e]=r:(o("next",0),o("throw",1),o("return",2))},t(n,e,r,a)}function e(n,t,e,r,a,i,o){try{var c=n[i](o),s=c.value}catch(n){return void e(n)}c.done?t(s):Promise.resolve(s).then(r,a)}function r(n){return function(){var t=this,r=arguments;return new Promise(function(a,i){var o=n.apply(t,r);function c(n){e(o,a,i,c,s,"next",n)}function s(n){e(o,a,i,c,s,"throw",n)}c(void 0)})}}$(document).ready(function(){function t(n){return e.apply(this,arguments)}function e(){return(e=r(n().m(function t(e){var r;return n().w(function(n){for(;;)switch(n.n){case 0:return n.n=1,Swal.fire({title:"Data Tersedia",html:'\n                    <div class="text-center">\n\n                        <strong>\n                            '.concat(u(e.name||"-"),"\n                        </strong>\n\n                        <br>\n\n                        <small>\n                            Patient ID:\n                            ").concat(u(e.patient_id||"-"),"\n                        </small>\n\n                        <br>\n\n                        <small>\n                            NIK:\n                            ").concat(u(e.nik||"-"),"\n                        </small>\n\n                        <br>\n\n                        <small>\n                            NIK Ibu:\n                            ").concat(u(e.nik_ibu||"-"),"\n                        </small>\n\n                    </div>\n\n                    <hr>\n\n                    <div>\n                        Pilih metode akses data pasien\n                    </div>\n                "),icon:"info",showDenyButton:!0,confirmButtonText:"ENTER OTP",denyButtonText:"INFORM CONSENT",confirmButtonColor:"#198754",denyButtonColor:"#0d6efd"});case 1:if(!(r=n.v).isConfirmed){n.n=3;break}return n.n=2,a(e);case 2:return n.a(2);case 3:r.isDenied&&(console.log("PATIENT YANG DIPILIH:",e),$("#patient_id").val(e.patient_id||""),$("#updnik").val(e.nik||""),$("#nikibu").val(e.nik_ibu||""),$("#search_type").val(e.search_type||""),console.log("patient_id:",$("#patient_id").val()),console.log("nik:",$("#updnik").val()),console.log("nik_ibu:",$("#nikibu").val()),console.log("search_type:",$("#search_type").val()),$("#uploadModal").modal("show"));case 4:return n.a(2)}},t)}))).apply(this,arguments)}function a(n){return i.apply(this,arguments)}function i(){return(i=r(n().m(function t(e){var r,a;return n().w(function(n){for(;;)switch(n.p=n.n){case 0:if(e.phone){n.n=2;break}return n.n=1,Swal.fire({title:"Nomor HP Tidak Tersedia",text:"Nomor HP pasien tidak tersedia.",icon:"warning"});case 1:case 5:case 9:return n.a(2);case 2:return n.p=2,n.n=3,$.post("/send-otp",{identifier:e.phone,nama:e.name,_token:$('meta[name="csrf-token"]').attr("content")});case 3:n.n=6;break;case 4:return n.p=4,a=n.v,console.error("Send OTP Error:",a),n.n=5,Swal.fire({title:"Gagal",text:"OTP gagal dikirim.",icon:"error"});case 6:return n.n=7,Swal.fire({title:"Input OTP",input:"text",inputLabel:"Kode OTP",inputPlaceholder:"Masukkan OTP",showCancelButton:!0,confirmButtonText:"Verifikasi",cancelButtonText:"Batal",inputAttributes:{maxlength:6,autocomplete:"one-time-code",inputmode:"numeric"},inputValidator:function(n){if(!n)return"OTP wajib diisi";/^\d{6}$/.test(n)}});case 7:if((r=n.v).isConfirmed&&r.value){n.n=8;break}return n.a(2);case 8:return n.n=9,o(e,r.value)}},t,null,[[2,4]])}))).apply(this,arguments)}function o(n,t){$.ajax({url:"/verify-otp",type:"POST",dataType:"json",data:{identifier:n.phone,otp:t,_token:$('meta[name="csrf-token"]').attr("content")},success:function(t){!0===t.success?Swal.fire({title:"Berhasil",text:t.message,icon:"success",confirmButtonText:"OK"}).then(function(t){t.isConfirmed&&function(n){var t=new URLSearchParams;n.patient_id&&t.set("patient_id",n.patient_id);n.nik&&t.set("nik",n.nik);n.nik_ibu&&t.set("nik_ibu",n.nik_ibu);n.search_type&&t.set("search_type",n.search_type);window.location.href="/datarme/search?"+t.toString()}(n)}):Swal.fire({title:"Gagal",text:t.message,icon:"error",confirmButtonText:"OK"})},error:function(n){console.error("Verify OTP Error:",n);var t="Verifikasi OTP gagal.";n.responseJSON&&n.responseJSON.message&&(t=n.responseJSON.message),Swal.fire({title:"Error",text:t,icon:"error"})}})}function c(n){return s.apply(this,arguments)}function s(){return(s=r(n().m(function t(e){var r,a;return n().w(function(n){for(;;)switch(n.n){case 0:return r='\n            <div class="text-start">\n\n                <div class="mb-3">\n\n                    <strong>\n                        Ditemukan\n                        '.concat(e.length,"\n                        pasien.\n                    </strong>\n\n                </div>\n        "),e.forEach(function(n,t){var e=n.birth_date?l(n.birth_date):"-",a=n.nik||"-",i=n.nik_ibu||"-";r+='\n                    <div\n                        class="form-check border rounded p-3 mb-2"\n                    >\n\n                        <input\n                            class="\n                                form-check-input\n                                patient-option\n                            "\n                            type="radio"\n                            name="selected_patient"\n                            id="patient_'.concat(t,'"\n                            value="').concat(t,'"\n                        >\n\n                        <label\n                            class="\n                                form-check-label\n                                w-100\n                            "\n                            for="patient_').concat(t,'"\n                        >\n\n                            <strong>\n                                ').concat(u(n.name||"-"),"\n                            </strong>\n\n                            <br>\n\n                            <small>\n                                Patient ID:\n                                ").concat(u(n.patient_id||"-"),"\n                            </small>\n\n                            <br>\n\n                            <small>\n                                NIK:\n                                ").concat(u(a),"\n                            </small>\n\n                            <br>\n\n                            <small>\n                                NIK Ibu:\n                                ").concat(u(i),"\n                            </small>\n\n                            <br>\n\n                            <small>\n                                Tanggal Lahir:\n                                ").concat(u(e),"\n                            </small>\n\n                        </label>\n\n                    </div>\n                ")}),r+="\n            </div>\n        ",n.n=1,Swal.fire({title:"Pilih Pasien",html:r,width:600,showCancelButton:!0,confirmButtonText:"Pilih Pasien",cancelButtonText:"Batal",confirmButtonColor:"#198754",preConfirm:function(){var n=$('input[name="selected_patient"]:checked').val();return void 0===n?(Swal.showValidationMessage("Silakan pilih pasien terlebih dahulu."),!1):e[n]}});case 1:if((a=n.v).isConfirmed){n.n=2;break}return n.a(2,null);case 2:return n.a(2,a.value)}},t)}))).apply(this,arguments)}function l(n){if(!n)return"-";var t=n.split("-");return 3!==t.length?n:"\n            ".concat(t[2],"-\n            ").concat(t[1],"-\n            ").concat(t[0],"\n        ").replace(/\s/g,"")}function u(n){return $("<div>").text(null!=n?n:"").html()}$("#loaderbtn").hide(),$("#searchModal").modal({backdrop:"static",keyboard:!1}).modal("show"),$("#search_type").on("change",function(){"nik_ibu"===$(this).val()?$("#nik").attr("placeholder","Masukkan NIK Ibu"):$("#nik").attr("placeholder","Masukkan NIK"),$("#nik").val("")}),$("#searchForm").validate({errorPlacement:function(n,t){n.addClass("text-danger mt-2"),"nik"===t.attr("id")?n.insertAfter(t.closest(".input-group")):n.insertAfter(t)},rules:{nik:{required:!0},search_type:{required:!0}},messages:{nik:{required:"NIK wajib diisi"},search_type:{required:"Jenis identitas wajib dipilih"}},submitHandler:function(){var e,a;e=$("#search_type").val(),a=$("#nik").val().trim(),$("#btnSearch").hide(),$("#loaderbtn").show(),$.ajax({url:"/datarme/search",type:"POST",data:{nik:a,search_type:e,_token:$('meta[name="csrf-token"]').attr("content")},dataType:"json",success:function(){var a=r(n().m(function r(a){var i,o;return n().w(function(n){for(;;)switch(n.n){case 0:if($("#loaderbtn").hide(),$("#btnSearch").show(),"not_found"!==a.status){n.n=2;break}return n.n=1,Swal.fire({title:"Data Tidak Ditemukan",text:"Data pasien tidak ditemukan.",icon:"info",confirmButtonText:"OK"});case 1:case 6:case 8:return n.a(2);case 2:if("success"!==a.status){n.n=8;break}if(i=Array.isArray(a.data)?a.data:[],o=null,1!==i.length){n.n=3;break}o=i[0],n.n=5;break;case 3:if(!(i.length>1)){n.n=5;break}return n.n=4,c(i);case 4:if(o=n.v){n.n=5;break}return n.a(2);case 5:if(o){n.n=7;break}return n.n=6,Swal.fire({title:"Data Tidak Ditemukan",text:"Tidak ada pasien yang dapat dipilih.",icon:"warning"});case 7:return o.search_type=a.search_type||e,n.n=8,t(o)}},r)}));function i(n){return a.apply(this,arguments)}return i}(),error:function(n,t,e){console.error("AJAX Error:",e),$("#loaderbtn").hide(),$("#btnSearch").show();var r="Terjadi kesalahan saat mencari data pasien.";n.responseJSON&&n.responseJSON.message&&(r=n.responseJSON.message),Swal.fire({title:"Error",text:r,icon:"error"})}})}}),$("#btnSearch").on("click",function(){$("#searchForm").submit()}),$("#btnOTP").on("click",function(){var n=$("#identifier").val(),t=$("#otp").val(),e=$("#otppatientid").val(),r=$("#otpnik").val(),a=$("#otpnikiibu").val();t?$.ajax({url:"/verify-otp",type:"POST",dataType:"json",data:{identifier:n,otp:t,_token:$('meta[name="csrf-token"]').attr("content")},success:function(n){!0===n.success?Swal.fire({title:n.message,icon:"success",confirmButtonText:"OK"}).then(function(n){if(n.isConfirmed){var t=new URLSearchParams;e&&t.set("patient_id",e),r&&t.set("nik",r),a&&t.set("nik_ibu",a),window.location.href="/datarme/search?"+t.toString()}}):Swal.fire({title:n.message,icon:"error",confirmButtonText:"OK"})},error:function(n){console.error("OTP Error:",n),Swal.fire({title:"Error",text:"Terjadi kesalahan saat verifikasi OTP.",icon:"error"})}}):Swal.fire({title:"OTP",text:"OTP wajib diisi.",icon:"warning"})}),$("#btnUpload").on("click",function(){var n=$("#patient_id").val(),t=$("#updnik").val(),e=$("#nikibu").val(),r=$("#search_type").val();if(console.log("=== UPLOAD ==="),console.log("patient_id:",n),console.log("nik:",t),console.log("nik_ibu:",e),console.log("search_type:",r),n)if(t||e){var a=new URLSearchParams;a.set("patient_id",n),t&&a.set("nik",t),e&&a.set("nik_ibu",e),r&&a.set("search_type",r),window.location.href="/datarme/search?"+a.toString()}else Swal.fire({title:"Error",text:"NIK pasien atau NIK-IBU tidak tersedia.",icon:"error"});else Swal.fire({title:"Error",text:"Pasien belum dipilih.",icon:"error"})}),$("#searchModal").on("shown.bs.modal",function(){$("#nik").trigger("focus")})})})();
+/******/ (() => { // webpackBootstrap
+/*!****************************************!*\
+  !*** ./resources/js/datarme/search.js ***!
+  \****************************************/
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+$(document).ready(function () {
+  // =========================================================
+  // INITIALIZATION
+  // =========================================================
+
+  $('#loaderbtn').hide();
+  $('#searchModal').modal({
+    backdrop: 'static',
+    keyboard: false
+  }).modal('show');
+
+  // =========================================================
+  // CHANGE PLACEHOLDER BASED ON SEARCH TYPE
+  // =========================================================
+
+  $('#search_type').on('change', function () {
+    var type = $(this).val();
+    if (type === 'nik_ibu') {
+      $('#nik').attr('placeholder', 'Masukkan NIK Ibu');
+    } else {
+      $('#nik').attr('placeholder', 'Masukkan NIK');
+    }
+    $('#nik').val('');
+  });
+
+  // =========================================================
+  // VALIDATION
+  // =========================================================
+
+  $('#searchForm').validate({
+    errorPlacement: function errorPlacement(error, element) {
+      error.addClass('text-danger mt-2');
+      if (element.attr('id') === 'nik') {
+        error.insertAfter(element.closest('.input-group'));
+      } else {
+        error.insertAfter(element);
+      }
+    },
+    rules: {
+      nik: {
+        required: true
+      },
+      search_type: {
+        required: true
+      }
+    },
+    messages: {
+      nik: {
+        required: 'NIK wajib diisi'
+      },
+      search_type: {
+        required: 'Jenis identitas wajib dipilih'
+      }
+    },
+    submitHandler: function submitHandler() {
+      searchPatient();
+    }
+  });
+
+  // =========================================================
+  // SEARCH BUTTON
+  // =========================================================
+
+  $('#btnSearch').on('click', function () {
+    $('#searchForm').submit();
+  });
+
+  // =========================================================
+  // SEARCH PATIENT
+  // =========================================================
+
+  function searchPatient() {
+    var searchType = $('#search_type').val();
+    var nik = $('#nik').val().trim();
+    $('#btnSearch').hide();
+    $('#loaderbtn').show();
+    $.ajax({
+      url: '/datarme/search',
+      type: 'POST',
+      data: {
+        nik: nik,
+        search_type: searchType,
+        _token: $('meta[name="csrf-token"]').attr('content')
+      },
+      dataType: 'json',
+      // =================================================
+      // SUCCESS
+      // =================================================
+
+      success: function () {
+        var _success = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(response) {
+          var patients, selectedPatient;
+          return _regenerator().w(function (_context) {
+            while (1) switch (_context.n) {
+              case 0:
+                $('#loaderbtn').hide();
+                $('#btnSearch').show();
+
+                // =============================================
+                // NOT FOUND
+                // =============================================
+                if (!(response.status === 'not_found')) {
+                  _context.n = 2;
+                  break;
+                }
+                _context.n = 1;
+                return Swal.fire({
+                  title: 'Data Tidak Ditemukan',
+                  text: 'Data pasien tidak ditemukan.',
+                  icon: 'info',
+                  confirmButtonText: 'OK'
+                });
+              case 1:
+                return _context.a(2);
+              case 2:
+                if (!(response.status === 'success')) {
+                  _context.n = 8;
+                  break;
+                }
+                patients = Array.isArray(response.data) ? response.data : [];
+                selectedPatient = null; // =========================================
+                // ONE PATIENT
+                // =========================================
+                if (!(patients.length === 1)) {
+                  _context.n = 3;
+                  break;
+                }
+                selectedPatient = patients[0];
+                _context.n = 5;
+                break;
+              case 3:
+                if (!(patients.length > 1)) {
+                  _context.n = 5;
+                  break;
+                }
+                _context.n = 4;
+                return selectPatient(patients);
+              case 4:
+                selectedPatient = _context.v;
+                if (selectedPatient) {
+                  _context.n = 5;
+                  break;
+                }
+                return _context.a(2);
+              case 5:
+                if (selectedPatient) {
+                  _context.n = 7;
+                  break;
+                }
+                _context.n = 6;
+                return Swal.fire({
+                  title: 'Data Tidak Ditemukan',
+                  text: 'Tidak ada pasien yang dapat dipilih.',
+                  icon: 'warning'
+                });
+              case 6:
+                return _context.a(2);
+              case 7:
+                // =========================================
+                // SIMPAN SEARCH TYPE
+                // =========================================
+
+                /*
+                 * Pastikan pasien yang dipilih mengetahui
+                 * jenis pencarian yang digunakan.
+                 */
+
+                selectedPatient.search_type = response.search_type || searchType;
+
+                // =========================================
+                // CONTINUE ACCESS FLOW
+                // =========================================
+                _context.n = 8;
+                return accessPatient(selectedPatient);
+              case 8:
+                return _context.a(2);
+            }
+          }, _callee);
+        }));
+        function success(_x) {
+          return _success.apply(this, arguments);
+        }
+        return success;
+      }(),
+      // =================================================
+      // AJAX ERROR
+      // =================================================
+
+      error: function error(xhr, status, _error) {
+        console.error('AJAX Error:', _error);
+        $('#loaderbtn').hide();
+        $('#btnSearch').show();
+        var message = 'Terjadi kesalahan saat mencari data pasien.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          message = xhr.responseJSON.message;
+        }
+        Swal.fire({
+          title: 'Error',
+          text: message,
+          icon: 'error'
+        });
+      }
+    });
+  }
+
+  // =========================================================
+  // PATIENT ACCESS FLOW
+  // =========================================================
+  function accessPatient(_x2) {
+    return _accessPatient.apply(this, arguments);
+  } // =========================================================
+  // OTP PROCESS
+  // =========================================================
+  function _accessPatient() {
+    _accessPatient = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(data) {
+      var result;
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.n) {
+          case 0:
+            _context2.n = 1;
+            return Swal.fire({
+              title: 'Data Tersedia',
+              html: "\n                    <div class=\"text-center\">\n\n                        <strong>\n                            ".concat(escapeHtml(data.name || '-'), "\n                        </strong>\n\n                        <br>\n\n                        <small>\n                            Patient ID:\n                            ").concat(escapeHtml(data.patient_id || '-'), "\n                        </small>\n\n                        <br>\n\n                        <small>\n                            NIK:\n                            ").concat(escapeHtml(data.nik || '-'), "\n                        </small>\n\n                        <br>\n\n                        <small>\n                            NIK Ibu:\n                            ").concat(escapeHtml(data.nik_ibu || '-'), "\n                        </small>\n\n                    </div>\n\n                    <hr>\n\n                    <div>\n                        Pilih metode akses data pasien\n                    </div>\n                "),
+              icon: 'info',
+              showDenyButton: true,
+              confirmButtonText: 'ENTER OTP',
+              denyButtonText: 'INFORM CONSENT',
+              confirmButtonColor: '#198754',
+              denyButtonColor: '#0d6efd'
+            });
+          case 1:
+            result = _context2.v;
+            if (!result.isConfirmed) {
+              _context2.n = 3;
+              break;
+            }
+            _context2.n = 2;
+            return processOtp(data);
+          case 2:
+            return _context2.a(2);
+          case 3:
+            // =====================================================
+            // INFORM CONSENT
+            // =====================================================
+
+            if (result.isDenied) {
+              console.log('PATIENT YANG DIPILIH:', data);
+              $('#patient_id').val(data.patient_id || '');
+              $('#updnik').val(data.nik || '');
+              $('#nikibu').val(data.nik_ibu || '');
+              $('#search_type').val(data.search_type || '');
+              console.log('patient_id:', $('#patient_id').val());
+              console.log('nik:', $('#updnik').val());
+              console.log('nik_ibu:', $('#nikibu').val());
+              console.log('search_type:', $('#search_type').val());
+              $('#uploadModal').modal('show');
+            }
+          case 4:
+            return _context2.a(2);
+        }
+      }, _callee2);
+    }));
+    return _accessPatient.apply(this, arguments);
+  }
+  function processOtp(_x3) {
+    return _processOtp.apply(this, arguments);
+  } // =========================================================
+  // VERIFY OTP
+  // =========================================================
+  function _processOtp() {
+    _processOtp = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(data) {
+      var result, _t;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
+          case 0:
+            if (data.phone) {
+              _context3.n = 2;
+              break;
+            }
+            _context3.n = 1;
+            return Swal.fire({
+              title: 'Nomor HP Tidak Tersedia',
+              text: 'Nomor HP pasien tidak tersedia.',
+              icon: 'warning'
+            });
+          case 1:
+            return _context3.a(2);
+          case 2:
+            _context3.p = 2;
+            _context3.n = 3;
+            return $.post('/send-otp', {
+              identifier: data.phone,
+              nama: data.name,
+              _token: $('meta[name="csrf-token"]').attr('content')
+            });
+          case 3:
+            _context3.n = 6;
+            break;
+          case 4:
+            _context3.p = 4;
+            _t = _context3.v;
+            console.error('Send OTP Error:', _t);
+            _context3.n = 5;
+            return Swal.fire({
+              title: 'Gagal',
+              text: 'OTP gagal dikirim.',
+              icon: 'error'
+            });
+          case 5:
+            return _context3.a(2);
+          case 6:
+            _context3.n = 7;
+            return Swal.fire({
+              title: 'Input OTP',
+              input: 'text',
+              inputLabel: 'Kode OTP',
+              inputPlaceholder: 'Masukkan OTP',
+              showCancelButton: true,
+              confirmButtonText: 'Verifikasi',
+              cancelButtonText: 'Batal',
+              inputAttributes: {
+                maxlength: 6,
+                autocomplete: 'one-time-code',
+                inputmode: 'numeric'
+              },
+              inputValidator: function inputValidator(value) {
+                if (!value) {
+                  return 'OTP wajib diisi';
+                }
+                if (!/^\d{6}$/.test(value)) {
+                  return;
+                  // removed by dead control flow
+
+                }
+              }
+            });
+          case 7:
+            result = _context3.v;
+            if (!(!result.isConfirmed || !result.value)) {
+              _context3.n = 8;
+              break;
+            }
+            return _context3.a(2);
+          case 8:
+            _context3.n = 9;
+            return verifyOtp(data, result.value);
+          case 9:
+            return _context3.a(2);
+        }
+      }, _callee3, null, [[2, 4]]);
+    }));
+    return _processOtp.apply(this, arguments);
+  }
+  function verifyOtp(data, otp) {
+    $.ajax({
+      url: '/verify-otp',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        identifier: data.phone,
+        otp: otp,
+        _token: $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function success(response) {
+        if (response.success === true) {
+          Swal.fire({
+            title: 'Berhasil',
+            text: response.message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(function (result) {
+            if (result.isConfirmed) {
+              redirectToPatient(data);
+            }
+          });
+        } else {
+          Swal.fire({
+            title: 'Gagal',
+            text: response.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      },
+      error: function error(xhr) {
+        console.error('Verify OTP Error:', xhr);
+        var message = 'Verifikasi OTP gagal.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          message = xhr.responseJSON.message;
+        }
+        Swal.fire({
+          title: 'Error',
+          text: message,
+          icon: 'error'
+        });
+      }
+    });
+  }
+
+  // =========================================================
+  // OLD OTP MODAL BUTTON
+  // =========================================================
+
+  $('#btnOTP').on('click', function () {
+    var identifier = $('#identifier').val();
+    var otp = $('#otp').val();
+    var patientId = $('#otppatientid').val();
+    var nik = $('#otpnik').val();
+    var nikIbu = $('#otpnikiibu').val();
+    if (!otp) {
+      Swal.fire({
+        title: 'OTP',
+        text: 'OTP wajib diisi.',
+        icon: 'warning'
+      });
+      return;
+    }
+    $.ajax({
+      url: '/verify-otp',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        identifier: identifier,
+        otp: otp,
+        _token: $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function success(response) {
+        if (response.success === true) {
+          Swal.fire({
+            title: response.message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(function (result) {
+            if (result.isConfirmed) {
+              var params = new URLSearchParams();
+              if (patientId) {
+                params.set('patient_id', patientId);
+              }
+              if (nik) {
+                params.set('nik', nik);
+              }
+              if (nikIbu) {
+                params.set('nik_ibu', nikIbu);
+              }
+              window.location.href = '/datarme/search?' + params.toString();
+            }
+          });
+        } else {
+          Swal.fire({
+            title: response.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      },
+      error: function error(xhr) {
+        console.error('OTP Error:', xhr);
+        Swal.fire({
+          title: 'Error',
+          text: 'Terjadi kesalahan saat verifikasi OTP.',
+          icon: 'error'
+        });
+      }
+    });
+  });
+
+  // =========================================================
+  // UPLOAD INFORM CONSENT
+  // =========================================================
+
+  $('#btnUpload').on('click', function () {
+    var patientId = $('#patient_id').val();
+    var nik = $('#updnik').val();
+    var nikIbu = $('#nikibu').val();
+    var searchType = $('#search_type').val();
+    console.log('=== UPLOAD ===');
+    console.log('patient_id:', patientId);
+    console.log('nik:', nik);
+    console.log('nik_ibu:', nikIbu);
+    console.log('search_type:', searchType);
+    if (!patientId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Pasien belum dipilih.',
+        icon: 'error'
+      });
+      return;
+    }
+    if (!nik && !nikIbu) {
+      Swal.fire({
+        title: 'Error',
+        text: 'NIK pasien atau NIK-IBU tidak tersedia.',
+        icon: 'error'
+      });
+      return;
+    }
+    var params = new URLSearchParams();
+    params.set('patient_id', patientId);
+    if (nik) {
+      params.set('nik', nik);
+    }
+    if (nikIbu) {
+      params.set('nik_ibu', nikIbu);
+    }
+    if (searchType) {
+      params.set('search_type', searchType);
+    }
+    window.location.href = '/datarme/search?' + params.toString();
+  });
+
+  // =========================================================
+  // SELECT PATIENT WHEN MULTIPLE RESULTS
+  // =========================================================
+  function selectPatient(_x4) {
+    return _selectPatient.apply(this, arguments);
+  } // =========================================================
+  // REDIRECT TO PATIENT
+  // =========================================================
+  function _selectPatient() {
+    _selectPatient = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(patients) {
+      var html, result;
+      return _regenerator().w(function (_context4) {
+        while (1) switch (_context4.n) {
+          case 0:
+            html = "\n            <div class=\"text-start\">\n\n                <div class=\"mb-3\">\n\n                    <strong>\n                        Ditemukan\n                        ".concat(patients.length, "\n                        pasien.\n                    </strong>\n\n                </div>\n        ");
+            patients.forEach(function (patient, index) {
+              var birthDate = patient.birth_date ? formatDate(patient.birth_date) : '-';
+              var nik = patient.nik || '-';
+              var nikIbu = patient.nik_ibu || '-';
+              html += "\n                    <div\n                        class=\"form-check border rounded p-3 mb-2\"\n                    >\n\n                        <input\n                            class=\"\n                                form-check-input\n                                patient-option\n                            \"\n                            type=\"radio\"\n                            name=\"selected_patient\"\n                            id=\"patient_".concat(index, "\"\n                            value=\"").concat(index, "\"\n                        >\n\n                        <label\n                            class=\"\n                                form-check-label\n                                w-100\n                            \"\n                            for=\"patient_").concat(index, "\"\n                        >\n\n                            <strong>\n                                ").concat(escapeHtml(patient.name || '-'), "\n                            </strong>\n\n                            <br>\n\n                            <small>\n                                Patient ID:\n                                ").concat(escapeHtml(patient.patient_id || '-'), "\n                            </small>\n\n                            <br>\n\n                            <small>\n                                NIK:\n                                ").concat(escapeHtml(nik), "\n                            </small>\n\n                            <br>\n\n                            <small>\n                                NIK Ibu:\n                                ").concat(escapeHtml(nikIbu), "\n                            </small>\n\n                            <br>\n\n                            <small>\n                                Tanggal Lahir:\n                                ").concat(escapeHtml(birthDate), "\n                            </small>\n\n                        </label>\n\n                    </div>\n                ");
+            });
+            html += "\n            </div>\n        ";
+            _context4.n = 1;
+            return Swal.fire({
+              title: 'Pilih Pasien',
+              html: html,
+              width: 600,
+              showCancelButton: true,
+              confirmButtonText: 'Pilih Pasien',
+              cancelButtonText: 'Batal',
+              confirmButtonColor: '#198754',
+              preConfirm: function preConfirm() {
+                var selected = $('input[name="selected_patient"]:checked').val();
+                if (selected === undefined) {
+                  Swal.showValidationMessage('Silakan pilih pasien terlebih dahulu.');
+                  return false;
+                }
+                return patients[selected];
+              }
+            });
+          case 1:
+            result = _context4.v;
+            if (result.isConfirmed) {
+              _context4.n = 2;
+              break;
+            }
+            return _context4.a(2, null);
+          case 2:
+            return _context4.a(2, result.value);
+        }
+      }, _callee4);
+    }));
+    return _selectPatient.apply(this, arguments);
+  }
+  function redirectToPatient(data) {
+    var params = new URLSearchParams();
+
+    /*
+     * patient_id adalah identifier utama.
+     */
+
+    if (data.patient_id) {
+      params.set('patient_id', data.patient_id);
+    }
+    if (data.nik) {
+      params.set('nik', data.nik);
+    }
+    if (data.nik_ibu) {
+      params.set('nik_ibu', data.nik_ibu);
+    }
+    if (data.search_type) {
+      params.set('search_type', data.search_type);
+    }
+    window.location.href = '/datarme/search?' + params.toString();
+  }
+
+  // =========================================================
+  // RESET SEARCH MODAL
+  // =========================================================
+
+  $('#searchModal').on('shown.bs.modal', function () {
+    $('#nik').trigger('focus');
+  });
+
+  // =========================================================
+  // FORMAT DATE
+  // =========================================================
+
+  function formatDate(date) {
+    if (!date) {
+      return '-';
+    }
+    var parts = date.split('-');
+    if (parts.length !== 3) {
+      return date;
+    }
+    return "\n            ".concat(parts[2], "-\n            ").concat(parts[1], "-\n            ").concat(parts[0], "\n        ").replace(/\s/g, '');
+  }
+
+  // =========================================================
+  // ESCAPE HTML
+  // =========================================================
+
+  function escapeHtml(value) {
+    return $('<div>').text(value !== null && value !== void 0 ? value : '').html();
+  }
+});
+/******/ })()
+;

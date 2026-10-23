@@ -338,7 +338,8 @@ class LplpoVerificationController extends Controller
 
             $report->update([
 
-                'report_status'=>'rejected'
+                'report_status'=>'rejected',
+                 'lplpo_status'=>'draft'
 
             ]);
 

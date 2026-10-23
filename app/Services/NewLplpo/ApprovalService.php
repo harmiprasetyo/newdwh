@@ -291,5 +291,62 @@ class ApprovalService
             ]);
         });
     }
+
+
+
+/**
+ * Membatalkan pengajuan approval yang masih pending.
+ */
+public function cancel(Report $report): Report
+{
+    return DB::transaction(function () use ($report) {
+
+        // Lock laporan agar tidak berubah saat pembatalan.
+        $report = Report::query()
+            ->lockForUpdate()
+            ->findOrFail($report->id);
+
+        if (
+            $report->report_status !== 'DRAFT' ||
+            $report->lplpo_status !== 'waiting'
+        ) {
+            throw ValidationException::withMessages([
+                'approval' =>
+                    'Approval tidak dapat dibatalkan karena laporan tidak sedang menunggu persetujuan.'
+            ]);
+        }
+
+        // Cari approval aktif berdasarkan reportId.
+        $approval = InfoLinkApproval::query()
+            ->where('reportId', $report->id)
+            ->lockForUpdate()
+            ->first();
+
+        if (!$approval || $approval->status !== 'pending') {
+            throw ValidationException::withMessages([
+                'approval' =>
+                    'Permintaan approval aktif tidak ditemukan atau sudah diproses.'
+            ]);
+        }
+
+        // Batalkan approval dan nonaktifkan token lama.
+        $approval->status = 'cancelled';
+        $approval->approvalToken = Str::random(64);
+        $approval->verificationToken = null;
+        $approval->approvedBy = null;
+        $approval->approvedAt = null;
+        $approval->rejectedReason = null;
+        $approval->save();
+
+        // Kembalikan laporan ke Draft.
+        $report->report_status = 'DRAFT';
+        $report->lplpo_status = 'draft';
+        $report->save();
+
+        return $report->fresh();
+    });
+}
+
+
 }
 
