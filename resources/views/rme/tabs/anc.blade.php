@@ -314,6 +314,7 @@
                     <th>HB</th>
                     <th>:</th>
                     <th>
+
                         @if(isset($dt['lab']['lab_hb']))
                         {{ $dt['lab']['lab_hb']['val'] }}
                     @endif
@@ -333,7 +334,8 @@
                     <th>Rhesus</th>
                     <th>:</th>
                     <th>
-  @if(isset($dt['lab_rh']))
+
+  @if(isset($dt['lab']['lab_rh']))
                         {{ $dt['lab']['lab_rh']['val'] }}
                     @endif
 
@@ -411,12 +413,12 @@
                 </tr>
 
 
-                  <tr>
+                  <!--<tr>
                     <th>Malaria</th>
                     <th>:</th>
                     <th>-</th>
                     <th></th>
-                </tr>
+                </tr>-->
 
 
 

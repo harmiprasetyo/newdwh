@@ -666,7 +666,7 @@ if (data_get($obs, 'resource.code.coding.0.code') == '718-7') {
 
 if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
 
-    $dt['lab']['lab_rh']['label'] = 'RH';
+
 
     if (isset($obs['resource']['valueQuantity'])) {
 
@@ -684,6 +684,7 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
         $dt['lab']['lab_rh']['val'] = '-';
 
     }
+    $dt['lab']['lab_rh']['label'] = 'RH';
 }
 
             if($obs['resource']['code']['coding'][0]['code']=='5804-0'){
@@ -715,7 +716,7 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
                 $dt['lab']['lab_hepatitis_b']['label'] = "Hepatitis B";
             }
 
-             if($obs['resource']['code']['coding'][0]['code']=='68961-2'){
+             if($obs['resource']['code']['coding'][0]['code']=='56888-1'){
                 $dt['lab']['lab_hiv']['val']=$obs['resource']['valueCodeableConcept']['coding'][0]['display'];
                 $dt['lab']['lab_hiv']['label'] = "Tes HIV";
             }else{
