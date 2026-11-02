@@ -687,6 +687,56 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
     $dt['lab']['lab_rh']['label'] = 'RH';
 }
 
+
+if (data_get($obs, 'resource.code.coding.0.code') == '883-9') {
+
+
+
+    if (isset($obs['resource']['valueQuantity'])) {
+
+        $dt['lab']['lab_abo']['val'] =
+            $obs['resource']['valueQuantity']['value'] . ' ' .
+            $obs['resource']['valueQuantity']['unit'];
+
+    } elseif (isset($obs['resource']['valueCodeableConcept'])) {
+
+        $dt['lab']['lab_abo']['val'] =
+            data_get($obs, 'resource.valueCodeableConcept.coding.0.display', '-');
+
+    } else {
+
+        $dt['lab']['lab_abo']['val'] = '-';
+
+    }
+    $dt['lab']['lab_abo']['label'] = 'Golongan Darah';
+}
+
+
+
+if (data_get($obs, 'resource.code.coding.0.code') == '5290-2') {
+
+
+
+    if (isset($obs['resource']['valueQuantity'])) {
+
+        $dt['lab']['lab_sifilis']['val'] =
+            $obs['resource']['valueQuantity']['value'] . ' ' .
+            $obs['resource']['valueQuantity']['unit'];
+
+    } elseif (isset($obs['resource']['valueCodeableConcept'])) {
+
+        $dt['lab']['lab_sifilis']['val'] =
+            data_get($obs, 'resource.valueCodeableConcept.coding.0.display', '-');
+
+    } else {
+
+        $dt['lab']['lab_sifilis']['val'] = '-';
+
+    }
+    $dt['lab']['lab_sifilis']['label'] = 'Sifilis';
+}
+
+
             if($obs['resource']['code']['coding'][0]['code']=='5804-0'){
                 $dt['lab']['lab_urin_protein']['val']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
                  $dt['lab']['lab_urin_protein']['label'] = "Urin Protein";
