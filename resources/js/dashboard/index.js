@@ -1,8 +1,8 @@
+
 /**
  * Dashboard JavaScript
  *
  * Data berasal dari:
- *
  * window.dashboardData
  *
  * Tidak menggunakan API.
@@ -12,30 +12,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const data = window.dashboardData || {};
 
-    /*
-    |--------------------------------------------------------------------------
-    | ANC K1
-    |--------------------------------------------------------------------------
-    */
-
+    // Grafik ANC K1
     renderAncK1(data.anc_k1 || []);
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOCATION
-    |--------------------------------------------------------------------------
-    */
-
+    // Grafik lokasi
     renderLocation(data.per_location || []);
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROVIDER
-    |--------------------------------------------------------------------------
-    */
-
+    // Grafik provider
     renderProvider(data.per_provider || []);
 
 });
@@ -43,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /**
  * ================================================================
- * ANC K1
+ * ANC K1 - JUMLAH ABSOLUT PER BULAN
  * ================================================================
  */
 function renderAncK1(items) {
@@ -55,41 +38,28 @@ function renderAncK1(items) {
     }
 
     const months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'Mei',
-        'Jun',
-        'Jul',
-        'Agu',
-        'Sep',
-        'Okt',
-        'Nov',
-        'Des'
+        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Buat 12 bulan
-    |--------------------------------------------------------------------------
-    */
-
+    // Default 12 bulan bernilai 0
     const values = Array(12).fill(0);
 
+    // Mengisi jumlah K1 berdasarkan bulan
     items.forEach(function (item) {
 
-        const month = parseInt(item.bulan);
+        const month = Number(item.bulan);
 
         if (month >= 1 && month <= 12) {
-
-            values[month - 1] =
-                parseFloat(item.percentage || 0);
-
+            values[month - 1] = Number(item.total || 0);
         }
 
     });
 
+    const formatCount = function (value) {
+        return Math.round(Number(value))
+            .toLocaleString('id-ID');
+    };
 
     const options = {
 
@@ -103,7 +73,7 @@ function renderAncK1(items) {
 
         series: [
             {
-                name: 'Cakupan ANC K1',
+                name: 'Jumlah ANC K1',
                 data: values
             }
         ],
@@ -116,51 +86,45 @@ function renderAncK1(items) {
         },
 
         yaxis: {
+            min: 0,
+            forceNiceScale: true,
+            decimalsInFloat: 0,
             title: {
-                text: 'Persentase (%)'
+                text: 'Jumlah Kunjungan K1'
             },
-
             labels: {
-                formatter: function (value) {
-                    return value.toFixed(2) + '%';
-                }
+                formatter: formatCount
             }
         },
 
         dataLabels: {
             enabled: true,
-
-            formatter: function (value) {
-                return value.toFixed(2) + '%';
-            }
+            formatter: formatCount
         },
 
         tooltip: {
-
             y: {
-
                 formatter: function (value) {
-                    return value.toFixed(2) + '%';
+                    return formatCount(value) + ' kunjungan';
                 }
-
             }
-
         },
 
         stroke: {
             curve: 'smooth',
             width: 3
+        },
+
+        markers: {
+            size: 4
         }
 
     };
 
-
-    const chart = new ApexCharts(
-        element,
-        options
-    );
+    const chart = new ApexCharts(element, options);
 
     chart.render();
+
 }
 
 
@@ -187,20 +151,13 @@ function renderLocation(items) {
         return;
     }
 
-
     const categories = items.map(function (item) {
-
         return item.location || '-';
-
     });
-
 
     const values = items.map(function (item) {
-
-        return parseInt(item.total || 0);
-
+        return parseInt(item.total || 0, 10);
     });
-
 
     const options = {
 
@@ -233,17 +190,11 @@ function renderLocation(items) {
         },
 
         plotOptions: {
-
             bar: {
-
                 horizontal: false,
-
                 columnWidth: '50%',
-
                 borderRadius: 4
-
             }
-
         },
 
         dataLabels: {
@@ -251,29 +202,19 @@ function renderLocation(items) {
         },
 
         tooltip: {
-
             y: {
-
                 formatter: function (value) {
-
-                    return Number(value)
-                        .toLocaleString('id-ID');
-
+                    return Number(value).toLocaleString('id-ID');
                 }
-
             }
-
         }
 
     };
 
-
-    const chart = new ApexCharts(
-        element,
-        options
-    );
+    const chart = new ApexCharts(element, options);
 
     chart.render();
+
 }
 
 
@@ -300,29 +241,19 @@ function renderProvider(items) {
         return;
     }
 
-
     const categories = items.map(function (item) {
-
         return item.service_provider || '-';
-
     });
-
 
     const values = items.map(function (item) {
-
-        return parseInt(item.total || 0);
-
+        return parseInt(item.total || 0, 10);
     });
-
 
     const options = {
 
         chart: {
             type: 'bar',
-            height: Math.max(
-                400,
-                items.length * 35
-            ),
+            height: Math.max(400, items.length * 35),
             toolbar: {
                 show: true
             }
@@ -346,17 +277,11 @@ function renderProvider(items) {
         },
 
         plotOptions: {
-
             bar: {
-
                 horizontal: true,
-
                 barHeight: '70%',
-
                 borderRadius: 4
-
             }
-
         },
 
         dataLabels: {
@@ -364,27 +289,17 @@ function renderProvider(items) {
         },
 
         tooltip: {
-
             y: {
-
                 formatter: function (value) {
-
-                    return Number(value)
-                        .toLocaleString('id-ID');
-
+                    return Number(value).toLocaleString('id-ID');
                 }
-
             }
-
         }
 
     };
 
-
-    const chart = new ApexCharts(
-        element,
-        options
-    );
+    const chart = new ApexCharts(element, options);
 
     chart.render();
+
 }

@@ -2,7 +2,8 @@
 
 namespace App\Services\Dashboard;
 
-use App\Models\Dashboard\Encounter;
+#use App\Models\Dashboard\Encounter;
+use App\Models\fhir\FhirEncounter;
 use Illuminate\Support\Facades\DB;
 
 class DashboardService
@@ -16,7 +17,7 @@ class DashboardService
         ?int $tahun = null,
         ?string $faskes = null
     ): array {
-        $query = Encounter::query();
+        $query = FhirEncounter::query();
 
         /*
         |--------------------------------------------------------------------------
@@ -120,54 +121,42 @@ class DashboardService
     }
 
     /**
-     * Grafik ANC K1 per bulan.
-     *
-     * Rumus dipertahankan sama dengan API lama:
-     *
-     * (COUNT(*) / 50) * 100
+     * Jumlah absolut Encounter ANC K1 per bulan dari fhir_encounter.
+     * Menghitung record, bukan pasien unik.
      */
-    protected function getAncK1(
-        ?int $tahun = null,
-        ?string $faskes = null
-    ) {
-        $query = Encounter::query();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Catatan:
-        | ANC K1 pada API lama hanya menggunakan filter tahun
-        | dan faskes, bukan filter bulan.
-        |--------------------------------------------------------------------------
-        */
+/**
+ * Grafik ANC K1 berdasarkan data FHIR Encounter.
+ * Menghasilkan jumlah absolut K1 per bulan.
+ */
+protected function getAncK1(
+    ?int $tahun = null,
+    ?string $faskes = null
+) {
+    $query = DB::table('fhir_encounter')
+        ->where('identifier_system', 'LIKE', '%ANC%')
+        ->where('identifier_value', 'K1')
+        ->whereNotNull('encounter_date');
 
-        if ($tahun) {
-            $query->whereYear('encounter_date', $tahun);
-        }
-
-        if ($faskes) {
-            $query->where(
-                'service_provider',
-                'like',
-                '%' . $faskes . '%'
-            );
-        }
-
-        return $query
-            ->selectRaw("
-                MONTH(encounter_date) as bulan,
-                COUNT(*) as total,
-                ROUND((COUNT(*) / 50) * 100, 2) as percentage
-            ")
-            ->where(function ($q) {
-
-                $q->where('raw_json', 'like', '%ANC%')
-                  ->where('raw_json', 'like', '%K1%');
-
-            })
-            ->groupBy(DB::raw('MONTH(encounter_date)'))
-            ->orderBy(DB::raw('MONTH(encounter_date)'))
-            ->get();
+    if ($tahun !== null) {
+        $query->whereYear('encounter_date', $tahun);
     }
+
+    if (!empty($faskes)) {
+        $query->where(
+            'service_provider',
+            'LIKE',
+            '%' . $faskes . '%'
+        );
+    }
+
+    return $query
+        ->selectRaw('MONTH(encounter_date) AS bulan')
+        ->selectRaw('COUNT(*) AS total')
+        ->groupByRaw('MONTH(encounter_date)')
+        ->orderBy('bulan')
+        ->get();
+}
 
     /**
      * Daftar faskes untuk filter dashboard.

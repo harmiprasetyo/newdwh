@@ -178,7 +178,7 @@
 
         <div class="card-header">
             <strong>
-                📈 Cakupan ANC K1
+                📈 Jumlah Kunjungan ANC K1 (Absolut)
             </strong>
         </div>
 
