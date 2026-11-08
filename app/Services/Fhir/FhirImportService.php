@@ -222,7 +222,7 @@ public function importCondition(): array
 {
     $page = $this->fetchPage(
         'Condition',
-        (int) config('fhir.condition_page_size', 100)
+        (int) config('fhir.condition_page_size', 1000)
     );
 
     $resources = $page['resources'] ?? [];
@@ -328,7 +328,7 @@ public function importProcedure(): array
 {
     $page = $this->fetchPage(
         'Procedure',
-        (int) config('fhir.procedure_page_size', 100)
+        (int) config('fhir.procedure_page_size', 1000)
     );
 
     $resources = $page['resources'] ?? [];
@@ -456,7 +456,7 @@ public function importImmunization(): array
 {
     $page = $this->fetchPage(
         'Immunization',
-        (int) config('fhir.immunization_page_size', 100)
+        (int) config('fhir.immunization_page_size', 1000)
     );
 
     $resources = $page['resources'] ?? [];
@@ -1030,7 +1030,7 @@ public function importImmunization(): array
      */
     public function importPatient(): array
     {
-        $pageSize = max(1, (int) config('fhir.patient_page_size', 100));
+        $pageSize = max(1, (int) config('fhir.patient_page_size', 1000));
         $page = $this->fetchPage('Patient', $pageSize);
         $saved = 0;
 
@@ -1073,7 +1073,7 @@ public function importImmunization(): array
      */
     public function importEncounter(): array
     {
-        $page = $this->fetchPage('Encounter', config('fhir.encounter_page_size', 100));
+        $page = $this->fetchPage('Encounter', config('fhir.encounter_page_size', 1000));
         $saved = 0;
 
         DB::transaction(function () use ($page, &$saved) {
@@ -1179,7 +1179,7 @@ public function importImmunization(): array
      */
     public function importObservation(): array
     {
-        $pageSize = max(1, (int) config('fhir.observation_page_size', 100));
+        $pageSize = max(1, (int) config('fhir.observation_page_size', 1000));
         $page = $this->fetchPage('Observation', $pageSize);
         $saved = 0;
 
@@ -1392,7 +1392,7 @@ public function importImmunization(): array
      * Jalankan satu batch Patient, Encounter, Observation,
      * lalu sinkronkan referensi dari Encounter yang tersimpan.
      */
-   public function run(): array
+/*   public function run(): array
 {
     $patient = $this->importPatient();
     $encounter = $this->importEncounter();
@@ -1410,5 +1410,92 @@ public function importImmunization(): array
         'procedure' => $procedure,
         'immunization' => $immunization,
     ];
+}*/
+
+
+public function run(): array
+{
+    $result = [];
+
+    $imports = [
+        'patient' => fn () => $this->importPatient(),
+        'encounter' => fn () => $this->importEncounter(),
+        'observation' => fn () => $this->importObservation(),
+        'condition' => fn () => $this->importCondition(),
+        'procedure' => fn () => $this->importProcedure(),
+        'immunization' => fn () => $this->importImmunization(),
+    ];
+
+    foreach ($imports as $name => $callback) {
+        try {
+            Log::info("FHIR {$name}: mulai");
+
+            $start = microtime(true);
+            $data = $callback();
+
+            $result[$name] = array_merge(
+                ['success' => true],
+                $data
+            );
+
+            Log::info("FHIR {$name}: selesai", [
+                'result' => $data,
+                'duration_seconds' => round(
+                    microtime(true) - $start,
+                    2
+                ),
+            ]);
+        } catch (Throwable $e) {
+            Log::error("FHIR {$name}: gagal", [
+                'message' => $e->getMessage(),
+            ]);
+
+            $result[$name] = [
+                'success' => false,
+                'saved' => 0,
+                'processed' => 0,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    // Sinkronisasi Organization, Practitioner, Location
+    try {
+        Log::info('FHIR Encounter References: mulai');
+
+        $result['references'] =
+            $this->importEncounterReferences();
+
+        Log::info(
+            'FHIR Encounter References: selesai',
+            $result['references']
+        );
+    } catch (Throwable $e) {
+        Log::error('FHIR Encounter References: gagal', [
+            'message' => $e->getMessage(),
+        ]);
+
+        $result['references'] = [
+            'success' => false,
+            'error' => $e->getMessage(),
+        ];
+    }
+
+    // Perbaiki relasi Observation yang belum terhubung
+    try {
+        $result['observation_references_updated'] =
+            $this->backfillObservationReferences();
+    } catch (Throwable $e) {
+        Log::error('FHIR Observation Backfill gagal', [
+            'message' => $e->getMessage(),
+        ]);
+
+        $result['observation_references_updated'] = 0;
+        $result['backfill_error'] = $e->getMessage();
+    }
+
+    return $result;
 }
+
+
 }

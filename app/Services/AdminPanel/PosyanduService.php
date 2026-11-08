@@ -265,7 +265,7 @@ class PosyanduService
                 'kodeFaskes',
                 'namaFaskes',
                 'kodePropinsi',
-                'kodeKota',
+                'kodeKabupaten',
                 'kodeKecamatan',
             ]);
     }
