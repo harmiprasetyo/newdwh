@@ -27,6 +27,11 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('fhir:import')->everyMinute()
         ->withoutOverlapping()->appendOutputTo(storage_path('logs/fhir-import.log'));
+
+        $schedule->command('fhir:import-updated')
+    ->everyMinute()
+    ->withoutOverlapping(10);
+
     }
 
 

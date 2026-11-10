@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services\Fhir;
 
 use App\Models\Fhir\FhirEncounter;
@@ -220,7 +219,7 @@ private function resourceModel(string $resourceType): string
 
 public function importCondition(): array
 {
-    $page = $this->fetchPage(
+    $page ??= $this->fetchPage(
         'Condition',
         (int) config('fhir.condition_page_size', 100)
     );
@@ -312,7 +311,9 @@ public function importCondition(): array
             $processed++;
         }
 
-        $this->saveCursor('Condition', $page['next_url'] ?? null);
+        if (!($page['incremental'] ?? false)) {
+                $this->saveCursor('Condition', $page['next_url'] ?? null);
+            }
     });
 
     return [
@@ -326,7 +327,7 @@ public function importCondition(): array
 
 public function importProcedure(): array
 {
-    $page = $this->fetchPage(
+    $page ??= $this->fetchPage(
         'Procedure',
         (int) config('fhir.procedure_page_size', 100)
     );
@@ -441,7 +442,9 @@ public function importProcedure(): array
             $processed++;
         }
 
-        $this->saveCursor('Procedure', $page['next_url'] ?? null);
+        if (!($page['incremental'] ?? false)) {
+                $this->saveCursor('Procedure', $page['next_url'] ?? null);
+            }
     });
 
     return [
@@ -454,7 +457,7 @@ public function importProcedure(): array
 
 public function importImmunization(): array
 {
-    $page = $this->fetchPage(
+    $page ??= $this->fetchPage(
         'Immunization',
         (int) config('fhir.immunization_page_size', 100)
     );
@@ -574,7 +577,9 @@ public function importImmunization(): array
             $processed++;
         }
 
-        $this->saveCursor('Immunization', $page['next_url'] ?? null);
+        if (!($page['incremental'] ?? false)) {
+                $this->saveCursor('Immunization', $page['next_url'] ?? null);
+            }
     });
 
     return [
@@ -875,6 +880,81 @@ public function importImmunization(): array
      * Sinkronkan Organization, Practitioner, dan Location yang dirujuk
      * oleh Encounter yang sudah tersimpan.
      */
+
+    protected function referenceModel(string $resourceType): string
+    {
+        return match ($resourceType) {
+            'Organization' => FhirOrganization::class,
+            'Practitioner' => FhirPractitioner::class,
+            'Location' => FhirLocation::class,
+            default => throw new RuntimeException("Unsupported reference {$resourceType}"),
+        };
+    }
+
+    protected function saveReferenceResource(string $resourceType, array $resource): void
+    {
+        $fhirId = (string) ($resource['id'] ?? '');
+        if ($fhirId === '' || ($resource['resourceType'] ?? '') !== $resourceType) {
+            throw new RuntimeException("Invalid {$resourceType} resource");
+        }
+        $meta = $resource['meta'] ?? [];
+
+        $data = [
+            'fhir_id' => $fhirId,
+            'active' => array_key_exists('active', $resource) ? $resource['active'] : null,
+            'raw_resource' => $resource,
+            'fhir_last_updated' => !empty($meta['lastUpdated'])
+                ? Carbon::parse($meta['lastUpdated'])
+                : null,
+            'synced_at' => now(),
+        ];
+
+        if ($resourceType === 'Organization') {
+            $data += [
+                'name' => $resource['name'] ?? null,
+                'identifier' => $resource['identifier'] ?? [],
+                'type' => $resource['type'] ?? [],
+                'telecom' => $resource['telecom'] ?? [],
+                'address' => $resource['address'] ?? [],
+            ];
+        } elseif ($resourceType === 'Practitioner') {
+            $data += [
+                'name' => $this->practitionerName($resource),
+                'gender' => $resource['gender'] ?? null,
+                'birth_date' => $resource['birthDate'] ?? null,
+                'identifier' => $resource['identifier'] ?? [],
+                'name_data' => $resource['name'] ?? [],
+                'telecom' => $resource['telecom'] ?? [],
+                'address' => $resource['address'] ?? [],
+                'qualification' => $resource['qualification'] ?? [],
+            ];
+        } else {
+            $data += [
+                'name' => $resource['name'] ?? null,
+                'status' => $resource['status'] ?? null,
+                'mode' => $resource['mode'] ?? null,
+                'type' => $resource['type'] ?? [],
+                'physical_type' => $resource['physicalType'] ?? [],
+                'managing_organization_id' => $this->referenceId(
+                    data_get($resource, 'managingOrganization.reference'),
+                    'Organization'
+                ),
+                'part_of_id' => $this->referenceId(
+                    data_get($resource, 'partOf.reference'),
+                    'Location'
+                ),
+                'identifier' => $resource['identifier'] ?? [],
+                'telecom' => $resource['telecom'] ?? [],
+                'address' => $resource['address'] ?? [],
+                'position' => $resource['position'] ?? [],
+            ];
+        }
+
+        $modelClass = $this->referenceModel($resourceType);
+        $modelClass::updateOrCreate(['fhir_id' => $fhirId], $data);
+
+    }
+
     public function importEncounterReferences(): array
     {
         $references = [
@@ -951,61 +1031,7 @@ public function importImmunization(): array
                         throw new RuntimeException("Resource {$resourceType}/{$fhirId} tidak sesuai.");
                     }
 
-                    $meta = $resource['meta'] ?? [];
-
-                    $data = [
-                        'fhir_id' => $fhirId,
-                        'active' => array_key_exists('active', $resource) ? $resource['active'] : null,
-                        'raw_resource' => $resource,
-                        'fhir_last_updated' => !empty($meta['lastUpdated'])
-                            ? Carbon::parse($meta['lastUpdated'])
-                            : null,
-                        'synced_at' => now(),
-                    ];
-
-                    if ($resourceType === 'Organization') {
-                        $data += [
-                            'name' => $resource['name'] ?? null,
-                            'identifier' => $resource['identifier'] ?? [],
-                            'type' => $resource['type'] ?? [],
-                            'telecom' => $resource['telecom'] ?? [],
-                            'address' => $resource['address'] ?? [],
-                        ];
-                    } elseif ($resourceType === 'Practitioner') {
-                        $data += [
-                            'name' => $this->practitionerName($resource),
-                            'gender' => $resource['gender'] ?? null,
-                            'birth_date' => $resource['birthDate'] ?? null,
-                            'identifier' => $resource['identifier'] ?? [],
-                            'name_data' => $resource['name'] ?? [],
-                            'telecom' => $resource['telecom'] ?? [],
-                            'address' => $resource['address'] ?? [],
-                            'qualification' => $resource['qualification'] ?? [],
-                        ];
-                    } else {
-                        $data += [
-                            'name' => $resource['name'] ?? null,
-                            'status' => $resource['status'] ?? null,
-                            'mode' => $resource['mode'] ?? null,
-                            'type' => $resource['type'] ?? [],
-                            'physical_type' => $resource['physicalType'] ?? [],
-                            'managing_organization_id' => $this->referenceId(
-                                data_get($resource, 'managingOrganization.reference'),
-                                'Organization'
-                            ),
-                            'part_of_id' => $this->referenceId(
-                                data_get($resource, 'partOf.reference'),
-                                'Location'
-                            ),
-                            'identifier' => $resource['identifier'] ?? [],
-                            'telecom' => $resource['telecom'] ?? [],
-                            'address' => $resource['address'] ?? [],
-                            'position' => $resource['position'] ?? [],
-                        ];
-                    }
-
-                    $modelClass = $config['model'];
-                    $modelClass::updateOrCreate(['fhir_id' => $fhirId], $data);
+                    $this->saveReferenceResource($resourceType, $resource);
 
                     $stats[$config['key']]['saved']++;
                 } catch (Throwable $e) {
@@ -1031,7 +1057,7 @@ public function importImmunization(): array
     public function importPatient(): array
     {
         $pageSize = max(1, (int) config('fhir.patient_page_size', 100));
-        $page = $this->fetchPage('Patient', $pageSize);
+        $page ??= $this->fetchPage('Patient', $pageSize);
         $saved = 0;
 
         DB::transaction(function () use ($page, &$saved) {
@@ -1054,7 +1080,9 @@ public function importImmunization(): array
                 $saved++;
             }
 
-            $this->saveCursor('Patient', $page['next_url']);
+            if (!($page['incremental'] ?? false)) {
+                $this->saveCursor('Patient', $page['next_url'] ?? null);
+            }
         });
 
         Log::info('FHIR Patient batch selesai', [
@@ -1073,7 +1101,7 @@ public function importImmunization(): array
      */
     public function importEncounter(): array
     {
-        $page = $this->fetchPage('Encounter', config('fhir.encounter_page_size', 100));
+        $page ??= $this->fetchPage('Encounter', config('fhir.encounter_page_size', 100));
         $saved = 0;
 
         DB::transaction(function () use ($page, &$saved) {
@@ -1158,7 +1186,9 @@ public function importImmunization(): array
                 $saved++;
             }
 
-            $this->saveCursor('Encounter', $page['next_url']);
+            if (!($page['incremental'] ?? false)) {
+                $this->saveCursor('Encounter', $page['next_url'] ?? null);
+            }
         });
 
         Log::info('FHIR Encounter batch selesai', [
@@ -1180,7 +1210,7 @@ public function importImmunization(): array
     public function importObservation(): array
     {
         $pageSize = max(1, (int) config('fhir.observation_page_size', 100));
-        $page = $this->fetchPage('Observation', $pageSize);
+        $page ??= $this->fetchPage('Observation', $pageSize);
         $saved = 0;
 
         DB::transaction(function () use ($page, &$saved) {
@@ -1330,7 +1360,9 @@ public function importImmunization(): array
                 $saved++;
             }
 
-            $this->saveCursor('Observation', $page['next_url']);
+            if (!($page['incremental'] ?? false)) {
+                $this->saveCursor('Observation', $page['next_url'] ?? null);
+            }
         });
 
         Log::info('FHIR Observation batch selesai', [
@@ -1401,6 +1433,8 @@ public function importImmunization(): array
     $condition = $this->importCondition();
     $procedure = $this->importProcedure();
     $immunization = $this->importImmunization();
+    $references = $this->importEncounterReferences();
+    $backfill = $this->backfillObservationReferences();
 
     return [
         'patient' => $patient,
@@ -1409,6 +1443,148 @@ public function importImmunization(): array
         'condition' => $condition,
         'procedure' => $procedure,
         'immunization' => $immunization,
+        'references' => $references,
+        'observation_references_updated' => $backfill,
     ];
 }
+
+    /**
+     * Incremental sync. Independent of historical fhir_sync_states.
+     * The initial checkpoint is today's midnight in Asia/Jakarta.
+     */
+    public function runIncremental(): array
+    {
+        $results = [];
+        $resources = [
+            'Patient', 'Encounter', 'Observation', 'Condition',
+            'Procedure', 'Immunization', 'Organization', 'Practitioner', 'Location',
+        ];
+
+        foreach ($resources as $type) {
+            try {
+                $results[$type] = $this->importIncrementalResource($type);
+            } catch (Throwable $e) {
+                Log::error('FHIR incremental import failed', [
+                    'resource' => $type, 'message' => $e->getMessage(),
+                ]);
+                $results[$type] = [
+                    'success' => false, 'processed' => 0, 'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        // Backfill is important when references arrive after Observations.
+        try {
+            $results['ObservationBackfill'] = [
+                'success' => true,
+                'processed' => $this->backfillObservationReferences(),
+            ];
+        } catch (Throwable $e) {
+            $results['ObservationBackfill'] = [
+                'success' => false, 'processed' => 0, 'error' => $e->getMessage(),
+            ];
+        }
+
+        return $results;
+    }
+
+    protected function importIncrementalResource(string $type): array
+    {
+        $state = DB::table('fhir_incremental_states')
+            ->where('resource_type', $type)->first();
+
+        $now = Carbon::now('UTC')->subSeconds(30);
+        $initial = Carbon::now('Asia/Jakarta')->startOfDay()->utc();
+        $last = $state?->last_success_at
+            ? Carbon::parse($state->last_success_at, 'UTC')
+            : $initial;
+        $from = $last->copy()->subMinutes(2);
+        $until = $state?->window_until
+            ? Carbon::parse($state->window_until, 'UTC')
+            : $now;
+        $url = trim((string) ($state?->next_url ?? ''));
+
+        if ($url === '' && $until->lessThanOrEqualTo($last)) {
+            return ['success' => true, 'processed' => 0];
+        }
+
+        $size = max(1, min(500, (int) config('fhir.incremental_page_size', 100)));
+        if ($url === '') {
+            $url = $this->server . '/' . $type . '?' . http_build_query([
+                '_count' => $size,
+                '_sort' => '_lastUpdated',
+            ], '', '&', PHP_QUERY_RFC3986)
+                . '&_lastUpdated=' . rawurlencode('ge' . $from->format('Y-m-d\TH:i:s\Z'))
+                . '&_lastUpdated=' . rawurlencode('lt' . $until->format('Y-m-d\TH:i:s\Z'));
+        }
+
+        $processed = 0;
+        $pages = 0;
+        $seen = [];
+
+        do {
+            if (isset($seen[$url])) {
+                throw new RuntimeException("FHIR {$type} pagination loop detected");
+            }
+            $seen[$url] = true;
+            $pages++;
+            if ($pages > 10000) {
+                throw new RuntimeException("FHIR {$type} exceeded maximum page count");
+            }
+
+            $bundle = $this->request($url);
+            if (($bundle['resourceType'] ?? '') !== 'Bundle') {
+                throw new RuntimeException("FHIR {$type} response is not Bundle");
+            }
+            $page = ['resources' => [], 'next_url' => null, 'incremental' => true];
+            foreach (($bundle['entry'] ?? []) as $entry) {
+                $r = $entry['resource'] ?? null;
+                if (is_array($r) && ($r['resourceType'] ?? '') === $type && !empty($r['id'])) {
+                    $page['resources'][] = $r;
+                }
+            }
+            foreach (($bundle['link'] ?? []) as $link) {
+                if (($link['relation'] ?? '') === 'next' && !empty($link['url'])) {
+                    $page['next_url'] = $this->normalizeFhirUrl($link['url']);
+                    break;
+                }
+            }
+
+            // Saving a page and its continuation cursor must be atomic.
+            DB::transaction(function () use ($type, $page, $until, $state, &$processed) {
+                $map = [
+                    'Patient' => 'importPatient',
+                    'Encounter' => 'importEncounter',
+                    'Observation' => 'importObservation',
+                    'Condition' => 'importCondition',
+                    'Procedure' => 'importProcedure',
+                    'Immunization' => 'importImmunization',
+                ];
+                if (isset($map[$type])) {
+                    $response = $this->{$map[$type]}($page);
+                    $processed += (int) ($response['saved'] ?? $response['processed'] ?? 0);
+                } else {
+                    foreach ($page['resources'] as $resource) {
+                        $this->saveReferenceResource($type, $resource);
+                        $processed++;
+                    }
+                }
+
+                DB::table('fhir_incremental_states')->updateOrInsert(
+                    ['resource_type' => $type],
+                    [
+                        'next_url' => $page['next_url'],
+                        'window_until' => $page['next_url'] ? $until->format('Y-m-d H:i:s') : null,
+                        'last_success_at' => $page['next_url'] ? ($state?->last_success_at) : $until->format('Y-m-d H:i:s'),
+                        'updated_at' => now(),
+                    ]
+                );
+            });
+
+            $url = $page['next_url'];
+        } while ($url !== null);
+
+        return ['success' => true, 'processed' => $processed];
+    }
+
 }
