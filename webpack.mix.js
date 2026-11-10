@@ -80,6 +80,10 @@ mix.js(
     'public/js/newlplpo'
 )
 .js(
+    'resources/js/newlplpo/stokesensial_monitoring.js',
+    'public/js/newlplpo'
+)
+.js(
     'resources/js/newlplpo/buatlplpo.js',
     'public/js/newlplpo'
 )
@@ -117,6 +121,11 @@ mix.js(
 .css(
     'resources/css/rme/detailpasien.css',
     'public/css/rme'
+)
+
+.js(
+    'resources/js/dashboard/index.js',
+    'public/js/dashboard'
 )
 .postCss(
     'resources/css/app.css',

@@ -14,6 +14,7 @@
     "/js/adminpanel/posyandu/edit.js": "/js/adminpanel/posyandu/edit.js",
     "/js/adminpanel/wilayahkerja/posyandu.js": "/js/adminpanel/wilayahkerja/posyandu.js",
     "/js/newlplpo/stokesensial.js": "/js/newlplpo/stokesensial.js",
+    "/js/newlplpo/stokesensial_monitoring.js": "/js/newlplpo/stokesensial_monitoring.js",
     "/js/newlplpo/buatlplpo.js": "/js/newlplpo/buatlplpo.js",
     "/js/newlplpo/item.js": "/js/newlplpo/item.js",
     "/js/newlplpo/infokapus.js": "/js/newlplpo/infokapus.js",
@@ -22,6 +23,7 @@
     "/js/datarme/search.js": "/js/datarme/search.js",
     "/js/rme/datapasien.js": "/js/rme/datapasien.js",
     "/js/rme/detailpasien.js": "/js/rme/detailpasien.js",
+    "/js/dashboard/index.js": "/js/dashboard/index.js",
     "/css/app.css": "/css/app.css",
     "/css/rme/detailpasien.css": "/css/rme/detailpasien.css",
     "/css/rme/datapasien.css": "/css/rme/datapasien.css"

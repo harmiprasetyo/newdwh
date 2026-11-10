@@ -7,12 +7,12 @@
                     <th>@if(isset($dt['ANC']['anc_trimester'])){{ $dt['ANC']['anc_trimester'] }} @endif</th>
                     <th></th>
                 </tr>
-                <tr>
+               <!-- <tr>
                     <th>Jarak Kehamilan</th>
                     <th>:</th>
                     <th>@if(isset($dt['ANC']['anc_jarak_hamil'])){{ $dt['ANC']['anc_jarak_hamil'] }} @endif</th>
                     <th></th>
-                </tr>
+                </tr> -->
                 <tr>
                     <th>HPL</th>
                     <th>:</th>
@@ -314,6 +314,7 @@
                     <th>HB</th>
                     <th>:</th>
                     <th>
+
                         @if(isset($dt['lab']['lab_hb']))
                         {{ $dt['lab']['lab_hb']['val'] }}
                     @endif
@@ -326,14 +327,17 @@
                 <tr>
                     <th>Gol Darah</th>
                     <th>:</th>
-                    <th>@if(isset($ndt['ANC']['anc_gol_darah'])){{ $ndt['ANC']['anc_gol_darah'] }} @endif</th>
+                    <th>
+
+                        @if(isset($dt['lab']['lab_abo']['val'])){{ $dt['lab']['lab_abo']['val'] }} @endif</th>
                     <th></th>
                 </tr>
                   <tr>
                     <th>Rhesus</th>
                     <th>:</th>
                     <th>
-  @if(isset($dt['lab_rh']))
+
+  @if(isset($dt['lab']['lab_rh']))
                         {{ $dt['lab']['lab_rh']['val'] }}
                     @endif
 
@@ -383,10 +387,14 @@
                     <th></th>
                 </tr>
 
-                  <tr>
+                 <tr>
                     <th>Sifilis</th>
                     <th>:</th>
-                    <th>-</th>
+                    <th>
+                        @if(isset($dt['lab']['lab_sifilis']['val']))
+                            {{ $dt['lab']['lab_sifilis']['val'] }}
+                        @endif
+                    </th>
                     <th></th>
                 </tr>
 
@@ -403,7 +411,7 @@
                 </tr>
 
 
-                  <tr>
+                  <!--<tr>
                     <th>TBC</th>
                     <th>:</th>
                     <th>-</th>
@@ -416,7 +424,7 @@
                     <th>:</th>
                     <th>-</th>
                     <th></th>
-                </tr>
+                </tr>-->
 
 
 

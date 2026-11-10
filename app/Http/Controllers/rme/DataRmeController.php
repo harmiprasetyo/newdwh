@@ -666,7 +666,7 @@ if (data_get($obs, 'resource.code.coding.0.code') == '718-7') {
 
 if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
 
-    $dt['lab']['lab_rh']['label'] = 'RH';
+
 
     if (isset($obs['resource']['valueQuantity'])) {
 
@@ -684,7 +684,58 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
         $dt['lab']['lab_rh']['val'] = '-';
 
     }
+    $dt['lab']['lab_rh']['label'] = 'RH';
 }
+
+
+if (data_get($obs, 'resource.code.coding.0.code') == '883-9') {
+
+
+
+    if (isset($obs['resource']['valueQuantity'])) {
+
+        $dt['lab']['lab_abo']['val'] =
+            $obs['resource']['valueQuantity']['value'] . ' ' .
+            $obs['resource']['valueQuantity']['unit'];
+
+    } elseif (isset($obs['resource']['valueCodeableConcept'])) {
+
+        $dt['lab']['lab_abo']['val'] =
+            data_get($obs, 'resource.valueCodeableConcept.coding.0.display', '-');
+
+    } else {
+
+        $dt['lab']['lab_abo']['val'] = '-';
+
+    }
+    $dt['lab']['lab_abo']['label'] = 'Golongan Darah';
+}
+
+
+
+if (data_get($obs, 'resource.code.coding.0.code') == '5290-2') {
+
+
+
+    if (isset($obs['resource']['valueQuantity'])) {
+
+        $dt['lab']['lab_sifilis']['val'] =
+            $obs['resource']['valueQuantity']['value'] . ' ' .
+            $obs['resource']['valueQuantity']['unit'];
+
+    } elseif (isset($obs['resource']['valueCodeableConcept'])) {
+
+        $dt['lab']['lab_sifilis']['val'] =
+            data_get($obs, 'resource.valueCodeableConcept.coding.0.display', '-');
+
+    } else {
+
+        $dt['lab']['lab_sifilis']['val'] = '-';
+
+    }
+    $dt['lab']['lab_sifilis']['label'] = 'Sifilis';
+}
+
 
             if($obs['resource']['code']['coding'][0]['code']=='5804-0'){
                 $dt['lab']['lab_urin_protein']['val']=$obs['resource']['valueQuantity']['value']." ".$obs['resource']['valueQuantity']['unit'];
@@ -715,7 +766,7 @@ if (data_get($obs, 'resource.code.coding.0.code') == '10331-7') {
                 $dt['lab']['lab_hepatitis_b']['label'] = "Hepatitis B";
             }
 
-             if($obs['resource']['code']['coding'][0]['code']=='68961-2'){
+             if($obs['resource']['code']['coding'][0]['code']=='56888-1'){
                 $dt['lab']['lab_hiv']['val']=$obs['resource']['valueCodeableConcept']['coding'][0]['display'];
                 $dt['lab']['lab_hiv']['label'] = "Tes HIV";
             }else{
