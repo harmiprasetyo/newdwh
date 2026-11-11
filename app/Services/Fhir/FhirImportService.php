@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Fhir;
 
 use App\Models\Fhir\FhirEncounter;
@@ -221,7 +222,7 @@ public function importCondition(): array
 {
     $page ??= $this->fetchPage(
         'Condition',
-        (int) config('fhir.condition_page_size', 1000)
+        (int) config('fhir.condition_page_size', 100)
     );
 
     $resources = $page['resources'] ?? [];
@@ -329,7 +330,7 @@ public function importProcedure(): array
 {
     $page ??= $this->fetchPage(
         'Procedure',
-        (int) config('fhir.procedure_page_size', 1000)
+        (int) config('fhir.procedure_page_size', 100)
     );
 
     $resources = $page['resources'] ?? [];
@@ -459,7 +460,7 @@ public function importImmunization(): array
 {
     $page ??= $this->fetchPage(
         'Immunization',
-        (int) config('fhir.immunization_page_size', 1000)
+        (int) config('fhir.immunization_page_size', 100)
     );
 
     $resources = $page['resources'] ?? [];
@@ -1056,8 +1057,8 @@ public function importImmunization(): array
      */
     public function importPatient(): array
     {
-        $pageSize = max(1, (int) config('fhir.patient_page_size', 1000));
-        $page = $this->fetchPage('Patient', $pageSize);
+        $pageSize = max(1, (int) config('fhir.patient_page_size', 100));
+        $page ??= $this->fetchPage('Patient', $pageSize);
         $saved = 0;
 
         DB::transaction(function () use ($page, &$saved) {
@@ -1101,7 +1102,7 @@ public function importImmunization(): array
      */
     public function importEncounter(): array
     {
-        $page = $this->fetchPage('Encounter', config('fhir.encounter_page_size', 1000));
+        $page ??= $this->fetchPage('Encounter', config('fhir.encounter_page_size', 100));
         $saved = 0;
 
         DB::transaction(function () use ($page, &$saved) {
@@ -1209,8 +1210,8 @@ public function importImmunization(): array
      */
     public function importObservation(): array
     {
-        $pageSize = max(1, (int) config('fhir.observation_page_size', 1000));
-        $page = $this->fetchPage('Observation', $pageSize);
+        $pageSize = max(1, (int) config('fhir.observation_page_size', 100));
+        $page ??= $this->fetchPage('Observation', $pageSize);
         $saved = 0;
 
         DB::transaction(function () use ($page, &$saved) {
@@ -1424,7 +1425,7 @@ public function importImmunization(): array
      * Jalankan satu batch Patient, Encounter, Observation,
      * lalu sinkronkan referensi dari Encounter yang tersimpan.
      */
-/*   public function run(): array
+   public function run(): array
 {
     $patient = $this->importPatient();
     $encounter = $this->importEncounter();
@@ -1446,92 +1447,145 @@ public function importImmunization(): array
         'references' => $references,
         'observation_references_updated' => $backfill,
     ];
-}*/
-
-
-public function run(): array
-{
-    $result = [];
-
-    $imports = [
-        'patient' => fn () => $this->importPatient(),
-        'encounter' => fn () => $this->importEncounter(),
-        'observation' => fn () => $this->importObservation(),
-        'condition' => fn () => $this->importCondition(),
-        'procedure' => fn () => $this->importProcedure(),
-        'immunization' => fn () => $this->importImmunization(),
-    ];
-
-    foreach ($imports as $name => $callback) {
-        try {
-            Log::info("FHIR {$name}: mulai");
-
-            $start = microtime(true);
-            $data = $callback();
-
-            $result[$name] = array_merge(
-                ['success' => true],
-                $data
-            );
-
-            Log::info("FHIR {$name}: selesai", [
-                'result' => $data,
-                'duration_seconds' => round(
-                    microtime(true) - $start,
-                    2
-                ),
-            ]);
-        } catch (Throwable $e) {
-            Log::error("FHIR {$name}: gagal", [
-                'message' => $e->getMessage(),
-            ]);
-
-            $result[$name] = [
-                'success' => false,
-                'saved' => 0,
-                'processed' => 0,
-                'error' => $e->getMessage(),
-            ];
-        }
-    }
-
-    // Sinkronisasi Organization, Practitioner, Location
-    try {
-        Log::info('FHIR Encounter References: mulai');
-
-        $result['references'] =
-            $this->importEncounterReferences();
-
-        Log::info(
-            'FHIR Encounter References: selesai',
-            $result['references']
-        );
-    } catch (Throwable $e) {
-        Log::error('FHIR Encounter References: gagal', [
-            'message' => $e->getMessage(),
-        ]);
-
-        $result['references'] = [
-            'success' => false,
-            'error' => $e->getMessage(),
-        ];
-    }
-
-    // Perbaiki relasi Observation yang belum terhubung
-    try {
-        $result['observation_references_updated'] =
-            $this->backfillObservationReferences();
-    } catch (Throwable $e) {
-        Log::error('FHIR Observation Backfill gagal', [
-            'message' => $e->getMessage(),
-        ]);
-
-        $result['observation_references_updated'] = 0;
-        $result['backfill_error'] = $e->getMessage();
-    }
-
-    return $result;
 }
 
+    /**
+     * Incremental sync. Independent of historical fhir_sync_states.
+     * The initial checkpoint is today's midnight in Asia/Jakarta.
+     */
+    public function runIncremental(): array
+    {
+        $results = [];
+        $resources = [
+            'Patient', 'Encounter', 'Observation', 'Condition',
+            'Procedure', 'Immunization', 'Organization', 'Practitioner', 'Location',
+        ];
+
+        foreach ($resources as $type) {
+            try {
+                $results[$type] = $this->importIncrementalResource($type);
+            } catch (Throwable $e) {
+                Log::error('FHIR incremental import failed', [
+                    'resource' => $type, 'message' => $e->getMessage(),
+                ]);
+                $results[$type] = [
+                    'success' => false, 'processed' => 0, 'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        // Backfill is important when references arrive after Observations.
+        try {
+            $results['ObservationBackfill'] = [
+                'success' => true,
+                'processed' => $this->backfillObservationReferences(),
+            ];
+        } catch (Throwable $e) {
+            $results['ObservationBackfill'] = [
+                'success' => false, 'processed' => 0, 'error' => $e->getMessage(),
+            ];
+        }
+
+        return $results;
+    }
+
+    protected function importIncrementalResource(string $type): array
+    {
+        $state = DB::table('fhir_incremental_states')
+            ->where('resource_type', $type)->first();
+
+        $now = Carbon::now('UTC')->subSeconds(30);
+        $initial = Carbon::now('Asia/Jakarta')->startOfDay()->utc();
+        $last = $state?->last_success_at
+            ? Carbon::parse($state->last_success_at, 'UTC')
+            : $initial;
+        $from = $last->copy()->subMinutes(2);
+        $until = $state?->window_until
+            ? Carbon::parse($state->window_until, 'UTC')
+            : $now;
+        $url = trim((string) ($state?->next_url ?? ''));
+
+        if ($url === '' && $until->lessThanOrEqualTo($last)) {
+            return ['success' => true, 'processed' => 0];
+        }
+
+        $size = max(1, min(500, (int) config('fhir.incremental_page_size', 100)));
+        if ($url === '') {
+            $url = $this->server . '/' . $type . '?' . http_build_query([
+                '_count' => $size,
+                '_sort' => '_lastUpdated',
+            ], '', '&', PHP_QUERY_RFC3986)
+                . '&_lastUpdated=' . rawurlencode('ge' . $from->format('Y-m-d\TH:i:s\Z'))
+                . '&_lastUpdated=' . rawurlencode('lt' . $until->format('Y-m-d\TH:i:s\Z'));
+        }
+
+        $processed = 0;
+        $pages = 0;
+        $seen = [];
+
+        do {
+            if (isset($seen[$url])) {
+                throw new RuntimeException("FHIR {$type} pagination loop detected");
+            }
+            $seen[$url] = true;
+            $pages++;
+            if ($pages > 10000) {
+                throw new RuntimeException("FHIR {$type} exceeded maximum page count");
+            }
+
+            $bundle = $this->request($url);
+            if (($bundle['resourceType'] ?? '') !== 'Bundle') {
+                throw new RuntimeException("FHIR {$type} response is not Bundle");
+            }
+            $page = ['resources' => [], 'next_url' => null, 'incremental' => true];
+            foreach (($bundle['entry'] ?? []) as $entry) {
+                $r = $entry['resource'] ?? null;
+                if (is_array($r) && ($r['resourceType'] ?? '') === $type && !empty($r['id'])) {
+                    $page['resources'][] = $r;
+                }
+            }
+            foreach (($bundle['link'] ?? []) as $link) {
+                if (($link['relation'] ?? '') === 'next' && !empty($link['url'])) {
+                    $page['next_url'] = $this->normalizeFhirUrl($link['url']);
+                    break;
+                }
+            }
+
+            // Saving a page and its continuation cursor must be atomic.
+            DB::transaction(function () use ($type, $page, $until, $state, &$processed) {
+                $map = [
+                    'Patient' => 'importPatient',
+                    'Encounter' => 'importEncounter',
+                    'Observation' => 'importObservation',
+                    'Condition' => 'importCondition',
+                    'Procedure' => 'importProcedure',
+                    'Immunization' => 'importImmunization',
+                ];
+                if (isset($map[$type])) {
+                    $response = $this->{$map[$type]}($page);
+                    $processed += (int) ($response['saved'] ?? $response['processed'] ?? 0);
+                } else {
+                    foreach ($page['resources'] as $resource) {
+                        $this->saveReferenceResource($type, $resource);
+                        $processed++;
+                    }
+                }
+
+                DB::table('fhir_incremental_states')->updateOrInsert(
+                    ['resource_type' => $type],
+                    [
+                        'next_url' => $page['next_url'],
+                        'window_until' => $page['next_url'] ? $until->format('Y-m-d H:i:s') : null,
+                        'last_success_at' => $page['next_url'] ? ($state?->last_success_at) : $until->format('Y-m-d H:i:s'),
+                        'updated_at' => now(),
+                    ]
+                );
+            });
+
+            $url = $page['next_url'];
+        } while ($url !== null);
+
+        return ['success' => true, 'processed' => $processed];
+    }
 
 }
