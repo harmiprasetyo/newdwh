@@ -22,6 +22,8 @@ use App\Http\Controllers\Api\DashboardLplpoController;
 use App\Http\Controllers\Api\EncounterController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\EtpmbUserController;
+use App\Http\Controllers\Api\MasterTpmbController;
+use App\Http\Middleware\ApiKeyTenantMiddleware;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -186,17 +188,75 @@ Route::get('/api/dashboard-lplpo/export', [DashboardLplpoController::class, 'exp
 Route::get('/encounter/realtime', [EncounterController::class, 'realtime']);
 Route::get('/organizations',[OrganizationController::class,'organization']);
 
-Route::middleware('etpmb.api')
-    ->prefix('etpmb/users')
+/*
+|--------------------------------------------------------------------------
+| eTPMB Integration API
+|--------------------------------------------------------------------------
+|
+| Authentication menggunakan middleware etpmb.api.
+| Middleware API Key umum DWH dikecualikan khusus
+| untuk endpoint integrasi eTPMB.
+|
+*/
+
+Route::prefix('etpmb')
+    ->withoutMiddleware([
+        ApiKeyTenantMiddleware::class,
+        ApiKeyMiddleware::class,
+    ])
+    ->middleware('etpmb.api')
     ->group(function () {
 
-        Route::get('/', [EtpmbUserController::class, 'index']);
+        /*
+        |--------------------------------------------------------------------------
+        | eTPMB User Management
+        |--------------------------------------------------------------------------
+        */
 
-        Route::post('/', [EtpmbUserController::class, 'store']);
+        Route::prefix('users')->group(function () {
 
-        Route::get('/{userid}', [EtpmbUserController::class, 'show']);
+            Route::get('/', [
+                EtpmbUserController::class,
+                'index'
+            ]);
 
-        Route::put('/{userid}', [EtpmbUserController::class, 'update']);
+            Route::post('/', [
+                EtpmbUserController::class,
+                'store'
+            ]);
 
-        Route::delete('/{userid}', [EtpmbUserController::class, 'destroy']);
+            Route::get('/{userid}', [
+                EtpmbUserController::class,
+                'show'
+            ]);
+
+            Route::put('/{userid}', [
+                EtpmbUserController::class,
+                'update'
+            ]);
+
+            Route::delete('/{userid}', [
+                EtpmbUserController::class,
+                'destroy'
+            ]);
+
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | eTPMB Master Data
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('master')->group(function () {
+
+            Route::apiResource(
+                'master-tpmb',
+                MasterTpmbController::class
+            )->parameters([
+                'master-tpmb' => 'tpmb'
+            ]);
+
+        });
+
     });
